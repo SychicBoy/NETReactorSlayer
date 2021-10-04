@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{11E508F0-7AA3-46BD-9891-766DEB293830}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NetReactorSlayer.Core</RootNamespace>
+    <AssemblyName>NetReactorSlayer.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony, Version=2.1.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lib.Harmony.2.1.1\lib\net45\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="de4dot.blocks, Version=3.1.41592.3405, Culture=neutral, PublicKeyToken=d3f3ed1e47f67fc6, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Libs\de4dot.blocks.dll</HintPath>
+    </Reference>
+    <Reference Include="dnlib, Version=3.3.2.0, Culture=neutral, PublicKeyToken=50e96378b6e77999, processorArchitecture=MSIL">
+      <HintPath>..\packages\dnlib.3.3.2\lib\net45\dnlib.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=1.3.3.11, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpZipLib.1.3.3\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Protections\Anti.cs" />
+    <Compile Include="Protections\ControlFlow.cs" />
+    <Compile Include="Protections\EmbeddedAsm.cs" />
+    <Compile Include="Protections\HideCall.cs" />
+    <Compile Include="Protections\Native.cs" />
+    <Compile Include="Protections\NecroBit.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Protections\ProxyCall.cs" />
+    <Compile Include="Protections\Remover.cs" />
+    <Compile Include="Protections\Resources.cs" />
+    <Compile Include="Protections\Strings.cs" />
+    <Compile Include="Utils\de4dot\ArrayFinder.cs" />
+    <Compile Include="Utils\de4dot\AssemblyModule.cs" />
+    <Compile Include="Utils\Context.cs" />
+    <Compile Include="Utils\de4dot\DeobUtils.cs" />
+    <Compile Include="Utils\de4dot\DumpedMethodsRestorer.cs" />
+    <Compile Include="Utils\de4dot\LocalTypes.cs" />
+    <Compile Include="Utils\Logger.cs" />
+    <Compile Include="Utils\de4dot\MethodBodyParser.cs" />
+    <Compile Include="Utils\de4dot\MyPEImage.cs" />
+    <Compile Include="Utils\de4dot\QuickLZ.cs" />
+    <Compile Include="Utils\de4dot\TheAssemblyResolver.cs" />
+    <Compile Include="Utils\Variables.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Libs\de4dot.blocks.dll" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
