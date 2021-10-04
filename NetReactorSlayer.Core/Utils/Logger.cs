@@ -75,7 +75,7 @@ namespace NETReactorSlayer.Core.Utils
             Console.ForegroundColor = ConsoleColor.DarkCyan;
             Console.WriteLine("www.CodeStrikers.org");
             Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("  Lates version on Github: ");
+            Console.Write("  Latest version on Github: ");
             Console.ForegroundColor = ConsoleColor.DarkCyan;
             Console.WriteLine("https://github.com/SychicBoy/NetReactorSlayer");
             Console.ForegroundColor = ConsoleColor.White;
