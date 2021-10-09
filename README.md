@@ -1,6 +1,6 @@
 # NetReactorSlayer
 
-A open source (GPLv3) deobfuscator for [Eziriz .NET Reactor](https://www.eziriz.com/reactor_download.htm)
+An open source (GPLv3) deobfuscator for [Eziriz .NET Reactor](https://www.eziriz.com/reactor_download.htm)
 
 # Preview:
 ![Preview](https://user-images.githubusercontent.com/53654076/135913710-5373907f-07ba-4bb6-b7b1-2be699b85186.png)
