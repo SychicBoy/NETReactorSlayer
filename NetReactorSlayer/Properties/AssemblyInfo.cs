@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("CS-RET")]
 [assembly: AssemblyProduct("NetReactorSlayer")]
-[assembly: AssemblyCopyright("Copyright © 2021 CS-RET")]
+[assembly: AssemblyCopyright("Copyright © 2021 CodeStrikers.org")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
