@@ -31,6 +31,11 @@ namespace NETReactorSlayer.Core.Protections
             }
             encryptedResource = FindMethodsDecrypterResource(delegateCreatorMethods.First());
             method = delegateCreatorMethods.First();
+            if (method == null || method.Body.Variables == null || method.Body.Variables.Count < 1)
+            {
+                Logger.Warn("Couldn't find any hidden call.");
+                return;
+            }
             locals = new List<Local>(method.Body.Variables);
             IList<Instruction> origInstrs = method.Body.Instructions;
             if (!Find(method.Body.Instructions, out int startIndex, out int endIndex, out emuLocal))

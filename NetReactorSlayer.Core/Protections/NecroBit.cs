@@ -16,7 +16,7 @@ namespace NETReactorSlayer.Core.Protections
 {
     class NecroBit
     {
-        static readonly List<MethodDef> methodDefs = new List<MethodDef>();
+        static MethodDef decryptorMethod = null;
         static EmbeddedResource encryptedResource = null;
         static byte[] methodsData = null;
         enum CompileMethodType { Unknown, V1, V2 }
@@ -30,7 +30,7 @@ namespace NETReactorSlayer.Core.Protections
             DumpedMethods dumpedMethods = new DumpedMethods();
             Dictionary<uint, byte[]> tokenToNativeMethod = new Dictionary<uint, byte[]>();
             Dictionary<uint, byte[]> tokenToNativeCode = new Dictionary<uint, byte[]>();
-            MethodDef cctor = Context.Module.EntryPoint.DeclaringType.FindMethods(".cctor").FirstOrDefault();
+            var cctor = Context.Module.GlobalType.FindStaticConstructor();
             if (cctor != null && cctor.HasBody && cctor.Body.HasInstructions)
             {
                 for (int i = 0; i < cctor.Body.Instructions.Count; i++)
@@ -38,75 +38,58 @@ namespace NETReactorSlayer.Core.Protections
                     if (cctor.Body.Instructions[i].OpCode.Equals(OpCodes.Call))
                     {
                         if (cctor.Body.Instructions[i].Operand is MethodDef methodDef && methodDef.DeclaringType != null && methodDef.HasBody && methodDef.Body.HasInstructions)
-                            methodDefs.Add(cctor.Body.Instructions[i].Operand as MethodDef);
-                    }
-                }
-            }
-            foreach (var method in (from x in methodDefs where x.HasBody && x.Body.HasInstructions && x.IsStatic && x.IsAssembly select x))
-            {
-                for (int i = 0; i < method.Body.Instructions.Count; i++)
-                {
-                    if (method.Body.Instructions[i].OpCode.Equals(OpCodes.Ldstr) && method.Body.Instructions[i].Operand.ToString().Equals("clrjit.dll"))
-                    {
-                        for (int x = 0; x < method.Body.Instructions.Count; x++)
                         {
-                            if (method.Body.Instructions[x].OpCode.Equals(OpCodes.Ldsfld) && method.Body.Instructions[x + 1].OpCode.Equals(OpCodes.Ldstr))
+                            if (DotNetUtils.GetMethod(methodDef.DeclaringType, "System.Security.Cryptography.SymmetricAlgorithm", "()") != null && GetEncryptedResource(methodDef) != null && GetDecrypterType(methodDef, new string[0]) != DnrDecrypterType.Unknown)
                             {
-                                foreach (var name in Context.Assembly.GetManifestResourceNames())
-                                {
-                                    if (method.Body.Instructions[x + 1].Operand.ToString() != name) continue;
-                                    if ((encryptedResource = (DotNetUtils.GetResource(Context.Module, method.Body.Instructions[x + 1].Operand.ToString()) as EmbeddedResource)) != null)
-                                    {
-                                        Remover.ResourceToRemove.Add(encryptedResource);
-                                        Remover.MethodsToPatch.Add(method);
-                                        methodDefs.Clear();
-                                        Deobfuscate(method);
-                                        methodDefs.Add(method);
-                                        DnrDecrypterType decrypterType = GetDecrypterType(methodDefs[0], new string[0]);
-                                        byte[] key = GetBytes(methodDefs[0], 32);
-                                        if (decrypterType == DnrDecrypterType.V3)
-                                        {
-                                            V3 V3 = new V3(methodDefs[0]);
-                                            methodsData = V3.Decrypt(encryptedResource);
-                                            return;
-                                        }
-                                        byte[] iv = GetBytes(methodDefs[0], 16);
-                                        if (IsNeedReverse(methodDefs[0]))
-                                            Array.Reverse(iv);
-                                        if (UsesPublicKeyToken(methodDefs[0]))
-                                        {
-                                            PublicKeyToken publicKeyToken = Context.Module.Assembly.PublicKeyToken;
-                                            if (publicKeyToken != null && publicKeyToken.Data.Length != 0)
-                                            {
-                                                for (int z = 0; z < 8; z++)
-                                                {
-                                                    iv[z * 2 + 1] = publicKeyToken.Data[z];
-                                                }
-                                            }
-                                        }
-                                        if (decrypterType == DnrDecrypterType.V1)
-                                        {
-                                            V1 V1 = new V1(iv, key);
-                                            methodsData = V1.Decrypt(encryptedResource);
-                                            return;
-                                        }
-                                        else if (decrypterType == DnrDecrypterType.V2)
-                                        {
-                                            V2 V2 = new V2(iv, key, methodDefs[0]);
-                                            methodsData = V2.Decrypt(encryptedResource);
-                                            goto Continue;
-                                        }
-                                        else
-                                        {
-                                            Logger.Warn("Couldn't find assembly resource decrypter method.");
-                                            return;
-                                        }
-                                    }
-                                }
+                                decryptorMethod = methodDef;
+                                break;
                             }
                         }
                     }
                 }
+            }
+            if (decryptorMethod == null)
+            {
+                Logger.Warn("Couldn't find any encrypted method.");
+                return;
+            }
+            encryptedResource = GetEncryptedResource(decryptorMethod);
+            Remover.ResourceToRemove.Add(encryptedResource);
+            Remover.MethodsToPatch.Add(decryptorMethod);
+            Deobfuscate(decryptorMethod);
+            DnrDecrypterType decrypterType = GetDecrypterType(decryptorMethod, new string[0]);
+            byte[] key = GetBytes(decryptorMethod, 32);
+            if (decrypterType == DnrDecrypterType.V3)
+            {
+                V3 V3 = new V3(decryptorMethod);
+                methodsData = V3.Decrypt(encryptedResource);
+                goto Continue;
+            }
+            byte[] iv = GetBytes(decryptorMethod, 16);
+            if (IsNeedReverse(decryptorMethod))
+                Array.Reverse(iv);
+            if (UsesPublicKeyToken(decryptorMethod))
+            {
+                PublicKeyToken publicKeyToken = Context.Module.Assembly.PublicKeyToken;
+                if (publicKeyToken != null && publicKeyToken.Data.Length != 0)
+                {
+                    for (int z = 0; z < 8; z++)
+                    {
+                        iv[z * 2 + 1] = publicKeyToken.Data[z];
+                    }
+                }
+            }
+            if (decrypterType == DnrDecrypterType.V1)
+            {
+                V1 V1 = new V1(iv, key);
+                methodsData = V1.Decrypt(encryptedResource);
+                goto Continue;
+            }
+            else if (decrypterType == DnrDecrypterType.V2)
+            {
+                V2 V2 = new V2(iv, key, decryptorMethod);
+                methodsData = V2.Decrypt(encryptedResource);
+                goto Continue;
             }
             Logger.Warn("Couldn't find any encrypted method.");
             return;
@@ -125,8 +108,8 @@ namespace NETReactorSlayer.Core.Protections
             int mode = -1;
             try
             {
-                XorEncrypt(methodsData, GetXorKey(methodDefs[0]));
-                isFindDnrMethod = FindDnrCompileMethod(methodDefs[0].DeclaringType) != null;
+                XorEncrypt(methodsData, GetXorKey(decryptorMethod));
+                isFindDnrMethod = FindDnrCompileMethod(decryptorMethod.DeclaringType) != null;
                 DataReader methodsDataReader = ByteArrayDataReaderFactory.CreateReader(methodsData);
                 int tmp = methodsDataReader.ReadInt32();
                 if (((long)tmp & unchecked((long)((ulong)-16777216))) == 100663296L)
@@ -159,8 +142,8 @@ namespace NETReactorSlayer.Core.Protections
                     if (!isFindDnrMethod || mode == 1)
                     {
                         PatchDwords(Context.PEImage, ref methodsDataReader, patchCount);
-                        bool isNewer45Decryption = IsNewer45Decryption(methodDefs[0]);
-                        bool isUsingOffset = !IsUsingRva(methodDefs[0]);
+                        bool isNewer45Decryption = IsNewer45Decryption(decryptorMethod);
+                        bool isUsingOffset = !IsUsingRva(decryptorMethod);
                         while ((ulong)methodsDataReader.Position < (ulong)((long)(methodsData.Length - 1)))
                         {
                             uint rva = (uint)methodsDataReader.ReadInt32();
@@ -441,6 +424,16 @@ namespace NETReactorSlayer.Core.Protections
                 Continue:;
             }
             return 0L;
+        }
+
+        static EmbeddedResource GetEncryptedResource(MethodDef method)
+        {
+            if (method == null || !method.HasBody || !method.Body.HasInstructions) return null;
+            foreach (string s in DotNetUtils.GetCodeStrings(method))
+            {
+                if (DotNetUtils.GetResource(Context.Module, s) is EmbeddedResource resource) return resource;
+            }
+            return null;
         }
 
         static void XorEncrypt(byte[] data, long xorKey)
