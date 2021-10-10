@@ -39,6 +39,7 @@ Just drag and drop target obfuscated assembly on it.
 --no-arithmetic   Don't resolve arithmetic equations.
 --no-proxy-call   Don't clean proxied calls.
 --no-dump         Don't dump embedded assemblies.
+--no-remove       Don't remove obfuscator methods.
 ```
 # Note:
 Its free, but there is no support for it, I'll keep updating it for latest .NET Reactor version as I can.
