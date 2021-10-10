@@ -13,13 +13,13 @@ An open source (GPLv3) deobfuscator for [Eziriz .NET Reactor](https://www.eziriz
 - 6.7.0.0
 
 # Features:
-- Deobfuscate Control Flow
+- Clean Control Flow
 - Restore Hidden Calls
 - Remove Proxy Calls
 - Decrypt Strings
 - Remove Anti Tamper
 - Remove Anti Debugger
-- Decrypt Resource
+- Decrypt Resources
 - Dump Embedded Assemblies
 - Decrypt Methods (NecroBit)
 - Unpack Native
