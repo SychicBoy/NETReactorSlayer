@@ -78,10 +78,17 @@ namespace NETReactorSlayer.Core.Protections
                             {
                                 field = method.Body.Instructions[i].Operand as IField;
                                 GetCallInfo(field, out IMethod iMethod, out OpCode opCpde);
-                                method.Body.Instructions[i].OpCode = OpCodes.Nop;
-                                method.Body.Instructions[i + 1] = Instruction.Create(opCpde, Context.Module.Import(iMethod));
-                                method.Body.UpdateInstructionOffsets();
-                                count += 1L;
+                                if (iMethod != null)
+                                {
+                                    iMethod = Context.Module.Import(iMethod);
+                                    if (iMethod != null)
+                                    {
+                                        method.Body.Instructions[i].OpCode = OpCodes.Nop;
+                                        method.Body.Instructions[i + 1] = Instruction.Create(opCpde, iMethod);
+                                        method.Body.UpdateInstructionOffsets();
+                                        count += 1L;
+                                    }
+                                }
                             }
                         }
                         catch

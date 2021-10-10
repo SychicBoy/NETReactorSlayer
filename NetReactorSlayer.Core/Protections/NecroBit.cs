@@ -44,6 +44,26 @@ namespace NETReactorSlayer.Core.Protections
             DumpedMethods dumpedMethods = new DumpedMethods();
             Dictionary<uint, byte[]> tokenToNativeMethod = new Dictionary<uint, byte[]>();
             Dictionary<uint, byte[]> tokenToNativeCode = new Dictionary<uint, byte[]>();
+            foreach (var type in Context.Module.GetTypes())
+            {
+                foreach (var method in type.Methods.ToArray<MethodDef>())
+                {
+                    if(DotNetUtils.IsMethod(method, "System.UInt32", "(System.IntPtr,System.IntPtr,System.IntPtr,System.UInt32,System.IntPtr,System.UInt32&)") || DotNetUtils.IsMethod(method, "System.UInt32", "(System.UInt64&,System.IntPtr,System.IntPtr,System.UInt32,System.IntPtr&,System.UInt32&)"))
+                    {
+                        foreach (var methodDef in (from x in method.DeclaringType.Methods where x.IsStatic && x.HasBody && x.Body.HasInstructions select x))
+                        {
+                            foreach (var call in DotNetUtils.GetMethodCalls(methodDef))
+                            {
+                                if(call.MDToken.ToInt32() == method.MDToken.ToInt32())
+                                {
+                                    decryptorMethod = methodDef;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             var cctor = Context.Module.GlobalType.FindStaticConstructor();
             if (cctor != null && cctor.HasBody && cctor.Body.HasInstructions)
             {

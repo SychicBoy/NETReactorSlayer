@@ -106,7 +106,7 @@ namespace NetReactorSlayer.Core
                 }
                 try
                 {
-                    Remover.Execute();
+                    if (Variables.options["patch"]) Remover.Execute();
                 }
                 catch { }
                 Context.Save();

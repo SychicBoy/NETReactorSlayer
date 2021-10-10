@@ -31,7 +31,8 @@ namespace NETReactorSlayer.Core.Utils
             "--no-deob", "         Don't deobfuscate methods.",
             "--no-arithmetic", "   Don't resolve arithmetic equations.",
             "--no-proxy-call", "   Don't clean proxied calls.",
-            "--no-dump", "         Don't dump embedded assemblies"};
+            "--no-dump", "         Don't dump embedded assemblies",
+            "--no-patch", "        Don't patch methods."};
         public static Dictionary<string, bool> options = new Dictionary<string, bool>()
         {
             ["necrobit"] = true,
@@ -43,7 +44,8 @@ namespace NETReactorSlayer.Core.Utils
             ["deob"] = true,
             ["arithmetic"] = true,
             ["proxycall"] = true,
-            ["dump"] = true
+            ["dump"] = true,
+            ["patch"] = true
         };
     }
 }
