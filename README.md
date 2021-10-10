@@ -3,7 +3,7 @@
 An open source (GPLv3) deobfuscator for [Eziriz .NET Reactor](https://www.eziriz.com/reactor_download.htm)
 
 # Preview:
-![Preview](https://user-images.githubusercontent.com/53654076/135913710-5373907f-07ba-4bb6-b7b1-2be699b85186.png)
+![Preview](https://user-images.githubusercontent.com/53654076/136684000-cf74924e-1769-4620-b5d7-92f0a692ecac.png)
 
 # Currently Supported .NET Reactor Versions:
 - 6.0.0.0
