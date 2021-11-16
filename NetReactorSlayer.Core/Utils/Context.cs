@@ -130,14 +130,12 @@ namespace NETReactorSlayer.Core.Utils
                 {
                     ModuleWriterOptions options = new ModuleWriterOptions(Module);
                     options.Logger = DummyLogger.NoThrowInstance;
-                    options.MetadataOptions.Flags |= (MetadataFlags.PreserveTypeRefRids | MetadataFlags.PreserveTypeDefRids | MetadataFlags.PreserveFieldRids | MetadataFlags.PreserveMethodRids | MetadataFlags.PreserveParamRids | MetadataFlags.PreserveMemberRefRids | MetadataFlags.PreserveStandAloneSigRids | MetadataFlags.PreserveEventRids | MetadataFlags.PreservePropertyRids | MetadataFlags.PreserveTypeSpecRids | MetadataFlags.PreserveMethodSpecRids | MetadataFlags.PreserveUSOffsets | MetadataFlags.PreserveBlobOffsets | MetadataFlags.PreserveExtraSignatureData);
                     Module.Write(DestPath, options);
                 }
                 else
                 {
                     NativeModuleWriterOptions options = new NativeModuleWriterOptions(Module, false);
                     options.Logger = DummyLogger.NoThrowInstance;
-                    options.MetadataOptions.Flags |= (MetadataFlags.PreserveTypeRefRids | MetadataFlags.PreserveTypeDefRids | MetadataFlags.PreserveFieldRids | MetadataFlags.PreserveMethodRids | MetadataFlags.PreserveParamRids | MetadataFlags.PreserveMemberRefRids | MetadataFlags.PreserveStandAloneSigRids | MetadataFlags.PreserveEventRids | MetadataFlags.PreservePropertyRids | MetadataFlags.PreserveTypeSpecRids | MetadataFlags.PreserveMethodSpecRids | MetadataFlags.PreserveUSOffsets | MetadataFlags.PreserveBlobOffsets | MetadataFlags.PreserveExtraSignatureData);
                     Module.NativeWrite(DestPath, options);
                 }
                 Logger.Info("Saved to: " + DestName);
