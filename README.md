@@ -47,3 +47,4 @@ Its free, but there is no support for it, I'll keep updating it for latest .NET 
 # Credits:
 - [dnlib](https://github.com/0xd4d/dnlib)
 - [de4dot.blocks](https://github.com/de4dot/de4dot/tree/master/de4dot.blocks)
+- [Harmony](https://github.com/pardeike/Harmony)
