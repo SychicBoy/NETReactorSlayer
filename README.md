@@ -11,6 +11,7 @@ An open source (GPLv3) deobfuscator for [Eziriz .NET Reactor](https://www.eziriz
 - 6.3.0.0
 - 6.5.0.0
 - 6.7.0.0
+- 6.8.0.0
 
 # Features:
 - Clean Control Flow
