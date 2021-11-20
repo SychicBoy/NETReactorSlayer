@@ -57,7 +57,7 @@ namespace NETReactorSlayer.Core.Protections
             if (!isAntiTamperFound)
                 Logger.Warn("Couldn't find anti tamper method.");
             if (!isAntiDebugFound)
-                Logger.Warn("Couldn't find debugger method.");
+                Logger.Warn("Couldn't find anti debugger method.");
         }
     }
 }

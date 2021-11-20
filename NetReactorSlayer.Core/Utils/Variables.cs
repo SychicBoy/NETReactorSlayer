@@ -20,7 +20,7 @@ namespace NETReactorSlayer.Core.Utils
     public class Variables
     {
         public static readonly string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-        public static readonly string[] supportedVersions = { "6.0", "6.2", "6.3", "6.5", "6.7" };
+        public static readonly string[] supportedVersions = { "6.0", "6.2", "6.3", "6.5", "6.7", "6.8" };
         public static readonly string[] arguments ={
             "--no-necrobit", "     Don't decrypt methods (NecroBit).",
             "--no-anti-tamper", "  Don't remove anti tamper.",

@@ -105,10 +105,10 @@ namespace NETReactorSlayer.Core.Protections
 
         static bool CheckFields(IList<FieldDef> fields)
         {
-            if (fields.Count != 2 && fields.Count != 3) return false;
+            if (fields.Count != 2 && fields.Count != 3 && fields.Count != 4) return false;
             FieldTypes fieldTypes = new FieldTypes(fields);
-            if (fieldTypes.Count("System.Boolean") != 1) return false;
-            if (fields.Count == 3)
+            if (fieldTypes.Count("System.Boolean") != 1 && fieldTypes.Count("System.Boolean") != 2) return false;
+            if (fields.Count > 2)
             {
                 return (fieldTypes.Count("System.Collections.Hashtable") == 2 || fieldTypes.Count("System.Object") == 2);
             }
