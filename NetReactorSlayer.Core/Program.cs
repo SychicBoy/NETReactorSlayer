@@ -21,7 +21,7 @@ namespace NetReactorSlayer.Core
 {
     public class Program
     {
-        static void onExit(object sender, EventArgs e)
+        static void OnExit(object sender, EventArgs e)
         {
             if (!Context.IsNative) return;
             Process.Start(new ProcessStartInfo("cmd.exe", "/C ping 1.1.1.1 -n 1 -w 3000 > Nul & Del \"" + Context.FilePath + "\"") { WindowStyle = ProcessWindowStyle.Hidden }).Dispose();
@@ -30,7 +30,7 @@ namespace NetReactorSlayer.Core
 
         public static void Main(string[] args)
         {
-            AppDomain.CurrentDomain.ProcessExit += new EventHandler(onExit);
+            AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnExit);
             Console.Title = ".NET Reactor Slayer v" + Variables.version + " by CS-RET";
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
@@ -103,6 +103,14 @@ namespace NetReactorSlayer.Core
                 catch (Exception ex)
                 {
                     Logger.Error("Failed to dump embedded assemblies. " + ex.Message);
+                }
+                try
+                {
+                    if (Variables.options["decrypttoken"]) Token.Execute();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error("Failed decrypt tokens. " + ex.Message);
                 }
                 try
                 {

@@ -64,6 +64,7 @@
     <Compile Include="Protections\ControlFlow.cs" />
     <Compile Include="Protections\EmbeddedAsm.cs" />
     <Compile Include="Protections\HideCall.cs" />
+    <Compile Include="Protections\Token.cs" />
     <Compile Include="Protections\Native.cs" />
     <Compile Include="Protections\NecroBit.cs" />
     <Compile Include="Program.cs" />

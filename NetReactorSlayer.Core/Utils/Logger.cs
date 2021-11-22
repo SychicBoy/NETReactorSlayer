@@ -18,11 +18,11 @@ namespace NETReactorSlayer.Core.Utils
 {
     public static class Logger
     {
-        public static void Debug(string message)
+        public static bool Prompt(string message)
         {
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine("  [DEBUG] " + message);
             Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("  [PROMPT] " + message);
+            return Console.ReadLine().ToLower() == "y";
         }
 
         public static void Info(string message)

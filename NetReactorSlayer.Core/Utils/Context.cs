@@ -128,14 +128,20 @@ namespace NETReactorSlayer.Core.Utils
             {
                 if (Module.IsILOnly)
                 {
-                    ModuleWriterOptions options = new ModuleWriterOptions(Module);
-                    options.Logger = DummyLogger.NoThrowInstance;
+                    ModuleWriterOptions options = new ModuleWriterOptions(Module) { Logger = DummyLogger.NoThrowInstance };
+                    if (Logger.Prompt("Do you want to preserve all MD tokens? (Y/n): "))
+                        options.MetadataOptions.Flags = MetadataFlags.PreserveAll;
+                    if (Logger.Prompt("Do you want to keep old MaxStack value? (Y/n): "))
+                        options.MetadataOptions.Flags |= MetadataFlags.KeepOldMaxStack;
                     Module.Write(DestPath, options);
                 }
                 else
                 {
-                    NativeModuleWriterOptions options = new NativeModuleWriterOptions(Module, false);
-                    options.Logger = DummyLogger.NoThrowInstance;
+                    NativeModuleWriterOptions options = new NativeModuleWriterOptions(Module, false) { Logger = DummyLogger.NoThrowInstance };
+                    if (Logger.Prompt("Do you want to preserve all MD tokens? (Y/n): "))
+                        options.MetadataOptions.Flags = MetadataFlags.PreserveAll;
+                    if (Logger.Prompt("Do you want to keep old MaxStack value? (Y/n): "))
+                        options.MetadataOptions.Flags |= MetadataFlags.KeepOldMaxStack;
                     Module.NativeWrite(DestPath, options);
                 }
                 Logger.Info("Saved to: " + DestName);

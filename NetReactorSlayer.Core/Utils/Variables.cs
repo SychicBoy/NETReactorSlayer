@@ -31,7 +31,8 @@ namespace NETReactorSlayer.Core.Utils
             "--no-deob", "         Don't deobfuscate methods.",
             "--no-arithmetic", "   Don't resolve arithmetic equations.",
             "--no-proxy-call", "   Don't clean proxied calls.",
-            "--no-dump", "         Don't dump embedded assemblies",
+            "--no-dump", "         Don't dump embedded assemblies.",
+            "--no-decrypt-token", "Don't decrypt tokens.",
             "--no-remove", "       Don't remove obfuscator methods, resources, etc..."};
         public static Dictionary<string, bool> options = new Dictionary<string, bool>()
         {
@@ -45,6 +46,7 @@ namespace NETReactorSlayer.Core.Utils
             ["arithmetic"] = true,
             ["proxycall"] = true,
             ["dump"] = true,
+            ["decrypttoken"] = true,
             ["remove"] = true
         };
     }
