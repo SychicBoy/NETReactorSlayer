@@ -24,23 +24,25 @@ An open source (GPLv3) deobfuscator for [Eziriz .NET Reactor](https://www.eziriz
 - Dump Embedded Assemblies
 - Decrypt Methods (NecroBit)
 - Unpack Native
+- Decrypt Tokens
 
 # Usage:
 Just drag and drop target obfuscated assembly on it.
 
 # Optional commands:
 ```
---no-necrobit     Don't decrypt methods (NecroBit).
---no-anti-tamper  Don't remove anti tamper.
---no-anti-debug   Don't remove anti debugger.
---no-hide-call    Don't restore hidden calls.
---no-str          Don't decrypt strings.
---no-rsrc         Don't decrypt assembly resources.
---no-deob         Don't deobfuscate methods.
---no-arithmetic   Don't resolve arithmetic equations.
---no-proxy-call   Don't clean proxied calls.
---no-dump         Don't dump embedded assemblies.
---no-remove       Don't remove obfuscator methods, resources, etc...
+--no-necrobit        Don't decrypt methods (NecroBit).
+--no-anti-tamper     Don't remove anti tamper.
+--no-anti-debug      Don't remove anti debugger.
+--no-hide-call       Don't restore hidden calls.
+--no-str             Don't decrypt strings.
+--no-rsrc            Don't decrypt assembly resources.
+--no-deob            Don't deobfuscate methods.
+--no-arithmetic      Don't resolve arithmetic equations.
+--no-proxy-call      Don't clean proxied calls.
+--no-dump            Don't dump embedded assemblies.
+--no-remove          Don't remove obfuscator methods, resources, etc...
+--no-decrypt-token   Don't decrypt tokens.
 ```
 # Note:
 Its free, but there is no support for it, I'll keep updating it for latest .NET Reactor version as I can.
