@@ -57,6 +57,9 @@ namespace NETReactorSlayer.Core.Utils
                 FileName = Path.GetFileNameWithoutExtension(path);
                 FileExt = Path.GetExtension(path);
                 FileDir = Path.GetDirectoryName(path);
+                // append current dir if input file was without full path
+                if (FileDir == "")
+                    FileDir = Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]);
                 DestPath = FileDir + "\\" + FileName + "_Slayed" + FileExt;
                 DestName = FileName + "_Slayed" + FileExt;
                 ModuleContext = GetModuleContext();
