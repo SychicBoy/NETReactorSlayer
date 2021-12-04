@@ -60,7 +60,6 @@ So NetReactorSlayer get that fields value to deobfuscate control flow, but in so
 That's why NetReactorSlayer get's failed to clean controlflow because it's don't have a feature yet to devirtualize virtualized methods. 
 
 - ### Target file not working after deobfuscation:
-- Make sure target file is not virtualized.
 - Try to save deobfuscated file with Preserve all MD tokens & Keep old MaxStack options:
 ![image](https://user-images.githubusercontent.com/53654076/144698219-dbf8917e-c2bf-425c-b46f-cd6d50031045.png)
 
