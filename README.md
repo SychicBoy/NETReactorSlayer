@@ -47,6 +47,7 @@ The normal string decryptor method should looks like this:
 ![image](https://user-images.githubusercontent.com/53654076/144697746-85e928dd-ad5c-412a-a56c-6b96b3d79df8.png)
 And the virtualized string decryptor method should looks like one of below images:
 ![image](https://user-images.githubusercontent.com/53654076/144697815-dcf2cda4-90f5-4225-8e64-e9b19d9a11b8.png)
+
 ![image](https://user-images.githubusercontent.com/53654076/144697787-4b7adc2f-4dde-49ef-9949-4459d6efb10c.png)
 
 - ### Control Flow Deobfuscator Not Working / Control Flow Deobfuscator Deleted Most OpCodes:
@@ -56,6 +57,7 @@ So if you click on the class of field, You'll see one of class methods define th
 ![image](https://user-images.githubusercontent.com/53654076/144697246-cc975888-64ad-4371-96d8-af402bf0f8ed.png)
 So NetReactorSlayer get that fields value to deobfuscate control flow, but in some targets this method is virtualized and the method goanna looks like one of below images:
 ![image](https://user-images.githubusercontent.com/53654076/144697407-afcf26b2-2d95-4143-8e94-b10b84634174.png)
+
 ![image](https://user-images.githubusercontent.com/53654076/144697662-3b6d575c-b989-4efa-979d-fa6c4d6d38a2.png)
 That's why NetReactorSlayer get's failed to clean controlflow because it's don't have a feature yet to devirtualize virtualized methods. 
 
