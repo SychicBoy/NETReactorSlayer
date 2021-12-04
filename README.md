@@ -53,9 +53,9 @@ And the virtualized string decryptor method should looks like one of below image
 - ### Control Flow Deobfuscator Not Working / Control Flow Deobfuscator Deleted Most OpCodes:
 .NET Reactor 6.7 or above use some arithmetic equations to apply control flow:
 ![image](https://user-images.githubusercontent.com/53654076/144697149-da0e82b8-dcb8-4a98-90fd-defda5b172e3.png)
-So if you click on the class of field, You'll see one of class methods define the fields value on runtime:
+if you click on the class of field, You'll see one of class methods define the fields value on runtime:
 ![image](https://user-images.githubusercontent.com/53654076/144697246-cc975888-64ad-4371-96d8-af402bf0f8ed.png)
-So NetReactorSlayer get that fields value to deobfuscate control flow, but in some targets this method is virtualized and the method goanna looks like one of below images:
+NetReactorSlayer get that fields value to deobfuscate control flow, but in some targets this method is virtualized and the method goanna looks like one of below images:
 ![image](https://user-images.githubusercontent.com/53654076/144697407-afcf26b2-2d95-4143-8e94-b10b84634174.png)
 
 ![image](https://user-images.githubusercontent.com/53654076/144697662-3b6d575c-b989-4efa-979d-fa6c4d6d38a2.png)
