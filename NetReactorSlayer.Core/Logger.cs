@@ -62,7 +62,7 @@ namespace NETReactorSlayer.Core
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.Write("(");
             Console.ForegroundColor = ConsoleColor.DarkCyan;
-            Console.Write("From 6.0 Until 6.8");
+            Console.Write("From 6.0 To 6.8");
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.Write(") ");
             Console.ForegroundColor = ConsoleColor.White;
