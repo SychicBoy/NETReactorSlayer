@@ -515,7 +515,7 @@ namespace NETReactorSlayer.Core.Protections
             if (method == null || !method.HasBody || !method.Body.HasInstructions) return;
             try
             {
-                if (ControlFlow.ContainsSwitch(method))
+                if (ControlFlow.IsContainsSwitch(method))
                 {
                     Arithmetic(method);
                 }
