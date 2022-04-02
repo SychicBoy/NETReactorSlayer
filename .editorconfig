@@ -1,4 +1,4 @@
 ﻿[*.cs]
 
-# IDE0022: Use block body for methods
-csharp_style_expression_bodied_methods = true
+# IDE0019: Use pattern matching
+csharp_style_pattern_matching_over_as_with_null_check = false

@@ -12,118 +12,72 @@
     You should have received a copy of the GNU General Public License
     along with NetReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
-using NETReactorSlayer.Core.Protections;
-using NETReactorSlayer.Core.Utils;
 using System;
 using System.Diagnostics;
+using System.IO;
+using System.Threading;
 
-namespace NetReactorSlayer.Core
+namespace NETReactorSlayer.Core
 {
     public class Program
     {
-        static void OnExit(object sender, EventArgs e)
-        {
-            if (!Context.IsNative) return;
-            Process.Start(new ProcessStartInfo("cmd.exe", "/C ping 1.1.1.1 -n 1 -w 3000 > Nul & Del \"" + Context.FilePath + "\"") { WindowStyle = ProcessWindowStyle.Hidden }).Dispose();
-            Process.GetCurrentProcess().Kill();
-        }
-
         public static void Main(string[] args)
         {
-            AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnExit);
-            Console.Title = ".NET Reactor Slayer v" + Variables.version + " by CS-RET";
+            #region Delete Temporary Files
+            if (args != null && args.Length == 3 && args[0] == "--delete-native-image" && int.TryParse(args[1], out int id) && File.Exists(args[2]))
+            {
+                try
+                {
+                    var process = Process.GetProcessById(id);
+                    if (process != null)
+                    {
+                        process.WaitForExit();
+                        while (File.Exists(args[2]))
+                        {
+                            try
+                            {
+                                File.Delete(args[2]);
+                            }
+                            catch { }
+                            Thread.Sleep(1000);
+                        }
+                        Process.GetCurrentProcess().Kill();
+                        return;
+                    }
+                }
+                catch { }
+            }
+            #endregion
+            Console.Title = ".NET Reactor Slayer";
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
             Console.Clear();
             Logger.PrintLogo();
+            Context = new DeobfuscatorContext();
             if (Context.Parse(args))
+
             {
-                try
+                Logger.Done($"{Context.DeobfuscatorOptions.Stages.Count}/{Context.DeobfuscatorOptions.Dictionary.Count} Modules loaded...");
+                foreach (var DeobfuscatorStage in Context.DeobfuscatorOptions.Stages)
                 {
-                    if (Variables.options["necrobit"]) NecroBit.Execute();
+                    try
+                    {
+                        DeobfuscatorStage.Execute();
+                    }
+                    catch (Exception exception)
+                    {
+                        Logger.Error($"{DeobfuscatorStage.GetType().Name} => {exception.Message}");
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Logger.Error("Failed to decrypt methods. " + ex.Message);
-                }
-                try
-                {
-                    ControlFlow.Execute();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error("Failed clean cflow. " + ex.Message);
-                }
-                try
-                {
-                    Anti.Execute(
-                        Variables.options["antidebug"],
-                        Variables.options["antitamper"]);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error("Failed to remove anti debugger or anti tamper. " + ex.Message);
-                }
-                try
-                {
-                    if (Variables.options["proxycall"]) ProxyCall.Execute();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error("Failed to remove proxied calls. " + ex.Message);
-                }
-                try
-                {
-                    if (Variables.options["hidecall"]) HideCall.Execute();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error("Failed to restore hidden calls. " + ex.Message);
-                }
-                try
-                {
-                    if (Variables.options["str"]) Strings.Execute();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error("Failed to decrypt strings. " + ex.Message);
-                }
-                try
-                {
-                    if (Variables.options["rsrc"]) Resources.Execute();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error("Failed to decrypt resources. " + ex.Message);
-                }
-                try
-                {
-                    if (Variables.options["dump"]) EmbeddedAsm.Execute();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error("Failed to dump embedded assemblies. " + ex.Message);
-                }
-                try
-                {
-                    if (Variables.options["decrypttoken"]) Token.Execute();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error("Failed decrypt tokens. " + ex.Message);
-                }
-                try
-                {
-                    if (Variables.options["remove"]) Remover.Execute();
-                }
-                catch { }
                 Context.Save();
             }
-            Console.WriteLine("\r\n  Press any key to exit . . .");
-            Console.ReadKey();
-            if (!Context.IsNative) return;
-            Process.Start(new ProcessStartInfo("cmd.exe", "/C ping 1.1.1.1 -n 1 -w 3000 > Nul & Del \"" + Context.FilePath + "\"") { WindowStyle = ProcessWindowStyle.Hidden }).Dispose();
-            Process.GetCurrentProcess().Kill();
+            if(!Context.NoPause)
+            {
+                Console.WriteLine("\r\n  Press any key to exit . . .");
+                Console.ReadKey();
+            }
         }
+        public static DeobfuscatorContext Context = new DeobfuscatorContext();
     }
 }

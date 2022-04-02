@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31613.86
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetReactorSlayer", "NetReactorSlayer\NetReactorSlayer.csproj", "{91F328FB-CEEC-4869-8DAD-0F9A3EEFAB48}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetReactorSlayer-x64", "NetReactorSlayer-x64\NetReactorSlayer-x64.csproj", "{4363303C-AF4C-4C1B-8284-FC468514C15D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetReactorSlayer.Core", "NetReactorSlayer.Core\NetReactorSlayer.Core.csproj", "{11E508F0-7AA3-46BD-9891-766DEB293830}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetReactorSlayer-x64.CLI", "NetReactorSlayer-x64.CLI\NetReactorSlayer-x64.CLI.csproj", "{4363303C-AF4C-4C1B-8284-FC468514C15D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetReactorSlayer.CLI", "NetReactorSlayer.CLI\NetReactorSlayer.CLI.csproj", "{91F328FB-CEEC-4869-8DAD-0F9A3EEFAB48}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,18 +15,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{91F328FB-CEEC-4869-8DAD-0F9A3EEFAB48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{91F328FB-CEEC-4869-8DAD-0F9A3EEFAB48}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{91F328FB-CEEC-4869-8DAD-0F9A3EEFAB48}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{91F328FB-CEEC-4869-8DAD-0F9A3EEFAB48}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4363303C-AF4C-4C1B-8284-FC468514C15D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4363303C-AF4C-4C1B-8284-FC468514C15D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4363303C-AF4C-4C1B-8284-FC468514C15D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4363303C-AF4C-4C1B-8284-FC468514C15D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{11E508F0-7AA3-46BD-9891-766DEB293830}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{11E508F0-7AA3-46BD-9891-766DEB293830}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11E508F0-7AA3-46BD-9891-766DEB293830}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{11E508F0-7AA3-46BD-9891-766DEB293830}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4363303C-AF4C-4C1B-8284-FC468514C15D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4363303C-AF4C-4C1B-8284-FC468514C15D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4363303C-AF4C-4C1B-8284-FC468514C15D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4363303C-AF4C-4C1B-8284-FC468514C15D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91F328FB-CEEC-4869-8DAD-0F9A3EEFAB48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91F328FB-CEEC-4869-8DAD-0F9A3EEFAB48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91F328FB-CEEC-4869-8DAD-0F9A3EEFAB48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91F328FB-CEEC-4869-8DAD-0F9A3EEFAB48}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
