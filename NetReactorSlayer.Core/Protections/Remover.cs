@@ -90,7 +90,28 @@ namespace NETReactorSlayer.Core.Protections
                 Context.Module.Resources.Remove(Context.Module.Resources.Find(rrsource.Name));
             }
             #endregion
+            RemoveNOPs();
         }
+
+        public static void RemoveNOPs()
+        {
+            foreach (var type in Context.Module.GetTypes())
+                foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
+                {
+                    int length = method.Body.Instructions.Count;
+                    int index = 0;
+                    for (; index < length; index++)
+                    {
+                        if (method.Body.Instructions[index].OpCode.Equals(OpCodes.Nop))
+                        {
+                            method.Body.Instructions.RemoveAt(index);
+                            index--;
+                            length = method.Body.Instructions.Count;
+                        }
+                    }
+                }
+        }
+
         static bool GetMethodImplOptions(CustomAttribute cA, ref int value)
         {
             if (cA.IsRawBlob)

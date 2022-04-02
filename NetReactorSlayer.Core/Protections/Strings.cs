@@ -28,6 +28,7 @@ namespace NETReactorSlayer.Core.Protections
     {
         public static void Execute()
         {
+            Remover.RemoveNOPs();
             StacktracePatcher.Patch();
             long count = 0L;
             foreach (TypeDef type in Context.Module.GetTypes())
