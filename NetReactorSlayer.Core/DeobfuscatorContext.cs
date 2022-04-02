@@ -21,6 +21,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Windows.Forms;
 
 namespace NETReactorSlayer.Core
 {
@@ -83,7 +84,7 @@ namespace NETReactorSlayer.Core
                 SourceFileName = Path.GetFileNameWithoutExtension(path);
                 SourceFileExt = Path.GetExtension(path);
                 SourceDir = Path.GetDirectoryName(path);
-                DestDir = SourceDir + "\\" + SourceFileName + "_Slayed" + SourceFileExt;
+                DestPath = SourceDir + "\\" + SourceFileName + "_Slayed" + SourceFileExt;
                 DestFileName = SourceFileName + "_Slayed" + SourceFileExt;
                 ModuleContext = GetModuleContext();
                 AssemblyModule = new AssemblyModule(SourcePath, ModuleContext);
@@ -105,7 +106,27 @@ namespace NETReactorSlayer.Core
                         {
                             #region Create A Temporary File
                             SourcePath = $"{SourceDir}\\PEImage.tmp";
-                            File.WriteAllBytes(SourcePath, unpacked);
+                            while (true)
+                            {
+                                try
+                                {
+                                    File.WriteAllBytes(SourcePath, unpacked);
+                                    break;
+                                }
+                                catch (UnauthorizedAccessException ex1)
+                                {
+                                    SaveFileDialog saveFileDialog = new SaveFileDialog
+                                    {
+                                        Filter = "Temporary File (*.tmp)| *.tmp",
+                                        Title = "Save Temporary File",
+                                        FileName = "PEImage.tmp",
+                                        RestoreDirectory = true
+                                    };
+                                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                                        SourcePath = saveFileDialog.FileName;
+                                    else throw ex1;
+                                }
+                            }
                             #endregion
                             AssemblyModule = new AssemblyModule(SourcePath, ModuleContext);
                             Module = AssemblyModule.Load(unpacked);
@@ -160,7 +181,7 @@ namespace NETReactorSlayer.Core
                         options.MetadataOptions.Flags = MetadataFlags.PreserveAll;
                     if (KeepOldMaxStack)
                         options.MetadataOptions.Flags |= MetadataFlags.KeepOldMaxStack;
-                    Module.Write(DestDir, options);
+                    Module.Write(DestPath, options);
                 }
                 else
                 {
@@ -169,16 +190,36 @@ namespace NETReactorSlayer.Core
                         options.MetadataOptions.Flags = MetadataFlags.PreserveAll;
                     if (KeepOldMaxStack)
                         options.MetadataOptions.Flags |= MetadataFlags.KeepOldMaxStack;
-                    Module.NativeWrite(DestDir, options);
+                    Module.NativeWrite(DestPath, options);
                 }
-                try {
+                try
+                {
                     if (Module != null)
                         Module.Dispose();
                     Module.Dispose();
                     if (PEImage != null)
                         PEImage.Dispose();
-                } catch { }
+                }
+                catch { }
                 Logger.Done("Saved to: " + DestFileName);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                SaveFileDialog saveFileDialog = new SaveFileDialog
+                {
+                    Filter = "Assembly (*.exe,*.dll)| *.exe;*.dll",
+                    Title = "Save Assembly",
+                    FileName = DestFileName,
+                    RestoreDirectory = true
+                };
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    DestPath = saveFileDialog.FileName;
+                    DestFileName = Path.GetFileName(saveFileDialog.FileName);
+                    Save();
+                    return;
+                }
+                Logger.Error("Failed to save file. " + ex.Message);
             }
             catch (Exception ex)
             {
@@ -195,7 +236,7 @@ namespace NETReactorSlayer.Core
         public static string SourceFileExt { get; set; }
         public static string SourceDir { get; set; }
         public static string SourcePath { get; set; }
-        public static string DestDir { get; set; }
+        public static string DestPath { get; set; }
         public static string DestFileName { get; set; }
         public static ModuleDefMD Module { get; set; }
         public static Assembly Assembly { get; set; }

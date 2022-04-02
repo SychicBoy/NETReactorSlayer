@@ -12,10 +12,13 @@
     You should have received a copy of the GNU General Public License
     along with NetReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
+using System;
+
 namespace NETReactorSlayer_x64
 {
     class Program
     {
+        [STAThread]
         static void Main(string[] args) => NETReactorSlayer.Core.Program.Main(args);
     }
 }

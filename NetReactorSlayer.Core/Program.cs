@@ -72,7 +72,7 @@ namespace NETReactorSlayer.Core
                 }
                 Context.Save();
             }
-            if(!Context.NoPause)
+            if (!Context.NoPause)
             {
                 Console.WriteLine("\r\n  Press any key to exit . . .");
                 Console.ReadKey();
