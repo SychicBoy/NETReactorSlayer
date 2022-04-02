@@ -37,7 +37,7 @@ namespace NETReactorSlayer.Core.Protections
             FindRequirements();
             if (resolverMethod == null || initialMethod == null || resolverType == null)
             {
-                Logger.Warn("Couldn't find any embedded assembly.");
+                Logger.Warn("Couldn't find any embedded assembly (DNR).");
                 return;
             }
             List<EmbeddedResource> Assemblies = new List<EmbeddedResource>();
@@ -47,22 +47,28 @@ namespace NETReactorSlayer.Core.Protections
             }
             if (Assemblies.Count < 1)
             {
-                Logger.Warn("Couldn't find any embedded assembly.");
+                Logger.Warn("Couldn't find any embedded assembly (DNR).");
                 return;
             }
             Remover.MethodsToPatch.Add(initialMethod);
             foreach (var asm in Assemblies)
             {
+                int i = 0;
                 Remover.ResourceToRemove.Add(asm);
+                count += 1L;
                 string name = GetAssemblyName(asm, false) + ".dll";
                 try
                 {
-                    File.WriteAllBytes(Context.FileDir + "\\" + name, asm.CreateReader().ToArray());
-                    count += 1L;
+                    if(name != null)
+                        File.WriteAllBytes(Context.FileDir + "\\" + name, asm.CreateReader().ToArray());
+                    else
+                        File.WriteAllBytes($"{Context.FileDir}\\DumpedAssembly ({i++}).dll", asm.CreateReader().ToArray());
                 }
-                catch { }
+                catch 
+                {
+                }
             }
-            Logger.Info((int)count + " Embedded assemblies dumped.");
+            Logger.Info((int)count + " Embedded assemblies dumped (DNR).");
         }
 
         static void FindRequirements()
@@ -123,14 +129,14 @@ namespace NETReactorSlayer.Core.Protections
             {
                 foreach (Resource rsrc in Context.Module.Resources)
                 {
-                    if (!(rsrc is EmbeddedResource resource)) return null;
+                    if (!(rsrc is EmbeddedResource resource)) continue;
                     if (StartsWith(resource.Name.String, prefix, StringComparison.Ordinal)) result.Add(resource);
                 }
             }
             return result;
         }
 
-        static string GetAssemblyName(EmbeddedResource resource, bool FullName)
+        public static string GetAssemblyName(EmbeddedResource resource, bool FullName)
         {
             try
             {

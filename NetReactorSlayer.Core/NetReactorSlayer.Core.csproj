@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="Protections\Anti.cs" />
     <Compile Include="Protections\ControlFlow.cs" />
+    <Compile Include="Protections\CosturaFody.cs" />
     <Compile Include="Protections\EmbeddedAsm.cs" />
     <Compile Include="Protections\HideCall.cs" />
     <Compile Include="Protections\Token.cs" />
