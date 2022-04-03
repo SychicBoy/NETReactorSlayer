@@ -26,6 +26,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
     {
         public void Execute()
         {
+            TypeDef typeDef = null;
             byte[] decryptedBytes = null;
             EmbeddedResource encryptedResource = null;
             HashSet<MethodDef> methodsToPatch = new HashSet<MethodDef>();
@@ -52,9 +53,9 @@ namespace NETReactorSlayer.Core.Deobfuscators
                                                 {
                                                     if ((encryptedResource = (DotNetUtils.GetResource(DeobfuscatorContext.Module, s) as EmbeddedResource)) != null)
                                                     {
-                                                        methodsToPatch.Add(decryptorMethod);
-                                                        methodsToPatch.Add(method1);
-                                                        methodsToPatch.Add(method2);
+                                                        foreach (var methodToRemove in type.Methods)
+                                                            methodsToPatch.Add(methodToRemove);
+                                                        typeDef = type;
                                                         DnrDecrypterType decrypterType = GetDecrypterType(decryptorMethod, new string[0]);
                                                         byte[] key = ArrayFinder.GetInitializedByteArray(decryptorMethod, 32);
                                                         if (decrypterType == DnrDecrypterType.V3)
@@ -141,6 +142,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 {
                     Cleaner.MethodsToPatch.Add(m);
                 }
+                Cleaner.TypesToRemove.Add(typeDef);
                 Cleaner.ResourceToRemove.Add(encryptedResource);
                 Logger.Done("Assembly resources decrypted");
             }

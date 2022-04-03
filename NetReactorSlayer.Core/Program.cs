@@ -12,6 +12,7 @@
     You should have received a copy of the GNU General Public License
     along with NetReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
+using dnlib.DotNet;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -56,7 +57,6 @@ namespace NETReactorSlayer.Core
             Logger.PrintLogo();
             Context = new DeobfuscatorContext();
             if (Context.Parse(args))
-
             {
                 Logger.Done($"{Context.DeobfuscatorOptions.Stages.Count}/{Context.DeobfuscatorOptions.Dictionary.Count} Modules loaded...");
                 foreach (var DeobfuscatorStage in Context.DeobfuscatorOptions.Stages)

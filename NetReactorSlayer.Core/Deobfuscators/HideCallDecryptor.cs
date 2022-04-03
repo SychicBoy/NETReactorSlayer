@@ -77,6 +77,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                                         method.Body.Instructions[i + 1] = Instruction.Create(opCpde, iMethod);
                                         method.Body.UpdateInstructionOffsets();
                                         count += 1L;
+                                        Cleaner.TypesToRemove.Add(field.DeclaringType);
                                     }
                                 }
                             }
@@ -87,6 +88,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                     }
                 }
             }
+            Cleaner.MethodsToPatch.Add(method);
             if (count > 0L) Logger.Done((int)count + " Hidden calls restored.");
             else Logger.Warn("Couldn't find any hidden call.");
         }

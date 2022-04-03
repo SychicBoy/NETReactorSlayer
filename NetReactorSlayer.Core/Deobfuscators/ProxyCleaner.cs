@@ -42,7 +42,6 @@ namespace NETReactorSlayer.Core.Deobfuscators
                                     method.Body.Instructions[i].OpCode = opCode;
                                     method.Body.Instructions[i].Operand = obj;
                                     proxies.Add(Method);
-
                                 }
                             }
                         }

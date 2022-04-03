@@ -43,6 +43,11 @@ namespace NETReactorSlayer.Core.Deobfuscators
                                 Fields[key] = value;
                         }
                     }
+                    if (Fields.Count >= 100)
+                    {
+                        Cleaner.TypesToRemove.Add(type);
+                        break;
+                    }
                 }
             }
         }

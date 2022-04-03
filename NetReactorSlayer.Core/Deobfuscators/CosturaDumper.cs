@@ -27,6 +27,11 @@ namespace NETReactorSlayer.Core.Deobfuscators
             foreach (Resource resource in DeobfuscatorContext.Module.Resources)
             {
                 if (!(resource is EmbeddedResource embeddedResource)) continue;
+                if(embeddedResource.Name == "costura.metadata")
+                {
+                    Cleaner.ResourceToRemove.Add(embeddedResource);
+                    continue;
+                }
                 if (!embeddedResource.Name.EndsWith(".compressed")) continue;
                 Cleaner.ResourceToRemove.Add(embeddedResource);
                 count += 1L;

@@ -82,6 +82,12 @@ namespace NETReactorSlayer.Core.Deobfuscators
                                     method.Body.Instructions[i + 1].OpCode = OpCodes.Ldstr;
                                     method.Body.Instructions[i + 1].Operand = (string)result;
                                     count += 1L;
+                                    if ((string)result == "This assembly is protected by an unregistered version of Eziriz's \".NET Reactor\"!")
+                                    {
+                                        foreach (var methodToRemove in method.DeclaringType.Methods)
+                                            Cleaner.MethodsToPatch.Add(method);
+                                        Cleaner.TypesToRemove.Add(method.DeclaringType);
+                                    }
                                 }
                             }
                         }
