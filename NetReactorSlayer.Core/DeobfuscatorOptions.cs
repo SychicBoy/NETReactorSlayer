@@ -52,7 +52,7 @@ namespace NETReactorSlayer.Core
             "--decrypt-methods",  "          Decrypt methods that encrypted by Necrobit (True)",
             "--deobfuscate-cflow",  "        Deobfuscate control flow (True)",
             "--anti-tamper",  "              Patch anti tamper (True)",
-            "--remove-ref-proxies",  "         Remove reference proxies (True)",
+            "--remove-ref-proxies",  "       Remove reference proxies (True)",
             "--decrypt-hidden-calls",  "     Decrypt hidden calls (True)",
             "--decrypt-strings",  "          Decrypt strings (True)",
             "--decrypt-resources",  "        Decrypt assembly resources (True)",
