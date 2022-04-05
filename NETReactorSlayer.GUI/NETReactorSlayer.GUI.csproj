@@ -7,7 +7,7 @@
     <ProjectGuid>{CB061DE1-00F8-46FB-9BFC-D05B8D0F59BA}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>NETReactorSlayer.GUI</RootNamespace>
-    <AssemblyName>NETReactorSlayer.GUI</AssemblyName>
+    <AssemblyName>NETReactorSlayer</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

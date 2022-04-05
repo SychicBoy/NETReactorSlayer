@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("NETReactorSlayer.GUI")]
+[assembly: AssemblyTitle(".NET Reactor Slayer")]
 [assembly: AssemblyDescription("A deobfuscator for Eziriz .NET Reactor.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("CS-RET")]
