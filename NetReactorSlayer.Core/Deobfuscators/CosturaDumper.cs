@@ -1,16 +1,16 @@
 ﻿/*
     Copyright (C) 2021 CodeStrikers.org
-    This file is part of NetReactorSlayer.
-    NetReactorSlayer is free software: you can redistribute it and/or modify
+    This file is part of NETReactorSlayer.
+    NETReactorSlayer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    NetReactorSlayer is distributed in the hope that it will be useful,
+    NETReactorSlayer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
     You should have received a copy of the GNU General Public License
-    along with NetReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
+    along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 using dnlib.DotNet;
 using System.IO;
@@ -27,7 +27,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             foreach (Resource resource in DeobfuscatorContext.Module.Resources)
             {
                 if (!(resource is EmbeddedResource embeddedResource)) continue;
-                if(embeddedResource.Name == "costura.metadata")
+                if (embeddedResource.Name == "costura.metadata")
                 {
                     Cleaner.ResourceToRemove.Add(embeddedResource);
                     continue;

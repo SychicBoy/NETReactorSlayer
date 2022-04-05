@@ -1,4 +1,4 @@
 ﻿[*.cs]
 
-# IDE0019: Use pattern matching
-csharp_style_pattern_matching_over_as_with_null_check = false
+# Default severity for all analyzer diagnostics
+dotnet_analyzer_diagnostic.severity = none

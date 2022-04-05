@@ -1,16 +1,16 @@
 ﻿/*
     Copyright (C) 2021 CodeStrikers.org
-    This file is part of NetReactorSlayer.
-    NetReactorSlayer is free software: you can redistribute it and/or modify
+    This file is part of NETReactorSlayer.
+    NETReactorSlayer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    NetReactorSlayer is distributed in the hope that it will be useful,
+    NETReactorSlayer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
     You should have received a copy of the GNU General Public License
-    along with NetReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
+    along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
 using System.Diagnostics;
@@ -109,7 +109,7 @@ namespace NETReactorSlayer.Core
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write("  Latest version on Github: ");
             Console.ForegroundColor = ConsoleColor.DarkCyan;
-            Console.WriteLine("https://github.com/SychicBoy/NetReactorSlayer");
+            Console.WriteLine("https://github.com/SychicBoy/NETReactorSlayer");
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write("  Version: ");
             Console.ForegroundColor = ConsoleColor.DarkCyan;

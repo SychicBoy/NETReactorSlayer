@@ -1,16 +1,16 @@
 ﻿/*
     Copyright (C) 2021 CodeStrikers.org
-    This file is part of NetReactorSlayer.
-    NetReactorSlayer is free software: you can redistribute it and/or modify
+    This file is part of NETReactorSlayer.
+    NETReactorSlayer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    NetReactorSlayer is distributed in the hope that it will be useful,
+    NETReactorSlayer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
     You should have received a copy of the GNU General Public License
-    along with NetReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
+    along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
@@ -130,7 +130,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 DeobfuscatorContext.Module.Resources.Remove(DeobfuscatorContext.Module.Resources.Find(rrsource.Name));
             #endregion
             #region Unhide Entrypoint
-            if (DeobfuscatorContext.Module.EntryPoint.DeclaringType.Name.Contains("<PrivateImplementationDetails>"))
+            if (DeobfuscatorContext.Module.IsEntryPointValid && DeobfuscatorContext.Module.EntryPoint.DeclaringType.Name.Contains("<PrivateImplementationDetails>"))
             {
                 var entryPoint = (DeobfuscatorContext.Module.EntryPoint.Body.Instructions.Where(x => x.OpCode == OpCodes.Call && x.Operand is IMethod iMethod && iMethod.ResolveMethodDef().IsStatic).LastOrDefault().Operand as IMethod).ResolveMethodDef();
                 if (entryPoint != null)
@@ -165,7 +165,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                             if (instruction.Operand is IField iField && iField.ResolveFieldDef() != null && (iField.ResolveFieldDef().IsAssembly || iField.ResolveFieldDef().IsPrivate) && iField.ResolveFieldDef().IsStatic && iField.DeclaringType == method.DeclaringType)
                             {
                                 if (!type.Methods
-                                    .Where(x=> x.MDToken.ToInt32() != method.MDToken.ToInt32())
+                                    .Where(x => x.MDToken.ToInt32() != method.MDToken.ToInt32())
                                     .OfType<MethodDef>()
                                     .Where(x => x.HasBody && x.Body.HasInstructions)
                                     .SelectMany(x => x.Body.Instructions)

@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4363303C-AF4C-4C1B-8284-FC468514C15D}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>NetReactorSlayer_x64.CLI</RootNamespace>
-    <AssemblyName>NetReactorSlayer-x64.CLI</AssemblyName>
+    <RootNamespace>NETReactorSlayerr_x64.CLI</RootNamespace>
+    <AssemblyName>NETReactorSlayer-x64.CLI</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -60,9 +60,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NetReactorSlayer.Core\NetReactorSlayer.Core.csproj">
+    <ProjectReference Include="..\NETReactorSlayer.Core\NETReactorSlayer.Core.csproj">
       <Project>{11e508f0-7aa3-46bd-9891-766deb293830}</Project>
-      <Name>NetReactorSlayer.Core</Name>
+      <Name>NETReactorSlayer.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

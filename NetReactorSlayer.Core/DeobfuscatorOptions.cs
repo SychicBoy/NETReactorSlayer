@@ -1,16 +1,16 @@
 ﻿/*
     Copyright (C) 2021 CodeStrikers.org
-    This file is part of NetReactorSlayer.
-    NetReactorSlayer is free software: you can redistribute it and/or modify
+    This file is part of NETReactorSlayer.
+    NETReactorSlayer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    NetReactorSlayer is distributed in the hope that it will be useful,
+    NETReactorSlayer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
     You should have received a copy of the GNU General Public License
-    along with NetReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
+    along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 using NETReactorSlayer.Core.Deobfuscators;
 using System.Collections.Generic;
@@ -24,7 +24,7 @@ namespace NETReactorSlayer.Core
             ["decrypt-methods"] = new MethodDecryptor(),
             ["deobfuscate-cflow"] = new ControlFlowDeobfuscator(),
             ["anti-tamper"] = new AntiTamperPatcher(),
-            ["remove-proxy-calls"] = new ProxyCleaner(),
+            ["remove-ref-proxies"] = new ProxyCleaner(),
             ["decrypt-hidden-calls"] = new HideCallDecryptor(),
             ["decrypt-strings"] = new StringDecryptor(),
             ["decrypt-resources"] = new ResourceDecryptor(),
@@ -52,7 +52,7 @@ namespace NETReactorSlayer.Core
             "--decrypt-methods",  "          Decrypt methods that encrypted by Necrobit (True)",
             "--deobfuscate-cflow",  "        Deobfuscate control flow (True)",
             "--anti-tamper",  "              Patch anti tamper (True)",
-            "--remove-proxy-calls",  "       Remove proxy calls (True)",
+            "--remove-ref-proxies",  "         Remove reference proxies (True)",
             "--decrypt-hidden-calls",  "     Decrypt hidden calls (True)",
             "--decrypt-strings",  "          Decrypt strings (True)",
             "--decrypt-resources",  "        Decrypt assembly resources (True)",

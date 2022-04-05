@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("NetReactorSlayer.Core")]
+[assembly: AssemblyTitle("NETReactorSlayer.Core")]
 [assembly: AssemblyDescription("A deobfuscator for Eziriz .NET Reactor.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("CS-RET")]
-[assembly: AssemblyProduct("NetReactorSlayer.Core")]
+[assembly: AssemblyProduct("NETReactorSlayer.Core")]
 [assembly: AssemblyCopyright("Copyright © 2021 CodeStrikers.org")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
