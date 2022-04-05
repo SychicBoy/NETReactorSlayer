@@ -28,6 +28,9 @@ namespace NETReactorSlayer.GUI
             if (Environment.Version.Major >= 3)
                 SetProcessDPIAware();
             Application.EnableVisualStyles();
+#if !NET48
+            Application.SetHighDpiMode(HighDpiMode.SystemAware);
+#endif
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainWindow());
         }
