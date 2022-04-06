@@ -1,74 +1,67 @@
-# NetReactorSlayer
+<p align="center">
+  <img alt=".NETReactorSlayer Logo" src="Logo-Dark.png#gh-dark-mode-only" width="1000" />
+   <img alt=".NETReactorSlayer Logo" src="Logo-Light.png#gh-light-mode-only" width="1000" />
+</p>
 
-An open source (GPLv3) deobfuscator for [Eziriz .NET Reactor](https://www.eziriz.com/reactor_download.htm)
+# .NETReactorSlayer <br /> ![](https://img.shields.io/github/v/release/SychicBoy/NETReactorSlayer) ![](https://img.shields.io/github/downloads/SychicBoy/NETReactorSlayer/total) ![](https://img.shields.io/github/license/SychicBoy/NETReactorSlayer) ![](https://img.shields.io/github/last-commit/SychicBoy/NETReactorSlayer) ![](https://img.shields.io/badge/donate--btc-bc1qqlm856lh3xvy5sxhgjwl6ehclw9cvzsyknrzgr-yellow)
 
-# Preview:
-![Preview](https://user-images.githubusercontent.com/53654076/142784856-e58ec3a2-6e07-4337-add4-9373a65638a3.png)
+**.NETReactorSlayer** is an open source (GPLv3) deobfuscator for [Eziriz .NET Reactor](https://www.eziriz.com/reactor_download.htm)
 
-# Currently Supported .NET Reactor Versions:
-- From 6.0.0.0 To 6.8.0.0
+<h1 align="center">Preview</h1>
 
-# Features:
-- Clean Control Flow
-- Restore Hidden Calls
-- Remove Proxy Calls
-- Decrypt Strings
-- Remove Anti Tamper
-- Remove Anti Debugger
-- Decrypt Resources
-- Dump Embedded Assemblies
-- Decrypt Methods (NecroBit)
-- Unpack Native
-- Decrypt Tokens
+GUI             |  CLI
+:-------------------------:|:-------------------------:
+<img src="https://user-images.githubusercontent.com/53654076/161821769-20cb6d1a-9530-4b95-9f23-718f086d81e5.png" width="700">  |  <img src="https://user-images.githubusercontent.com/53654076/161871010-d8b7e734-77ca-493b-ba87-29f4163c1853.png" width="700">
 
-# Usage:
+<br />
+
+### Features & Commands:
+
+| Description | Command | Default Value |
+| ------ | ------ | ------ |
+| Decrypt Methods (NecroBit) | `--decrypt-method` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| Deobfuscate Control Flow | `--deobfuscate-cflow` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| Decrypt Hidden Calls | `--decrypt-hidden-calls` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| Remove Reference Proxies | `--remove-ref-proxies` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| Decrypt Strings | `--decrypt-strings` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| Remove Anti Tamper & Anti Debug | `--anti-tamper` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| Decrypt Assembly Resources | `--decrypt-resources` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| Dump Embedded Assemblies | `--dump-assemblies` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| Dump Assemblies That Embedded By Costura.Fody | `--dump-costura-assemblies` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| Decrypt Tokens | `--decrypt-tokens` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| Unpack Original Assembly From Native Image |  |  |
+| Close CLI immediately after finish deobfuscation | `--no-pause` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp; False |
+| Preserve All MD Tokens | `--preserve-all` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp; False |
+| Keep Old Max Stack Value | `--keep-stack` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp; False |
+| Cleanup obfuscator leftovers | `-cleanup` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+
+### Usage:
 Just drag and drop target obfuscated assembly on it.
 
-# Optional commands:
-```
---no-necrobit        Don't decrypt methods (NecroBit).
---no-anti-tamper     Don't remove anti tamper.
---no-anti-debug      Don't remove anti debugger.
---no-hide-call       Don't restore hidden calls.
---no-str             Don't decrypt strings.
---no-rsrc            Don't decrypt assembly resources.
---no-deob            Don't deobfuscate methods.
---no-arithmetic      Don't resolve arithmetic equations.
---no-proxy-call      Don't clean proxied calls.
---no-dump            Don't dump embedded assemblies.
---no-remove          Don't remove obfuscator methods, resources, etc...
---no-decrypt-token   Don't decrypt tokens.
-```
-# Known Issues:
-- ### Strings are still encrypted after deobfuscation:
-In some targets string decryptor method is virtualized, that's why NetReactorSlayer can't decrypt strings.
-### How to know is string decryptor method is virtualized or not:
-The normal string decryptor method should looks like this:
-![image](https://user-images.githubusercontent.com/53654076/144697746-85e928dd-ad5c-412a-a56c-6b96b3d79df8.png)
-And the virtualized string decryptor method should looks like one of below images:
-![image](https://user-images.githubusercontent.com/53654076/144697815-dcf2cda4-90f5-4225-8e64-e9b19d9a11b8.png)
+### Known Issues:
+- If target assembly not working after deobfuscation try using `--preserve-all` and/or `--keep-stack` command(s).
 
-![image](https://user-images.githubusercontent.com/53654076/144697787-4b7adc2f-4dde-49ef-9949-4459d6efb10c.png)
+- Since **.NETReactorSlayer** does not yet have the ability to de-virtualize virtualized functions, if the target protected assembly contains virtualized functions, **.NETReactorSlayer** may fail to de-obfuscate some protections such as string encryption and control flow.
 
-- ### Control Flow Deobfuscator Not Working / Control Flow Deobfuscator Deleted Most OpCodes:
-.NET Reactor 6.7 or above use some arithmetic equations to apply control flow:
-![image](https://user-images.githubusercontent.com/53654076/144697149-da0e82b8-dcb8-4a98-90fd-defda5b172e3.png)
-if you click on the class of field, You'll see one of class methods define the fields value on runtime:
-![image](https://user-images.githubusercontent.com/53654076/144697246-cc975888-64ad-4371-96d8-af402bf0f8ed.png)
-NetReactorSlayer get that fields value to deobfuscate control flow, but in some targets this method is virtualized and the method goanna looks like one of below images:
-![image](https://user-images.githubusercontent.com/53654076/144697407-afcf26b2-2d95-4143-8e94-b10b84634174.png)
+<details>
+  <summary><b>➡️Click to see </b>few example of comparing virtualized functions with normal functions</summary>
 
-![image](https://user-images.githubusercontent.com/53654076/144697662-3b6d575c-b989-4efa-979d-fa6c4d6d38a2.png)
-That's why NetReactorSlayer get's failed to clean controlflow because it's don't have a feature yet to devirtualize virtualized methods. 
+Normal             |  Virtualized
+:-------------------------:|:-------------------------:
+<img src="https://user-images.githubusercontent.com/53654076/144697746-85e928dd-ad5c-412a-a56c-6b96b3d79df8.png" width="600">  |  <img src="https://user-images.githubusercontent.com/53654076/144697815-dcf2cda4-90f5-4225-8e64-e9b19d9a11b8.png" width="300"><br />Or<br /><img src="https://user-images.githubusercontent.com/53654076/144697787-4b7adc2f-4dde-49ef-9949-4459d6efb10c.png" width="300">
 
-- ### Target file not working after deobfuscation:
-- Try to save deobfuscated file with Preserve all MD tokens & Keep old MaxStack options:
-![image](https://user-images.githubusercontent.com/53654076/144698219-dbf8917e-c2bf-425c-b46f-cd6d50031045.png)
+Normal             |  Virtualized
+:-------------------------:|:-------------------------:
+<img src="https://user-images.githubusercontent.com/53654076/144697246-cc975888-64ad-4371-96d8-af402bf0f8ed.png" width="600">  |  <img src="https://user-images.githubusercontent.com/53654076/144697407-afcf26b2-2d95-4143-8e94-b10b84634174.png" width="300"><br />Or<br /><img src="https://user-images.githubusercontent.com/53654076/144697662-3b6d575c-b989-4efa-979d-fa6c4d6d38a2.png" width="300">
+</details><br />
 
-# Note:
-Its free, but there is no support for it, I'll keep updating it for latest .NET Reactor version as I can.
+### Contribution:
+Want to contribute to this project? Feel free to open a [pull request](https://github.com/SychicBoy/NETReactorSlayer/pulls).
 
-# Credits:
+### License:
+**.NETReactorSlayer** is licensed under [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html).
+
+### Credits:
 - [dnlib](https://github.com/0xd4d/dnlib)
 - [de4dot.blocks](https://github.com/de4dot/de4dot/tree/master/de4dot.blocks)
 - [Harmony](https://github.com/pardeike/Harmony)
