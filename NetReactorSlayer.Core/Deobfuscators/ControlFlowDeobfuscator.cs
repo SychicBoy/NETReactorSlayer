@@ -99,7 +99,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             {
                 try
                 {
-                    if (method.Body.Instructions[i].OpCode.Equals(OpCodes.Call) && method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Brtrue) && method.Body.Instructions[i + 2].OpCode.Equals(OpCodes.Pop))
+                    if (method.Body.Instructions[i].OpCode.Equals(OpCodes.Call) && method.Body.Instructions[i + 1].IsBrtrue() && method.Body.Instructions[i + 2].OpCode.Equals(OpCodes.Pop))
                     {
                         if (method.Body.Instructions[i].Operand.ToString().Contains("System.Boolean"))
                         {
@@ -114,7 +114,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                             method.Body.Instructions[i + 1].OpCode = OpCodes.Nop;
                         }
                     }
-                    else if (method.Body.Instructions[i].OpCode.Equals(OpCodes.Call) && method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Brfalse) && method.Body.Instructions[i + 2].OpCode.Equals(OpCodes.Pop))
+                    else if (method.Body.Instructions[i].OpCode.Equals(OpCodes.Call) && method.Body.Instructions[i + 1].IsBrfalse() && method.Body.Instructions[i + 2].OpCode.Equals(OpCodes.Pop))
                     {
                         if (method.Body.Instructions[i].Operand.ToString().Contains("System.Boolean"))
                         {

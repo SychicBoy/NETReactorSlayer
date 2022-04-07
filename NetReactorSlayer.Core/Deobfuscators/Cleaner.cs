@@ -182,7 +182,6 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 }
             }
             #endregion
-            RemoveNOPs();
         }
 
         public static void RemoveNOPs()

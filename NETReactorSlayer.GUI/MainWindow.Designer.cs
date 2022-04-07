@@ -53,29 +53,20 @@ namespace NETReactorSlayer.GUI
             this.pnlBase = new System.Windows.Forms.Panel();
             this.pnlSeparator = new System.Windows.Forms.Panel();
             this.pnlButton = new System.Windows.Forms.Panel();
+            this.btnStart = new NETReactorSlayer.GUI.UserControls.NRSButton();
             this.panelLogs = new System.Windows.Forms.Panel();
+            this.scrollbarLogs = new NETReactorSlayer.GUI.UserControls.NRSScrollBar();
             this.txtLogs = new System.Windows.Forms.RichTextBox();
             this.ctxLogs = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.copyLogsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlInput = new System.Windows.Forms.Panel();
             this.picBrowse = new System.Windows.Forms.PictureBox();
             this.pnlTextBox = new System.Windows.Forms.Panel();
+            this.txtInput = new NETReactorSlayer.GUI.UserControls.NRSTextBox();
             this.pnlOptions = new System.Windows.Forms.Panel();
             this.tabelOptions = new System.Windows.Forms.TableLayoutPanel();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.llblGitHub = new System.Windows.Forms.LinkLabel();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.lblVersion = new System.Windows.Forms.Label();
-            this.llblWebsite = new System.Windows.Forms.LinkLabel();
-            this.label4 = new System.Windows.Forms.Label();
-            this.lblAuthor = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnStart = new NETReactorSlayer.GUI.UserControls.NRSButton();
-            this.scrollbarLogs = new NETReactorSlayer.GUI.UserControls.NRSScrollBar();
-            this.txtInput = new NETReactorSlayer.GUI.UserControls.NRSTextBox();
             this.chkPreserveAll = new NETReactorSlayer.GUI.UserControls.NRSCheckBox();
             this.chkKeepOldMaxStack = new NETReactorSlayer.GUI.UserControls.NRSCheckBox();
             this.chkDeobCFlow = new NETReactorSlayer.GUI.UserControls.NRSCheckBox();
@@ -89,6 +80,15 @@ namespace NETReactorSlayer.GUI
             this.chkDecryptResources = new NETReactorSlayer.GUI.UserControls.NRSCheckBox();
             this.chkDumpDNRAsm = new NETReactorSlayer.GUI.UserControls.NRSCheckBox();
             this.chkDumpCosturaAsm = new NETReactorSlayer.GUI.UserControls.NRSCheckBox();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.llblGitHub = new System.Windows.Forms.LinkLabel();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.lblVersion = new System.Windows.Forms.Label();
+            this.llblWebsite = new System.Windows.Forms.LinkLabel();
+            this.label4 = new System.Windows.Forms.Label();
+            this.lblAuthor = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.pnlHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picMinimize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picExit)).BeginInit();
@@ -213,6 +213,28 @@ namespace NETReactorSlayer.GUI
             this.pnlButton.Size = new System.Drawing.Size(793, 55);
             this.pnlButton.TabIndex = 16;
             // 
+            // btnStart
+            // 
+            this.btnStart.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(27)))), ((int)(((byte)(27)))));
+            this.btnStart.BorderRadius = 25;
+            this.btnStart.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnStart.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnStart.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
+            this.btnStart.FlatAppearance.BorderSize = 0;
+            this.btnStart.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(18)))), ((int)(((byte)(18)))));
+            this.btnStart.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(34)))), ((int)(((byte)(34)))));
+            this.btnStart.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnStart.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnStart.ForeColor = System.Drawing.Color.Silver;
+            this.btnStart.Location = new System.Drawing.Point(200, 5);
+            this.btnStart.Name = "btnStart";
+            this.btnStart.Size = new System.Drawing.Size(393, 45);
+            this.btnStart.TabIndex = 15;
+            this.btnStart.Text = "Start Deobfuscation";
+            this.btnStart.TextTransform = NETReactorSlayer.GUI.UserControls.NRSButton.TextTransformEnum.None;
+            this.btnStart.UseVisualStyleBackColor = false;
+            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
+            // 
             // panelLogs
             // 
             this.panelLogs.Controls.Add(this.scrollbarLogs);
@@ -223,6 +245,19 @@ namespace NETReactorSlayer.GUI
             this.panelLogs.Padding = new System.Windows.Forms.Padding(2);
             this.panelLogs.Size = new System.Drawing.Size(793, 157);
             this.panelLogs.TabIndex = 0;
+            // 
+            // scrollbarLogs
+            // 
+            this.scrollbarLogs.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(27)))), ((int)(((byte)(27)))));
+            this.scrollbarLogs.Dock = System.Windows.Forms.DockStyle.Right;
+            this.scrollbarLogs.Location = new System.Drawing.Point(776, 2);
+            this.scrollbarLogs.Maximum = 10;
+            this.scrollbarLogs.Name = "scrollbarLogs";
+            this.scrollbarLogs.Size = new System.Drawing.Size(15, 153);
+            this.scrollbarLogs.TabIndex = 17;
+            this.scrollbarLogs.Text = "nrsScrollBar1";
+            this.scrollbarLogs.ViewSize = 9;
+            this.scrollbarLogs.ValueChanged += new System.EventHandler<NETReactorSlayer.GUI.UserControls.ScrollValueEventArgs>(this.scrollbarLogs_ValueChanged);
             // 
             // txtLogs
             // 
@@ -252,7 +287,15 @@ namespace NETReactorSlayer.GUI
             this.toolStripMenuItem1});
             this.ctxLogs.Name = "ctxLogs";
             this.ctxLogs.ShowImageMargin = false;
-            this.ctxLogs.Size = new System.Drawing.Size(186, 66);
+            this.ctxLogs.Size = new System.Drawing.Size(124, 38);
+            // 
+            // toolStripMenuItem2
+            // 
+            this.toolStripMenuItem2.AutoSize = false;
+            this.toolStripMenuItem2.Enabled = false;
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(185, 5);
+            this.toolStripMenuItem2.Text = " ";
             // 
             // copyLogsToolStripMenuItem
             // 
@@ -260,9 +303,17 @@ namespace NETReactorSlayer.GUI
             this.copyLogsToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI Semibold", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.copyLogsToolStripMenuItem.ForeColor = System.Drawing.Color.Silver;
             this.copyLogsToolStripMenuItem.Name = "copyLogsToolStripMenuItem";
-            this.copyLogsToolStripMenuItem.Size = new System.Drawing.Size(185, 24);
+            this.copyLogsToolStripMenuItem.Size = new System.Drawing.Size(123, 24);
             this.copyLogsToolStripMenuItem.Text = "  Copy Logs";
             this.copyLogsToolStripMenuItem.Click += new System.EventHandler(this.copyLogsToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.AutoSize = false;
+            this.toolStripMenuItem1.Enabled = false;
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(185, 5);
+            this.toolStripMenuItem1.Text = " ";
             // 
             // pnlInput
             // 
@@ -299,6 +350,32 @@ namespace NETReactorSlayer.GUI
             this.pnlTextBox.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.pnlTextBox.Size = new System.Drawing.Size(793, 27);
             this.pnlTextBox.TabIndex = 1;
+            // 
+            // txtInput
+            // 
+            this.txtInput.AllowDrop = true;
+            this.txtInput.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(27)))), ((int)(((byte)(27)))));
+            this.txtInput.BorderRadius = 0;
+            this.txtInput.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtInput.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.txtInput.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtInput.Font = new System.Drawing.Font("Segoe UI Semibold", 7.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtInput.ForeColor = System.Drawing.Color.Silver;
+            this.txtInput.Location = new System.Drawing.Point(0, 6);
+            this.txtInput.Name = "txtInput";
+            this.txtInput.PlaceHolderColor = System.Drawing.Color.Gray;
+            this.txtInput.PlaceHolderText = "DRAG & DROP TARGET FILE HERE OR ENTER FILE PATH";
+            this.txtInput.Progress = 22F;
+            this.txtInput.ProgressColor = System.Drawing.Color.MediumSeaGreen;
+            this.txtInput.Size = new System.Drawing.Size(793, 21);
+            this.txtInput.TabIndex = 2;
+            this.txtInput.Tag = "";
+            this.txtInput.Text = "DRAG & DROP TARGET FILE HERE OR ENTER FILE PATH";
+            this.txtInput.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtInput.TextTransform = NETReactorSlayer.GUI.UserControls.NRSTextBox.TextTransformEnum.None;
+            this.txtInput.WordWrap = false;
+            this.txtInput.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtInput_DragDrop);
+            this.txtInput.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtInput_DragEnter);
             // 
             // pnlOptions
             // 
@@ -340,209 +417,6 @@ namespace NETReactorSlayer.GUI
             this.tabelOptions.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tabelOptions.Size = new System.Drawing.Size(790, 104);
             this.tabelOptions.TabIndex = 3;
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.llblGitHub);
-            this.panel1.Controls.Add(this.label2);
-            this.panel1.Controls.Add(this.label5);
-            this.panel1.Controls.Add(this.lblVersion);
-            this.panel1.Controls.Add(this.llblWebsite);
-            this.panel1.Controls.Add(this.label4);
-            this.panel1.Controls.Add(this.lblAuthor);
-            this.panel1.Controls.Add(this.label1);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(30, 496);
-            this.panel1.Name = "panel1";
-            this.panel1.Padding = new System.Windows.Forms.Padding(5, 10, 5, 0);
-            this.panel1.Size = new System.Drawing.Size(853, 40);
-            this.panel1.TabIndex = 17;
-            // 
-            // llblGitHub
-            // 
-            this.llblGitHub.ActiveLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.llblGitHub.AutoSize = true;
-            this.llblGitHub.Dock = System.Windows.Forms.DockStyle.Left;
-            this.llblGitHub.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Bold);
-            this.llblGitHub.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.llblGitHub.LinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.llblGitHub.Location = new System.Drawing.Point(351, 10);
-            this.llblGitHub.Name = "llblGitHub";
-            this.llblGitHub.Size = new System.Drawing.Size(38, 12);
-            this.llblGitHub.TabIndex = 7;
-            this.llblGitHub.TabStop = true;
-            this.llblGitHub.Tag = "https://github.com/SychicBoy/NETReactorSlayer";
-            this.llblGitHub.Text = "GitHub";
-            this.llblGitHub.VisitedLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.llblGitHub.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblGitHub_LinkClicked);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Dock = System.Windows.Forms.DockStyle.Left;
-            this.label2.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.ForeColor = System.Drawing.Color.Gray;
-            this.label2.Location = new System.Drawing.Point(272, 10);
-            this.label2.Name = "label2";
-            this.label2.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
-            this.label2.Size = new System.Drawing.Size(79, 12);
-            this.label2.TabIndex = 6;
-            this.label2.Text = "Repository: ";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Dock = System.Windows.Forms.DockStyle.Right;
-            this.label5.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.ForeColor = System.Drawing.Color.Gray;
-            this.label5.Location = new System.Drawing.Point(808, 10);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(40, 12);
-            this.label5.TabIndex = 4;
-            this.label5.Text = "Version:";
-            // 
-            // lblVersion
-            // 
-            this.lblVersion.AutoSize = true;
-            this.lblVersion.Dock = System.Windows.Forms.DockStyle.Right;
-            this.lblVersion.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblVersion.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.lblVersion.Location = new System.Drawing.Point(848, 10);
-            this.lblVersion.Name = "lblVersion";
-            this.lblVersion.Size = new System.Drawing.Size(0, 12);
-            this.lblVersion.TabIndex = 5;
-            // 
-            // llblWebsite
-            // 
-            this.llblWebsite.ActiveLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.llblWebsite.AutoSize = true;
-            this.llblWebsite.Dock = System.Windows.Forms.DockStyle.Left;
-            this.llblWebsite.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Bold);
-            this.llblWebsite.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.llblWebsite.LinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.llblWebsite.Location = new System.Drawing.Point(166, 10);
-            this.llblWebsite.Name = "llblWebsite";
-            this.llblWebsite.Size = new System.Drawing.Size(106, 12);
-            this.llblWebsite.TabIndex = 3;
-            this.llblWebsite.TabStop = true;
-            this.llblWebsite.Tag = "https://www.CodeStrikers.org";
-            this.llblWebsite.Text = "www.CodeStrikers.org";
-            this.llblWebsite.VisitedLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.llblWebsite.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblWebsite_LinkClicked);
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Dock = System.Windows.Forms.DockStyle.Left;
-            this.label4.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.ForeColor = System.Drawing.Color.Gray;
-            this.label4.Location = new System.Drawing.Point(99, 10);
-            this.label4.Name = "label4";
-            this.label4.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
-            this.label4.Size = new System.Drawing.Size(67, 12);
-            this.label4.TabIndex = 2;
-            this.label4.Text = "Website: ";
-            // 
-            // lblAuthor
-            // 
-            this.lblAuthor.AutoSize = true;
-            this.lblAuthor.Dock = System.Windows.Forms.DockStyle.Left;
-            this.lblAuthor.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblAuthor.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.lblAuthor.Location = new System.Drawing.Point(48, 10);
-            this.lblAuthor.Name = "lblAuthor";
-            this.lblAuthor.Size = new System.Drawing.Size(51, 12);
-            this.lblAuthor.TabIndex = 1;
-            this.lblAuthor.Text = "SychicBoy";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.label1.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.ForeColor = System.Drawing.Color.Gray;
-            this.label1.Location = new System.Drawing.Point(5, 10);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(43, 12);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Author: ";
-            // 
-            // toolStripMenuItem2
-            // 
-            this.toolStripMenuItem2.AutoSize = false;
-            this.toolStripMenuItem2.Enabled = false;
-            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(185, 5);
-            this.toolStripMenuItem2.Text = " ";
-            // 
-            // toolStripMenuItem1
-            // 
-            this.toolStripMenuItem1.AutoSize = false;
-            this.toolStripMenuItem1.Enabled = false;
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(185, 5);
-            this.toolStripMenuItem1.Text = " ";
-            // 
-            // btnStart
-            // 
-            this.btnStart.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(27)))), ((int)(((byte)(27)))));
-            this.btnStart.BorderRadius = 25;
-            this.btnStart.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnStart.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnStart.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
-            this.btnStart.FlatAppearance.BorderSize = 0;
-            this.btnStart.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(18)))), ((int)(((byte)(18)))));
-            this.btnStart.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(34)))), ((int)(((byte)(34)))));
-            this.btnStart.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnStart.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnStart.ForeColor = System.Drawing.Color.Silver;
-            this.btnStart.Location = new System.Drawing.Point(200, 5);
-            this.btnStart.Name = "btnStart";
-            this.btnStart.Size = new System.Drawing.Size(393, 45);
-            this.btnStart.TabIndex = 15;
-            this.btnStart.Text = "Start Deobfuscation";
-            this.btnStart.TextTransform = NETReactorSlayer.GUI.UserControls.NRSButton.TextTransformEnum.None;
-            this.btnStart.UseVisualStyleBackColor = false;
-            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
-            // 
-            // scrollbarLogs
-            // 
-            this.scrollbarLogs.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(27)))), ((int)(((byte)(27)))));
-            this.scrollbarLogs.Dock = System.Windows.Forms.DockStyle.Right;
-            this.scrollbarLogs.Location = new System.Drawing.Point(776, 2);
-            this.scrollbarLogs.Maximum = 10;
-            this.scrollbarLogs.Name = "scrollbarLogs";
-            this.scrollbarLogs.Size = new System.Drawing.Size(15, 153);
-            this.scrollbarLogs.TabIndex = 17;
-            this.scrollbarLogs.Text = "nrsScrollBar1";
-            this.scrollbarLogs.ViewSize = 9;
-            this.scrollbarLogs.ValueChanged += new System.EventHandler<NETReactorSlayer.GUI.UserControls.ScrollValueEventArgs>(this.scrollbarLogs_ValueChanged);
-            // 
-            // txtInput
-            // 
-            this.txtInput.AllowDrop = true;
-            this.txtInput.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(27)))), ((int)(((byte)(27)))));
-            this.txtInput.BorderRadius = 0;
-            this.txtInput.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtInput.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.txtInput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtInput.Font = new System.Drawing.Font("Segoe UI Semibold", 7.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtInput.ForeColor = System.Drawing.Color.Silver;
-            this.txtInput.Location = new System.Drawing.Point(0, 6);
-            this.txtInput.Name = "txtInput";
-            this.txtInput.PlaceHolderColor = System.Drawing.Color.Gray;
-            this.txtInput.PlaceHolderText = "DRAG & DROP TARGET FILE HERE OR ENTER FILE PATH";
-            this.txtInput.Progress = 22F;
-            this.txtInput.ProgressColor = System.Drawing.Color.MediumSeaGreen;
-            this.txtInput.Size = new System.Drawing.Size(793, 21);
-            this.txtInput.TabIndex = 2;
-            this.txtInput.Tag = "";
-            this.txtInput.Text = "DRAG & DROP TARGET FILE HERE OR ENTER FILE PATH";
-            this.txtInput.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.txtInput.TextTransform = NETReactorSlayer.GUI.UserControls.NRSTextBox.TextTransformEnum.None;
-            this.txtInput.WordWrap = false;
-            this.txtInput.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtInput_DragDrop);
-            this.txtInput.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtInput_DragEnter);
             // 
             // chkPreserveAll
             // 
@@ -838,6 +712,133 @@ namespace NETReactorSlayer.GUI
             this.chkDumpCosturaAsm.Tag = "--dump-costura-assemblies";
             this.chkDumpCosturaAsm.Text = "Dump Costura-Fody Assemblies";
             this.chkDumpCosturaAsm.UseVisualStyleBackColor = true;
+            // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(27)))), ((int)(((byte)(27)))));
+            this.panel1.Controls.Add(this.llblGitHub);
+            this.panel1.Controls.Add(this.label2);
+            this.panel1.Controls.Add(this.label5);
+            this.panel1.Controls.Add(this.lblVersion);
+            this.panel1.Controls.Add(this.llblWebsite);
+            this.panel1.Controls.Add(this.label4);
+            this.panel1.Controls.Add(this.lblAuthor);
+            this.panel1.Controls.Add(this.label1);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel1.Location = new System.Drawing.Point(30, 496);
+            this.panel1.Name = "panel1";
+            this.panel1.Padding = new System.Windows.Forms.Padding(5, 10, 5, 0);
+            this.panel1.Size = new System.Drawing.Size(853, 40);
+            this.panel1.TabIndex = 17;
+            // 
+            // llblGitHub
+            // 
+            this.llblGitHub.ActiveLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.llblGitHub.AutoSize = true;
+            this.llblGitHub.Dock = System.Windows.Forms.DockStyle.Left;
+            this.llblGitHub.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Bold);
+            this.llblGitHub.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.llblGitHub.LinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.llblGitHub.Location = new System.Drawing.Point(351, 10);
+            this.llblGitHub.Name = "llblGitHub";
+            this.llblGitHub.Size = new System.Drawing.Size(38, 12);
+            this.llblGitHub.TabIndex = 7;
+            this.llblGitHub.TabStop = true;
+            this.llblGitHub.Tag = "https://github.com/SychicBoy/NETReactorSlayer";
+            this.llblGitHub.Text = "GitHub";
+            this.llblGitHub.VisitedLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.llblGitHub.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblGitHub_LinkClicked);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Dock = System.Windows.Forms.DockStyle.Left;
+            this.label2.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.ForeColor = System.Drawing.Color.Gray;
+            this.label2.Location = new System.Drawing.Point(272, 10);
+            this.label2.Name = "label2";
+            this.label2.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
+            this.label2.Size = new System.Drawing.Size(79, 12);
+            this.label2.TabIndex = 6;
+            this.label2.Text = "Repository: ";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Dock = System.Windows.Forms.DockStyle.Right;
+            this.label5.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.ForeColor = System.Drawing.Color.Gray;
+            this.label5.Location = new System.Drawing.Point(808, 10);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(40, 12);
+            this.label5.TabIndex = 4;
+            this.label5.Text = "Version:";
+            // 
+            // lblVersion
+            // 
+            this.lblVersion.AutoSize = true;
+            this.lblVersion.Dock = System.Windows.Forms.DockStyle.Right;
+            this.lblVersion.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblVersion.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.lblVersion.Location = new System.Drawing.Point(848, 10);
+            this.lblVersion.Name = "lblVersion";
+            this.lblVersion.Size = new System.Drawing.Size(0, 12);
+            this.lblVersion.TabIndex = 5;
+            // 
+            // llblWebsite
+            // 
+            this.llblWebsite.ActiveLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.llblWebsite.AutoSize = true;
+            this.llblWebsite.Dock = System.Windows.Forms.DockStyle.Left;
+            this.llblWebsite.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Bold);
+            this.llblWebsite.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.llblWebsite.LinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.llblWebsite.Location = new System.Drawing.Point(166, 10);
+            this.llblWebsite.Name = "llblWebsite";
+            this.llblWebsite.Size = new System.Drawing.Size(106, 12);
+            this.llblWebsite.TabIndex = 3;
+            this.llblWebsite.TabStop = true;
+            this.llblWebsite.Tag = "https://www.CodeStrikers.org";
+            this.llblWebsite.Text = "www.CodeStrikers.org";
+            this.llblWebsite.VisitedLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.llblWebsite.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblWebsite_LinkClicked);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Dock = System.Windows.Forms.DockStyle.Left;
+            this.label4.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.ForeColor = System.Drawing.Color.Gray;
+            this.label4.Location = new System.Drawing.Point(99, 10);
+            this.label4.Name = "label4";
+            this.label4.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
+            this.label4.Size = new System.Drawing.Size(67, 12);
+            this.label4.TabIndex = 2;
+            this.label4.Text = "Website: ";
+            // 
+            // lblAuthor
+            // 
+            this.lblAuthor.AutoSize = true;
+            this.lblAuthor.Dock = System.Windows.Forms.DockStyle.Left;
+            this.lblAuthor.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblAuthor.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.lblAuthor.Location = new System.Drawing.Point(48, 10);
+            this.lblAuthor.Name = "lblAuthor";
+            this.lblAuthor.Size = new System.Drawing.Size(51, 12);
+            this.lblAuthor.TabIndex = 1;
+            this.lblAuthor.Text = "SychicBoy";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Dock = System.Windows.Forms.DockStyle.Left;
+            this.label1.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.ForeColor = System.Drawing.Color.Gray;
+            this.label1.Location = new System.Drawing.Point(5, 10);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(43, 12);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Author: ";
             // 
             // MainWindow
             // 

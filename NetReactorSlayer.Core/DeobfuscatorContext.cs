@@ -72,8 +72,9 @@ namespace NETReactorSlayer.Core
                             if (value)
                                 if (!DeobfuscatorOptions.Stages.Any(x => x.GetType().Name == deobfuscator.GetType().Name))
                                     DeobfuscatorOptions.Stages.Add(deobfuscator);
-                                else
-                                    DeobfuscatorOptions.Stages.Remove(deobfuscator);
+                                else { }
+                            else
+                                DeobfuscatorOptions.Stages.Remove(DeobfuscatorOptions.Stages.Where(x => x.GetType().Name == deobfuscator.GetType().Name).FirstOrDefault());
                         }
                     }
                 }
