@@ -98,7 +98,7 @@ namespace NETReactorSlayer.GUI
             SetButtonStatus(true);
             await Task.Delay(500);
             Arguments.Clear();
-            Arguments.Append(txtInput.Text);
+            Arguments.Append($"\"{txtInput.Text}\"");
             Logger.Clear();
             foreach (Control control in tabelOptions.Controls)
                 if (control.Tag is string command && control is NRSCheckBox checkBox)
