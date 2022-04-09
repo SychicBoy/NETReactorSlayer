@@ -3,7 +3,7 @@
    <img alt=".NETReactorSlayer Logo" src="Logo-Light.png#gh-light-mode-only" width="1000" />
 </p>
 
-# .NETReactorSlayer <br /> ![](https://img.shields.io/github/v/release/SychicBoy/NETReactorSlayer) ![](https://img.shields.io/github/downloads/SychicBoy/NETReactorSlayer/total) ![](https://img.shields.io/github/license/SychicBoy/NETReactorSlayer) <a href="https://commerce.coinbase.com/checkout/1d7bb9ea-4853-4271-95c0-8996d2bdf3c6"><img src="https://img.shields.io/badge/donate-crypto-f46db0" alt="Donate crypto"></img></a>
+# .NETReactorSlayer <br /> ![](https://img.shields.io/github/v/release/SychicBoy/NETReactorSlayer) ![](https://img.shields.io/github/downloads/SychicBoy/NETReactorSlayer/total) ![](https://img.shields.io/github/license/SychicBoy/NETReactorSlayer) ![](https://img.shields.io/github/last-commit/SychicBoy/NETReactorSlayer) <a href="https://commerce.coinbase.com/checkout/1d7bb9ea-4853-4271-95c0-8996d2bdf3c6"><img src="https://img.shields.io/badge/donate-crypto-f46db0" alt="Donate crypto"></img></a>
 
 **.NETReactorSlayer** is an open source (GPLv3) deobfuscator for [Eziriz .NET Reactor](https://www.eziriz.com/reactor_download.htm)
 
@@ -20,6 +20,7 @@ GUI             |  CLI
 | Description | Command | Default Value |
 | ------ | ------ | ------ |
 | Decrypt Methods (NecroBit) | `--decrypt-method` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| Decrypt Booleans | `--decrypt-booleans` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | Deobfuscate Control Flow | `--deobfuscate-cflow` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | Decrypt Hidden Calls | `--decrypt-hidden-calls` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | Remove Reference Proxies | `--remove-ref-proxies` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
