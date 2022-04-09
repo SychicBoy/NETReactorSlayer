@@ -41,19 +41,14 @@ namespace NETReactorSlayer.Core.Deobfuscators
                             if (method.Body.Instructions[i].IsLdcI4() && method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Call))
                             {
                                 object result = null;
-                                IMethod strMethod = (IMethod)method.Body.Instructions[i + 1].Operand;
-                                try
-                                {
-                                    if (!DotNetUtils.IsMethod(strMethod, "System.String", "(System.Int32)"))
-                                    {
-                                        if (type == strMethod.DeclaringType)
-                                        {
-                                            if (!DotNetUtils.IsMethod(strMethod, "System.Object", "(System.Int32)")) continue;
-                                        }
-                                        else continue;
-                                    }
-                                }
-                                catch { }
+                                MethodDef strMethod = ((IMethod)method.Body.Instructions[i + 1].Operand).ResolveMethodDef();
+                                if (!strMethod.HasReturnType)
+                                    continue;
+                                if (strMethod.ReturnType.FullName != "System.String" && !(strMethod.DeclaringType != null && strMethod.DeclaringType == type && strMethod.ReturnType.FullName == "System.Object"))
+                                    continue;
+                                if (!strMethod.HasParams() || strMethod.Parameters.Count != 1 || strMethod.Parameters[0].Type.FullName != "System.Int32")
+                                    continue;
+
                                 result = (StacktracePatcher.PatchStackTraceGetMethod.MethodToReplace = (DeobfuscatorContext.Assembly.ManifestModule.ResolveMethod((int)strMethod.ResolveMethodDef().MDToken.Raw) as MethodInfo)).Invoke(null, new object[]
                                 {
                                 method.Body.Instructions[i].GetLdcI4Value()

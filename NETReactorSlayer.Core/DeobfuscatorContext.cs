@@ -96,7 +96,8 @@ namespace NETReactorSlayer.Core
                 try
                 {
                     Module = AssemblyModule.Load();
-                    PEImage = new MyPEImage(DeobUtils.ReadModule(Module));
+                    ModuleBytes = DeobUtils.ReadModule(Module);
+                    PEImage = new MyPEImage(ModuleBytes);
                     try { Assembly = Assembly.Load(SourcePath); } catch { Assembly = Assembly.UnsafeLoadFrom(SourcePath); }
                     return true;
                 }
@@ -138,6 +139,7 @@ namespace NETReactorSlayer.Core
                             IsNative = true;
                             Process.Start(new ProcessStartInfo(Process.GetCurrentProcess().MainModule.FileName, $"--delete-native-image {Process.GetCurrentProcess().Id} \"{SourcePath}\"") { WindowStyle = ProcessWindowStyle.Hidden });
                             Logger.Done("Native image unpacked.");
+                            ModuleBytes = DeobUtils.ReadModule(Module);
                             return true;
                         }
                         else
@@ -241,6 +243,7 @@ namespace NETReactorSlayer.Core
         public static string SourcePath { get; set; }
         public static string DestPath { get; set; }
         public static string DestFileName { get; set; }
+        public static byte[] ModuleBytes { get; set; }
         public static ModuleDefMD Module { get; set; }
         public static Assembly Assembly { get; set; }
         public static AssemblyModule AssemblyModule { get; set; }

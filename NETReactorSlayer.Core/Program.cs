@@ -59,14 +59,8 @@ namespace NETReactorSlayer.Core
                 Logger.Done($"{Context.DeobfuscatorOptions.Stages.Count}/{Context.DeobfuscatorOptions.Dictionary.Count} Modules loaded...");
                 foreach (var DeobfuscatorStage in Context.DeobfuscatorOptions.Stages)
                 {
-                    try
-                    {
-                        DeobfuscatorStage.Execute();
-                    }
-                    catch (Exception exception)
-                    {
-                        Logger.Error($"{DeobfuscatorStage.GetType().Name} => {exception.Message}");
-                    }
+                    DeobfuscatorStage.Execute();
+
                 }
                 Context.Save();
             }

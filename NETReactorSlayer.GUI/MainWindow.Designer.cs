@@ -89,6 +89,7 @@ namespace NETReactorSlayer.GUI
             this.label4 = new System.Windows.Forms.Label();
             this.lblAuthor = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.chkDecryptBools = new NETReactorSlayer.GUI.UserControls.NRSCheckBox();
             this.pnlHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picMinimize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picExit)).BeginInit();
@@ -393,11 +394,8 @@ namespace NETReactorSlayer.GUI
             this.tabelOptions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.tabelOptions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.tabelOptions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tabelOptions.Controls.Add(this.chkPreserveAll, 0, 4);
-            this.tabelOptions.Controls.Add(this.chkKeepOldMaxStack, 2, 3);
             this.tabelOptions.Controls.Add(this.chkDeobCFlow, 1, 0);
             this.tabelOptions.Controls.Add(this.chkDecryptMethods, 0, 0);
-            this.tabelOptions.Controls.Add(this.chkCleanup, 1, 3);
             this.tabelOptions.Controls.Add(this.chkDecryptTokens, 0, 3);
             this.tabelOptions.Controls.Add(this.chkPatchAntiTD, 2, 0);
             this.tabelOptions.Controls.Add(this.chkRemoveRefProxies, 0, 1);
@@ -406,6 +404,10 @@ namespace NETReactorSlayer.GUI
             this.tabelOptions.Controls.Add(this.chkDecryptResources, 0, 2);
             this.tabelOptions.Controls.Add(this.chkDumpDNRAsm, 1, 2);
             this.tabelOptions.Controls.Add(this.chkDumpCosturaAsm, 2, 2);
+            this.tabelOptions.Controls.Add(this.chkPreserveAll, 1, 4);
+            this.tabelOptions.Controls.Add(this.chkKeepOldMaxStack, 0, 4);
+            this.tabelOptions.Controls.Add(this.chkCleanup, 2, 3);
+            this.tabelOptions.Controls.Add(this.chkDecryptBools, 1, 3);
             this.tabelOptions.Dock = System.Windows.Forms.DockStyle.Top;
             this.tabelOptions.Location = new System.Drawing.Point(3, 0);
             this.tabelOptions.Name = "tabelOptions";
@@ -428,7 +430,7 @@ namespace NETReactorSlayer.GUI
             this.chkPreserveAll.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
             this.chkPreserveAll.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
             this.chkPreserveAll.HoverForeColor = System.Drawing.Color.Gray;
-            this.chkPreserveAll.Location = new System.Drawing.Point(3, 83);
+            this.chkPreserveAll.Location = new System.Drawing.Point(266, 83);
             this.chkPreserveAll.Name = "chkPreserveAll";
             this.chkPreserveAll.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
             this.chkPreserveAll.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
@@ -449,12 +451,12 @@ namespace NETReactorSlayer.GUI
             this.chkKeepOldMaxStack.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
             this.chkKeepOldMaxStack.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
             this.chkKeepOldMaxStack.HoverForeColor = System.Drawing.Color.Gray;
-            this.chkKeepOldMaxStack.Location = new System.Drawing.Point(529, 63);
+            this.chkKeepOldMaxStack.Location = new System.Drawing.Point(3, 83);
             this.chkKeepOldMaxStack.Name = "chkKeepOldMaxStack";
             this.chkKeepOldMaxStack.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
             this.chkKeepOldMaxStack.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
             this.chkKeepOldMaxStack.PressForeColor = System.Drawing.Color.White;
-            this.chkKeepOldMaxStack.Size = new System.Drawing.Size(197, 14);
+            this.chkKeepOldMaxStack.Size = new System.Drawing.Size(197, 18);
             this.chkKeepOldMaxStack.TabIndex = 14;
             this.chkKeepOldMaxStack.Tag = "--keep-stack";
             this.chkKeepOldMaxStack.Text = "Keep Old Max Stack Value";
@@ -518,7 +520,7 @@ namespace NETReactorSlayer.GUI
             this.chkCleanup.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
             this.chkCleanup.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
             this.chkCleanup.HoverForeColor = System.Drawing.Color.Gray;
-            this.chkCleanup.Location = new System.Drawing.Point(266, 63);
+            this.chkCleanup.Location = new System.Drawing.Point(529, 63);
             this.chkCleanup.Name = "chkCleanup";
             this.chkCleanup.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
             this.chkCleanup.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
@@ -840,6 +842,29 @@ namespace NETReactorSlayer.GUI
             this.label1.TabIndex = 0;
             this.label1.Text = "Author: ";
             // 
+            // chkDecryptBools
+            // 
+            this.chkDecryptBools.AutoSize = true;
+            this.chkDecryptBools.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkDecryptBools.Checked = true;
+            this.chkDecryptBools.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkDecryptBools.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkDecryptBools.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptBools.ForeColor = System.Drawing.Color.Silver;
+            this.chkDecryptBools.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptBools.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDecryptBools.HoverForeColor = System.Drawing.Color.Gray;
+            this.chkDecryptBools.Location = new System.Drawing.Point(266, 63);
+            this.chkDecryptBools.Name = "chkDecryptBools";
+            this.chkDecryptBools.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptBools.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDecryptBools.PressForeColor = System.Drawing.Color.White;
+            this.chkDecryptBools.Size = new System.Drawing.Size(141, 14);
+            this.chkDecryptBools.TabIndex = 16;
+            this.chkDecryptBools.Tag = "--decrypt-booleans";
+            this.chkDecryptBools.Text = "Decrypt Booleans";
+            this.chkDecryptBools.UseVisualStyleBackColor = true;
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -928,6 +953,7 @@ namespace NETReactorSlayer.GUI
         private System.Windows.Forms.ToolStripMenuItem copyLogsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private UserControls.NRSCheckBox chkDecryptBools;
     }
 }
 

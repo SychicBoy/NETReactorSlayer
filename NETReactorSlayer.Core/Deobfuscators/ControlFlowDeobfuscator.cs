@@ -129,6 +129,51 @@ namespace NETReactorSlayer.Core.Deobfuscators
                             method.Body.Instructions[i + 1].OpCode = OpCodes.Br_S;
                         }
                     }
+                    else if (method.Body.Instructions[i].OpCode.Equals(OpCodes.Call) && method.Body.Instructions[i].Operand is IMethod iMethod)
+                    {
+                        var methodDef = iMethod.ResolveMethodDef();
+                        if (methodDef == null || methodDef.Parameters.Count != 0 || methodDef.IsPublic || !methodDef.HasReturnType || methodDef.ReturnType.FullName != "System.Boolean" || !methodDef.HasBody || !methodDef.Body.HasInstructions || methodDef.Body.Instructions.Count < 1)
+                            continue;
+                        if (methodDef.Body.Instructions[0].IsLdcI4() && methodDef.Body.Instructions[1].OpCode.Equals(OpCodes.Ret))
+                        {
+                            int value = methodDef.Body.Instructions[0].GetLdcI4Value();
+                            if (value == 1 || value == 0)
+                            {
+                                if (method.Body.Instructions[i + 1].IsConditionalBranch())
+                                    method.Body.Instructions[i] = Instruction.CreateLdcI4(value);
+                                else if (method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Pop))
+                                {
+                                    method.Body.Instructions[i].OpCode = OpCodes.Nop;
+                                    method.Body.Instructions[i + 1].OpCode = OpCodes.Nop;
+                                }
+                                else
+                                    continue;
+                                count += 1L;
+                            }
+                        }
+                        else if (methodDef.Body.Instructions[0].IsBr())
+                        {
+                            var instruction = (methodDef.Body.Instructions[0].Operand as Instruction);
+                            if (instruction.IsLdcI4())
+                            {
+                                int value = instruction.GetLdcI4Value();
+                                if (value == 1 || value == 0)
+                                {
+
+                                    if (method.Body.Instructions[i + 1].IsConditionalBranch())
+                                        method.Body.Instructions[i] = Instruction.CreateLdcI4(value);
+                                    else if (method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Pop))
+                                    {
+                                        method.Body.Instructions[i].OpCode = OpCodes.Nop;
+                                        method.Body.Instructions[i + 1].OpCode = OpCodes.Nop;
+                                    }
+                                    else
+                                        continue;
+                                    count += 1L;
+                                }
+                            }
+                        }
+                    }
                     else if (method.Body.Instructions[i].Operand is IField field && field.ResolveFieldDef().FieldType.FullName.Equals("System.Int32"))
                     {
                         if (!Fields.TryGetValue(field.MDToken.ToInt32(), out int value) || field.DeclaringType.Equals(method.DeclaringType)) continue;

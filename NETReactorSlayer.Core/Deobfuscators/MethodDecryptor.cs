@@ -305,7 +305,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 if (!isFindDnrMethod || mode == 1)
                     DeobfuscatorContext.Module = DeobfuscatorContext.AssemblyModule.Reload(DeobfuscatorContext.PEImage.peImageData, CreateDumpedMethodsRestorer(dumpedMethods), null);
                 else if (dumpedMethods.Count > 0)
-                    DeobfuscatorContext.Module = DeobfuscatorContext.AssemblyModule.Reload(DeobUtils.ReadModule(DeobfuscatorContext.Module), CreateDumpedMethodsRestorer(dumpedMethods), null);
+                    DeobfuscatorContext.Module = DeobfuscatorContext.AssemblyModule.Reload(DeobfuscatorContext.ModuleBytes, CreateDumpedMethodsRestorer(dumpedMethods), null);
                 else
                 {
                     Logger.Error("Failed to decrypt methods.");
@@ -493,7 +493,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             return ((oldFlags & flags) == flags);
         }
 
-        void Deobfuscate(MethodDef method)
+        public void Deobfuscate(MethodDef method)
         {
             List<IBlocksDeobfuscator> list = new List<IBlocksDeobfuscator> { new MethodCallInliner(false) };
             SimpleDeobfuscatorFlags flags = 0;

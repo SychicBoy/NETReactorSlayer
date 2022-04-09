@@ -65,7 +65,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                     {
                         if (method.Body.Instructions[index].OpCode.Equals(OpCodes.Call))
                         {
-                            if (method.Body.Instructions[index].Operand is IMethod iMethod && MethodsToPatch.Any(x => x.MDToken.ToInt32() == iMethod.MDToken.ToInt32()))
+                            if (method.Body.Instructions[index].Operand is IMethod iMethod && MethodsToPatch.Any(x => x.FullName == iMethod.FullName))
                             {
                                 method.Body.Instructions.RemoveAt(index);
                                 index--;
@@ -74,7 +74,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                         }
                         else if (method.Body.Instructions[index].OpCode.Equals(OpCodes.Newobj) && method.Body.Instructions[index + 1].OpCode.Equals(OpCodes.Pop))
                         {
-                            if (method.Body.Instructions[index].Operand is IMethod iMethod && MethodsToPatch.Any(x => x.MDToken.ToInt32() == iMethod.MDToken.ToInt32()))
+                            if (method.Body.Instructions[index].Operand is IMethod iMethod && MethodsToPatch.Any(x => x.FullName == iMethod.FullName))
                             {
                                 method.Body.Instructions.RemoveAt(index);
                                 method.Body.Instructions.RemoveAt(index);
@@ -147,9 +147,10 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 }
             }
             #endregion
-            #region Remove Junk Methods & Fields
-            foreach (var type in DeobfuscatorContext.Module.GetTypes())
+            #region Remove Junk Methods & Fields & Classes
+            foreach (var type in DeobfuscatorContext.Module.GetTypes().ToList())
             {
+                bool IsJunk = true;
                 foreach (var method in type.Methods.Where(x => x.IsAssembly && x.IsStatic && x.HasBody && x.Body.HasInstructions && x.HasReturnType).ToList())
                 {
                     if (!DeobfuscatorContext.Module.GetTypes()
@@ -158,7 +159,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                         .Where(x => x.HasBody && x.Body.HasInstructions)
                         .SelectMany(x => x.Body.Instructions)
                         .OfType<Instruction>()
-                        .Any(x => x.Operand is IMethod iMethod && iMethod.MDToken.ToInt32() == method.MDToken.ToInt32()))
+                        .Any(x => x.Operand is IMethod iMethod && iMethod.FullName == method.FullName))
                     {
                         foreach (var instruction in method.Body.Instructions)
                         {
@@ -170,7 +171,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                                     .Where(x => x.HasBody && x.Body.HasInstructions)
                                     .SelectMany(x => x.Body.Instructions)
                                     .OfType<Instruction>()
-                                    .Any(x => x.Operand is IField field && field.MDToken.ToInt32() == iField.MDToken.ToInt32()))
+                                    .Any(x => x.Operand is IField field && field.FullName == iField.FullName))
                                 {
                                     type.Fields.Remove(iField.ResolveFieldDef());
                                     break;
@@ -179,6 +180,58 @@ namespace NETReactorSlayer.Core.Deobfuscators
                         }
                         type.Remove(method);
                     }
+                }
+
+                foreach (var method in type.Methods.ToList())
+                {
+                    if (method == null || method.Parameters.Count != 0 || method.IsPublic || !method.HasReturnType || method.ReturnType.FullName != "System.Boolean" || !method.HasBody || !method.Body.HasInstructions || method.Body.Instructions.Count < 1)
+                        continue;
+                    if (method.Body.Instructions[0].IsLdcI4() && method.Body.Instructions[1].OpCode.Equals(OpCodes.Ret))
+                    {
+                        int value = method.Body.Instructions[0].GetLdcI4Value();
+                        if (value == 1 || value == 0)
+                        {
+                            foreach (var methodDef in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
+                            {
+                                foreach (var instr in methodDef.Body.Instructions.ToList())
+                                {
+                                    if (instr.Operand is IMethod m && m.MDToken.ToInt32() == method.MDToken.ToInt32())
+                                        methodDef.Body.Instructions[methodDef.Body.Instructions.IndexOf(instr)] = Instruction.CreateLdcI4(value);
+                                }
+                            }
+                            try
+                            {
+                                method.DeclaringType.Methods.Remove(method);
+                            }
+                            catch { }
+                        }
+                    }
+                }
+
+                if (type.IsClass && !type.HasProperties && !type.HasEvents && !type.HasNestedTypes && !type.HasFields && !type.HasInterfaces)
+                {
+                    foreach (var method in type.Methods.ToList())
+                    {
+                        if (method.HasImplMap || method.IsPinvokeImpl)
+                            IsJunk = false;
+                        else if (!method.HasBody || !method.Body.HasInstructions)
+                            continue;
+                        else if (method.Body.Instructions.Where(x => x.OpCode != OpCodes.Nop).Count() > 1)
+                            IsJunk = false;
+                        if (!IsJunk)
+                            break;
+                    }
+                    if (!IsJunk)
+                        continue;
+                    try
+                    {
+                        var typeDef = type.ResolveTypeDef();
+                        if (typeDef.DeclaringType != null)
+                            typeDef.DeclaringType.NestedTypes.Remove(typeDef);
+                        else
+                            DeobfuscatorContext.Module.Types.Remove(typeDef);
+                    }
+                    catch { }
                 }
             }
             #endregion
