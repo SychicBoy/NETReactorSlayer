@@ -52,7 +52,7 @@ internal class ResourceDecryptor : IDeobfuscator
         EmbeddedResource encryptedResource;
         var methodsToPatch = new HashSet<MethodDef>();
         foreach (var type in DeobfuscatorContext.Module.GetTypes())
-            if (type.FindMethod(".ctor") is { HasBody: true } method1 && method1.Body.HasInstructions)
+            if (type.FindMethod(".ctor") is {HasBody: true} method1 && method1.Body.HasInstructions)
                 for (var i = 0; i < method1.Body.Instructions.Count; i++)
                     if (method1.Body.Instructions[i].OpCode.Equals(OpCodes.Newobj) &&
                         method1.Body.Instructions[i].Operand.ToString().Contains("System.ResolveEventHandler") &&
@@ -112,12 +112,11 @@ internal class ResourceDecryptor : IDeobfuscator
                                                         goto Decompress;
                                                     }
                                                 }
-                                }
-                                catch { }
+                                } catch { }
 
         Logger.Warn("Couldn't find any encrypted resource.");
         return;
-    Decompress:
+        Decompress:
         if (encryptedResource == null)
         {
             Logger.Warn("Couldn't find any encrypted resource.");
@@ -132,14 +131,12 @@ internal class ResourceDecryptor : IDeobfuscator
                 try
                 {
                     result = QuickLZ.Decompress(decryptedBytes);
-                }
-                catch
+                } catch
                 {
                     try
                     {
                         result = DeobUtils.Inflate(decryptedBytes, true);
-                    }
-                    catch
+                    } catch
                     {
                         result = null;
                     }
@@ -151,8 +148,7 @@ internal class ResourceDecryptor : IDeobfuscator
             Cleaner.TypesToRemove.Add(typeDef);
             Cleaner.ResourceToRemove.Add(encryptedResource);
             Logger.Done("Assembly resources decrypted");
-        }
-        catch (Exception ex)
+        } catch (Exception ex)
         {
             Logger.Error("Failed to decrypt resources. " + ex.Message);
         }
@@ -182,9 +178,8 @@ internal class ResourceDecryptor : IDeobfuscator
                 try
                 {
                     result[method.Body.Instructions[i + 1].GetLdcI4Value()] =
-                        (byte)method.Body.Instructions[i + 2].GetLdcI4Value();
-                }
-                catch
+                        (byte) method.Body.Instructions[i + 2].GetLdcI4Value();
+                } catch
                 {
                     return result;
                 }
@@ -195,15 +190,14 @@ internal class ResourceDecryptor : IDeobfuscator
 
     public static bool IsNeedReverse(MethodDef method)
     {
-        if (method is { HasBody: true } && method.Body.HasInstructions)
+        if (method is {HasBody: true} && method.Body.HasInstructions)
             foreach (var instr in method.Body.Instructions)
                 try
                 {
                     if (instr.Operand is IMethod calledMethod &&
                         calledMethod.FullName.Contains("System.Array::Reverse"))
                         return true;
-                }
-                catch { }
+                } catch { }
 
         return false;
     }
@@ -521,8 +515,8 @@ internal class ResourceDecryptor : IDeobfuscator
             return sizeLeft switch
             {
                 1 => ary[index],
-                2 => (uint)(ary[index] | (ary[index + 1] << 8)),
-                3 => (uint)(ary[index] | (ary[index + 1] << 8) | (ary[index + 2] << 16)),
+                2 => (uint) (ary[index] | (ary[index + 1] << 8)),
+                3 => (uint) (ary[index] | (ary[index + 1] << 8) | (ary[index + 2] << 16)),
                 _ => throw new ApplicationException("Can't read data")
             };
         }
@@ -530,10 +524,10 @@ internal class ResourceDecryptor : IDeobfuscator
         private void WriteUInt32(byte[] ary, int index, uint value)
         {
             var num = ary.Length - index;
-            if (num >= 1) ary[index] = (byte)value;
-            if (num >= 2) ary[index + 1] = (byte)(value >> 8);
-            if (num >= 3) ary[index + 2] = (byte)(value >> 16);
-            if (num >= 4) ary[index + 3] = (byte)(value >> 24);
+            if (num >= 1) ary[index] = (byte) value;
+            if (num >= 2) ary[index + 1] = (byte) (value >> 8);
+            if (num >= 3) ary[index + 2] = (byte) (value >> 16);
+            if (num >= 4) ary[index + 3] = (byte) (value >> 24);
         }
 
         public uint CalculateMagic(uint input)
@@ -541,19 +535,19 @@ internal class ResourceDecryptor : IDeobfuscator
             if (_emuArg == null)
             {
                 _instrEmulator.Initialize(_method, _method.Parameters, _locals, _method.Body.InitLocals, false);
-                _instrEmulator.SetLocal(_emuLocal, new Int32Value((int)input));
+                _instrEmulator.SetLocal(_emuLocal, new Int32Value((int) input));
             }
             else
             {
                 _instrEmulator.Initialize(_emuMethod, _emuMethod.Parameters, _locals, _emuMethod.Body.InitLocals,
                     false);
-                _instrEmulator.SetArg(_emuArg, new Int32Value((int)input));
+                _instrEmulator.SetArg(_emuArg, new Int32Value((int) input));
             }
 
             foreach (var instr in _instructions) _instrEmulator.Emulate(instr);
             if (!(_instrEmulator.Pop() is Int32Value tos) || !tos.AllBitsValid())
                 throw new ApplicationException("Couldn't calculate magic value");
-            return (uint)tos.Value;
+            return (uint) tos.Value;
         }
     }
 
@@ -601,11 +595,11 @@ internal class ResourceDecryptor : IDeobfuscator
         private uint CalculateMagic(uint input)
         {
             _instrEmulator.Initialize(_method, _method.Parameters, _locals, _method.Body.InitLocals, false);
-            _instrEmulator.SetLocal(_emuLocal, new Int32Value((int)input));
+            _instrEmulator.SetLocal(_emuLocal, new Int32Value((int) input));
             foreach (var instr in _instructions) _instrEmulator.Emulate(instr);
             if (!(_instrEmulator.Pop() is Int32Value tos) || !tos.AllBitsValid())
                 throw new ApplicationException("Couldn't calculate magic value");
-            return (uint)tos.Value;
+            return (uint) tos.Value;
         }
 
         private uint ReadUInt32(byte[] ary, int index)
@@ -615,8 +609,8 @@ internal class ResourceDecryptor : IDeobfuscator
             return sizeLeft switch
             {
                 1 => ary[index],
-                2 => (uint)(ary[index] | (ary[index + 1] << 8)),
-                3 => (uint)(ary[index] | (ary[index + 1] << 8) | (ary[index + 2] << 16)),
+                2 => (uint) (ary[index] | (ary[index + 1] << 8)),
+                3 => (uint) (ary[index] | (ary[index + 1] << 8) | (ary[index + 2] << 16)),
                 _ => throw new ApplicationException("Can't read data")
             };
         }
@@ -624,10 +618,10 @@ internal class ResourceDecryptor : IDeobfuscator
         private void WriteUInt32(byte[] ary, int index, uint value)
         {
             var num = ary.Length - index;
-            if (num >= 1) ary[index] = (byte)value;
-            if (num >= 2) ary[index + 1] = (byte)(value >> 8);
-            if (num >= 3) ary[index + 2] = (byte)(value >> 16);
-            if (num >= 4) ary[index + 3] = (byte)(value >> 24);
+            if (num >= 1) ary[index] = (byte) value;
+            if (num >= 2) ary[index + 1] = (byte) (value >> 8);
+            if (num >= 3) ary[index + 2] = (byte) (value >> 16);
+            if (num >= 4) ary[index + 3] = (byte) (value >> 24);
         }
 
         private bool Find(IList<Instruction> instrs, out int startIndex, out int endIndex, out Local tmpLocal)

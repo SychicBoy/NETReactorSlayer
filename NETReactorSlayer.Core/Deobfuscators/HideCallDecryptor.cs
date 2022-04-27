@@ -12,332 +12,311 @@
     You should have received a copy of the GNU General Public License
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
-using de4dot.blocks;
-using de4dot.blocks.cflow;
-using dnlib.DotNet;
-using dnlib.DotNet.Emit;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using de4dot.blocks;
+using de4dot.blocks.cflow;
+using dnlib.DotNet;
+using dnlib.DotNet.Emit;
 
-namespace NETReactorSlayer.Core.Deobfuscators
+namespace NETReactorSlayer.Core.Deobfuscators;
+
+internal class HideCallDecryptor : IDeobfuscator
 {
-    class HideCallDecryptor : IDeobfuscator
+    private readonly List<MethodDef> _delegateCreatorMethods = new();
+    private readonly InstructionEmulator _instrEmulator = new();
+    private Dictionary<int, int> _dictionary;
+    private Local _emuLocal;
+    private EmbeddedResource _encryptedResource;
+    private List<Instruction> _instructions;
+
+    private List<Local> _locals;
+    private MethodDef _method;
+
+    public void Execute()
     {
-        public void Execute()
+        FindDelegateCreator();
+        if (_delegateCreatorMethods.Count < 1)
         {
-            FindDelegateCreator();
-            if (delegateCreatorMethods.Count < 1)
+            Logger.Warn("Couldn't find any hidden call.");
+            return;
+        }
+
+        _encryptedResource = FindMethodsDecrypterResource(_delegateCreatorMethods.First());
+        _method = _delegateCreatorMethods.First();
+        if (_method == null || _method.Body.Variables == null || _method.Body.Variables.Count < 1)
+        {
+            Logger.Warn("Couldn't find any hidden call.");
+            return;
+        }
+
+        _locals = new List<Local>(_method.Body.Variables);
+        var origInstrs = _method.Body.Instructions;
+        if (!Find(_method.Body.Instructions, out var startIndex, out var endIndex, out _emuLocal))
+            if (!FindStartEnd(origInstrs, out startIndex, out endIndex, out _emuLocal))
             {
                 Logger.Warn("Couldn't find any hidden call.");
                 return;
             }
-            encryptedResource = FindMethodsDecrypterResource(delegateCreatorMethods.First());
-            method = delegateCreatorMethods.First();
-            if (method == null || method.Body.Variables == null || method.Body.Variables.Count < 1)
-            {
-                Logger.Warn("Couldn't find any hidden call.");
-                return;
-            }
-            locals = new List<Local>(method.Body.Variables);
-            IList<Instruction> origInstrs = method.Body.Instructions;
-            if (!Find(method.Body.Instructions, out int startIndex, out int endIndex, out emuLocal))
-            {
-                if (!FindStartEnd(origInstrs, out startIndex, out endIndex, out emuLocal))
-                {
-                    Logger.Warn("Couldn't find any hidden call.");
-                    return;
-                }
-            }
-            int num = endIndex - startIndex + 1;
-            instructions = new List<Instruction>(num);
-            for (int i = 0; i < num; i++) instructions.Add(origInstrs[startIndex + i].Clone());
-            GetDictionary();
-            long count = 0L;
-            foreach (TypeDef type in DeobfuscatorContext.Module.GetTypes())
-            {
-                foreach (MethodDef method in (from x in type.Methods where x.HasBody && x.Body.HasInstructions select x).ToArray<MethodDef>())
-                {
-                    for (int i = 0; i < method.Body.Instructions.Count; i++)
-                    {
-                        IField field = null;
-                        try
-                        {
-                            if (method.Body.Instructions[i].OpCode.Equals(OpCodes.Ldsfld) && method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Call))
-                            {
-                                field = method.Body.Instructions[i].Operand as IField;
-                                GetCallInfo(field, out IMethod iMethod, out OpCode opCpde);
-                                if (iMethod != null)
-                                {
-                                    iMethod = DeobfuscatorContext.Module.Import(iMethod);
-                                    if (iMethod != null)
-                                    {
-                                        method.Body.Instructions[i].OpCode = OpCodes.Nop;
-                                        method.Body.Instructions[i + 1] = Instruction.Create(opCpde, iMethod);
-                                        method.Body.UpdateInstructionOffsets();
-                                        count += 1L;
-                                        Cleaner.TypesToRemove.Add(field.DeclaringType);
-                                    }
-                                }
-                            }
-                        }
-                        catch
-                        {
-                        }
-                    }
-                }
-            }
-            Cleaner.MethodsToRemove.Add(method);
-            if (count > 0L) Logger.Done((int)count + " Hidden calls restored.");
-            else Logger.Warn("Couldn't find any hidden call.");
-        }
 
-        bool Find(IList<Instruction> instrs, out int startIndex, out int endIndex, out Local tmpLocal)
-        {
-            startIndex = 0;
-            endIndex = 0;
-            tmpLocal = null;
-            if (!FindStart(instrs, out int emuStartIndex, out emuLocal)) return false;
-            if (!FindEnd(instrs, emuStartIndex, out int emuEndIndex)) return false;
-            startIndex = emuStartIndex;
-            endIndex = emuEndIndex;
-            tmpLocal = emuLocal;
-            return true;
-        }
-
-        bool FindStartEnd(IList<Instruction> instrs, out int startIndex, out int endIndex, out Local tmpLocal)
-        {
-            int i = 0;
-            while (i + 8 < instrs.Count)
-            {
-                if (instrs[i].OpCode.Code == Code.Conv_R_Un)
+        var num = endIndex - startIndex + 1;
+        _instructions = new List<Instruction>(num);
+        for (var i = 0; i < num; i++) _instructions.Add(origInstrs[startIndex + i].Clone());
+        GetDictionary();
+        var count = 0L;
+        foreach (var type in DeobfuscatorContext.Module.GetTypes())
+        foreach (var method in (from x in type.Methods where x.HasBody && x.Body.HasInstructions select x)
+                 .ToArray())
+            for (var i = 0; i < method.Body.Instructions.Count; i++)
+                try
                 {
-                    if (instrs[i + 1].OpCode.Code == Code.Conv_R8)
+                    if (method.Body.Instructions[i].OpCode.Equals(OpCodes.Ldsfld) &&
+                        method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Call))
                     {
-                        if (instrs[i + 2].OpCode.Code == Code.Conv_U4)
+                        var field = method.Body.Instructions[i].Operand as IField;
+                        GetCallInfo(field, out var iMethod, out var opCpde);
+                        if (iMethod != null)
                         {
-                            if (instrs[i + 3].OpCode.Code == Code.Add)
+                            iMethod = DeobfuscatorContext.Module.Import(iMethod);
+                            if (iMethod != null)
                             {
-                                int newEndIndex = i + 3;
-                                int newStartIndex = -1;
-                                for (int x = newEndIndex; x > 0; x--)
-                                {
-                                    if (instrs[x].OpCode.FlowControl != FlowControl.Next)
-                                    {
-                                        newStartIndex = x + 1;
-                                        break;
-                                    }
-                                }
-                                if (newStartIndex > 0)
-                                {
-                                    List<Local> checkLocs = new List<Local>();
-                                    int ckStartIndex = -1;
-                                    for (int y = newEndIndex; y >= newStartIndex; y--)
-                                    {
-                                        Local loc = CheckLocal(instrs[y], true);
-                                        if (loc != null)
-                                        {
-                                            if (!checkLocs.Contains(loc)) checkLocs.Add(loc);
-                                            if (checkLocs.Count == 3) break;
-                                            ckStartIndex = y;
-                                        }
-                                    }
-                                    endIndex = newEndIndex;
-                                    startIndex = Math.Max(ckStartIndex, newStartIndex);
-                                    tmpLocal = CheckLocal(instrs[startIndex], true);
-                                    return true;
-                                }
+                                method.Body.Instructions[i].OpCode = OpCodes.Nop;
+                                method.Body.Instructions[i + 1] = Instruction.Create(opCpde, iMethod);
+                                method.Body.UpdateInstructionOffsets();
+                                count += 1L;
+                                Cleaner.TypesToRemove.Add(field.DeclaringType);
                             }
                         }
                     }
-                }
-                i++;
-            }
-            endIndex = 0; startIndex = 0; tmpLocal = null; return false;
+                } catch { }
+
+        Cleaner.MethodsToRemove.Add(_method);
+        if (count > 0L) Logger.Done((int) count + " Hidden calls restored.");
+        else Logger.Warn("Couldn't find any hidden call.");
+    }
+
+    private bool Find(IList<Instruction> instrs, out int startIndex, out int endIndex, out Local tmpLocal)
+    {
+        startIndex = 0;
+        endIndex = 0;
+        tmpLocal = null;
+        if (!FindStart(instrs, out var emuStartIndex, out _emuLocal)) return false;
+        if (!FindEnd(instrs, emuStartIndex, out var emuEndIndex)) return false;
+        startIndex = emuStartIndex;
+        endIndex = emuEndIndex;
+        tmpLocal = _emuLocal;
+        return true;
+    }
+
+    private bool FindStartEnd(IList<Instruction> instrs, out int startIndex, out int endIndex, out Local tmpLocal)
+    {
+        var i = 0;
+        while (i + 8 < instrs.Count)
+        {
+            if (instrs[i].OpCode.Code == Code.Conv_R_Un)
+                if (instrs[i + 1].OpCode.Code == Code.Conv_R8)
+                    if (instrs[i + 2].OpCode.Code == Code.Conv_U4)
+                        if (instrs[i + 3].OpCode.Code == Code.Add)
+                        {
+                            var newEndIndex = i + 3;
+                            var newStartIndex = -1;
+                            for (var x = newEndIndex; x > 0; x--)
+                                if (instrs[x].OpCode.FlowControl != FlowControl.Next)
+                                {
+                                    newStartIndex = x + 1;
+                                    break;
+                                }
+
+                            if (newStartIndex > 0)
+                            {
+                                var checkLocs = new List<Local>();
+                                var ckStartIndex = -1;
+                                for (var y = newEndIndex; y >= newStartIndex; y--)
+                                    if (CheckLocal(instrs[y], true) is { } loc)
+                                    {
+                                        if (!checkLocs.Contains(loc)) checkLocs.Add(loc);
+                                        if (checkLocs.Count == 3) break;
+                                        ckStartIndex = y;
+                                    }
+
+                                endIndex = newEndIndex;
+                                startIndex = Math.Max(ckStartIndex, newStartIndex);
+                                tmpLocal = CheckLocal(instrs[startIndex], true);
+                                return true;
+                            }
+                        }
+
+            i++;
         }
 
-        bool FindStart(IList<Instruction> instrs, out int startIndex, out Local tmpLocal)
+        endIndex = 0;
+        startIndex = 0;
+        tmpLocal = null;
+        return false;
+    }
+
+    private bool FindStart(IList<Instruction> instrs, out int startIndex, out Local tmpLocal)
+    {
+        var i = 0;
+        while (i + 8 < instrs.Count)
         {
-            int i = 0;
-            while (i + 8 < instrs.Count)
-            {
-                if (instrs[i].OpCode.Code == Code.Conv_U)
-                {
-                    if (instrs[i + 1].OpCode.Code == Code.Ldelem_U1)
-                    {
-                        if (instrs[i + 2].OpCode.Code == Code.Or)
+            if (instrs[i].OpCode.Code == Code.Conv_U)
+                if (instrs[i + 1].OpCode.Code == Code.Ldelem_U1)
+                    if (instrs[i + 2].OpCode.Code == Code.Or)
+                        if (CheckLocal(instrs[i + 3], false) != null)
                         {
-                            if (CheckLocal(instrs[i + 3], false) != null)
-                            {
-                                Local local;
-                                if ((local = CheckLocal(instrs[i + 4], true)) != null)
-                                {
-                                    if (CheckLocal(instrs[i + 5], true) != null)
-                                    {
-                                        if (instrs[i + 6].OpCode.Code == Code.Add)
+                            Local local;
+                            if ((local = CheckLocal(instrs[i + 4], true)) != null)
+                                if (CheckLocal(instrs[i + 5], true) != null)
+                                    if (instrs[i + 6].OpCode.Code == Code.Add)
+                                        if (CheckLocal(instrs[i + 7], false) == local)
                                         {
-                                            if (CheckLocal(instrs[i + 7], false) == local)
+                                            var instr = instrs[i + 8];
+                                            var newStartIndex = i + 8;
+                                            if (instr.IsBr())
                                             {
-                                                Instruction instr = instrs[i + 8];
-                                                int newStartIndex = i + 8;
-                                                if (instr.IsBr())
-                                                {
-                                                    instr = (instr.Operand as Instruction);
-                                                    newStartIndex = instrs.IndexOf(instr);
-                                                }
-                                                if (newStartIndex > 0 && instr != null)
-                                                {
-                                                    if (CheckLocal(instr, true) == local)
-                                                    {
-                                                        startIndex = newStartIndex;
-                                                        tmpLocal = local;
-                                                        return true;
-                                                    }
-                                                }
+                                                instr = instr.Operand as Instruction;
+                                                newStartIndex = instrs.IndexOf(instr);
                                             }
+
+                                            if (newStartIndex > 0 && instr != null)
+                                                if (CheckLocal(instr, true) == local)
+                                                {
+                                                    startIndex = newStartIndex;
+                                                    tmpLocal = local;
+                                                    return true;
+                                                }
                                         }
-                                    }
-                                }
-                            }
                         }
-                    }
-                }
-                i++;
-            }
-            startIndex = 0;
-            tmpLocal = null;
-            return false;
+
+            i++;
         }
 
-        Local CheckLocal(Instruction instr, bool isLdloc)
-        {
-            if (isLdloc && !instr.IsLdloc()) return null;
-            if (!isLdloc && !instr.IsStloc()) return null;
-            return instr.GetLocal(locals);
-        }
+        startIndex = 0;
+        tmpLocal = null;
+        return false;
+    }
 
-        bool FindEnd(IList<Instruction> instrs, int startIndex, out int endIndex)
+    private Local CheckLocal(Instruction instr, bool isLdloc)
+    {
+        if (isLdloc && !instr.IsLdloc()) return null;
+        if (!isLdloc && !instr.IsStloc()) return null;
+        return instr.GetLocal(_locals);
+    }
+
+    private bool FindEnd(IList<Instruction> instrs, int startIndex, out int endIndex)
+    {
+        for (var i = startIndex; i < instrs.Count; i++)
         {
-            for (int i = startIndex; i < instrs.Count; i++)
+            var instr = instrs[i];
+            if (instr.OpCode.FlowControl != FlowControl.Next) break;
+            if (instr.IsStloc() && instr.GetLocal(_locals) == _emuLocal)
             {
-                Instruction instr = instrs[i];
-                if (instr.OpCode.FlowControl != FlowControl.Next) break;
-                if (instr.IsStloc() && instr.GetLocal(locals) == emuLocal)
-                {
-                    endIndex = i - 1;
-                    return true;
-                }
+                endIndex = i - 1;
+                return true;
             }
-            endIndex = 0;
-            return false;
         }
 
-        EmbeddedResource FindMethodsDecrypterResource(MethodDef method)
+        endIndex = 0;
+        return false;
+    }
+
+    private EmbeddedResource FindMethodsDecrypterResource(MethodDef method)
+    {
+        foreach (var s in DotNetUtils.GetCodeStrings(method))
+            if (DotNetUtils.GetResource(DeobfuscatorContext.Module, s) is EmbeddedResource resource)
+                return resource;
+        return null;
+    }
+
+    private void GetCallInfo(IField field, out IMethod calledMethod, out OpCode callOpcode)
+    {
+        callOpcode = OpCodes.Call;
+        _dictionary.TryGetValue((int) field.MDToken.Raw, out var token);
+        if ((token & 1073741824) > 0) callOpcode = OpCodes.Callvirt;
+        token &= 1073741823;
+        calledMethod = DeobfuscatorContext.Module.ResolveToken(token) as IMethod;
+    }
+
+    private void GetDictionary()
+    {
+        var resource = Decrypt();
+        var length = resource.Length / 8;
+        _dictionary = new Dictionary<int, int>();
+        var reader = new BinaryReader(new MemoryStream(resource));
+        for (var i = 0; i < length; i++)
         {
-            foreach (string s in DotNetUtils.GetCodeStrings(method))
-            {
-                if (DotNetUtils.GetResource(DeobfuscatorContext.Module, s) is EmbeddedResource resource) return resource;
-            }
-            return null;
+            var key = reader.ReadInt32();
+            var value = reader.ReadInt32();
+            if (!_dictionary.ContainsKey(key)) _dictionary.Add(key, value);
         }
 
-        void GetCallInfo(IField field, out IMethod calledMethod, out OpCode callOpcode)
+        reader.Close();
+    }
+
+    private void FindDelegateCreator()
+    {
+        var callCounter = new CallCounter();
+        foreach (var type in from x in DeobfuscatorContext.Module.GetTypes()
+                 where x.Namespace.Equals("") && DotNetUtils.DerivesFromDelegate(x)
+                 select x)
+            if (type.FindStaticConstructor() is { } cctor)
+                foreach (var method in DotNetUtils.GetMethodCalls(cctor))
+                    if (method.MethodSig.GetParamCount() == 1 &&
+                        method.GetParam(0).FullName == "System.RuntimeTypeHandle")
+                        callCounter.Add(method);
+
+        if (callCounter.Most() is { } mostCalls)
+            _delegateCreatorMethods.Add(DotNetUtils.GetMethod(DeobfuscatorContext.Module, mostCalls));
+    }
+
+    private byte[] Decrypt()
+    {
+        var encrypted = _encryptedResource.CreateReader().ToArray();
+        var decrypted = new byte[encrypted.Length];
+        var sum = 0U;
+        for (var i = 0; i < encrypted.Length; i += 4)
         {
-            callOpcode = OpCodes.Call;
-            dictionary.TryGetValue((int)field.MDToken.Raw, out int token);
-            if ((token & 1073741824) > 0) callOpcode = OpCodes.Callvirt;
-            token &= 1073741823;
-            calledMethod = (DeobfuscatorContext.Module.ResolveToken(token) as IMethod);
+            sum = CalculateMagic(sum);
+            WriteUInt32(decrypted, i, sum ^ ReadUInt32(encrypted, i));
         }
 
-        void GetDictionary()
-        {
-            byte[] resource = Decrypt();
-            int length = resource.Length / 8;
-            dictionary = new Dictionary<int, int>();
-            BinaryReader reader = new BinaryReader(new MemoryStream(resource));
-            for (int i = 0; i < length; i++)
-            {
-                int key = reader.ReadInt32();
-                int value = reader.ReadInt32();
-                if (!dictionary.ContainsKey(key)) dictionary.Add(key, value);
-            }
-            reader.Close();
-        }
+        Cleaner.ResourceToRemove.Add(_encryptedResource);
+        return decrypted;
+    }
 
-        void FindDelegateCreator()
+    private uint ReadUInt32(byte[] ary, int index)
+    {
+        var sizeLeft = ary.Length - index;
+        if (sizeLeft >= 4) return BitConverter.ToUInt32(ary, index);
+        return sizeLeft switch
         {
-            CallCounter callCounter = new CallCounter();
-            foreach (TypeDef type in (from x in DeobfuscatorContext.Module.GetTypes() where x.Namespace.Equals("") && DotNetUtils.DerivesFromDelegate(x) select x))
-            {
-                MethodDef cctor = type.FindStaticConstructor();
-                if (cctor != null)
-                {
-                    foreach (IMethod method in DotNetUtils.GetMethodCalls(cctor))
-                    {
-                        if (method.MethodSig.GetParamCount() == 1 && method.GetParam(0).FullName == "System.RuntimeTypeHandle")
-                            callCounter.Add(method);
-                    }
-                }
-            }
-            IMethod mostCalls = callCounter.Most();
-            if (mostCalls != null) delegateCreatorMethods.Add(DotNetUtils.GetMethod(DeobfuscatorContext.Module, mostCalls));
-        }
+            1 => ary[index],
+            2 => (uint) (ary[index] | (ary[index + 1] << 8)),
+            3 => (uint) (ary[index] | (ary[index + 1] << 8) | (ary[index + 2] << 16)),
+            _ => throw new ApplicationException("Can't read data")
+        };
+    }
 
-        byte[] Decrypt()
-        {
-            byte[] encrypted = encryptedResource.CreateReader().ToArray();
-            byte[] decrypted = new byte[encrypted.Length];
-            uint sum = 0U;
-            for (int i = 0; i < encrypted.Length; i += 4)
-            {
-                sum = CalculateMagic(sum);
-                WriteUInt32(decrypted, i, sum ^ ReadUInt32(encrypted, i));
-            }
-            Cleaner.ResourceToRemove.Add(encryptedResource);
-            return decrypted;
-        }
+    private void WriteUInt32(byte[] ary, int index, uint value)
+    {
+        var num = ary.Length - index;
+        if (num >= 1) ary[index] = (byte) value;
+        if (num >= 2) ary[index + 1] = (byte) (value >> 8);
+        if (num >= 3) ary[index + 2] = (byte) (value >> 16);
+        if (num >= 4) ary[index + 3] = (byte) (value >> 24);
+    }
 
-        uint ReadUInt32(byte[] ary, int index)
-        {
-            int sizeLeft = ary.Length - index;
-            if (sizeLeft >= 4) return BitConverter.ToUInt32(ary, index);
-            return sizeLeft switch
-            {
-                1 => (uint)ary[index],
-                2 => (uint)((int)ary[index] | (int)ary[index + 1] << 8),
-                3 => (uint)((int)ary[index] | (int)ary[index + 1] << 8 | (int)ary[index + 2] << 16),
-                _ => throw new ApplicationException("Can't read data"),
-            };
-        }
-        void WriteUInt32(byte[] ary, int index, uint value)
-        {
-            int num = ary.Length - index;
-            if (num >= 1) ary[index] = (byte)value;
-            if (num >= 2) ary[index + 1] = (byte)(value >> 8);
-            if (num >= 3) ary[index + 2] = (byte)(value >> 16);
-            if (num >= 4) ary[index + 3] = (byte)(value >> 24);
-        }
-        uint CalculateMagic(uint input)
-        {
-            instrEmulator.Initialize(method, method.Parameters, locals, method.Body.InitLocals, false);
-            instrEmulator.SetLocal(emuLocal, new Int32Value((int)input));
-            foreach (Instruction instr in instructions)
-            {
-                instrEmulator.Emulate(instr);
-            }
-            if (!(instrEmulator.Pop() is Int32Value tos) || !tos.AllBitsValid()) throw new Exception("Couldn't calculate magic value");
-            return (uint)tos.Value;
-        }
-
-        List<Local> locals;
-        readonly InstructionEmulator instrEmulator = new InstructionEmulator();
-        MethodDef method;
-        Local emuLocal;
-        List<Instruction> instructions;
-        readonly List<MethodDef> delegateCreatorMethods = new List<MethodDef>();
-        EmbeddedResource encryptedResource;
-        Dictionary<int, int> dictionary;
+    private uint CalculateMagic(uint input)
+    {
+        _instrEmulator.Initialize(_method, _method.Parameters, _locals, _method.Body.InitLocals, false);
+        _instrEmulator.SetLocal(_emuLocal, new Int32Value((int) input));
+        foreach (var instr in _instructions) _instrEmulator.Emulate(instr);
+        if (!(_instrEmulator.Pop() is Int32Value tos) || !tos.AllBitsValid())
+            throw new Exception("Couldn't calculate magic value");
+        return (uint) tos.Value;
     }
 }

@@ -51,8 +51,7 @@ internal class BooleanDecryptor : IDeobfuscator
                 var v3 = new V3(_decryptorMethod);
                 _decryptedBytes = v3.Decrypt(_encryptedResource);
                 goto Continue;
-            }
-            catch { }
+            } catch { }
 
         var iv = GetBytes(_decryptorMethod, 16);
         if (IsNeedReverse(_decryptorMethod))
@@ -69,8 +68,7 @@ internal class BooleanDecryptor : IDeobfuscator
                 var v1 = new V1(iv, key);
                 _decryptedBytes = v1.Decrypt(_encryptedResource);
                 goto Continue;
-            }
-            catch { }
+            } catch { }
 
         if (decrypterType == DnrDecrypterType.V2)
             try
@@ -78,12 +76,11 @@ internal class BooleanDecryptor : IDeobfuscator
                 var v2 = new V2(iv, key, _decryptorMethod);
                 _decryptedBytes = v2.Decrypt(_encryptedResource);
                 goto Continue;
-            }
-            catch { }
+            } catch { }
 
         Logger.Warn("Couldn't find any encrypted boolean.");
         return;
-    Continue:
+        Continue:
         if (_decryptedBytes == null)
         {
             Logger.Error("Failed to decrypt booleans.");
@@ -91,32 +88,33 @@ internal class BooleanDecryptor : IDeobfuscator
         }
 
         foreach (var type in DeobfuscatorContext.Module.GetTypes().Where(x => x.HasMethods))
-            foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
-            {
-                for (var i = 0; i < method.Body.Instructions.Count; i++)
-                    try
-                    {
-                        if (!method.Body.Instructions[i].OpCode.Equals(OpCodes.Call) ||
-                            !method.Body.Instructions[i - 1].IsLdcI4() ||
-                            !method.Body.Instructions[i + 1].IsConditionalBranch())
-                            continue;
-                        if (method.Body.Instructions[i].Operand is not IMethod iMethod ||
-                            iMethod != _decryptorMethod) continue;
-                        var offset = method.Body.Instructions[i - 1].GetLdcI4Value();
-                        var value = Decrypt(offset);
-                        if (value)
-                            method.Body.Instructions[i] = Instruction.CreateLdcI4(1);
-                        else
-                            method.Body.Instructions[i] = Instruction.CreateLdcI4(0);
-                        method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
-                        count += 1L;
-                    }
-                    catch { }
+        foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
+        {
+            for (var i = 0; i < method.Body.Instructions.Count; i++)
+                try
+                {
+                    //if (method.Name == "XITsqep3C")
+                    //    System.Diagnostics.Debugger.Launch();
+                    if (!method.Body.Instructions[i].OpCode.Equals(OpCodes.Call) ||
+                        !method.Body.Instructions[i - 1].IsLdcI4() ||
+                        !method.Body.Instructions[i + 1].IsConditionalBranch())
+                        continue;
+                    if (method.Body.Instructions[i].Operand is not IMethod iMethod ||
+                        iMethod != _decryptorMethod) continue;
+                    var offset = method.Body.Instructions[i - 1].GetLdcI4Value();
+                    var value = Decrypt(offset);
+                    if (value)
+                        method.Body.Instructions[i] = Instruction.CreateLdcI4(1);
+                    else
+                        method.Body.Instructions[i] = Instruction.CreateLdcI4(0);
+                    method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
+                    count += 1L;
+                } catch { }
 
-                SimpleDeobfuscator.DeobfuscateBlocks(method);
-            }
+            SimpleDeobfuscator.DeobfuscateBlocks(method);
+        }
 
-        if (count > 0L) Logger.Done((int)count + " Booleans decrypted.");
+        if (count > 0L) Logger.Done((int) count + " Booleans decrypted.");
         else Logger.Warn("Couldn't find any encrypted boolean.");
     }
 
@@ -126,7 +124,7 @@ internal class BooleanDecryptor : IDeobfuscator
     private void Find()
     {
         foreach (var type in DeobfuscatorContext.Module.Types.Where(x =>
-                     x.BaseType is { FullName: "System.Object" }))
+                     x.BaseType is {FullName: "System.Object"}))
             if (DotNetUtils.GetMethod(type, "System.Boolean", "(System.Int32)") is { } methodDef &&
                 GetEncryptedResource(methodDef) != null &&
                 GetDecrypterType(methodDef, Array.Empty<string>()) != DnrDecrypterType.Unknown)

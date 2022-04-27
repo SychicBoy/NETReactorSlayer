@@ -12,51 +12,52 @@
     You should have received a copy of the GNU General Public License
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
-using dnlib.DotNet;
-using dnlib.DotNet.Emit;
-using System.Linq;
 
-namespace NETReactorSlayer.Core.Deobfuscators
+using System.Linq;
+using dnlib.DotNet.Emit;
+
+namespace NETReactorSlayer.Core.Deobfuscators;
+
+internal class AntiTamperPatcher : IDeobfuscator
 {
-    class AntiTamperPatcher : IDeobfuscator
+    public void Execute()
     {
-        public void Execute()
+        var isAntiTamperFound = false;
+        var isAntiDebugFound = false;
+        foreach (var type in DeobfuscatorContext.Module.GetTypes())
+        foreach (var method in (from x in type.Methods
+                     where x.HasBody && x.Body.HasInstructions && x.IsStatic
+                     select x).ToArray())
+        foreach (var instruction in (from x in method.Body.Instructions
+                     where x.OpCode.Equals(OpCodes.Ldstr)
+                     select x).ToArray())
         {
-            bool IsAntiTamperFound = false;
-            bool IsAntiDebugFound = false;
-            foreach (TypeDef type in DeobfuscatorContext.Module.GetTypes())
+            if (instruction.Operand.ToString().Contains("Debugger Detected"))
             {
-                foreach (MethodDef method in (from x in type.Methods where x.HasBody && x.Body.HasInstructions && x.IsStatic select x).ToArray<MethodDef>())
-                {
-                    foreach (Instruction instruction in (from x in method.Body.Instructions where x.OpCode.Equals(OpCodes.Ldstr) select x).ToArray<Instruction>())
-                    {
-                        if (instruction.Operand.ToString().Contains("Debugger Detected"))
-                        {
-                            IsAntiDebugFound = true;
-                            Cleaner.MethodsToRemove.Add(method);
-                            Instruction ins = Instruction.Create(OpCodes.Ret);
-                            CilBody cli = new CilBody();
-                            cli.Instructions.Add(ins);
-                            method.Body = cli;
-                            Logger.Done("Anti debugger removed.");
-                        }
-                        if (instruction.Operand.ToString().Contains("is tampered"))
-                        {
-                            IsAntiTamperFound = true;
-                            Cleaner.MethodsToRemove.Add(method);
-                            Instruction ins = Instruction.Create(OpCodes.Ret);
-                            CilBody cli = new CilBody();
-                            cli.Instructions.Add(ins);
-                            method.Body = cli;
-                            Logger.Done("Anti tamper removed.");
-                        }
-                    }
-                }
+                isAntiDebugFound = true;
+                Cleaner.MethodsToRemove.Add(method);
+                var ins = Instruction.Create(OpCodes.Ret);
+                var cli = new CilBody();
+                cli.Instructions.Add(ins);
+                method.Body = cli;
+                Logger.Done("Anti debugger removed.");
             }
-            if (!IsAntiTamperFound)
-                Logger.Warn("Couldn't find anti tamper method.");
-            if (!IsAntiDebugFound)
-                Logger.Warn("Couldn't find anti debugger method.");
+
+            if (instruction.Operand.ToString().Contains("is tampered"))
+            {
+                isAntiTamperFound = true;
+                Cleaner.MethodsToRemove.Add(method);
+                var ins = Instruction.Create(OpCodes.Ret);
+                var cli = new CilBody();
+                cli.Instructions.Add(ins);
+                method.Body = cli;
+                Logger.Done("Anti tamper removed.");
+            }
         }
+
+        if (!isAntiTamperFound)
+            Logger.Warn("Couldn't find anti tamper method.");
+        if (!isAntiDebugFound)
+            Logger.Warn("Couldn't find anti debugger method.");
     }
 }

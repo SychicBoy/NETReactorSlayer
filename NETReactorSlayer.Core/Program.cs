@@ -12,64 +12,78 @@
     You should have received a copy of the GNU General Public License
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Threading;
 
-namespace NETReactorSlayer.Core
+namespace NETReactorSlayer.Core;
+
+public class Program
 {
-    public class Program
+    public static DeobfuscatorContext Context = new();
+
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            #region Delete Temporary Files
-            if (args != null && args.Length == 3 && args[0] == "--delete-native-image" && int.TryParse(args[1], out int id) && File.Exists(args[2]))
+        #region Delete Temporary Files
+
+        if (args is {Length: 3} && args[0] == "--delete-native-image" && int.TryParse(args[1], out var id) &&
+            File.Exists(args[2]))
+            try
             {
+                if (Process.GetProcessById(id) is { } process)
+                {
+                    process.WaitForExit();
+                    while (File.Exists(args[2]))
+                    {
+                        try
+                        {
+                            File.Delete(args[2]);
+                        } catch { }
+
+                        Thread.Sleep(1000);
+                    }
+
+                    Process.GetCurrentProcess().Kill();
+                    return;
+                }
+            } catch { }
+
+        #endregion
+
+        Console.Title = ".NET Reactor Slayer";
+        Console.OutputEncoding = Encoding.UTF8;
+        Console.BackgroundColor = ConsoleColor.Black;
+        Console.ForegroundColor = ConsoleColor.White;
+        try
+        {
+            Console.Clear();
+            Logger.PrintLogo();
+        } catch { }
+
+        Context = new DeobfuscatorContext();
+        if (Context.Parse(args))
+        {
+            Logger.Done(
+                $"{Context.DeobfuscatorOptions.Stages.Count}/{Context.DeobfuscatorOptions.Dictionary.Count} Modules loaded...");
+            foreach (var deobfuscatorStage in Context.DeobfuscatorOptions.Stages)
                 try
                 {
-                    var process = Process.GetProcessById(id);
-                    if (process != null)
-                    {
-                        process.WaitForExit();
-                        while (File.Exists(args[2]))
-                        {
-                            try
-                            {
-                                File.Delete(args[2]);
-                            }
-                            catch { }
-                            Thread.Sleep(1000);
-                        }
-                        Process.GetCurrentProcess().Kill();
-                        return;
-                    }
-                }
-                catch { }
-            }
-            #endregion
-            Console.Title = ".NET Reactor Slayer";
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.ForegroundColor = ConsoleColor.White;
-            try { Console.Clear(); Logger.PrintLogo(); } catch { }
-            Context = new DeobfuscatorContext();
-            if (Context.Parse(args))
-            {
-                Logger.Done($"{Context.DeobfuscatorOptions.Stages.Count}/{Context.DeobfuscatorOptions.Dictionary.Count} Modules loaded...");
-                foreach (var DeobfuscatorStage in Context.DeobfuscatorOptions.Stages)
+                    deobfuscatorStage.Execute();
+                } catch (Exception ex)
                 {
-                    DeobfuscatorStage.Execute();
-
+                    Logger.Error($"{deobfuscatorStage.GetType().Name}: {ex.Message}");
                 }
-                Context.Save();
-            }
-            if (!Context.NoPause)
-            {
-                Console.WriteLine("\r\n  Press any key to exit . . .");
-                Console.ReadKey();
-            }
+
+            Context.Save();
         }
-        public static DeobfuscatorContext Context = new DeobfuscatorContext();
+
+        if (!Context.NoPause)
+        {
+            Console.WriteLine("\r\n  Press any key to exit . . .");
+            Console.ReadKey();
+        }
     }
 }

@@ -17,85 +17,75 @@
     along with de4dot.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-using dnlib.DotNet;
-using dnlib.DotNet.Emit;
 using System;
 using System.Collections.Generic;
+using dnlib.DotNet;
+using dnlib.DotNet.Emit;
 
-namespace NETReactorSlayer.Core.Helper.De4dot
+namespace NETReactorSlayer.Core.Helper.De4dot;
+
+public class StringCounts
 {
-    public class StringCounts
+    private readonly Dictionary<string, int> strings = new(StringComparer.Ordinal);
+
+    public void Add(string s)
     {
-        readonly Dictionary<string, int> strings = new Dictionary<string, int>(StringComparer.Ordinal);
+        strings.TryGetValue(s, out var count);
+        strings[s] = count + 1;
+    }
 
-        public IEnumerable<string> Strings => strings.Keys;
-        public int NumStrings => strings.Count;
+    public bool Exists(string s)
+    {
+        if (s == null)
+            return false;
+        return strings.ContainsKey(s);
+    }
 
-        public void Add(string s)
-        {
-            strings.TryGetValue(s, out int count);
-            strings[s] = count + 1;
-        }
-
-        public bool Exists(string s)
-        {
-            if (s == null)
+    public bool All(IList<string> list)
+    {
+        foreach (var s in list)
+            if (!Exists(s))
                 return false;
-            return strings.ContainsKey(s);
-        }
-
-        public bool All(IList<string> list)
-        {
-            foreach (var s in list)
-            {
-                if (!Exists(s))
-                    return false;
-            }
-            return true;
-        }
-
-        public bool Exactly(IList<string> list) => list.Count == strings.Count && All(list);
-
-        public int Count(string s)
-        {
-            strings.TryGetValue(s, out int count);
-            return count;
-        }
+        return true;
     }
 
-    public class FieldTypes : StringCounts
+    public int Count(string s)
     {
-        public FieldTypes(TypeDef type) => Initialize(type.Fields);
-        public FieldTypes(IEnumerable<FieldDef> fields) => Initialize(fields);
+        strings.TryGetValue(s, out var count);
+        return count;
+    }
+}
 
-        void Initialize(IEnumerable<FieldDef> fields)
+public class FieldTypes : StringCounts
+{
+    public FieldTypes(IEnumerable<FieldDef> fields) => Initialize(fields);
+
+    private void Initialize(IEnumerable<FieldDef> fields)
+    {
+        if (fields == null)
+            return;
+        foreach (var field in fields)
         {
-            if (fields == null)
-                return;
-            foreach (var field in fields)
-            {
-                var type = field.FieldSig.GetFieldType();
-                if (type != null)
-                    Add(type.FullName);
-            }
+            var type = field.FieldSig.GetFieldType();
+            if (type != null)
+                Add(type.FullName);
         }
     }
-    public class LocalTypes : StringCounts
+}
+
+public class LocalTypes : StringCounts
+{
+    public LocalTypes(MethodDef method)
     {
-        public LocalTypes(MethodDef method)
-        {
-            if (method != null && method.Body != null)
-                Initialize(method.Body.Variables);
-        }
+        if (method is {Body: { }})
+            Initialize(method.Body.Variables);
+    }
 
-        public LocalTypes(IEnumerable<Local> locals) => Initialize(locals);
-
-        void Initialize(IEnumerable<Local> locals)
-        {
-            if (locals == null)
-                return;
-            foreach (var local in locals)
-                Add(local.Type.FullName);
-        }
+    private void Initialize(IEnumerable<Local> locals)
+    {
+        if (locals == null)
+            return;
+        foreach (var local in locals)
+            Add(local.Type.FullName);
     }
 }

@@ -12,82 +12,75 @@
     You should have received a copy of the GNU General Public License
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Diagnostics;
 using System.Reflection;
 
-namespace NETReactorSlayer.Core
+namespace NETReactorSlayer.Core;
+
+internal class Logger
 {
-    public static class Logger
+    public static void Done(string message)
     {
-        public static bool Prompt(string message)
-        {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("  [PROMPT] " + message);
-            return Console.ReadLine().ToLower() == "y";
-        }
+        Console.Write("  [");
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.Write("✓");
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.Write("] ");
+        Console.WriteLine(message);
+    }
 
-        public static void Done(string message)
-        {
-            Console.Write("  [");
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("✓");
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("] ");
-            Console.WriteLine(message);
-        }
+    public static void Warn(string message)
+    {
+        Console.Write("  [");
+        Console.ForegroundColor = ConsoleColor.DarkYellow;
+        Console.Write("!");
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.Write("] ");
+        Console.WriteLine(message);
+    }
 
-        public static void Warn(string message)
-        {
-            Console.Write("  [");
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.Write("!");
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("] ");
-            Console.WriteLine(message);
-        }
+    public static void Error(string message)
+    {
+        Console.Write("  [");
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Write("X");
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.Write("] ");
+        Console.WriteLine(message);
+    }
 
-        public static void Error(string message)
-        {
-            Console.Write("  [");
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("X");
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("] ");
-            Console.WriteLine(message);
-        }
+    private static void PrintSupportedVersions()
+    {
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.Write("(");
+        Console.ForegroundColor = ConsoleColor.DarkCyan;
+        Console.Write("From 6.0 To 6.8");
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.Write(") ");
+        Console.ForegroundColor = ConsoleColor.White;
+    }
 
-        static void PrintSupportedVersions()
-        {
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write("(");
-            Console.ForegroundColor = ConsoleColor.DarkCyan;
-            Console.Write("From 6.0 To 6.8");
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write(") ");
-            Console.ForegroundColor = ConsoleColor.White;
-        }
+    public static void PrintUsage()
+    {
+        Console.Write("  Usage: ");
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.WriteLine("NETReactorSlayer <AssemblyPath> <Options>\r\n");
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine("  Options:");
+        Console.ForegroundColor = ConsoleColor.Gray;
+        for (var i = 0; i < Program.Context.DeobfuscatorOptions.Arguments.Count; i += 2)
+            Console.WriteLine("  " + Program.Context.DeobfuscatorOptions.Arguments[i] + "   " +
+                              Program.Context.DeobfuscatorOptions.Arguments[i + 1]);
+        Console.ForegroundColor = ConsoleColor.White;
+    }
 
-        public static void PrintUsage()
-        {
-            Console.Write("  Usage: ");
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine("NETReactorSlayer <AssemblyPath> <Options>\r\n");
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine("  Options:");
-            Console.ForegroundColor = ConsoleColor.Gray;
-            for (int i = 0; i < Program.Context.DeobfuscatorOptions.Arguments.Count; i += 2)
-            {
-                Console.WriteLine("  " + Program.Context.DeobfuscatorOptions.Arguments[i] + "   " + Program.Context.DeobfuscatorOptions.Arguments[i + 1]);
-            }
-            Console.ForegroundColor = ConsoleColor.White;
-        }
-
-        public static void PrintLogo()
-        {
-            Console.Clear();
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(@"
+    public static void PrintLogo()
+    {
+        Console.Clear();
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine(@"
   ░█▄─░█ ░█▀▀▀ ▀▀█▀▀ 
   ░█░█░█ ░█▀▀▀ ─░█── 
   ░█──▀█ ░█▄▄▄ ─░█── 
@@ -101,25 +94,24 @@ namespace NETReactorSlayer.Core
   ░█▄▄▄█ ░█▄▄█ ░█─░█ ──░█── ░█▄▄▄ ░█─░█
 
 ");
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine("  .NET Reactor Slayer by CS-RET");
-            Console.Write("  Website: ");
-            Console.ForegroundColor = ConsoleColor.DarkCyan;
-            Console.WriteLine("www.CodeStrikers.org");
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("  Latest version on Github: ");
-            Console.ForegroundColor = ConsoleColor.DarkCyan;
-            Console.WriteLine("https://github.com/SychicBoy/NETReactorSlayer");
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("  Version: ");
-            Console.ForegroundColor = ConsoleColor.DarkCyan;
-            Console.WriteLine(FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion);
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("  Supported .NET Reactor versions: ");
-            Console.ForegroundColor = ConsoleColor.DarkCyan;
-            PrintSupportedVersions();
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine(Environment.NewLine + "  ==========================================================\r\n");
-        }
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine("  .NET Reactor Slayer by CS-RET");
+        Console.Write("  Website: ");
+        Console.ForegroundColor = ConsoleColor.DarkCyan;
+        Console.WriteLine("www.CodeStrikers.org");
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.Write("  Latest version on Github: ");
+        Console.ForegroundColor = ConsoleColor.DarkCyan;
+        Console.WriteLine("https://github.com/SychicBoy/NETReactorSlayer");
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.Write("  Version: ");
+        Console.ForegroundColor = ConsoleColor.DarkCyan;
+        Console.WriteLine(FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion);
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.Write("  Supported .NET Reactor versions: ");
+        Console.ForegroundColor = ConsoleColor.DarkCyan;
+        PrintSupportedVersions();
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine(Environment.NewLine + "  ==========================================================\r\n");
     }
 }

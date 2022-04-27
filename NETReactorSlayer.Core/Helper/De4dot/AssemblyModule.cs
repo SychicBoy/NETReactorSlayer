@@ -17,84 +17,58 @@
     along with de4dot.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-using dnlib.DotNet;
-using dnlib.DotNet.Writer;
 using System.IO;
+using dnlib.DotNet;
 
-namespace NETReactorSlayer.Core.Helper.De4dot
+namespace NETReactorSlayer.Core.Helper.De4dot;
+
+public class AssemblyModule
 {
-    public interface IModuleWriterListener
+    private readonly string filename;
+    private readonly ModuleContext moduleContext;
+    private ModuleDefMD module;
+
+    public AssemblyModule(string filename, ModuleContext moduleContext)
     {
-        void OnWriterEvent(ModuleWriterBase writer, ModuleWriterEvent evt);
+        this.filename = Path.GetFullPath(filename);
+        this.moduleContext = moduleContext;
     }
 
-    public class AssemblyModule
+    public ModuleDefMD Load()
     {
-        readonly string filename;
-        ModuleDefMD module;
-        readonly ModuleContext moduleContext;
-
-        public AssemblyModule(string filename, ModuleContext moduleContext)
-        {
-            this.filename = Path.GetFullPath(filename);
-            this.moduleContext = moduleContext;
-        }
-
-        public ModuleDefMD Load()
-        {
-            var options = new ModuleCreationOptions(moduleContext) { TryToLoadPdbFromDisk = false };
-            return SetModule(ModuleDefMD.Load(filename, options));
-        }
-
-        public ModuleDefMD Load(byte[] fileData)
-        {
-            var options = new ModuleCreationOptions(moduleContext) { TryToLoadPdbFromDisk = false };
-            return SetModule(ModuleDefMD.Load(fileData, options));
-        }
-
-        ModuleDefMD SetModule(ModuleDefMD newModule)
-        {
-            module = newModule;
-            TheAssemblyResolver.Instance.AddModule(module);
-            module.EnableTypeDefFindCache = true;
-            module.Location = filename;
-            return module;
-        }
-
-        public void Save(string newFilename, MetadataFlags mdFlags, IModuleWriterListener writerListener)
-        {
-            if (module.IsILOnly)
-            {
-                var writerOptions = new ModuleWriterOptions(module);
-                writerOptions.WriterEvent += (s, e) => writerListener?.OnWriterEvent(e.Writer, e.Event);
-                writerOptions.MetadataOptions.Flags |= mdFlags;
-                module.Write(newFilename, writerOptions);
-            }
-            else
-            {
-                var writerOptions = new NativeModuleWriterOptions(module, optimizeImageSize: true);
-                writerOptions.WriterEvent += (s, e) => writerListener?.OnWriterEvent(e.Writer, e.Event);
-                writerOptions.MetadataOptions.Flags |= mdFlags;
-                writerOptions.KeepExtraPEData = true;
-                writerOptions.KeepWin32Resources = true;
-                module.NativeWrite(newFilename, writerOptions);
-            }
-        }
-
-        public ModuleDefMD Reload(byte[] newModuleData, DumpedMethodsRestorer dumpedMethodsRestorer, IStringDecrypter stringDecrypter)
-        {
-            TheAssemblyResolver.Instance.Remove(module);
-            var options = new ModuleCreationOptions(moduleContext) { TryToLoadPdbFromDisk = false };
-            var mod = ModuleDefMD.Load(newModuleData, options);
-            if (dumpedMethodsRestorer != null)
-                dumpedMethodsRestorer.Module = mod;
-            mod.StringDecrypter = stringDecrypter;
-            mod.MethodDecrypter = dumpedMethodsRestorer;
-            mod.TablesStream.ColumnReader = dumpedMethodsRestorer;
-            mod.TablesStream.MethodRowReader = dumpedMethodsRestorer;
-            return SetModule(mod);
-        }
-
-        public override string ToString() => filename;
+        var options = new ModuleCreationOptions(moduleContext) {TryToLoadPdbFromDisk = false};
+        return SetModule(ModuleDefMD.Load(filename, options));
     }
+
+    public ModuleDefMD Load(byte[] fileData)
+    {
+        var options = new ModuleCreationOptions(moduleContext) {TryToLoadPdbFromDisk = false};
+        return SetModule(ModuleDefMD.Load(fileData, options));
+    }
+
+    private ModuleDefMD SetModule(ModuleDefMD newModule)
+    {
+        module = newModule;
+        TheAssemblyResolver.Instance.AddModule(module);
+        module.EnableTypeDefFindCache = true;
+        module.Location = filename;
+        return module;
+    }
+
+    public ModuleDefMD Reload(
+        byte[] newModuleData, DumpedMethodsRestorer dumpedMethodsRestorer, IStringDecrypter stringDecrypter)
+    {
+        TheAssemblyResolver.Instance.Remove(module);
+        var options = new ModuleCreationOptions(moduleContext) {TryToLoadPdbFromDisk = false};
+        var mod = ModuleDefMD.Load(newModuleData, options);
+        if (dumpedMethodsRestorer != null)
+            dumpedMethodsRestorer.Module = mod;
+        mod.StringDecrypter = stringDecrypter;
+        mod.MethodDecrypter = dumpedMethodsRestorer;
+        mod.TablesStream.ColumnReader = dumpedMethodsRestorer;
+        mod.TablesStream.MethodRowReader = dumpedMethodsRestorer;
+        return SetModule(mod);
+    }
+
+    public override string ToString() => filename;
 }

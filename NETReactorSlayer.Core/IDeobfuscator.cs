@@ -1,7 +1,6 @@
-﻿namespace NETReactorSlayer.Core
+﻿namespace NETReactorSlayer.Core;
+
+public interface IDeobfuscator
 {
-    public interface IDeobfuscator
-    {
-        public void Execute();
-    }
+    public void Execute();
 }

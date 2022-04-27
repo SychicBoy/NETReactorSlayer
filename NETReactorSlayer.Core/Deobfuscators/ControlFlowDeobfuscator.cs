@@ -30,16 +30,16 @@ internal class ControlFlowDeobfuscator : IDeobfuscator
             Initialize();
         var count = 0L;
         foreach (var type in DeobfuscatorContext.Module.GetTypes())
-            foreach (var method in (from x in type.Methods where x.HasBody && x.Body.HasInstructions select x)
-                     .ToArray())
-            {
-                if (SimpleDeobfuscator.Deobfuscate(method))
-                    count += 1L;
-                count += Arithmetic(method);
-                SimpleDeobfuscator.DeobfuscateBlocks(method);
-            }
+        foreach (var method in (from x in type.Methods where x.HasBody && x.Body.HasInstructions select x)
+                 .ToArray())
+        {
+            if (SimpleDeobfuscator.Deobfuscate(method))
+                count += 1L;
+            count += Arithmetic(method);
+            SimpleDeobfuscator.DeobfuscateBlocks(method);
+        }
 
-        if (count > 0L) Logger.Done((int)count + " Equations resolved.");
+        if (count > 0L) Logger.Done((int) count + " Equations resolved.");
         else
             Logger.Warn(
                 "Couldn't found any equations, looks like there's no control flow obfuscation applied to methods.");
@@ -63,7 +63,7 @@ internal class ControlFlowDeobfuscator : IDeobfuscator
                         (i + 1 < method.Body.Instructions.Count ? method.Body.Instructions[i + 1] : null)?.OpCode ==
                         OpCodes.Stsfld)
                     {
-                        var key = (IField)(i + 1 < method.Body.Instructions.Count
+                        var key = (IField) (i + 1 < method.Body.Instructions.Count
                             ? method.Body.Instructions[i + 1]
                             : null)?.Operand;
                         var value = method.Body.Instructions[i].GetLdcI4Value();
@@ -94,13 +94,12 @@ internal class ControlFlowDeobfuscator : IDeobfuscator
                     method.Body.Instructions[i + 1].IsConditionalBranch() &&
                     (method.Body.Instructions[i + 2].OpCode == OpCodes.Pop ||
                      method.Body.Instructions[i + 2].IsBr()) &&
-                    _fields.TryGetValue((IField)method.Body.Instructions[i].Operand, out var value))
+                    _fields.TryGetValue((IField) method.Body.Instructions[i].Operand, out var value))
                 {
                     method.Body.Instructions[i] = Instruction.CreateLdcI4(value);
                     count += 1L;
                 }
-            }
-            catch { }
+            } catch { }
 
         return count;
     }

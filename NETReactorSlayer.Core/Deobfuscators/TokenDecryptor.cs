@@ -12,85 +12,90 @@
     You should have received a copy of the GNU General Public License
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+using System.Linq;
 using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
-using System.Linq;
 
-namespace NETReactorSlayer.Core.Deobfuscators
+namespace NETReactorSlayer.Core.Deobfuscators;
+
+internal class TokenDecryptor : IDeobfuscator
 {
-    class TokenDecryptor : IDeobfuscator
+    private MethodDef _fieldMethod;
+
+    private TypeDef _typeDef;
+    private MethodDef _typeMethod;
+
+    public void Execute()
     {
-        public void Execute()
+        float count = 0L;
+        Find();
+        if (_typeDef == null || _typeMethod == null || _fieldMethod == null)
         {
-            float count = 0L;
-            Find();
-            if (typeDef == null || typeMethod == null || fieldMethod == null)
-            {
-                Logger.Warn("Couldn't found any encrypted token.");
-                return;
-            }
-            foreach (TypeDef type in DeobfuscatorContext.Module.GetTypes())
-            {
-                foreach (MethodDef method in (from x in type.Methods where x.HasBody && x.Body.HasInstructions select x))
-                    count += Deobfuscate(method);
-            }
-            if (count == 0L)
-                Logger.Warn("Couldn't found any encrypted token.");
-            else
-                Logger.Done($"{(int)count} Tokens decrypted.");
+            Logger.Warn("Couldn't found any encrypted token.");
+            return;
         }
 
-        private void Find()
+        foreach (var type in DeobfuscatorContext.Module.GetTypes())
+        foreach (var method in from x in type.Methods where x.HasBody && x.Body.HasInstructions select x)
+            count += Deobfuscate(method);
+        if (count == 0L)
+            Logger.Warn("Couldn't found any encrypted token.");
+        else
+            Logger.Done($"{(int) count} Tokens decrypted.");
+    }
+
+    private void Find()
+    {
+        foreach (var type in from x in DeobfuscatorContext.Module.GetTypes()
+                 where !x.HasProperties && !x.HasEvents && x.Fields.Count != 0
+                 select x)
+        foreach (var _ in from x in type.Fields
+                 where x.FieldType.FullName.Equals("System.ModuleHandle")
+                 select x)
         {
-            foreach (TypeDef type in (from x in DeobfuscatorContext.Module.GetTypes() where !x.HasProperties && !x.HasEvents && x.Fields.Count != 0 select x))
+            MethodDef fieldMethod = null;
+            MethodDef typeMethod = null;
+            foreach (var method in (from x in type.Methods
+                         where x.MethodSig != null && x.MethodSig.Params.Count.Equals(1) &&
+                               x.MethodSig.Params[0].GetElementType() == ElementType.I4
+                         select x).ToArray())
+                if (method.MethodSig.RetType.GetFullName().Equals("System.RuntimeTypeHandle"))
+                    typeMethod = method;
+                else if (method.MethodSig.RetType.GetFullName().Equals("System.RuntimeFieldHandle"))
+                    fieldMethod = method;
+            if (typeMethod == null || fieldMethod == null) continue;
+            _typeDef = type;
+            _typeMethod = typeMethod;
+            _fieldMethod = fieldMethod;
+            break;
+        }
+    }
+
+    public long Deobfuscate(MethodDef myMethod)
+    {
+        var count = 0L;
+        if (_typeDef == null) return 0L;
+        var gpContext = GenericParamContext.Create(myMethod);
+        for (var i = 0; i < myMethod.Body.Instructions.Count; i++)
+            if (myMethod.Body.Instructions[i].OpCode.Code.Equals(Code.Ldc_I4) &&
+                myMethod.Body.Instructions[i + 1].OpCode.Code == Code.Call)
             {
-                foreach (FieldDef field in (from x in type.Fields where x.FieldType.FullName.Equals("System.ModuleHandle") select x))
+                if (!(myMethod.Body.Instructions[i + 1].Operand is IMethod method) ||
+                    !default(SigComparer).Equals(_typeDef, method.DeclaringType)) continue;
+                var methodDef = DotNetUtils.GetMethod(DeobfuscatorContext.Module, method);
+                if (methodDef == null) continue;
+                if (methodDef == _typeMethod || methodDef == _fieldMethod)
                 {
-                    MethodDef FieldMethod = null;
-                    MethodDef TypeMethod = null;
-                    foreach (MethodDef method in (from x in type.Methods where x.MethodSig != null && x.MethodSig.Params.Count.Equals(1) && x.MethodSig.Params[0].GetElementType() == ElementType.I4 select x).ToArray<MethodDef>())
-                    {
-                        if (method.MethodSig.RetType.GetFullName().Equals("System.RuntimeTypeHandle"))
-                            TypeMethod = method;
-                        else if (method.MethodSig.RetType.GetFullName().Equals("System.RuntimeFieldHandle"))
-                            FieldMethod = method;
-                    }
-                    if (TypeMethod == null || FieldMethod == null) continue;
-                    typeDef = type;
-                    typeMethod = TypeMethod;
-                    fieldMethod = FieldMethod;
-                    break;
+                    var token = (uint) (int) myMethod.Body.Instructions[i].Operand;
+                    myMethod.Body.Instructions[i] = OpCodes.Nop.ToInstruction();
+                    myMethod.Body.Instructions[i + 1] = new Instruction(OpCodes.Ldtoken,
+                        DeobfuscatorContext.Module.ResolveToken(token, gpContext) as ITokenOperand);
+                    count += 1L;
                 }
             }
-        }
 
-        public long Deobfuscate(MethodDef myMethod)
-        {
-            long count = 0L;
-            if (typeDef == null) return 0L;
-            GenericParamContext gpContext = GenericParamContext.Create(myMethod);
-            for (int i = 0; i < myMethod.Body.Instructions.Count; i++)
-            {
-                if (myMethod.Body.Instructions[i].OpCode.Code.Equals(Code.Ldc_I4) && myMethod.Body.Instructions[i + 1].OpCode.Code == Code.Call)
-                {
-                    if (!(myMethod.Body.Instructions[i + 1].Operand is IMethod method) || !default(SigComparer).Equals(typeDef, method.DeclaringType)) continue;
-                    MethodDef methodDef = DotNetUtils.GetMethod(DeobfuscatorContext.Module, method);
-                    if (methodDef == null) continue;
-                    if (methodDef == typeMethod || methodDef == fieldMethod)
-                    {
-                        uint token = (uint)((int)myMethod.Body.Instructions[i].Operand);
-                        myMethod.Body.Instructions[i] = OpCodes.Nop.ToInstruction();
-                        myMethod.Body.Instructions[i + 1] = new Instruction(OpCodes.Ldtoken, DeobfuscatorContext.Module.ResolveToken(token, gpContext) as ITokenOperand);
-                        count += 1L;
-                    }
-                }
-            }
-            return count;
-        }
-
-        private TypeDef typeDef;
-        private MethodDef typeMethod;
-        private MethodDef fieldMethod;
+        return count;
     }
 }
