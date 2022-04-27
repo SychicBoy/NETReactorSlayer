@@ -96,8 +96,6 @@ internal class BooleanDecryptor : IDeobfuscator
                 for (var i = 0; i < method.Body.Instructions.Count; i++)
                     try
                     {
-                        //if (method.Name == "XITsqep3C")
-                        //    System.Diagnostics.Debugger.Launch();
                         if (!method.Body.Instructions[i].OpCode.Equals(OpCodes.Call) ||
                             !method.Body.Instructions[i - 1].IsLdcI4() ||
                             !method.Body.Instructions[i + 1].IsConditionalBranch())
