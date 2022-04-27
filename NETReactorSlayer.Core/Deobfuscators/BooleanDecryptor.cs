@@ -39,7 +39,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             }
             Cleaner.ResourceToRemove.Add(encryptedResource);
             Cleaner.MethodsToPatch.Add(decryptorMethod);
-            Deobfuscate(decryptorMethod);
+            SimpleDeobfuscator.Deobfuscate(decryptorMethod);
             DnrDecrypterType decrypterType = GetDecrypterType(decryptorMethod, new string[0]);
             byte[] key = GetBytes(decryptorMethod, 32);
             if (decrypterType == DnrDecrypterType.V3)
@@ -162,114 +162,6 @@ namespace NETReactorSlayer.Core.Deobfuscators
             }
             return DnrDecrypterType.Unknown;
         }
-
-        public void Deobfuscate(MethodDef method)
-        {
-            List<IBlocksDeobfuscator> list = new List<IBlocksDeobfuscator> { new MethodCallInliner(false) };
-            SimpleDeobfuscatorFlags flags = 0;
-            if (!(method == null || (!((flags & SimpleDeobfuscatorFlags.Force) > 0U) && Check(method, SimpleDeobFlags.HasDeobfuscated))))
-            {
-                Deobfuscate(method, delegate (Blocks blocks)
-                {
-                    bool disableNewCFCode = (flags & SimpleDeobfuscatorFlags.DisableConstantsFolderExtraInstrs) > (SimpleDeobfuscatorFlags)0U;
-                    BlocksCflowDeobfuscator cflowDeobfuscator = new BlocksCflowDeobfuscator(list, disableNewCFCode);
-                    cflowDeobfuscator.Initialize(blocks);
-                    cflowDeobfuscator.Deobfuscate();
-                });
-            }
-        }
-
-        void Deobfuscate(MethodDef method, Action<Blocks> handler)
-        {
-            if (method == null || !method.HasBody || !method.Body.HasInstructions) return;
-            try
-            {
-                if (method.Body.Instructions.Any((Instruction instr) => instr.OpCode.Equals(OpCodes.Switch)))
-                    DeobfuscateEquations(method);
-                Blocks blocks = new Blocks(method);
-                handler(blocks);
-                blocks.GetCode(out IList<Instruction> allInstructions, out IList<ExceptionHandler> allExceptionHandlers);
-                DotNetUtils.RestoreBody(method, allInstructions, allExceptionHandlers);
-            }
-            catch
-            {
-                Logger.Warn("Couldn't deobfuscate " + method.FullName);
-            }
-        }
-
-        void DeobfuscateEquations(MethodDef method)
-        {
-            for (int i = 0; i < method.Body.Instructions.Count; i++)
-            {
-                if (method.Body.Instructions[i].IsBrtrue() && method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Pop) && method.Body.Instructions[i - 1].OpCode.Equals(OpCodes.Call))
-                {
-                    if (method.Body.Instructions[i - 1].Operand is MethodDef methodDef)
-                    {
-                        IList<Instruction> methodDefInstr = methodDef.Body.Instructions;
-                        if (methodDef.ReturnType.FullName == "System.Boolean")
-                        {
-                            if (methodDefInstr[methodDefInstr.Count - 2].OpCode.Equals(OpCodes.Ldc_I4_0))
-                            {
-                                method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
-                                method.Body.Instructions[i].OpCode = OpCodes.Nop;
-                            }
-                            else
-                            {
-                                method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
-                                method.Body.Instructions[i].OpCode = OpCodes.Br_S;
-                            }
-                        }
-                        else
-                        {
-                            method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
-                            method.Body.Instructions[i].OpCode = OpCodes.Nop;
-                        }
-                    }
-                }
-                else
-                {
-                    if (method.Body.Instructions[i].IsBrfalse() && method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Pop) && method.Body.Instructions[i - 1].OpCode.Equals(OpCodes.Call))
-                    {
-                        if (method.Body.Instructions[i - 1].Operand is MethodDef methodDef2)
-                        {
-                            IList<Instruction> methodDefInstr2 = methodDef2.Body.Instructions;
-                            if (methodDef2.ReturnType.FullName == "System.Boolean")
-                            {
-                                if (methodDefInstr2[methodDefInstr2.Count - 2].OpCode.Equals(OpCodes.Ldc_I4_0))
-                                {
-                                    method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
-                                    method.Body.Instructions[i].OpCode = OpCodes.Br_S;
-                                }
-                                else
-                                {
-                                    method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
-                                    method.Body.Instructions[i].OpCode = OpCodes.Nop;
-                                }
-                            }
-                            else
-                            {
-                                method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
-                                method.Body.Instructions[i].OpCode = OpCodes.Br_S;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        bool Check(MethodDef method, SimpleDeobFlags flags)
-        {
-            if (method == null) return false;
-            simpleDeobfuscatorFlags.TryGetValue(method, out SimpleDeobFlags oldFlags);
-            simpleDeobfuscatorFlags[method] = (oldFlags | flags);
-            return ((oldFlags & flags) == flags);
-        }
-
-        [Flags] public enum SimpleDeobfuscatorFlags : uint { Force = 1U, DisableConstantsFolderExtraInstrs = 2U }
-
-        [Flags] enum SimpleDeobFlags { HasDeobfuscated = 1 }
-
-        readonly Dictionary<MethodDef, SimpleDeobFlags> simpleDeobfuscatorFlags = new Dictionary<MethodDef, SimpleDeobFlags>();
 
         byte[] decryptedBytes = null;
     }

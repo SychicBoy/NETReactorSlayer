@@ -12,183 +12,96 @@
     You should have received a copy of the GNU General Public License
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
-using de4dot.blocks;
-using de4dot.blocks.cflow;
-using dnlib.DotNet;
-using dnlib.DotNet.Emit;
+
 using System.Collections.Generic;
 using System.Linq;
+using dnlib.DotNet;
+using dnlib.DotNet.Emit;
 
-namespace NETReactorSlayer.Core.Deobfuscators
+namespace NETReactorSlayer.Core.Deobfuscators;
+
+internal class ControlFlowDeobfuscator : IDeobfuscator
 {
-    class ControlFlowDeobfuscator : IDeobfuscator
+    private readonly Dictionary<IField, int> _fields = new();
+
+    public void Execute()
     {
-        void Initialize()
-        {
-            foreach (TypeDef type in DeobfuscatorContext.Module.GetTypes().Where(x => x.Fields.Count > 100))
+        if (_fields.Count == 0)
+            Initialize();
+        var count = 0L;
+        foreach (var type in DeobfuscatorContext.Module.GetTypes())
+            foreach (var method in (from x in type.Methods where x.HasBody && x.Body.HasInstructions select x)
+                     .ToArray())
             {
-                foreach (MethodDef method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions && x.Body.Instructions.Any(z => z.OpCode.Equals(OpCodes.Stsfld))))
-                {
-                    DeobfuscateEquations(method);
-                    DeobfuscateBlocks(method);
-                    for (int i = 0; i < method.Body.Instructions.Count; i++)
+                if (SimpleDeobfuscator.Deobfuscate(method))
+                    count += 1L;
+                count += Arithmetic(method);
+                SimpleDeobfuscator.DeobfuscateBlocks(method);
+            }
+
+        if (count > 0L) Logger.Done((int)count + " Equations resolved.");
+        else
+            Logger.Warn(
+                "Couldn't found any equations, looks like there's no control flow obfuscation applied to methods.");
+    }
+
+    private void Initialize()
+    {
+        TypeDef typeDef = null;
+        foreach (var type in DeobfuscatorContext.Module.GetTypes().Where(
+                     x => x.IsSealed &&
+                          x.HasFields &&
+                          x.Fields.Count >= 100))
+        {
+            _fields.Clear();
+            foreach (var method in type.Methods.Where(x =>
+                         x.IsStatic && x.IsAssembly && x.HasBody && x.Body.HasInstructions))
+            {
+                SimpleDeobfuscator.Deobfuscate(method);
+                for (var i = 0; i < method.Body.Instructions.Count; i += 2)
+                    if (method.Body.Instructions[i].IsLdcI4() &&
+                        (i + 1 < method.Body.Instructions.Count ? method.Body.Instructions[i + 1] : null)?.OpCode ==
+                        OpCodes.Stsfld)
                     {
-                        if (method.Body.Instructions[i].IsLdcI4() && (method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Stsfld) || method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Stfld)))
-                        {
-                            var key = (method.Body.Instructions[i + 1].Operand as IField).MDToken.ToInt32();
-                            var value = method.Body.Instructions[i].GetLdcI4Value();
-                            if (!Fields.ContainsKey(key))
-                                Fields.Add(key, value);
-                            else
-                                Fields[key] = value;
-                        }
+                        var key = (IField)(i + 1 < method.Body.Instructions.Count
+                            ? method.Body.Instructions[i + 1]
+                            : null)?.Operand;
+                        var value = method.Body.Instructions[i].GetLdcI4Value();
+                        if (key != null && !_fields.ContainsKey(key))
+                            _fields.Add(key, value);
+                        else if (key != null) _fields[key] = value;
                     }
-                    if (Fields.Count >= 100)
-                    {
-                        Cleaner.TypesToRemove.Add(type);
-                        break;
-                    }
-                }
+
+                if (_fields.Count != 0)
+                    typeDef = type;
+                goto Continue;
             }
         }
 
-        public void Execute()
-        {
-            if (Fields.Count == 0)
-                Initialize();
-            long count = 0L;
-            foreach (TypeDef type in DeobfuscatorContext.Module.GetTypes())
-            {
-                foreach (MethodDef method in (from x in type.Methods where x.HasBody && x.Body.HasInstructions select x).ToArray<MethodDef>())
-                {
-                    count += DeobfuscateEquations(method);
-                    DeobfuscateBlocks(method);
-                }
-            }
-            if (count > 0L) Logger.Done((int)count + " Equations resolved.");
-            else Logger.Warn("Couldn't found any equations, looks like there's no control flow obfuscation applied to methods.");
-        }
+        Continue:
+        if (typeDef != null)
+            Cleaner.TypesToRemove.Add(typeDef);
+    }
 
-        void DeobfuscateBlocks(MethodDef method)
-        {
+    private long Arithmetic(MethodDef method)
+    {
+        var count = 0L;
+        for (var i = 0; i < method.Body.Instructions.Count; i++)
             try
             {
-                BlocksCflowDeob = new BlocksCflowDeobfuscator();
-                Blocks blocks = new Blocks(method);
-                List<Block> allBlocks = blocks.MethodBlocks.GetAllBlocks();
-                blocks.RemoveDeadBlocks();
-                blocks.RepartitionBlocks();
-                blocks.UpdateBlocks();
-                blocks.Method.Body.SimplifyBranches();
-                blocks.Method.Body.OptimizeBranches();
-                BlocksCflowDeob.Initialize(blocks);
-                BlocksCflowDeob.Deobfuscate();
-                blocks.RepartitionBlocks();
-                blocks.GetCode(out IList<Instruction> instructions, out IList<ExceptionHandler> exceptionHandlers);
-                DotNetUtils.RestoreBody(method, instructions, exceptionHandlers);
-            }
-            catch
-            {
-            }
-        }
-
-        long DeobfuscateEquations(MethodDef method)
-        {
-            long count = 0L;
-            for (int i = 0; i < method.Body.Instructions.Count; i++)
-            {
-                try
+                if (method.Body.Instructions[i].OpCode == OpCodes.Ldsfld &&
+                    method.Body.Instructions[i].Operand is IField &&
+                    method.Body.Instructions[i + 1].IsConditionalBranch() &&
+                    (method.Body.Instructions[i + 2].OpCode == OpCodes.Pop ||
+                     method.Body.Instructions[i + 2].IsBr()) &&
+                    _fields.TryGetValue((IField)method.Body.Instructions[i].Operand, out var value))
                 {
-                    if (method.Body.Instructions[i].OpCode.Equals(OpCodes.Call) && method.Body.Instructions[i + 1].IsBrtrue() && method.Body.Instructions[i + 2].OpCode.Equals(OpCodes.Pop))
-                    {
-                        if (method.Body.Instructions[i].Operand.ToString().Contains("System.Boolean"))
-                        {
-                            count += 1L;
-                            method.Body.Instructions[i].OpCode = OpCodes.Nop;
-                            method.Body.Instructions[i + 1].OpCode = OpCodes.Br_S;
-                        }
-                        else
-                        {
-                            count += 1L;
-                            method.Body.Instructions[i].OpCode = OpCodes.Nop;
-                            method.Body.Instructions[i + 1].OpCode = OpCodes.Nop;
-                        }
-                    }
-                    else if (method.Body.Instructions[i].OpCode.Equals(OpCodes.Call) && method.Body.Instructions[i + 1].IsBrfalse() && method.Body.Instructions[i + 2].OpCode.Equals(OpCodes.Pop))
-                    {
-                        if (method.Body.Instructions[i].Operand.ToString().Contains("System.Boolean"))
-                        {
-                            count += 1L;
-                            method.Body.Instructions[i].OpCode = OpCodes.Nop;
-                            method.Body.Instructions[i + 1].OpCode = OpCodes.Nop;
-                        }
-                        else
-                        {
-                            count += 1L;
-                            method.Body.Instructions[i].OpCode = OpCodes.Nop;
-                            method.Body.Instructions[i + 1].OpCode = OpCodes.Br_S;
-                        }
-                    }
-                    else if (method.Body.Instructions[i].OpCode.Equals(OpCodes.Call) && method.Body.Instructions[i].Operand is IMethod iMethod)
-                    {
-                        var methodDef = iMethod.ResolveMethodDef();
-                        if (methodDef == null || methodDef.Parameters.Count != 0 || methodDef.IsPublic || !methodDef.HasReturnType || methodDef.ReturnType.FullName != "System.Boolean" || !methodDef.HasBody || !methodDef.Body.HasInstructions || methodDef.Body.Instructions.Count < 1)
-                            continue;
-                        if (methodDef.Body.Instructions[0].IsLdcI4() && methodDef.Body.Instructions[1].OpCode.Equals(OpCodes.Ret))
-                        {
-                            int value = methodDef.Body.Instructions[0].GetLdcI4Value();
-                            if (value == 1 || value == 0)
-                            {
-                                if (method.Body.Instructions[i + 1].IsConditionalBranch())
-                                    method.Body.Instructions[i] = Instruction.CreateLdcI4(value);
-                                else if (method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Pop))
-                                {
-                                    method.Body.Instructions[i].OpCode = OpCodes.Nop;
-                                    method.Body.Instructions[i + 1].OpCode = OpCodes.Nop;
-                                }
-                                else
-                                    continue;
-                                count += 1L;
-                            }
-                        }
-                        else if (methodDef.Body.Instructions[0].IsBr())
-                        {
-                            var instruction = (methodDef.Body.Instructions[0].Operand as Instruction);
-                            if (instruction.IsLdcI4())
-                            {
-                                int value = instruction.GetLdcI4Value();
-                                if (value == 1 || value == 0)
-                                {
-
-                                    if (method.Body.Instructions[i + 1].IsConditionalBranch())
-                                        method.Body.Instructions[i] = Instruction.CreateLdcI4(value);
-                                    else if (method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Pop))
-                                    {
-                                        method.Body.Instructions[i].OpCode = OpCodes.Nop;
-                                        method.Body.Instructions[i + 1].OpCode = OpCodes.Nop;
-                                    }
-                                    else
-                                        continue;
-                                    count += 1L;
-                                }
-                            }
-                        }
-                    }
-                    else if (method.Body.Instructions[i].Operand is IField field && field.ResolveFieldDef().FieldType.FullName.Equals("System.Int32"))
-                    {
-                        if (!Fields.TryGetValue(field.MDToken.ToInt32(), out int value) || field.DeclaringType.Equals(method.DeclaringType)) continue;
-                        if (method.Body.Instructions[i - 1].Operand is IField parent && field.DeclaringType.Equals(parent.DeclaringType))
-                            method.Body.Instructions[i - 1] = Instruction.Create(OpCodes.Nop);
-                        method.Body.Instructions[i] = Instruction.CreateLdcI4(value);
-                        count += 1L;
-                    }
+                    method.Body.Instructions[i] = Instruction.CreateLdcI4(value);
+                    count += 1L;
                 }
-                catch { }
             }
-            return count;
-        }
+            catch { }
 
-        readonly Dictionary<int, int> Fields = new Dictionary<int, int>();
-        BlocksCflowDeobfuscator BlocksCflowDeob = new BlocksCflowDeobfuscator();
+        return count;
     }
 }
