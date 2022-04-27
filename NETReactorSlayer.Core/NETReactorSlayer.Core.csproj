@@ -66,6 +66,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Deobfuscators\BooleanDecryptor.cs" />
+    <Compile Include="Deobfuscators\MethodCallsRemover.cs" />
+    <Compile Include="Deobfuscators\NOPRemover.cs" />
     <Compile Include="Deobfuscators\SimpleDeobfuscator.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IDeobfuscator.cs" />

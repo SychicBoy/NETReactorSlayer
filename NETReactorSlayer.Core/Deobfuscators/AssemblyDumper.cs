@@ -43,7 +43,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 Logger.Warn("Couldn't find any embedded assembly (DNR).");
                 return;
             }
-            Cleaner.MethodsToPatch.Add(initialMethod);
+            Cleaner.MethodsToRemove.Add(initialMethod);
             foreach (var asm in Assemblies)
             {
                 int i = 0;

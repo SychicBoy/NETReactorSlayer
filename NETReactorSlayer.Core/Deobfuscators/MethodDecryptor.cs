@@ -79,7 +79,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             }
             encryptedResource = GetEncryptedResource(decryptorMethod);
             Cleaner.ResourceToRemove.Add(encryptedResource);
-            Cleaner.MethodsToPatch.Add(decryptorMethod);
+            Cleaner.MethodsToRemove.Add(decryptorMethod);
             SimpleDeobfuscator.Deobfuscate(decryptorMethod);
             DnrDecrypterType decrypterType = GetDecrypterType(decryptorMethod, new string[0]);
             byte[] key = GetBytes(decryptorMethod, 32);

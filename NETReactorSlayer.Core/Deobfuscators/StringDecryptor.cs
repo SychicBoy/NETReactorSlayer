@@ -27,7 +27,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
     {
         public void Execute()
         {
-            Cleaner.RemoveNOPs();
+            NopRemover.RemoveAll();
             StacktracePatcher.Patch();
             long count = 0L;
             foreach (TypeDef type in DeobfuscatorContext.Module.GetTypes())
@@ -66,7 +66,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                                                     if (strMethod.DeclaringType != type)
                                                     {
                                                         Cleaner.ResourceToRemove.Add(DeobfuscatorContext.Module.Resources.Find(name));
-                                                        Cleaner.MethodsToPatch.Add(strMethod.ResolveMethodDef());
+                                                        Cleaner.MethodsToRemove.Add(strMethod.ResolveMethodDef());
                                                     }
                                                 }
                                             }
@@ -80,7 +80,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                                     if ((string)result == "This assembly is protected by an unregistered version of Eziriz's \".NET Reactor\"!")
                                     {
                                         foreach (var methodToRemove in method.DeclaringType.Methods)
-                                            Cleaner.MethodsToPatch.Add(method);
+                                            Cleaner.MethodsToRemove.Add(method);
                                         Cleaner.TypesToRemove.Add(method.DeclaringType);
                                     }
                                 }

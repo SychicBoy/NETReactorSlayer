@@ -140,7 +140,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 });
                 foreach (var m in methodsToPatch)
                 {
-                    Cleaner.MethodsToPatch.Add(m);
+                    Cleaner.MethodsToRemove.Add(m);
                 }
                 Cleaner.TypesToRemove.Add(typeDef);
                 Cleaner.ResourceToRemove.Add(encryptedResource);

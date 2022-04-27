@@ -33,7 +33,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                         if (instruction.Operand.ToString().Contains("Debugger Detected"))
                         {
                             IsAntiDebugFound = true;
-                            Cleaner.MethodsToPatch.Add(method);
+                            Cleaner.MethodsToRemove.Add(method);
                             Instruction ins = Instruction.Create(OpCodes.Ret);
                             CilBody cli = new CilBody();
                             cli.Instructions.Add(ins);
@@ -43,7 +43,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                         if (instruction.Operand.ToString().Contains("is tampered"))
                         {
                             IsAntiTamperFound = true;
-                            Cleaner.MethodsToPatch.Add(method);
+                            Cleaner.MethodsToRemove.Add(method);
                             Instruction ins = Instruction.Create(OpCodes.Ret);
                             CilBody cli = new CilBody();
                             cli.Instructions.Add(ins);

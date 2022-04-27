@@ -88,7 +88,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                     }
                 }
             }
-            Cleaner.MethodsToPatch.Add(method);
+            Cleaner.MethodsToRemove.Add(method);
             if (count > 0L) Logger.Done((int)count + " Hidden calls restored.");
             else Logger.Warn("Couldn't find any hidden call.");
         }
