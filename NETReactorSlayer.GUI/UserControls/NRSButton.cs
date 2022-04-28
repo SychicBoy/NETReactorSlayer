@@ -12,73 +12,74 @@
     You should have received a copy of the GNU General Public License
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace NETReactorSlayer.GUI.UserControls
+namespace NETReactorSlayer.GUI.UserControls;
+
+public partial class NrsButton : Button
 {
-    public partial class NRSButton : Button
+    public enum TextTransformEnum
     {
-        [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
-        public static extern IntPtr CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse);
-        private int _BorderRadius = 0;
-        public int BorderRadius
-        {
-            get
-            {
-                return _BorderRadius;
-            }
-            set
-            {
-                _BorderRadius = value;
-                this.Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _BorderRadius, 20));
-            }
-        }
-        public enum TextTransformEnum { None, Upper, Lower };
-        private TextTransformEnum _Transform;
-        public TextTransformEnum TextTransform
-        {
-            get
-            {
-                return _Transform;
-            }
-            set
-            {
-                _Transform = value;
-                if (value == TextTransformEnum.Upper)
-                    base.Text = Text.ToUpper();
-                else if (value == TextTransformEnum.Lower)
-                    base.Text = Text.ToLower();
-                else
-                    base.Text = Text;
-            }
-        }
-        private string _Text;
-        public new string Text
-        {
-            get
-            {
-                return _Text;
-            }
-            set
-            {
-                _Text = value;
-                if (TextTransform == TextTransformEnum.Upper)
-                    base.Text = Text.ToUpper();
-                else if (TextTransform == TextTransformEnum.Lower)
-                    base.Text = Text.ToLower();
-                else
-                    base.Text = Text;
-            }
-        }
+        None,
+        Upper,
+        Lower
+    }
 
-        private void SizeChange(object sender, EventArgs e) => this.Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _BorderRadius, 20));
+    private int _borderRadius;
+    private string _text;
+    private TextTransformEnum _transform;
 
-        public NRSButton()
+    public NrsButton() => InitializeComponent();
+
+    public int BorderRadius
+    {
+        get => _borderRadius;
+        set
         {
-            InitializeComponent();
+            _borderRadius = value;
+            Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _borderRadius, 20));
         }
     }
+
+    public TextTransformEnum TextTransform
+    {
+        get => _transform;
+        set
+        {
+            _transform = value;
+            if (value == TextTransformEnum.Upper)
+                base.Text = Text.ToUpper();
+            else if (value == TextTransformEnum.Lower)
+                base.Text = Text.ToLower();
+            else
+                base.Text = Text;
+        }
+    }
+
+    public new string Text
+    {
+        get => _text;
+        set
+        {
+            _text = value;
+            if (TextTransform == TextTransformEnum.Upper)
+                base.Text = Text.ToUpper();
+            else if (TextTransform == TextTransformEnum.Lower)
+                base.Text = Text.ToLower();
+            else
+                base.Text = Text;
+        }
+    }
+
+    [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
+    public static extern IntPtr CreateRoundRectRgn(
+        int nLeftRect, int nTopRect, int nRightRect, int nBottomRect,
+        int nWidthEllipse, int nHeightEllipse);
+
+    private void SizeChange(object sender, EventArgs e) =>
+        Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _borderRadius, 20));
 }

@@ -27,9 +27,11 @@ using NETReactorSlayer.Core.Helper.De4dot;
 
 namespace NETReactorSlayer.Core;
 
-public class DeobfuscatorContext
+public class Context
 {
     public static bool IsNative;
+
+    public static bool KeepTypes, RemoveCalls = true, RemoveJunks = true;
 
     private bool _preserveAll, _keepOldMaxStack;
 
@@ -46,7 +48,7 @@ public class DeobfuscatorContext
     public static AssemblyModule AssemblyModule { get; set; }
     public static ModuleContext ModuleContext { get; set; }
     public static MyPEImage PeImage { get; set; }
-    public DeobfuscatorOptions DeobfuscatorOptions { get; set; }
+    public Options DeobfuscatorOptions { get; set; }
 
     public bool Parse(string[] args)
     {
@@ -54,7 +56,7 @@ public class DeobfuscatorContext
 
         var isValid = false;
         var path = string.Empty;
-        DeobfuscatorOptions = new DeobfuscatorOptions();
+        DeobfuscatorOptions = new Options();
         for (var i = 0; i < args.Length; i++)
             if (File.Exists(args[i]) && !isValid)
             {
@@ -68,7 +70,7 @@ public class DeobfuscatorContext
                     var key = args[i];
                     switch (key)
                     {
-                        case "--keep-stack":
+                        case "--keep-max-stack":
                             _keepOldMaxStack = value;
                             continue;
                         case "--preserve-all":
@@ -76,6 +78,18 @@ public class DeobfuscatorContext
                             continue;
                         case "--no-pause":
                             NoPause = value;
+                            continue;
+                        case "--keep-types":
+                            KeepTypes = value;
+                            continue;
+                        case "--rem-calls":
+                            RemoveCalls = value;
+                            continue;
+                        case "--rem-junks":
+                            RemoveJunks = value;
+                            continue;
+                        case "--verbose":
+                            Logger.Verbose = value;
                             continue;
                     }
 
@@ -108,6 +122,9 @@ public class DeobfuscatorContext
 
         if (isValid)
         {
+            Logger.Done(
+                $"{DeobfuscatorOptions.Stages.Count}/12 Modules loaded...");
+
             #region Get Assembly Infos
 
             SourcePath = path;
@@ -224,7 +241,7 @@ public class DeobfuscatorContext
                 : new NativeModuleWriterOptions(Module, false);
             writer.Logger = DummyLogger.NoThrowInstance;
             if (_preserveAll)
-                writer.MetadataOptions.Flags = MetadataFlags.PreserveAll;
+                writer.MetadataOptions.Flags |= MetadataFlags.PreserveAll;
             if (_keepOldMaxStack)
                 writer.MetadataOptions.Flags |= MetadataFlags.KeepOldMaxStack;
 

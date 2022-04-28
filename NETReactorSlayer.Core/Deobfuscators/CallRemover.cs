@@ -21,7 +21,7 @@ using dnlib.DotNet.Emit;
 
 namespace NETReactorSlayer.Core.Deobfuscators;
 
-internal class MethodCallsRemover
+internal class CallRemover
 {
     private static MethodDefAndDeclaringTypeDict<MethodDefAndDeclaringTypeDict<bool>> _methodRefInfos;
 
@@ -29,11 +29,11 @@ internal class MethodCallsRemover
     {
         _methodRefInfos = new MethodDefAndDeclaringTypeDict<MethodDefAndDeclaringTypeDict<bool>>();
 
-        foreach (var type in DeobfuscatorContext.Module.GetTypes())
+        foreach (var type in Context.Module.GetTypes())
         foreach (var methodDef in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
             Add(methodDef, methodToRem);
 
-        foreach (var type in DeobfuscatorContext.Module.GetTypes())
+        foreach (var type in Context.Module.GetTypes())
         foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
             RemoveCalls(method, _methodRefInfos.Find(method));
     }
@@ -42,12 +42,12 @@ internal class MethodCallsRemover
     {
         _methodRefInfos = new MethodDefAndDeclaringTypeDict<MethodDefAndDeclaringTypeDict<bool>>();
 
-        foreach (var type in DeobfuscatorContext.Module.GetTypes())
+        foreach (var type in Context.Module.GetTypes())
         foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
         foreach (var methodToRem in methods)
             Add(method, methodToRem);
 
-        foreach (var type in DeobfuscatorContext.Module.GetTypes())
+        foreach (var type in Context.Module.GetTypes())
         foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
             RemoveCalls(method, _methodRefInfos.Find(method));
     }

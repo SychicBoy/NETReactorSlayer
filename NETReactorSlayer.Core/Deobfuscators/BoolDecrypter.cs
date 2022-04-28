@@ -20,11 +20,11 @@ using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 using NETReactorSlayer.Core.Helper.De4dot;
-using static NETReactorSlayer.Core.Deobfuscators.ResourceDecryptor;
+using static NETReactorSlayer.Core.Deobfuscators.RsrcDecrypter;
 
 namespace NETReactorSlayer.Core.Deobfuscators;
 
-internal class BooleanDecryptor : IDeobfuscator
+internal class BoolDecrypter : IStage
 {
     private byte[] _decryptedBytes;
     private MethodDef _decryptorMethod;
@@ -57,7 +57,7 @@ internal class BooleanDecryptor : IDeobfuscator
         if (IsNeedReverse(_decryptorMethod))
             Array.Reverse(iv);
         if (UsesPublicKeyToken(_decryptorMethod))
-            if (DeobfuscatorContext.Module.Assembly.PublicKeyToken is { } publicKeyToken &&
+            if (Context.Module.Assembly.PublicKeyToken is { } publicKeyToken &&
                 publicKeyToken.Data.Length != 0)
                 for (var z = 0; z < 8; z++)
                     iv[z * 2 + 1] = publicKeyToken.Data[z];
@@ -87,14 +87,12 @@ internal class BooleanDecryptor : IDeobfuscator
             return;
         }
 
-        foreach (var type in DeobfuscatorContext.Module.GetTypes().Where(x => x.HasMethods))
+        foreach (var type in Context.Module.GetTypes().Where(x => x.HasMethods))
         foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
         {
             for (var i = 0; i < method.Body.Instructions.Count; i++)
                 try
                 {
-                    //if (method.Name == "XITsqep3C")
-                    //    System.Diagnostics.Debugger.Launch();
                     if (!method.Body.Instructions[i].OpCode.Equals(OpCodes.Call) ||
                         !method.Body.Instructions[i - 1].IsLdcI4() ||
                         !method.Body.Instructions[i + 1].IsConditionalBranch())
@@ -119,11 +117,11 @@ internal class BooleanDecryptor : IDeobfuscator
     }
 
     public bool Decrypt(int offset) =>
-        DeobfuscatorContext.ModuleBytes[BitConverter.ToUInt32(_decryptedBytes, offset)] == 0x80;
+        Context.ModuleBytes[BitConverter.ToUInt32(_decryptedBytes, offset)] == 0x80;
 
     private void Find()
     {
-        foreach (var type in DeobfuscatorContext.Module.Types.Where(x =>
+        foreach (var type in Context.Module.Types.Where(x =>
                      x.BaseType is {FullName: "System.Object"}))
             if (DotNetUtils.GetMethod(type, "System.Boolean", "(System.Int32)") is { } methodDef &&
                 GetEncryptedResource(methodDef) != null &&
@@ -139,7 +137,7 @@ internal class BooleanDecryptor : IDeobfuscator
     {
         if (method == null || !method.HasBody || !method.Body.HasInstructions) return null;
         foreach (var s in DotNetUtils.GetCodeStrings(method))
-            if (DotNetUtils.GetResource(DeobfuscatorContext.Module, s) is EmbeddedResource resource)
+            if (DotNetUtils.GetResource(Context.Module, s) is EmbeddedResource resource)
                 return resource;
         return null;
     }

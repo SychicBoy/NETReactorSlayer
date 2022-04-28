@@ -12,28 +12,19 @@
     You should have received a copy of the GNU General Public License
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace NETReactorSlayer.GUI
+namespace NETReactorSlayer.GUI;
+
+public class MenuColorTable : ProfessionalColorTable
 {
-    public class MenuColorTable : ProfessionalColorTable
-    {
-        public MenuColorTable()
-        {
-            UseSystemColors = false;
-        }
-        public override Color MenuBorder
-        {
-            get { return Color.Black; }
-        }
-        public override Color MenuItemBorder
-        {
-            get { return Color.Black; }
-        }
-        public override Color MenuItemSelected
-        {
-            get { return Color.FromArgb(18, 18, 18); }
-        }
-    }
+    public MenuColorTable() => UseSystemColors = false;
+
+    public override Color MenuBorder => Color.Black;
+
+    public override Color MenuItemBorder => Color.Black;
+
+    public override Color MenuItemSelected => Color.FromArgb(18, 18, 18);
 }

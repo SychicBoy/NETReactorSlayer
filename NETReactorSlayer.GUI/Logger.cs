@@ -12,49 +12,45 @@
     You should have received a copy of the GNU General Public License
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace NETReactorSlayer.GUI
+namespace NETReactorSlayer.GUI;
+
+internal class Logger
 {
-    internal class Logger
+    private readonly RichTextBox _richTextBox;
+    public Logger(RichTextBox richTextBox) => _richTextBox = richTextBox;
+
+    public void Write(string text, Color? color = null)
     {
-        readonly RichTextBox RichTextBox = null;
-        public Logger(RichTextBox RichTextBox) => this.RichTextBox = RichTextBox;
-
-        public void Write(string text, Color? color = null)
+        if (_richTextBox.InvokeRequired)
         {
-            if (RichTextBox.InvokeRequired)
-            {
-                RichTextBox.Invoke(new MethodInvoker(() =>
-                {
-                    Write(text, color);
-                }));
-                return;
-            }
-            RichTextBox.SelectionStart = RichTextBox.TextLength;
-            RichTextBox.SelectionLength = 0;
-            RichTextBox.SelectionColor = color ?? Color.Gray;
-            RichTextBox.AppendText(text);
-            RichTextBox.SelectionColor = RichTextBox.ForeColor;
-            Application.DoEvents();
+            _richTextBox.Invoke(new MethodInvoker(() => { Write(text, color); }));
+            return;
         }
 
-        public void WriteLine(string text, Color? color = null)
-        {
-            Write($"{text}", color);
-            if (RichTextBox.InvokeRequired)
-            {
-                RichTextBox.Invoke(new MethodInvoker(() =>
-                {
-                    RichTextBox.AppendText(Environment.NewLine);
-                }));
-                return;
-            }
-            RichTextBox.AppendText(Environment.NewLine);
-        }
-
-        public void Clear() => RichTextBox.Clear();
+        _richTextBox.SelectionStart = _richTextBox.TextLength;
+        _richTextBox.SelectionLength = 0;
+        _richTextBox.SelectionColor = color ?? Color.Gray;
+        _richTextBox.AppendText(text);
+        _richTextBox.SelectionColor = _richTextBox.ForeColor;
+        Application.DoEvents();
     }
+
+    public void WriteLine(string text, Color? color = null)
+    {
+        Write($"{text}", color);
+        if (_richTextBox.InvokeRequired)
+        {
+            _richTextBox.Invoke(new MethodInvoker(() => { _richTextBox.AppendText(Environment.NewLine); }));
+            return;
+        }
+
+        _richTextBox.AppendText(Environment.NewLine);
+    }
+
+    public void Clear() => _richTextBox.Clear();
 }

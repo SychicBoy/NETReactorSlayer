@@ -24,7 +24,7 @@ using dnlib.DotNet.Emit;
 
 namespace NETReactorSlayer.Core.Deobfuscators;
 
-internal class HideCallDecryptor : IDeobfuscator
+internal class CallDecrypter : IStage
 {
     private readonly List<MethodDef> _delegateCreatorMethods = new();
     private readonly InstructionEmulator _instrEmulator = new();
@@ -67,7 +67,7 @@ internal class HideCallDecryptor : IDeobfuscator
         for (var i = 0; i < num; i++) _instructions.Add(origInstrs[startIndex + i].Clone());
         GetDictionary();
         var count = 0L;
-        foreach (var type in DeobfuscatorContext.Module.GetTypes())
+        foreach (var type in Context.Module.GetTypes())
         foreach (var method in (from x in type.Methods where x.HasBody && x.Body.HasInstructions select x)
                  .ToArray())
             for (var i = 0; i < method.Body.Instructions.Count; i++)
@@ -80,7 +80,7 @@ internal class HideCallDecryptor : IDeobfuscator
                         GetCallInfo(field, out var iMethod, out var opCpde);
                         if (iMethod != null)
                         {
-                            iMethod = DeobfuscatorContext.Module.Import(iMethod);
+                            iMethod = Context.Module.Import(iMethod);
                             if (iMethod != null)
                             {
                                 method.Body.Instructions[i].OpCode = OpCodes.Nop;
@@ -227,7 +227,7 @@ internal class HideCallDecryptor : IDeobfuscator
     private EmbeddedResource FindMethodsDecrypterResource(MethodDef method)
     {
         foreach (var s in DotNetUtils.GetCodeStrings(method))
-            if (DotNetUtils.GetResource(DeobfuscatorContext.Module, s) is EmbeddedResource resource)
+            if (DotNetUtils.GetResource(Context.Module, s) is EmbeddedResource resource)
                 return resource;
         return null;
     }
@@ -238,7 +238,7 @@ internal class HideCallDecryptor : IDeobfuscator
         _dictionary.TryGetValue((int) field.MDToken.Raw, out var token);
         if ((token & 1073741824) > 0) callOpcode = OpCodes.Callvirt;
         token &= 1073741823;
-        calledMethod = DeobfuscatorContext.Module.ResolveToken(token) as IMethod;
+        calledMethod = Context.Module.ResolveToken(token) as IMethod;
     }
 
     private void GetDictionary()
@@ -260,7 +260,7 @@ internal class HideCallDecryptor : IDeobfuscator
     private void FindDelegateCreator()
     {
         var callCounter = new CallCounter();
-        foreach (var type in from x in DeobfuscatorContext.Module.GetTypes()
+        foreach (var type in from x in Context.Module.GetTypes()
                  where x.Namespace.Equals("") && DotNetUtils.DerivesFromDelegate(x)
                  select x)
             if (type.FindStaticConstructor() is { } cctor)
@@ -270,7 +270,7 @@ internal class HideCallDecryptor : IDeobfuscator
                         callCounter.Add(method);
 
         if (callCounter.Most() is { } mostCalls)
-            _delegateCreatorMethods.Add(DotNetUtils.GetMethod(DeobfuscatorContext.Module, mostCalls));
+            _delegateCreatorMethods.Add(DotNetUtils.GetMethod(Context.Module, mostCalls));
     }
 
     private byte[] Decrypt()

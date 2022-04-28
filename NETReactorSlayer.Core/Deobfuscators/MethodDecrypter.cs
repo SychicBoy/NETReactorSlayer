@@ -22,11 +22,11 @@ using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 using dnlib.IO;
 using NETReactorSlayer.Core.Helper.De4dot;
-using static NETReactorSlayer.Core.Deobfuscators.ResourceDecryptor;
+using static NETReactorSlayer.Core.Deobfuscators.RsrcDecrypter;
 
 namespace NETReactorSlayer.Core.Deobfuscators;
 
-internal class MethodDecryptor : IDeobfuscator
+internal class MethodDecrypter : IStage
 {
     private readonly short[] nativeLdci4 = {85, 139, 236, 184, -1, -1, -1, -1, 93, 195};
     private readonly short[] nativeLdci4_0 = {85, 139, 236, 51, 192, 93, 195};
@@ -40,7 +40,7 @@ internal class MethodDecryptor : IDeobfuscator
         var dumpedMethods = new DumpedMethods();
         var tokenToNativeMethod = new Dictionary<uint, byte[]>();
         var tokenToNativeCode = new Dictionary<uint, byte[]>();
-        foreach (var type in DeobfuscatorContext.Module.GetTypes())
+        foreach (var type in Context.Module.GetTypes())
         foreach (var method in type.Methods.ToList())
             if (DotNetUtils.IsMethod(method, "System.UInt32",
                     "(System.IntPtr,System.IntPtr,System.IntPtr,System.UInt32,System.IntPtr,System.UInt32&)") ||
@@ -56,7 +56,7 @@ internal class MethodDecryptor : IDeobfuscator
                         break;
                     }
 
-        var cctor = DeobfuscatorContext.Module.GlobalType.FindStaticConstructor();
+        var cctor = Context.Module.GlobalType.FindStaticConstructor();
         if (cctor is {HasBody: true} && cctor.Body.HasInstructions)
             foreach (var instr in cctor.Body.Instructions)
                 if (instr.OpCode.Equals(OpCodes.Call))
@@ -95,7 +95,7 @@ internal class MethodDecryptor : IDeobfuscator
             Array.Reverse(iv);
         if (UsesPublicKeyToken(decryptorMethod))
         {
-            var publicKeyToken = DeobfuscatorContext.Module.Assembly.PublicKeyToken;
+            var publicKeyToken = Context.Module.Assembly.PublicKeyToken;
             if (publicKeyToken != null && publicKeyToken.Data.Length != 0)
                 for (var z = 0; z < 8; z++)
                     iv[z * 2 + 1] = publicKeyToken.Data[z];
@@ -151,19 +151,19 @@ internal class MethodDecryptor : IDeobfuscator
                 methodsDataReader.Position += (uint) (8 * patchCount);
                 patchCount = methodsDataReader.ReadInt32();
                 mode = methodsDataReader.ReadInt32();
-                PatchDwords(DeobfuscatorContext.PeImage, ref methodsDataReader, patchCount);
+                PatchDwords(Context.PeImage, ref methodsDataReader, patchCount);
                 while (methodsDataReader.Position < (ulong) (methodsData.Length - 1))
                 {
                     methodsDataReader.ReadUInt32();
                     var numDwords = methodsDataReader.ReadInt32();
-                    PatchDwords(DeobfuscatorContext.PeImage, ref methodsDataReader, numDwords / 2);
+                    PatchDwords(Context.PeImage, ref methodsDataReader, numDwords / 2);
                 }
             }
             else
             {
                 if (!isFindDnrMethod || mode == 1)
                 {
-                    PatchDwords(DeobfuscatorContext.PeImage, ref methodsDataReader, patchCount);
+                    PatchDwords(Context.PeImage, ref methodsDataReader, patchCount);
                     var isNewer45Decryption = IsNewer45Decryption(decryptorMethod);
                     var isUsingOffset = !IsUsingRva(decryptorMethod);
                     while (methodsDataReader.Position < (ulong) (methodsData.Length - 1))
@@ -181,35 +181,35 @@ internal class MethodDecryptor : IDeobfuscator
                         }
 
                         var newData = methodsDataReader.ReadBytes(size);
-                        if (DeobfuscatorContext.IsNative && isUsingOffset)
-                            DeobfuscatorContext.PeImage.DotNetSafeWriteOffset(rva, newData);
+                        if (Context.IsNative && isUsingOffset)
+                            Context.PeImage.DotNetSafeWriteOffset(rva, newData);
                         else
-                            DeobfuscatorContext.PeImage.DotNetSafeWrite(rva, newData);
+                            Context.PeImage.DotNetSafeWrite(rva, newData);
                     }
                 }
                 else
                 {
-                    var methodDef = DeobfuscatorContext.PeImage.Metadata.TablesStream.MethodTable;
+                    var methodDef = Context.PeImage.Metadata.TablesStream.MethodTable;
                     var rvaToIndex = new Dictionary<uint, int>((int) methodDef.Rows);
                     var offset = (uint) methodDef.StartOffset;
                     var i = 0;
                     while (i < methodDef.Rows)
                     {
-                        var rva2 = DeobfuscatorContext.PeImage.OffsetReadUInt32(offset);
+                        var rva2 = Context.PeImage.OffsetReadUInt32(offset);
                         offset += methodDef.RowSize;
                         if (rva2 != 0U)
                         {
-                            if ((DeobfuscatorContext.PeImage.ReadByte(rva2) & 3) == 2)
+                            if ((Context.PeImage.ReadByte(rva2) & 3) == 2)
                                 rva2 += 1U;
                             else
-                                rva2 += (uint) (4 * (DeobfuscatorContext.PeImage.ReadByte(rva2 + 1U) >> 4));
+                                rva2 += (uint) (4 * (Context.PeImage.ReadByte(rva2 + 1U) >> 4));
                             rvaToIndex[rva2] = i;
                         }
 
                         i++;
                     }
 
-                    PatchDwords(DeobfuscatorContext.PeImage, ref methodsDataReader, patchCount);
+                    PatchDwords(Context.PeImage, ref methodsDataReader, patchCount);
                     methodsDataReader.ReadInt32();
                     dumpedMethods = new DumpedMethods();
                     while (methodsDataReader.Position < (ulong) (methodsData.Length - 1))
@@ -271,14 +271,14 @@ internal class MethodDecryptor : IDeobfuscator
                             }
 
                             var dumpedMethod = new DumpedMethod();
-                            DeobfuscatorContext.PeImage.ReadMethodTableRowTo(dumpedMethod,
+                            Context.PeImage.ReadMethodTableRowTo(dumpedMethod,
                                 MDToken.ToRID(methodToken));
                             dumpedMethod.code = methodData;
-                            var codeReader = DeobfuscatorContext.PeImage.Reader;
-                            codeReader.Position = DeobfuscatorContext.PeImage.RvaToOffset(dumpedMethod.mdRVA);
+                            var codeReader = Context.PeImage.Reader;
+                            codeReader.Position = Context.PeImage.RvaToOffset(dumpedMethod.mdRVA);
                             var mbHeader = MethodBodyParser.ParseMethodBody(ref codeReader, out _,
                                 out dumpedMethod.extraSections);
-                            DeobfuscatorContext.PeImage.UpdateMethodHeaderInfo(dumpedMethod, mbHeader);
+                            Context.PeImage.UpdateMethodHeaderInfo(dumpedMethod, mbHeader);
                             dumpedMethods.Add(dumpedMethod);
                         }
                     }
@@ -289,17 +289,17 @@ internal class MethodDecryptor : IDeobfuscator
             Logger.Error("Failed to decrypt methods. " + ex.Message);
         }
 
-        using (DeobfuscatorContext.Module)
+        using (Context.Module)
         {
             if (!isFindDnrMethod || mode == 1)
             {
-                DeobfuscatorContext.Module = DeobfuscatorContext.AssemblyModule.Reload(
-                    DeobfuscatorContext.PeImage.peImageData, CreateDumpedMethodsRestorer(dumpedMethods), null);
+                Context.Module = Context.AssemblyModule.Reload(
+                    Context.PeImage.peImageData, CreateDumpedMethodsRestorer(dumpedMethods), null);
             }
             else if (dumpedMethods.Count > 0)
             {
-                DeobfuscatorContext.Module = DeobfuscatorContext.AssemblyModule.Reload(
-                    DeobfuscatorContext.ModuleBytes, CreateDumpedMethodsRestorer(dumpedMethods), null);
+                Context.Module = Context.AssemblyModule.Reload(
+                    Context.ModuleBytes, CreateDumpedMethodsRestorer(dumpedMethods), null);
             }
             else
             {
@@ -417,7 +417,7 @@ internal class MethodDecryptor : IDeobfuscator
     {
         if (method == null || !method.HasBody || !method.Body.HasInstructions) return null;
         foreach (var s in DotNetUtils.GetCodeStrings(method))
-            if (DotNetUtils.GetResource(DeobfuscatorContext.Module, s) is EmbeddedResource resource)
+            if (DotNetUtils.GetResource(Context.Module, s) is EmbeddedResource resource)
                 return resource;
         return null;
     }

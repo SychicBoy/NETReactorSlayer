@@ -20,12 +20,12 @@ using dnlib.DotNet;
 
 namespace NETReactorSlayer.Core.Deobfuscators;
 
-internal class CosturaDumper : IDeobfuscator
+internal class CosturaDumper : IStage
 {
     public void Execute()
     {
         var count = 0L;
-        foreach (var resource in DeobfuscatorContext.Module.Resources)
+        foreach (var resource in Context.Module.Resources)
         {
             if (!(resource is EmbeddedResource embeddedResource)) continue;
             if (embeddedResource.Name == "costura.metadata")
@@ -47,12 +47,12 @@ internal class CosturaDumper : IDeobfuscator
                 {
                     memoryStream.Position = 0L;
                     File.WriteAllBytes(
-                        $"{DeobfuscatorContext.SourceDir}\\{GetAssemblyName(memoryStream.ToArray(), false)}.dll",
+                        $"{Context.SourceDir}\\{GetAssemblyName(memoryStream.ToArray(), false)}.dll",
                         memoryStream.ToArray());
                 } catch
                 {
                     File.WriteAllBytes(
-                        $"{DeobfuscatorContext.SourceDir}\\{embeddedResource.Name.Replace(".compressed", "").Replace("costura.", "")}",
+                        $"{Context.SourceDir}\\{embeddedResource.Name.Replace(".compressed", "").Replace("costura.", "")}",
                         memoryStream.ToArray());
                 }
 
@@ -64,12 +64,12 @@ internal class CosturaDumper : IDeobfuscator
         try
         {
             for (var i = 0;
-                 i < DeobfuscatorContext.Module.GlobalType.FindStaticConstructor().Body.Instructions.ToList().Count;
+                 i < Context.Module.GlobalType.FindStaticConstructor().Body.Instructions.ToList().Count;
                  i++)
-                if (DeobfuscatorContext.Module.GlobalType.FindStaticConstructor().Body.Instructions[i].Operand
+                if (Context.Module.GlobalType.FindStaticConstructor().Body.Instructions[i].Operand
                     .ToString().Contains("Costura.AssemblyLoader::Attach()"))
                 {
-                    DeobfuscatorContext.Module.GlobalType.FindStaticConstructor().Body.Instructions.RemoveAt(i);
+                    Context.Module.GlobalType.FindStaticConstructor().Body.Instructions.RemoveAt(i);
                     break;
                 }
         } catch { }

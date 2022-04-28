@@ -20,7 +20,7 @@ using dnlib.DotNet.Emit;
 
 namespace NETReactorSlayer.Core.Deobfuscators;
 
-internal class ControlFlowDeobfuscator : IDeobfuscator
+internal class CFlowDeob : IStage
 {
     private readonly Dictionary<IField, int> _fields = new();
 
@@ -29,7 +29,7 @@ internal class ControlFlowDeobfuscator : IDeobfuscator
         if (_fields.Count == 0)
             Initialize();
         var count = 0L;
-        foreach (var type in DeobfuscatorContext.Module.GetTypes())
+        foreach (var type in Context.Module.GetTypes())
         foreach (var method in (from x in type.Methods where x.HasBody && x.Body.HasInstructions select x)
                  .ToArray())
         {
@@ -48,7 +48,7 @@ internal class ControlFlowDeobfuscator : IDeobfuscator
     private void Initialize()
     {
         TypeDef typeDef = null;
-        foreach (var type in DeobfuscatorContext.Module.GetTypes().Where(
+        foreach (var type in Context.Module.GetTypes().Where(
                      x => x.IsSealed &&
                           x.HasFields &&
                           x.Fields.Count >= 100))

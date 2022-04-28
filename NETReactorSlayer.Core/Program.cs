@@ -23,7 +23,7 @@ namespace NETReactorSlayer.Core;
 
 public class Program
 {
-    public static DeobfuscatorContext Context = new();
+    public static Context Context = new();
 
     public static void Main(string[] args)
     {
@@ -63,11 +63,9 @@ public class Program
             Logger.PrintLogo();
         } catch { }
 
-        Context = new DeobfuscatorContext();
+        Context = new Context();
         if (Context.Parse(args))
         {
-            Logger.Done(
-                $"{Context.DeobfuscatorOptions.Stages.Count}/{Context.DeobfuscatorOptions.Dictionary.Count} Modules loaded...");
             foreach (var deobfuscatorStage in Context.DeobfuscatorOptions.Stages)
                 try
                 {

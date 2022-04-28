@@ -24,14 +24,14 @@ using HarmonyLib;
 
 namespace NETReactorSlayer.Core.Deobfuscators;
 
-internal class StringDecryptor : IDeobfuscator
+internal class StrDecryptor : IStage
 {
     public void Execute()
     {
         NopRemover.RemoveAll();
         StacktracePatcher.Patch();
         var count = 0L;
-        foreach (var type in DeobfuscatorContext.Module.GetTypes())
+        foreach (var type in Context.Module.GetTypes())
         foreach (var method in (from x in type.Methods where x.HasBody && x.Body.HasInstructions select x)
                  .ToArray())
             for (var i = 0; i < method.Body.Instructions.Count; i++)
@@ -52,7 +52,7 @@ internal class StringDecryptor : IDeobfuscator
                             continue;
 
                         var result = (StacktracePatcher.PatchStackTraceGetMethod.MethodToReplace =
-                            DeobfuscatorContext.Assembly.ManifestModule.ResolveMethod(
+                            Context.Assembly.ManifestModule.ResolveMethod(
                                 (int) strMethod.ResolveMethodDef().MDToken.Raw) as MethodInfo).Invoke(null,
                             new object[]
                             {
@@ -62,12 +62,12 @@ internal class StringDecryptor : IDeobfuscator
                         try
                         {
                             foreach (var str in DotNetUtils.GetCodeStrings(strMethod.ResolveMethodDef()))
-                            foreach (var name in DeobfuscatorContext.Assembly.GetManifestResourceNames())
+                            foreach (var name in Context.Assembly.GetManifestResourceNames())
                                 if (str == name)
                                     if (strMethod.DeclaringType != type)
                                     {
                                         Cleaner.ResourceToRemove.Add(
-                                            DeobfuscatorContext.Module.Resources.Find(name));
+                                            Context.Module.Resources.Find(name));
                                         Cleaner.MethodsToRemove.Add(strMethod.ResolveMethodDef());
                                     }
                         } catch { }

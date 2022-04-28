@@ -23,7 +23,7 @@ using NETReactorSlayer.Core.Helper.De4dot;
 
 namespace NETReactorSlayer.Core.Deobfuscators;
 
-internal class ResourceDecryptor : IDeobfuscator
+internal class RsrcDecrypter : IStage
 {
     private static readonly int[] PktIndexes =
     {
@@ -51,7 +51,7 @@ internal class ResourceDecryptor : IDeobfuscator
         byte[] decryptedBytes;
         EmbeddedResource encryptedResource;
         var methodsToPatch = new HashSet<MethodDef>();
-        foreach (var type in DeobfuscatorContext.Module.GetTypes())
+        foreach (var type in Context.Module.GetTypes())
             if (type.FindMethod(".ctor") is {HasBody: true} method1 && method1.Body.HasInstructions)
                 for (var i = 0; i < method1.Body.Instructions.Count; i++)
                     if (method1.Body.Instructions[i].OpCode.Equals(OpCodes.Newobj) &&
@@ -69,7 +69,7 @@ internal class ResourceDecryptor : IDeobfuscator
                                             !decryptorMethod.HasReturnType)
                                             foreach (var s in DotNetUtils.GetCodeStrings(decryptorMethod))
                                                 if ((encryptedResource =
-                                                        DotNetUtils.GetResource(DeobfuscatorContext.Module, s) as
+                                                        DotNetUtils.GetResource(Context.Module, s) as
                                                             EmbeddedResource) != null)
                                                 {
                                                     foreach (var methodToRemove in type.Methods)
@@ -92,7 +92,7 @@ internal class ResourceDecryptor : IDeobfuscator
                                                             "System.Array::Reverse"))
                                                         Array.Reverse(iv);
                                                     if (UsesPublicKeyToken(decryptorMethod))
-                                                        if (DeobfuscatorContext.Module.Assembly
+                                                        if (Context.Module.Assembly
                                                                 .PublicKeyToken is { } publicKeyToken &&
                                                             publicKeyToken.Data.Length != 0)
                                                             for (var z = 0; z < 8; z++)
@@ -125,7 +125,7 @@ internal class ResourceDecryptor : IDeobfuscator
 
         try
         {
-            DeobUtils.DecryptAndAddResources(DeobfuscatorContext.Module, delegate
+            DeobUtils.DecryptAndAddResources(Context.Module, delegate
             {
                 byte[] result;
                 try

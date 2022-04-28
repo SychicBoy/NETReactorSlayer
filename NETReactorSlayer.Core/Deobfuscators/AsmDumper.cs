@@ -23,7 +23,7 @@ using NETReactorSlayer.Core.Helper.De4dot;
 
 namespace NETReactorSlayer.Core.Deobfuscators;
 
-internal class AssemblyDumper : IDeobfuscator
+internal class AsmDumper : IStage
 {
     private readonly string[] _locals1 =
     {
@@ -45,10 +45,7 @@ internal class AssemblyDumper : IDeobfuscator
         var count = 0L;
         FindRequirements();
         if (_resolverMethod == null || _initialMethod == null || _resolverType == null)
-        {
-            Logger.Warn("Couldn't find any embedded assembly (DNR).");
             return;
-        }
 
         var assemblies = new List<EmbeddedResource>();
         foreach (var prefix in DotNetUtils.GetCodeStrings(_resolverMethod))
@@ -67,7 +64,7 @@ internal class AssemblyDumper : IDeobfuscator
             var name = GetAssemblyName(asm, false) + ".dll";
             try
             {
-                File.WriteAllBytes(DeobfuscatorContext.SourceDir + "\\" + name, asm.CreateReader().ToArray());
+                File.WriteAllBytes(Context.SourceDir + "\\" + name, asm.CreateReader().ToArray());
             } catch { }
         }
 
@@ -76,7 +73,7 @@ internal class AssemblyDumper : IDeobfuscator
 
     private void FindRequirements()
     {
-        foreach (var type in from x in DeobfuscatorContext.Module.GetTypes()
+        foreach (var type in from x in Context.Module.GetTypes()
                  where x.HasFields && !x.HasNestedTypes && !x.HasEvents && !x.HasProperties
                  select x)
         foreach (var method in from x in type.Methods.ToArray()
@@ -129,7 +126,7 @@ internal class AssemblyDumper : IDeobfuscator
     {
         var result = new List<EmbeddedResource>();
         if (string.IsNullOrEmpty(prefix)) return null;
-        foreach (var rsrc in DeobfuscatorContext.Module.Resources)
+        foreach (var rsrc in Context.Module.Resources)
         {
             if (!(rsrc is EmbeddedResource resource)) continue;
             if (StartsWith(resource.Name.String, prefix, StringComparison.Ordinal)) result.Add(resource);

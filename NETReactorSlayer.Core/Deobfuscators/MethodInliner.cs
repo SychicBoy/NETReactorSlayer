@@ -20,13 +20,13 @@ using dnlib.DotNet.Emit;
 
 namespace NETReactorSlayer.Core.Deobfuscators;
 
-internal class ProxyCleaner : IDeobfuscator
+internal class MethodInliner : IStage
 {
     public void Execute()
     {
         var count = 0L;
         var proxies = new HashSet<MethodDef>();
-        foreach (var type in DeobfuscatorContext.Module.GetTypes())
+        foreach (var type in Context.Module.GetTypes())
         foreach (var method in from x in type.Methods.ToList() where x.HasBody && x.Body.HasInstructions select x)
             try
             {
@@ -38,8 +38,8 @@ internal class ProxyCleaner : IDeobfuscator
                             .OpCode.Equals(OpCodes.Call) &&
                         (Method = instr
                             .Operand as MethodDef) != null &&
-                        (IsProxy(Method, out var opCode, out var obj) ||
-                         IsProxy2(Method, out opCode, out obj)))
+                        (IsInline1(Method, out var opCode, out var obj) ||
+                         IsInline2(Method, out opCode, out obj)))
                     {
                         count += 1L;
                         if (Method.DeclaringType == method.DeclaringType)
@@ -54,7 +54,7 @@ internal class ProxyCleaner : IDeobfuscator
                 }
             } catch { }
 
-        foreach (var type in DeobfuscatorContext.Module.GetTypes())
+        foreach (var type in Context.Module.GetTypes())
         foreach (var method in from x in type.Methods.ToArray() where x.HasBody && x.Body.HasInstructions select x)
         foreach (var instruction in method.Body.Instructions)
             try
@@ -66,11 +66,11 @@ internal class ProxyCleaner : IDeobfuscator
             } catch { }
 
         foreach (var Method in proxies) Method.DeclaringType.Remove(Method);
-        if (count > 0L) Logger.Done((int) count + " Proxied calls removed.");
-        else Logger.Warn("Couldn't find any proxied call.");
+        if (count > 0L) Logger.Done((int) count + " Methods inlined.");
+        else Logger.Warn("Couldn't find any outline method.");
     }
 
-    private bool IsProxy(MethodDef method, out OpCode code, out object operand)
+    private bool IsInline1(MethodDef method, out OpCode code, out object operand)
     {
         code = null;
         operand = null;
@@ -98,7 +98,7 @@ internal class ProxyCleaner : IDeobfuscator
         return len == num2;
     }
 
-    private bool IsProxy2(MethodDef method, out OpCode code, out object operand)
+    private bool IsInline2(MethodDef method, out OpCode code, out object operand)
     {
         code = null;
         operand = null;

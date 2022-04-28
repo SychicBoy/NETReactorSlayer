@@ -14,7 +14,7 @@
 */
 namespace NETReactorSlayer.GUI.UserControls
 {
-    partial class NRSTextBox
+    partial class NrsTextBox
     {
         /// <summary> 
         /// Required designer variable.

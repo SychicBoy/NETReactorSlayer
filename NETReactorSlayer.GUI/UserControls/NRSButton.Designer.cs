@@ -1,6 +1,6 @@
 ﻿namespace NETReactorSlayer.GUI.UserControls
 {
-    partial class NRSButton
+    partial class NrsButton
     {
         /// <summary> 
         /// Required designer variable.

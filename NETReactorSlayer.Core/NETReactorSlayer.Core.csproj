@@ -65,29 +65,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Deobfuscators\BooleanDecryptor.cs" />
-    <Compile Include="Deobfuscators\MethodCallsRemover.cs" />
+    <Compile Include="Deobfuscators\BoolDecrypter.cs" />
+    <Compile Include="Deobfuscators\CallRemover.cs" />
     <Compile Include="Deobfuscators\NOPRemover.cs" />
     <Compile Include="Deobfuscators\SimpleDeobfuscator.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="IDeobfuscator.cs" />
-    <Compile Include="Deobfuscators\AntiTamperPatcher.cs" />
-    <Compile Include="Deobfuscators\ControlFlowDeobfuscator.cs" />
+    <Compile Include="Deobfuscators\AntiTD.cs" />
+    <Compile Include="Deobfuscators\CFlowDeob.cs" />
     <Compile Include="Deobfuscators\CosturaDumper.cs" />
-    <Compile Include="Deobfuscators\AssemblyDumper.cs" />
-    <Compile Include="Deobfuscators\HideCallDecryptor.cs" />
-    <Compile Include="Deobfuscators\TokenDecryptor.cs" />
+    <Compile Include="Deobfuscators\AsmDumper.cs" />
+    <Compile Include="Deobfuscators\CallDecrypter.cs" />
+    <Compile Include="Deobfuscators\TokenDecrypter.cs" />
     <Compile Include="Deobfuscators\NativeUnpacker.cs" />
-    <Compile Include="Deobfuscators\MethodDecryptor.cs" />
+    <Compile Include="Deobfuscators\MethodDecrypter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Deobfuscators\ProxyCleaner.cs" />
+    <Compile Include="Deobfuscators\MethodInliner.cs" />
     <Compile Include="Deobfuscators\Cleaner.cs" />
-    <Compile Include="Deobfuscators\ResourceDecryptor.cs" />
-    <Compile Include="Deobfuscators\StringDecryptor.cs" />
+    <Compile Include="Deobfuscators\RsrcDecrypter.cs" />
+    <Compile Include="Deobfuscators\StrDecryptor.cs" />
     <Compile Include="Helper\De4dot\ArrayFinder.cs" />
     <Compile Include="Helper\De4dot\AssemblyModule.cs" />
-    <Compile Include="DeobfuscatorContext.cs" />
+    <Compile Include="Context.cs" />
     <Compile Include="Helper\De4dot\DeobUtils.cs" />
     <Compile Include="Helper\De4dot\DumpedMethodsRestorer.cs" />
     <Compile Include="Helper\De4dot\LocalTypes.cs" />
@@ -96,7 +95,7 @@
     <Compile Include="Helper\De4dot\MyPEImage.cs" />
     <Compile Include="Helper\De4dot\QuickLZ.cs" />
     <Compile Include="Helper\De4dot\TheAssemblyResolver.cs" />
-    <Compile Include="DeobfuscatorOptions.cs" />
+    <Compile Include="Options.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

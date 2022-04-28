@@ -12,26 +12,34 @@
     You should have received a copy of the GNU General Public License
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace NETReactorSlayer.GUI
+namespace NETReactorSlayer.GUI;
+
+internal static class Program
 {
-    internal static class Program
+    /// <summary>
+    ///     The main entry point for the application.
+    /// </summary>
+    [STAThread]
+    private static void Main(string[] args)
     {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        static void Main()
-        {
-            if (Environment.Version.Major >= 3)
-                SetProcessDPIAware();
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainWindow());
-        }
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        private static extern void SetProcessDPIAware();
+        if (Environment.Version.Major >= 3)
+            SetProcessDPIAware();
+        Application.EnableVisualStyles();
+        Application.SetCompatibleTextRenderingDefault(false);
+        if (args is {Length: > 0})
+            if (args[0] == "updated")
+            {
+                Application.Run(new MainWindow(args[0]));
+                return;
+            }
+
+        Application.Run(new MainWindow());
     }
+
+    [DllImport("user32.dll")] private static extern void SetProcessDPIAware();
 }

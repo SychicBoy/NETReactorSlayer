@@ -18,13 +18,13 @@ using dnlib.DotNet.Emit;
 
 namespace NETReactorSlayer.Core.Deobfuscators;
 
-internal class AntiTamperPatcher : IDeobfuscator
+internal class AntiTD : IStage
 {
     public void Execute()
     {
         var isAntiTamperFound = false;
         var isAntiDebugFound = false;
-        foreach (var type in DeobfuscatorContext.Module.GetTypes())
+        foreach (var type in Context.Module.GetTypes())
         foreach (var method in (from x in type.Methods
                      where x.HasBody && x.Body.HasInstructions && x.IsStatic
                      select x).ToArray())

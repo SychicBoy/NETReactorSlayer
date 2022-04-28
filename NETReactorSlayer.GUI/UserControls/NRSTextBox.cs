@@ -12,163 +12,152 @@
     You should have received a copy of the GNU General Public License
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace NETReactorSlayer.GUI.UserControls
+namespace NETReactorSlayer.GUI.UserControls;
+
+public partial class NrsTextBox : TextBox
 {
-    public partial class NRSTextBox : TextBox
+    public enum TextTransformEnum
     {
-        [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
-        public static extern IntPtr CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse);
-        private int _BorderRadius = 0;
-        public int BorderRadius
+        None,
+        Upper,
+        Lower
+    }
+
+    private int _borderRadius;
+    private Color _foreColor = Color.Silver;
+    private string _placeHolderText = string.Empty;
+    private float _progress;
+    private Color _progressColor = Color.MediumSeaGreen;
+    private TextTransformEnum _transform;
+
+    public NrsTextBox()
+    {
+        InitializeComponent();
+        AutoSize = false;
+        GotFocus += (_, _) =>
         {
-            get
+            if (base.ForeColor == PlaceHolderColor)
             {
-                return _BorderRadius;
+                base.ForeColor = ForeColor;
+                Text = string.Empty;
             }
-            set
-            {
-                _BorderRadius = value;
-                this.Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _BorderRadius, 20));
-            }
-        }
-        public enum TextTransformEnum { None, Upper, Lower };
-        private TextTransformEnum _Transform;
-        public TextTransformEnum TextTransform
+        };
+        LostFocus += (_, _) =>
         {
-            get
+            if (Text.Length < 1 && PlaceHolderText.Length > 0)
             {
-                return _Transform;
+                Text = PlaceHolderText;
+                base.ForeColor = PlaceHolderColor;
             }
-            set
-            {
-                _Transform = value;
-                if (value == TextTransformEnum.Upper)
-                    Text = Text.ToUpper();
-                else if (value == TextTransformEnum.Lower)
-                    Text = Text.ToLower();
-                else
-                    Text = Text;
-            }
-        }
-        private string _PlaceHolderText = string.Empty;
-        public string PlaceHolderText
+        };
+        TextChanged += (_, _) =>
         {
-            get
+            if (Text.Length > 0)
             {
-                return _PlaceHolderText;
-            }
-            set
-            {
-                _PlaceHolderText = value;
-                if (!DesignMode)
-                {
-                    if (Focused)
-                        return;
-                    if (value.Length > 0)
-                    {
-                        if (Text != value)
-                            Text = value;
-                        base.ForeColor = PlaceHolderColor;
-                    }
-                }
-            }
-        }
-        private Color _ForeColor = Color.Silver;
-        public new Color ForeColor
-        {
-            get
-            {
-                return _ForeColor;
-            }
-            set
-            {
-                _ForeColor = value;
                 base.ForeColor = ForeColor;
             }
-        }
-        private Color _PlaceHolderColor = Color.Gray;
-        public Color PlaceHolderColor
-        {
-            get
+            else if (!DesignMode)
             {
-                return _PlaceHolderColor;
-            }
-            set
-            {
-                _PlaceHolderColor = value;
-            }
-        }
-        private void SizeChange(object sender, EventArgs e) => this.Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _BorderRadius, 20));
-        private float _Progress = 0;
-        private Color _ProgressColor = Color.MediumSeaGreen;
-        public float Progress
-        {
-            get
-            {
-                return _Progress;
-            }
-            set
-            {
-                _Progress = value;
-                this.Invalidate();
-            }
-        }
-        public Color ProgressColor
-        {
-            get
-            {
-                return _ProgressColor;
-            }
-            set
-            {
-                _ProgressColor = value;
-                this.Invalidate();
-            }
-        }
-
-        public NRSTextBox() : base()
-        {
-            InitializeComponent();
-            AutoSize = false;
-            GotFocus += new EventHandler((sender, e) =>
-            {
-                if (base.ForeColor == PlaceHolderColor)
+                if (Focused)
+                    return;
+                if (PlaceHolderText.Length > 0)
                 {
-                    base.ForeColor = ForeColor;
-                    Text = string.Empty;
-                }
-            });
-            LostFocus += new EventHandler((sender, e) =>
-            {
-                if (Text.Length < 1 && PlaceHolderText.Length > 0)
-                {
-                    Text = PlaceHolderText;
+                    if (Text != PlaceHolderText)
+                        Text = PlaceHolderText;
                     base.ForeColor = PlaceHolderColor;
                 }
-            });
-            TextChanged += new EventHandler((sender, e) =>
-            {
-                if (Text.Length > 0)
-                {
-                    base.ForeColor = ForeColor;
-                }
-                else if (!DesignMode)
-                {
-                    if (Focused)
-                        return;
-                    if (PlaceHolderText.Length > 0)
-                    {
-                        if (Text != PlaceHolderText)
-                            Text = PlaceHolderText;
-                        base.ForeColor = PlaceHolderColor;
-                    }
-                }
-            });
+            }
+        };
+    }
+
+    public int BorderRadius
+    {
+        get => _borderRadius;
+        set
+        {
+            _borderRadius = value;
+            Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _borderRadius, 20));
         }
     }
+
+    public TextTransformEnum TextTransform
+    {
+        get => _transform;
+        set
+        {
+            _transform = value;
+            if (value == TextTransformEnum.Upper)
+                Text = Text.ToUpper();
+            else if (value == TextTransformEnum.Lower)
+                Text = Text.ToLower();
+            else
+                Text = Text;
+        }
+    }
+
+    public string PlaceHolderText
+    {
+        get => _placeHolderText;
+        set
+        {
+            _placeHolderText = value;
+            if (!DesignMode)
+            {
+                if (Focused)
+                    return;
+                if (value.Length > 0)
+                {
+                    if (Text != value)
+                        Text = value;
+                    base.ForeColor = PlaceHolderColor;
+                }
+            }
+        }
+    }
+
+    public new Color ForeColor
+    {
+        get => _foreColor;
+        set
+        {
+            _foreColor = value;
+            base.ForeColor = ForeColor;
+        }
+    }
+
+    public Color PlaceHolderColor { get; set; } = Color.Gray;
+
+    public float Progress
+    {
+        get => _progress;
+        set
+        {
+            _progress = value;
+            Invalidate();
+        }
+    }
+
+    public Color ProgressColor
+    {
+        get => _progressColor;
+        set
+        {
+            _progressColor = value;
+            Invalidate();
+        }
+    }
+
+    [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
+    public static extern IntPtr CreateRoundRectRgn(
+        int nLeftRect, int nTopRect, int nRightRect, int nBottomRect,
+        int nWidthEllipse, int nHeightEllipse);
+
+    private void SizeChange(object sender, EventArgs e) =>
+        Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _borderRadius, 20));
 }

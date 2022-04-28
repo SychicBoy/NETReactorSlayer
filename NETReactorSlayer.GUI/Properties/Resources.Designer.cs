@@ -153,6 +153,26 @@ namespace NETReactorSlayer.GUI.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Menu {
+            get {
+                object obj = ResourceManager.GetObject("Menu", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap MenuOver {
+            get {
+                object obj = ResourceManager.GetObject("MenuOver", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Minimize {
             get {
                 object obj = ResourceManager.GetObject("Minimize", resourceCulture);
@@ -177,6 +197,20 @@ namespace NETReactorSlayer.GUI.Properties {
             get {
                 object obj = ResourceManager.GetObject("Question", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Improve &amp; Fix Control Flow Deobfuscator
+        ///Improve &amp; Fix Cleaner
+        ///Improve &amp; Fix Boolean Decryptor
+        ///Small UI Changes
+        ///Some Changes On CLI Arguments
+        ///Some other minor bug fixes..
+        /// </summary>
+        internal static string ChangeLogs {
+            get {
+                return ResourceManager.GetString("ChangeLogs", resourceCulture);
             }
         }
         

@@ -21,6 +21,8 @@ namespace NETReactorSlayer.Core;
 
 internal class Logger
 {
+    public static bool Verbose;
+
     public static void Done(string message)
     {
         Console.Write("  [");
@@ -33,6 +35,8 @@ internal class Logger
 
     public static void Warn(string message)
     {
+        if (!Verbose)
+            return;
         Console.Write("  [");
         Console.ForegroundColor = ConsoleColor.DarkYellow;
         Console.Write("!");

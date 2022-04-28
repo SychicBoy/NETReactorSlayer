@@ -23,7 +23,7 @@ internal class NopRemover
 {
     public static void RemoveAll()
     {
-        foreach (var type in DeobfuscatorContext.Module.GetTypes())
+        foreach (var type in Context.Module.GetTypes())
         foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
         {
             var length = method.Body.Instructions.Count;
