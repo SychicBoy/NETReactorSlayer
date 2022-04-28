@@ -60,7 +60,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NetReactorSlayer.Core\NETReactorSlayer.Core.csproj">
+    <ProjectReference Include="..\NETReactorSlayer.Core\NETReactorSlayer.Core.csproj">
       <Project>{11e508f0-7aa3-46bd-9891-766deb293830}</Project>
       <Name>NETReactorSlayer.Core</Name>
     </ProjectReference>

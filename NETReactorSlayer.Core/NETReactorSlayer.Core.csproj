@@ -69,7 +69,6 @@
     <Compile Include="Deobfuscators\CallRemover.cs" />
     <Compile Include="Deobfuscators\NOPRemover.cs" />
     <Compile Include="Deobfuscators\SimpleDeobfuscator.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Deobfuscators\AntiTD.cs" />
     <Compile Include="Deobfuscators\CFlowDeob.cs" />
     <Compile Include="Deobfuscators\CosturaDumper.cs" />
