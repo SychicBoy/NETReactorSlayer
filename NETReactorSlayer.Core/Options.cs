@@ -27,7 +27,7 @@ public class Options
 {
     public readonly List<string> Arguments = new()
     {
-        "--dec-methods", "              Decrypt methods that encrypted by Necrobit (True)",
+        "--dec-methods", "              Decrypt methods that encrypted by \"Necrobit\" (True)",
         "--dec-calls", "                Decrypt hidden calls (True)",
         "--dec-strings", "              Decrypt strings (True)",
         "--dec-rsrc", "                 Decrypt assembly resources (True)",
@@ -35,18 +35,17 @@ public class Options
         "--dec-bools", "                Decrypt booleans (True)",
         "--deob-cflow", "               Deobfuscate control flow (True)",
         "--dump-asm", "                 Dump embedded assemblies (True)",
-        "--dump-costura", "             Dump assemblies that embedded by Costura.Fody (True)",
+        "--dump-costura", "             Dump assemblies that embedded by \"Costura.Fody\" (True)",
         "--inline-methods", "           Inline short methods (True)",
-
         "--rem-antis", "                Remove anti tamper & anti debugger (True)",
         "--rem-sn", "                   Remove strong name removal protection (True)",
         "--rem-calls", "                Remove calls to obfuscator methods (True)",
-        "--rem-junks", "                Remove Junk Types, Methods, Fields, etc... (True)",
-        "--keep-types", "               Keep obfuscator Types, Methods, Fields, etc... (False)",
-        "--preserve-all", "             Preserve All MDTokens (False)",
-        "--keep-max-stack", "           Keep Old MaxStack Value (False)",
-        "--no-pause", "                 Exit immediately after finish deobfuscation (False)",
-        "--verbose", "                  Verbose Mode (False)"
+        "--rem-junks", "                Remove junk types, methods, fields, etc... (True)",
+        "--keep-types", "               Keep obfuscator types, methods, fields, etc... (False)",
+        "--preserve-all", "             Preserve all metadata tokens (False)",
+        "--keep-max-stack", "           Keep old max stack value (False)",
+        "--no-pause", "                 Close cli immediately after deobfuscation (False)",
+        "--verbose", "                  Verbose mode (False)"
     };
 
     public Dictionary<string, IStage> Dictionary = new()
