@@ -123,7 +123,7 @@ public class Context
         if (isValid)
         {
             Logger.Done(
-                $"{DeobfuscatorOptions.Stages.Count}/12 Modules loaded...");
+                $"{DeobfuscatorOptions.Stages.Count}/13 Modules loaded...");
 
             #region Get Assembly Infos
 
