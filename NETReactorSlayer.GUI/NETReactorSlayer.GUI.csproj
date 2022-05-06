@@ -38,6 +38,12 @@
 	<PropertyGroup>
 		<ApplicationIcon>Icon.ico</ApplicationIcon>
 	</PropertyGroup>
+	<PropertyGroup>
+		<SignAssembly>true</SignAssembly>
+	</PropertyGroup>
+	<PropertyGroup>
+		<AssemblyOriginatorKeyFile>..\NETReactorSlayer.snk</AssemblyOriginatorKeyFile>
+	</PropertyGroup>
 	<ItemGroup>
 		<Reference
 			Include="dnlib, Version=3.5.0.0, Culture=neutral, PublicKeyToken=50e96378b6e77999, processorArchitecture=MSIL">
