@@ -11,7 +11,7 @@
 
 GUI             |  CLI
 :-------------------------:|:-------------------------:
-<img src="https://user-images.githubusercontent.com/53654076/161821769-20cb6d1a-9530-4b95-9f23-718f086d81e5.png" width="700">  |  <img src="https://user-images.githubusercontent.com/53654076/161871010-d8b7e734-77ca-493b-ba87-29f4163c1853.png" width="700">
+<img src="https://user-images.githubusercontent.com/53654076/167086262-3706190c-8ebe-4c68-b763-c32196862830.png" width="700">  |  <img src="https://user-images.githubusercontent.com/53654076/167219261-c6adac8b-d039-4d09-a98a-19173ed233a8.png" width="700">
 
 <br />
 
@@ -19,28 +19,32 @@ GUI             |  CLI
 
 | Description | Command | Default Value |
 | ------ | ------ | ------ |
-| Decrypt Methods (NecroBit) | `--decrypt-method` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
-| Decrypt Booleans | `--decrypt-booleans` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
-| Deobfuscate Control Flow | `--deobfuscate-cflow` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
-| Decrypt Hidden Calls | `--decrypt-hidden-calls` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
-| Remove Reference Proxies | `--remove-ref-proxies` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
-| Decrypt Strings | `--decrypt-strings` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
-| Remove Anti Tamper & Anti Debug | `--anti-tamper` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
-| Decrypt Assembly Resources | `--decrypt-resources` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
-| Dump Embedded Assemblies | `--dump-assemblies` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
-| Dump Assemblies That Embedded By Costura.Fody | `--dump-costura-assemblies` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
-| Decrypt Tokens | `--decrypt-tokens` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
-| Unpack Original Assembly From Native Image |  |  |
-| Close CLI immediately after finish deobfuscation | `--no-pause` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp; False |
-| Preserve All MD Tokens | `--preserve-all` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp; False |
-| Keep Old Max Stack Value | `--keep-stack` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp; False |
-| Cleanup obfuscator leftovers | `-cleanup` `<BOOL>` | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+|  | Unpack native stub |  |
+| `--dec-methods` | Decrypt methods that encrypted by Necrobit | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| `--dec-calls` | Decrypt hidden calls | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| `--dec-strings` | Decrypt strings | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| `--dec-rsrc` | Decrypt assembly resources | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| `--dec-tokens` | Decrypt tokens | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| `--dec-bools` | Decrypt booleans | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| `--deob-cflow` | Deobfuscate control flow | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| `--dump-asm` | Dump embedded assemblies | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| `--dump-costura` | Dump assemblies that embedded by Costura.Fody | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| `--inline-methods` | Inline short methods | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| `--rem-antis` | Remove anti tamper & anti debugger | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| `--rem-sn` | Remove strong name removal protection | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| `--rem-calls` | Remove calls to obfuscator methods | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| `--rem-junks` | Remove junk types, methods, fields, etc... | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| `--keep-types` | Keep obfuscator types, methods, fields, etc... | &nbsp; &nbsp; &nbsp;&nbsp; False |
+| `--preserve-all` | Preserve all metadata tokens | &nbsp; &nbsp; &nbsp;&nbsp; False |
+| `--keep-max-stack` | Keep old max stack value | &nbsp; &nbsp; &nbsp;&nbsp; False |
+| `--no-pause` | Close cli immediately after deobfuscation | &nbsp; &nbsp; &nbsp;&nbsp; False |
+| `--verbose` | Verbose mode | &nbsp; &nbsp; &nbsp;&nbsp; False |
 
 ### Usage:
 Just drag and drop target obfuscated assembly on it.
 
 ### Known Issues:
-- If target assembly not working after deobfuscation try using `--preserve-all` and/or `--keep-stack` command(s).
+- If target assembly not working after deobfuscation try using `--preserve-all` and/or `--keep-max-stack` command(s).
 
 - Since **.NETReactorSlayer** does not yet have the ability to de-virtualize virtualized functions, if the target protected assembly contains virtualized functions, **.NETReactorSlayer** may fail to de-obfuscate some protections such as string encryption and control flow.
 
