@@ -58,10 +58,15 @@ internal class CFlowDeob : IStage
                          x.IsStatic && x.IsAssembly && x.HasBody && x.Body.HasInstructions))
             {
                 SimpleDeobfuscator.Deobfuscate(method);
-                for (var i = 0; i < method.Body.Instructions.Count; i += 2)
+                for (var i = 0; i < method.Body.Instructions.Count; i++)
                     if (method.Body.Instructions[i].IsLdcI4() &&
                         (i + 1 < method.Body.Instructions.Count ? method.Body.Instructions[i + 1] : null)?.OpCode ==
-                        OpCodes.Stsfld)
+                        OpCodes.Stsfld ||
+                        method.Body.Instructions[i].IsLdcI4() &&
+                        (i + 1 < method.Body.Instructions.Count ? method.Body.Instructions[i + 1] : null)?.OpCode ==
+                        OpCodes.Stfld &&
+                        (i - 1 < method.Body.Instructions.Count ? method.Body.Instructions[i - 1] : null)?.OpCode ==
+                        OpCodes.Ldsfld)
                     {
                         var key = (IField) (i + 1 < method.Body.Instructions.Count
                             ? method.Body.Instructions[i + 1]
@@ -89,13 +94,15 @@ internal class CFlowDeob : IStage
         for (var i = 0; i < method.Body.Instructions.Count; i++)
             try
             {
-                if (method.Body.Instructions[i].OpCode == OpCodes.Ldsfld &&
+                if ((method.Body.Instructions[i].OpCode == OpCodes.Ldsfld ||
+                     method.Body.Instructions[i].OpCode == OpCodes.Ldfld) &&
                     method.Body.Instructions[i].Operand is IField &&
-                    method.Body.Instructions[i + 1].IsConditionalBranch() &&
-                    (method.Body.Instructions[i + 2].OpCode == OpCodes.Pop ||
-                     method.Body.Instructions[i + 2].IsBr()) &&
-                    _fields.TryGetValue((IField) method.Body.Instructions[i].Operand, out var value))
+                    _fields.TryGetValue((IField) method.Body.Instructions[i].Operand, out var value) &&
+                    method.DeclaringType != _fields.First().Key.DeclaringType)
                 {
+                    if (method.Body.Instructions[i].OpCode == OpCodes.Ldfld &&
+                        method.Body.Instructions[i - 1].OpCode == OpCodes.Ldsfld)
+                        method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
                     method.Body.Instructions[i] = Instruction.CreateLdcI4(value);
                     count += 1L;
                 }

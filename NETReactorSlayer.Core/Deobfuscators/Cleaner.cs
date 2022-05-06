@@ -37,6 +37,19 @@ internal class Cleaner : IStage
             Logger.Done($"{MethodsToRemove.Count} Calls to obfuscator types removed.");
         }
 
+        if (Context.RemoveJunks)
+        {
+            foreach (var method in Context.Module.GetTypes().ToList().SelectMany(type => type.Methods).ToList())
+                try
+                {
+                    RemoveAttributes(method);
+                    RemoveJunks(method);
+                } catch { }
+
+            foreach (var field in Context.Module.GetTypes().ToList().SelectMany(type => type.Fields))
+                RemoveAttributes(field);
+        }
+
         if (!Context.KeepTypes)
         {
             foreach (var method in MethodsToRemove)
@@ -53,20 +66,6 @@ internal class Cleaner : IStage
 
             foreach (var rsrc in ResourceToRemove)
                 Context.Module.Resources.Remove(Context.Module.Resources.Find(rsrc.Name));
-        }
-
-        if (Context.RemoveJunks)
-        {
-            foreach (var method in Context.Module.GetTypes().ToList().SelectMany(type => type.Methods.ToList()))
-                try
-                {
-                    RemoveAttributes(method);
-                    RemoveJunks(method);
-                }
-                catch { }
-
-            foreach (var field in Context.Module.GetTypes().ToList().SelectMany(type => type.Fields))
-                RemoveAttributes(field);
         }
     }
 
@@ -147,8 +146,8 @@ internal class Cleaner : IStage
             return;
         try
         {
-            if (_methodCallCounter != null && method.Name == ".ctor" || method.Name == ".cctor" ||
-                Context.Module.EntryPoint == method)
+            if (_methodCallCounter != null && (method.IsConstructor || method.IsStaticConstructor ||
+                                               method == Context.Module.EntryPoint))
             {
                 #region IsEmpty
 
@@ -166,6 +165,7 @@ internal class Cleaner : IStage
                     {
                         case 2 when !(type.Fields.Any(x => x.FieldType.FullName == "System.Boolean") &&
                                       type.Fields.Any(x => x.FieldType.FullName == "System.Object")):
+                            return false;
                         case 1 when type.Fields[0].FieldType.FullName != "System.Boolean":
                             return false;
                     }
