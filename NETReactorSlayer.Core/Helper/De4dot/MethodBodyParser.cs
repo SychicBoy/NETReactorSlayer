@@ -47,7 +47,7 @@ public static class MethodBodyParser
         try
         {
             return ParseMethodBody2(ref reader, out code, out extraSections);
-        } catch (Exception ex) when (ex is IOException || ex is ArgumentException)
+        } catch (Exception ex) when (ex is IOException or ArgumentException)
         {
             throw new InvalidMethodBody();
         }
@@ -83,9 +83,7 @@ public static class MethodBodyParser
                 throw new InvalidMethodBody();
         }
         else
-        {
             throw new InvalidMethodBody();
-        }
 
         if (mbHeader.codeSize + codeOffset > reader.Length)
             throw new InvalidMethodBody();

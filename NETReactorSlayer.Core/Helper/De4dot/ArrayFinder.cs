@@ -28,9 +28,7 @@ public static class ArrayFinder
     public static byte[] GetInitializedByteArray(MethodDef method, int arraySize)
     {
         var newarrIndex = FindNewarr(method, arraySize);
-        if (newarrIndex < 0)
-            return null;
-        return GetInitializedByteArray(arraySize, method, ref newarrIndex);
+        return newarrIndex < 0 ? null : GetInitializedByteArray(arraySize, method, ref newarrIndex);
     }
 
     public static byte[] GetInitializedByteArray(int arraySize, MethodDef method, ref int newarrIndex)
@@ -40,8 +38,7 @@ public static class ArrayFinder
         var resultArray = new byte[resultValueArray.Length];
         for (var i = 0; i < resultArray.Length; i++)
         {
-            var intValue = resultValueArray[i] as Int32Value;
-            if (intValue == null || !intValue.AllBitsValid())
+            if (resultValueArray[i] is not Int32Value intValue || !intValue.AllBitsValid())
                 return null;
             resultArray[i] = (byte) intValue.Value;
         }
@@ -98,9 +95,7 @@ public static class ArrayFinder
                         resultValueArray[index.Value] = value;
             }
             else
-            {
                 emulator.Emulate(instr);
-            }
         }
 
         done:

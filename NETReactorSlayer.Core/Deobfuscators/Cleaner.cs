@@ -66,7 +66,7 @@ internal class Cleaner : IStage
                 } catch { }
     }
 
-    private void FixEntrypoint()
+    private static void FixEntrypoint()
     {
         if (Context.Module.IsEntryPointValid &&
             Context.Module.EntryPoint.DeclaringType.Name.Contains("<PrivateImplementationDetails>"))
@@ -88,7 +88,7 @@ internal class Cleaner : IStage
             }
     }
 
-    private void RemoveAttributes(MethodDef method)
+    private static void RemoveAttributes(MethodDef method)
     {
         method.IsNoInlining = false;
         method.IsSynchronized = false;
@@ -105,20 +105,16 @@ internal class Cleaner : IStage
                     continue;
                 }
 
-                if (cattr.TypeFullName ==
-                    "System.Diagnostics.DebuggerStepThroughAttribute")
+                switch (cattr.TypeFullName)
                 {
-                    method.CustomAttributes.RemoveAt(i);
-                    i--;
-                    continue;
-                }
-
-                if (cattr.TypeFullName ==
-                    "System.Diagnostics.DebuggerNonUserCodeAttribute")
-                {
-                    method.CustomAttributes.RemoveAt(i);
-                    i--;
-                    continue;
+                    case "System.Diagnostics.DebuggerStepThroughAttribute":
+                        method.CustomAttributes.RemoveAt(i);
+                        i--;
+                        continue;
+                    case "System.Diagnostics.DebuggerNonUserCodeAttribute":
+                        method.CustomAttributes.RemoveAt(i);
+                        i--;
+                        continue;
                 }
 
                 if (cattr.TypeFullName != "System.Runtime.CompilerServices.MethodImplAttribute")
@@ -173,10 +169,7 @@ internal class Cleaner : IStage
                             return false;
                     }
 
-                    if (otherMethods > 8)
-                        return false;
-
-                    return true;
+                    return otherMethods <= 8;
                 }
 
                 #endregion
@@ -198,7 +191,7 @@ internal class Cleaner : IStage
                     CallRemover.RemoveCalls(methodDef);
                     try
                     {
-                        if (methodDef != null && methodDef.DeclaringType.DeclaringType != null)
+                        if (methodDef?.DeclaringType.DeclaringType != null)
                             methodDef.DeclaringType.DeclaringType.NestedTypes.Remove(methodDef.DeclaringType);
                         else
                             Context.Module.Types.Remove(methodDef?.DeclaringType);
@@ -271,7 +264,7 @@ internal class Cleaner : IStage
         } catch { }
     }
 
-    private bool IsInlineMethod(MethodDef method)
+    private static bool IsInlineMethod(MethodDef method)
     {
         if (!method.IsStatic ||
             !method.IsAssembly &&
@@ -286,45 +279,23 @@ internal class Cleaner : IStage
 
         switch (method.Body.Instructions[0].OpCode.Code)
         {
-            case Code.Ldc_I4:
-            case Code.Ldc_I4_0:
-            case Code.Ldc_I4_1:
-            case Code.Ldc_I4_2:
-            case Code.Ldc_I4_3:
-            case Code.Ldc_I4_4:
-            case Code.Ldc_I4_5:
-            case Code.Ldc_I4_6:
-            case Code.Ldc_I4_7:
-            case Code.Ldc_I4_8:
-            case Code.Ldc_I4_M1:
-            case Code.Ldc_I4_S:
-            case Code.Ldc_I8:
-            case Code.Ldc_R4:
-            case Code.Ldc_R8:
-            case Code.Ldftn:
-            case Code.Ldnull:
-            case Code.Ldstr:
-            case Code.Ldtoken:
-            case Code.Ldsfld:
-            case Code.Ldsflda:
+            case Code.Ldc_I4 or Code.Ldc_I4_0 or Code.Ldc_I4_1 or Code.Ldc_I4_2
+                or Code.Ldc_I4_3 or Code.Ldc_I4_4 or Code.Ldc_I4_5 or Code.Ldc_I4_6 or Code.Ldc_I4_7 or Code.Ldc_I4_8
+                or Code.Ldc_I4_M1 or Code.Ldc_I4_S or Code.Ldc_I8 or Code.Ldc_R4 or Code.Ldc_R8 or Code.Ldftn
+                or Code.Ldnull
+                or Code.Ldstr or Code.Ldtoken or Code.Ldsfld or Code.Ldsflda:
+            {
                 if (method.Body.Instructions[1].OpCode.Code != Code.Ret)
                     return false;
                 break;
-
-            case Code.Ldarg:
-            case Code.Ldarg_S:
-            case Code.Ldarg_0:
-            case Code.Ldarg_1:
-            case Code.Ldarg_2:
-            case Code.Ldarg_3:
-            case Code.Ldarga:
-            case Code.Ldarga_S:
-            case Code.Call:
-            case Code.Newobj:
+            }
+            case Code.Ldarg or Code.Ldarg_S or Code.Ldarg_0 or Code.Ldarg_1
+                or Code.Ldarg_2 or Code.Ldarg_3 or Code.Ldarga or Code.Ldarga_S or Code.Call or Code.Newobj:
+            {
                 if (!IsCallMethod(method))
                     return false;
                 break;
-
+            }
             default:
                 return false;
         }
@@ -332,7 +303,7 @@ internal class Cleaner : IStage
         return true;
     }
 
-    private bool IsCallMethod(MethodDef method)
+    private static bool IsCallMethod(MethodDef method)
     {
         var loadIndex = 0;
         var methodArgsCount = DotNetUtils.GetArgsCount(method);
@@ -379,13 +350,10 @@ internal class Cleaner : IStage
                 return false;
         }
 
-        if (instrs[i + 1].OpCode.Code != Code.Ret)
-            return false;
-
-        return true;
+        return instrs[i + 1].OpCode.Code == Code.Ret;
     }
 
-    private bool GetMethodImplOptions(CustomAttribute cA, ref int value)
+    private static bool GetMethodImplOptions(CustomAttribute cA, ref int value)
     {
         if (cA.IsRawBlob)
             return false;
@@ -395,18 +363,16 @@ internal class Cleaner : IStage
             cA.ConstructorArguments[0].Type.FullName != "System.Runtime.CompilerServices.MethodImplOptions")
             return false;
         var arg = cA.ConstructorArguments[0].Value;
-        if (arg is short @int)
+        switch (arg)
         {
-            value = @int;
-            return true;
+            case short @int:
+                value = @int;
+                return true;
+            case int int1:
+                value = int1;
+                return true;
+            default:
+                return false;
         }
-
-        if (arg is int int1)
-        {
-            value = int1;
-            return true;
-        }
-
-        return false;
     }
 }

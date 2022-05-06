@@ -47,7 +47,7 @@ internal class CallDecrypter : IStage
 
         _encryptedResource = FindMethodsDecrypterResource(_delegateCreatorMethods.First());
         _method = _delegateCreatorMethods.First();
-        if (_method == null || _method.Body.Variables == null || _method.Body.Variables.Count < 1)
+        if (_method?.Body.Variables == null || _method.Body.Variables.Count < 1)
         {
             Logger.Warn("Couldn't find any hidden call.");
             return;
@@ -202,9 +202,14 @@ internal class CallDecrypter : IStage
 
     private Local CheckLocal(Instruction instr, bool isLdloc)
     {
-        if (isLdloc && !instr.IsLdloc()) return null;
-        if (!isLdloc && !instr.IsStloc()) return null;
-        return instr.GetLocal(_locals);
+        switch (isLdloc)
+        {
+            case true when !instr.IsLdloc():
+            case false when !instr.IsStloc():
+                return null;
+            default:
+                return instr.GetLocal(_locals);
+        }
     }
 
     private bool FindEnd(IList<Instruction> instrs, int startIndex, out int endIndex)
@@ -224,7 +229,7 @@ internal class CallDecrypter : IStage
         return false;
     }
 
-    private EmbeddedResource FindMethodsDecrypterResource(MethodDef method)
+    private static EmbeddedResource FindMethodsDecrypterResource(MethodDef method)
     {
         foreach (var s in DotNetUtils.GetCodeStrings(method))
             if (DotNetUtils.GetResource(Context.Module, s) is EmbeddedResource resource)
@@ -232,7 +237,7 @@ internal class CallDecrypter : IStage
         return null;
     }
 
-    private void GetCallInfo(IField field, out IMethod calledMethod, out OpCode callOpcode)
+    private void GetCallInfo(IMDTokenProvider field, out IMethod calledMethod, out OpCode callOpcode)
     {
         callOpcode = OpCodes.Call;
         _dictionary.TryGetValue((int) field.MDToken.Raw, out var token);
@@ -288,7 +293,7 @@ internal class CallDecrypter : IStage
         return decrypted;
     }
 
-    private uint ReadUInt32(byte[] ary, int index)
+    private static uint ReadUInt32(byte[] ary, int index)
     {
         var sizeLeft = ary.Length - index;
         if (sizeLeft >= 4) return BitConverter.ToUInt32(ary, index);
@@ -301,9 +306,9 @@ internal class CallDecrypter : IStage
         };
     }
 
-    private void WriteUInt32(byte[] ary, int index, uint value)
+    private static void WriteUInt32(IList<byte> ary, int index, uint value)
     {
-        var num = ary.Length - index;
+        var num = ary.Count - index;
         if (num >= 1) ary[index] = (byte) value;
         if (num >= 2) ary[index + 1] = (byte) (value >> 8);
         if (num >= 3) ary[index + 2] = (byte) (value >> 16);
@@ -315,7 +320,7 @@ internal class CallDecrypter : IStage
         _instrEmulator.Initialize(_method, _method.Parameters, _locals, _method.Body.InitLocals, false);
         _instrEmulator.SetLocal(_emuLocal, new Int32Value((int) input));
         foreach (var instr in _instructions) _instrEmulator.Emulate(instr);
-        if (!(_instrEmulator.Pop() is Int32Value tos) || !tos.AllBitsValid())
+        if (_instrEmulator.Pop() is not Int32Value tos || !tos.AllBitsValid())
             throw new Exception("Couldn't calculate magic value");
         return (uint) tos.Value;
     }

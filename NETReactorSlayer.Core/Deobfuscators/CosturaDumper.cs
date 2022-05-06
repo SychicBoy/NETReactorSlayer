@@ -27,7 +27,7 @@ internal class CosturaDumper : IStage
         var count = 0L;
         foreach (var resource in Context.Module.Resources)
         {
-            if (!(resource is EmbeddedResource embeddedResource)) continue;
+            if (resource is not EmbeddedResource embeddedResource) continue;
             if (embeddedResource.Name == "costura.metadata")
             {
                 Cleaner.ResourceToRemove.Add(embeddedResource);
@@ -80,7 +80,7 @@ internal class CosturaDumper : IStage
             Logger.Warn("Couldn't find any embedded assembly (Costura.Fody).");
     }
 
-    private string GetAssemblyName(byte[] data, bool fullName)
+    private static string GetAssemblyName(byte[] data, bool fullName)
     {
         try
         {

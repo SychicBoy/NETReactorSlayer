@@ -1,5 +1,1 @@
-Improve & Fix Control Flow Deobfuscator
-Improve & Fix Cleaner
-Improve & Fix Boolean Decryptor
-Small UI Changes
-Some Changes On CLI Arguments
+No change logs available.

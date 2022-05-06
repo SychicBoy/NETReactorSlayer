@@ -18,6 +18,7 @@
 */
 
 using System;
+using System.Linq;
 using de4dot.blocks;
 using dnlib.DotNet.MD;
 using dnlib.IO;
@@ -68,10 +69,8 @@ public sealed class MyPEImage : IDisposable
     {
         if (ownPeImage)
         {
-            if (metadata != null)
-                metadata.Dispose();
-            if (PEImage != null)
-                PEImage.Dispose();
+            metadata?.Dispose();
+            PEImage?.Dispose();
         }
 
         metadata = null;
@@ -85,14 +84,9 @@ public sealed class MyPEImage : IDisposable
         Reader = peImage.CreateReader();
     }
 
-    public ImageSectionHeader FindSection(RVA rva)
-    {
-        foreach (var section in PEImage.ImageSectionHeaders)
-            if (section.VirtualAddress <= rva &&
-                rva < section.VirtualAddress + Math.Max(section.VirtualSize, section.SizeOfRawData))
-                return section;
-        return null;
-    }
+    public ImageSectionHeader FindSection(RVA rva) => PEImage.ImageSectionHeaders.FirstOrDefault(section =>
+        section.VirtualAddress <= rva &&
+        rva < section.VirtualAddress + Math.Max(section.VirtualSize, section.SizeOfRawData));
 
     public void ReadMethodTableRowTo(DumpedMethod dm, uint rid)
     {
@@ -143,10 +137,10 @@ public sealed class MyPEImage : IDisposable
     public void OffsetWrite(uint offset, byte[] data) =>
         Array.Copy(data, 0, peImageData, offset, data.Length);
 
-    private bool Intersect(uint offset1, uint length1, uint offset2, uint length2) =>
+    private static bool Intersect(uint offset1, uint length1, uint offset2, uint length2) =>
         !(offset1 + length1 <= offset2 || offset2 + length2 <= offset1);
 
-    private bool Intersect(uint offset, uint length, IFileSection location) =>
+    private static bool Intersect(uint offset, uint length, IFileSection location) =>
         Intersect(offset, length, (uint) location.StartOffset, location.EndOffset - location.StartOffset);
 
     public bool DotNetSafeWriteOffset(uint offset, byte[] data)

@@ -51,12 +51,12 @@ public partial class NrsButton : Button
         set
         {
             _transform = value;
-            if (value == TextTransformEnum.Upper)
-                base.Text = Text.ToUpper();
-            else if (value == TextTransformEnum.Lower)
-                base.Text = Text.ToLower();
-            else
-                base.Text = Text;
+            base.Text = value switch
+            {
+                TextTransformEnum.Upper => Text.ToUpper(),
+                TextTransformEnum.Lower => Text.ToLower(),
+                _ => Text
+            };
         }
     }
 
@@ -66,12 +66,12 @@ public partial class NrsButton : Button
         set
         {
             _text = value;
-            if (TextTransform == TextTransformEnum.Upper)
-                base.Text = Text.ToUpper();
-            else if (TextTransform == TextTransformEnum.Lower)
-                base.Text = Text.ToLower();
-            else
-                base.Text = Text;
+            base.Text = TextTransform switch
+            {
+                TextTransformEnum.Upper => Text.ToUpper(),
+                TextTransformEnum.Lower => Text.ToLower(),
+                _ => Text
+            };
         }
     }
 

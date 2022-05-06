@@ -54,8 +54,10 @@ namespace NETReactorSlayer.GUI
             this.panel3 = new System.Windows.Forms.Panel();
             this.pnlBase = new System.Windows.Forms.Panel();
             this.pnlButton = new System.Windows.Forms.Panel();
+            this.btnStart = new NETReactorSlayer.GUI.UserControls.NrsButton();
             this.pnlSeparator = new System.Windows.Forms.Panel();
             this.panelLogs = new System.Windows.Forms.Panel();
+            this.scrollbarLogs = new NETReactorSlayer.GUI.UserControls.NrsScrollBar();
             this.txtLogs = new System.Windows.Forms.RichTextBox();
             this.ctxLogs = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
@@ -64,8 +66,28 @@ namespace NETReactorSlayer.GUI
             this.pnlInput = new System.Windows.Forms.Panel();
             this.picBrowse = new System.Windows.Forms.PictureBox();
             this.pnlTextBox = new System.Windows.Forms.Panel();
+            this.txtInput = new NETReactorSlayer.GUI.UserControls.NrsTextBox();
             this.pnlOptions = new System.Windows.Forms.Panel();
             this.tabelOptions = new System.Windows.Forms.TableLayoutPanel();
+            this.chkDumpCosturaAsm = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
+            this.chkDecryptStrings = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
+            this.chkPatchAntiTD = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
+            this.chkDecryptBools = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
+            this.chkDumpDNRAsm = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
+            this.chkDecryptHiddenCalls = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
+            this.chkDeobCFlow = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
+            this.chkDecryptTokens = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
+            this.chkDecryptResources = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
+            this.chkRemoveRefProxies = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
+            this.chkDecryptMethods = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
+            this.chkSelectUnSelectAll = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
+            this.chkRemCalls = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
+            this.chkVerbose = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
+            this.chkPreserveAll = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
+            this.chkKeepOldMaxStack = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
+            this.chkKeepTypes = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
+            this.chkRemJunks = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
+            this.chkRemSn = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.llblGitHub = new System.Windows.Forms.LinkLabel();
             this.label2 = new System.Windows.Forms.Label();
@@ -81,27 +103,6 @@ namespace NETReactorSlayer.GUI
             this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnStart = new NETReactorSlayer.GUI.UserControls.NrsButton();
-            this.scrollbarLogs = new NETReactorSlayer.GUI.UserControls.NrsScrollBar();
-            this.txtInput = new NETReactorSlayer.GUI.UserControls.NrsTextBox();
-            this.chkRemJunks = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
-            this.chkDumpCosturaAsm = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
-            this.chkDecryptStrings = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
-            this.chkPatchAntiTD = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
-            this.chkDecryptBools = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
-            this.chkDumpDNRAsm = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
-            this.chkDecryptHiddenCalls = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
-            this.chkDeobCFlow = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
-            this.chkDecryptTokens = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
-            this.chkDecryptResources = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
-            this.chkRemoveRefProxies = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
-            this.chkDecryptMethods = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
-            this.chkSelectUnSelectAll = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
-            this.chkRemCalls = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
-            this.chkKeepTypes = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
-            this.chkPreserveAll = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
-            this.chkKeepOldMaxStack = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
-            this.chkVerbose = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
             this.pnlHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picMenu)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picMinimize)).BeginInit();
@@ -134,7 +135,7 @@ namespace NETReactorSlayer.GUI
             this.pnlHeader.Location = new System.Drawing.Point(30, 5);
             this.pnlHeader.MinimumSize = new System.Drawing.Size(0, 60);
             this.pnlHeader.Name = "pnlHeader";
-            this.pnlHeader.Size = new System.Drawing.Size(923, 60);
+            this.pnlHeader.Size = new System.Drawing.Size(997, 60);
             this.pnlHeader.TabIndex = 2;
             // 
             // picMenu
@@ -165,7 +166,7 @@ namespace NETReactorSlayer.GUI
             this.picMinimize.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picMinimize.Dock = System.Windows.Forms.DockStyle.Right;
             this.picMinimize.Image = global::NETReactorSlayer.GUI.Properties.Resources.Minimize;
-            this.picMinimize.Location = new System.Drawing.Point(855, 0);
+            this.picMinimize.Location = new System.Drawing.Point(929, 0);
             this.picMinimize.Name = "picMinimize";
             this.picMinimize.Size = new System.Drawing.Size(24, 60);
             this.picMinimize.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
@@ -178,7 +179,7 @@ namespace NETReactorSlayer.GUI
             // panel2
             // 
             this.panel2.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel2.Location = new System.Drawing.Point(879, 0);
+            this.panel2.Location = new System.Drawing.Point(953, 0);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(10, 60);
             this.panel2.TabIndex = 16;
@@ -188,7 +189,7 @@ namespace NETReactorSlayer.GUI
             this.picExit.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picExit.Dock = System.Windows.Forms.DockStyle.Right;
             this.picExit.Image = global::NETReactorSlayer.GUI.Properties.Resources.Close;
-            this.picExit.Location = new System.Drawing.Point(889, 0);
+            this.picExit.Location = new System.Drawing.Point(963, 0);
             this.picExit.Name = "picExit";
             this.picExit.Size = new System.Drawing.Size(24, 60);
             this.picExit.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
@@ -204,7 +205,7 @@ namespace NETReactorSlayer.GUI
             this.picHeader.Image = global::NETReactorSlayer.GUI.Properties.Resources.Header;
             this.picHeader.Location = new System.Drawing.Point(0, 0);
             this.picHeader.Name = "picHeader";
-            this.picHeader.Size = new System.Drawing.Size(913, 60);
+            this.picHeader.Size = new System.Drawing.Size(987, 60);
             this.picHeader.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.picHeader.TabIndex = 1;
             this.picHeader.TabStop = false;
@@ -215,7 +216,7 @@ namespace NETReactorSlayer.GUI
             // panel3
             // 
             this.panel3.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel3.Location = new System.Drawing.Point(913, 0);
+            this.panel3.Location = new System.Drawing.Point(987, 0);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(10, 60);
             this.panel3.TabIndex = 17;
@@ -232,7 +233,7 @@ namespace NETReactorSlayer.GUI
             this.pnlBase.Location = new System.Drawing.Point(30, 65);
             this.pnlBase.Name = "pnlBase";
             this.pnlBase.Padding = new System.Windows.Forms.Padding(30);
-            this.pnlBase.Size = new System.Drawing.Size(923, 501);
+            this.pnlBase.Size = new System.Drawing.Size(997, 501);
             this.pnlBase.TabIndex = 3;
             // 
             // pnlButton
@@ -242,15 +243,37 @@ namespace NETReactorSlayer.GUI
             this.pnlButton.Location = new System.Drawing.Point(30, 430);
             this.pnlButton.Name = "pnlButton";
             this.pnlButton.Padding = new System.Windows.Forms.Padding(200, 5, 200, 5);
-            this.pnlButton.Size = new System.Drawing.Size(863, 55);
+            this.pnlButton.Size = new System.Drawing.Size(937, 55);
             this.pnlButton.TabIndex = 16;
+            // 
+            // btnStart
+            // 
+            this.btnStart.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(27)))), ((int)(((byte)(27)))));
+            this.btnStart.BorderRadius = 25;
+            this.btnStart.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnStart.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnStart.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
+            this.btnStart.FlatAppearance.BorderSize = 0;
+            this.btnStart.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(18)))), ((int)(((byte)(18)))));
+            this.btnStart.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(34)))), ((int)(((byte)(34)))));
+            this.btnStart.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnStart.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnStart.ForeColor = System.Drawing.Color.Silver;
+            this.btnStart.Location = new System.Drawing.Point(200, 5);
+            this.btnStart.Name = "btnStart";
+            this.btnStart.Size = new System.Drawing.Size(537, 45);
+            this.btnStart.TabIndex = 15;
+            this.btnStart.Text = "Start Deobfuscation";
+            this.btnStart.TextTransform = NETReactorSlayer.GUI.UserControls.NrsButton.TextTransformEnum.None;
+            this.btnStart.UseVisualStyleBackColor = false;
+            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
             // pnlSeparator
             // 
             this.pnlSeparator.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlSeparator.Location = new System.Drawing.Point(30, 420);
             this.pnlSeparator.Name = "pnlSeparator";
-            this.pnlSeparator.Size = new System.Drawing.Size(863, 10);
+            this.pnlSeparator.Size = new System.Drawing.Size(937, 10);
             this.pnlSeparator.TabIndex = 15;
             // 
             // panelLogs
@@ -261,8 +284,21 @@ namespace NETReactorSlayer.GUI
             this.panelLogs.Location = new System.Drawing.Point(30, 239);
             this.panelLogs.Name = "panelLogs";
             this.panelLogs.Padding = new System.Windows.Forms.Padding(2);
-            this.panelLogs.Size = new System.Drawing.Size(863, 181);
+            this.panelLogs.Size = new System.Drawing.Size(937, 181);
             this.panelLogs.TabIndex = 0;
+            // 
+            // scrollbarLogs
+            // 
+            this.scrollbarLogs.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(27)))), ((int)(((byte)(27)))));
+            this.scrollbarLogs.Dock = System.Windows.Forms.DockStyle.Right;
+            this.scrollbarLogs.Location = new System.Drawing.Point(920, 2);
+            this.scrollbarLogs.Maximum = 10;
+            this.scrollbarLogs.Name = "scrollbarLogs";
+            this.scrollbarLogs.Size = new System.Drawing.Size(15, 177);
+            this.scrollbarLogs.TabIndex = 17;
+            this.scrollbarLogs.Text = "nrsScrollBar1";
+            this.scrollbarLogs.ViewSize = 9;
+            this.scrollbarLogs.ValueChanged += new System.EventHandler<NETReactorSlayer.GUI.UserControls.ScrollValueEventArgs>(this.scrollbarLogs_ValueChanged);
             // 
             // txtLogs
             // 
@@ -276,7 +312,7 @@ namespace NETReactorSlayer.GUI
             this.txtLogs.Name = "txtLogs";
             this.txtLogs.ReadOnly = true;
             this.txtLogs.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-            this.txtLogs.Size = new System.Drawing.Size(859, 177);
+            this.txtLogs.Size = new System.Drawing.Size(933, 177);
             this.txtLogs.TabIndex = 0;
             this.txtLogs.TabStop = false;
             this.txtLogs.Text = "\n  Logs will appear here...";
@@ -328,7 +364,7 @@ namespace NETReactorSlayer.GUI
             this.pnlInput.Location = new System.Drawing.Point(30, 192);
             this.pnlInput.Name = "pnlInput";
             this.pnlInput.Padding = new System.Windows.Forms.Padding(0, 10, 0, 10);
-            this.pnlInput.Size = new System.Drawing.Size(863, 47);
+            this.pnlInput.Size = new System.Drawing.Size(937, 47);
             this.pnlInput.TabIndex = 12;
             // 
             // picBrowse
@@ -337,7 +373,7 @@ namespace NETReactorSlayer.GUI
             this.picBrowse.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picBrowse.Dock = System.Windows.Forms.DockStyle.Right;
             this.picBrowse.Image = global::NETReactorSlayer.GUI.Properties.Resources.Browse;
-            this.picBrowse.Location = new System.Drawing.Point(812, 10);
+            this.picBrowse.Location = new System.Drawing.Point(886, 10);
             this.picBrowse.Name = "picBrowse";
             this.picBrowse.Size = new System.Drawing.Size(51, 27);
             this.picBrowse.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
@@ -353,8 +389,34 @@ namespace NETReactorSlayer.GUI
             this.pnlTextBox.Location = new System.Drawing.Point(0, 10);
             this.pnlTextBox.Name = "pnlTextBox";
             this.pnlTextBox.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
-            this.pnlTextBox.Size = new System.Drawing.Size(863, 27);
+            this.pnlTextBox.Size = new System.Drawing.Size(937, 27);
             this.pnlTextBox.TabIndex = 1;
+            // 
+            // txtInput
+            // 
+            this.txtInput.AllowDrop = true;
+            this.txtInput.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(27)))), ((int)(((byte)(27)))));
+            this.txtInput.BorderRadius = 0;
+            this.txtInput.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtInput.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.txtInput.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtInput.Font = new System.Drawing.Font("Segoe UI Semibold", 7.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtInput.ForeColor = System.Drawing.Color.Silver;
+            this.txtInput.Location = new System.Drawing.Point(0, 6);
+            this.txtInput.Name = "txtInput";
+            this.txtInput.PlaceHolderColor = System.Drawing.Color.Gray;
+            this.txtInput.PlaceHolderText = "DRAG & DROP TARGET FILE HERE OR ENTER FILE PATH";
+            this.txtInput.Progress = 22F;
+            this.txtInput.ProgressColor = System.Drawing.Color.MediumSeaGreen;
+            this.txtInput.Size = new System.Drawing.Size(937, 21);
+            this.txtInput.TabIndex = 2;
+            this.txtInput.Tag = "";
+            this.txtInput.Text = "DRAG & DROP TARGET FILE HERE OR ENTER FILE PATH";
+            this.txtInput.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtInput.TextTransform = NETReactorSlayer.GUI.UserControls.NrsTextBox.TextTransformEnum.None;
+            this.txtInput.WordWrap = false;
+            this.txtInput.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtInput_DragDrop);
+            this.txtInput.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtInput_DragEnter);
             // 
             // pnlOptions
             // 
@@ -363,7 +425,7 @@ namespace NETReactorSlayer.GUI
             this.pnlOptions.Location = new System.Drawing.Point(30, 30);
             this.pnlOptions.Name = "pnlOptions";
             this.pnlOptions.Padding = new System.Windows.Forms.Padding(3, 0, 0, 3);
-            this.pnlOptions.Size = new System.Drawing.Size(863, 162);
+            this.pnlOptions.Size = new System.Drawing.Size(937, 162);
             this.pnlOptions.TabIndex = 11;
             // 
             // tabelOptions
@@ -372,7 +434,6 @@ namespace NETReactorSlayer.GUI
             this.tabelOptions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33332F));
             this.tabelOptions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
             this.tabelOptions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
-            this.tabelOptions.Controls.Add(this.chkRemJunks, 2, 4);
             this.tabelOptions.Controls.Add(this.chkDumpCosturaAsm, 2, 3);
             this.tabelOptions.Controls.Add(this.chkDecryptStrings, 2, 2);
             this.tabelOptions.Controls.Add(this.chkPatchAntiTD, 2, 1);
@@ -385,11 +446,13 @@ namespace NETReactorSlayer.GUI
             this.tabelOptions.Controls.Add(this.chkRemoveRefProxies, 0, 2);
             this.tabelOptions.Controls.Add(this.chkDecryptMethods, 0, 1);
             this.tabelOptions.Controls.Add(this.chkSelectUnSelectAll, 0, 0);
-            this.tabelOptions.Controls.Add(this.chkRemCalls, 0, 5);
-            this.tabelOptions.Controls.Add(this.chkVerbose, 1, 6);
-            this.tabelOptions.Controls.Add(this.chkPreserveAll, 1, 5);
-            this.tabelOptions.Controls.Add(this.chkKeepOldMaxStack, 2, 5);
-            this.tabelOptions.Controls.Add(this.chkKeepTypes, 0, 6);
+            this.tabelOptions.Controls.Add(this.chkRemCalls, 1, 5);
+            this.tabelOptions.Controls.Add(this.chkVerbose, 2, 6);
+            this.tabelOptions.Controls.Add(this.chkPreserveAll, 0, 6);
+            this.tabelOptions.Controls.Add(this.chkKeepOldMaxStack, 1, 6);
+            this.tabelOptions.Controls.Add(this.chkKeepTypes, 2, 5);
+            this.tabelOptions.Controls.Add(this.chkRemJunks, 0, 5);
+            this.tabelOptions.Controls.Add(this.chkRemSn, 2, 4);
             this.tabelOptions.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabelOptions.Location = new System.Drawing.Point(3, 0);
             this.tabelOptions.Name = "tabelOptions";
@@ -401,8 +464,473 @@ namespace NETReactorSlayer.GUI
             this.tabelOptions.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 14.28571F));
             this.tabelOptions.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 14.28571F));
             this.tabelOptions.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 14.28571F));
-            this.tabelOptions.Size = new System.Drawing.Size(860, 159);
+            this.tabelOptions.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tabelOptions.Size = new System.Drawing.Size(934, 159);
             this.tabelOptions.TabIndex = 3;
+            // 
+            // chkDumpCosturaAsm
+            // 
+            this.chkDumpCosturaAsm.AutoSize = true;
+            this.chkDumpCosturaAsm.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkDumpCosturaAsm.Checked = true;
+            this.chkDumpCosturaAsm.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkDumpCosturaAsm.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkDumpCosturaAsm.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkDumpCosturaAsm.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDumpCosturaAsm.ForeColor = System.Drawing.Color.Silver;
+            this.chkDumpCosturaAsm.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDumpCosturaAsm.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDumpCosturaAsm.HoverForeColor = System.Drawing.Color.White;
+            this.chkDumpCosturaAsm.Location = new System.Drawing.Point(625, 69);
+            this.chkDumpCosturaAsm.Name = "chkDumpCosturaAsm";
+            this.chkDumpCosturaAsm.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDumpCosturaAsm.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDumpCosturaAsm.PressForeColor = System.Drawing.Color.Gray;
+            this.chkDumpCosturaAsm.Size = new System.Drawing.Size(306, 16);
+            this.chkDumpCosturaAsm.TabIndex = 9;
+            this.chkDumpCosturaAsm.Tag = "--dump-costura";
+            this.chkDumpCosturaAsm.Text = "Dump Costura-Fody Assemblies";
+            this.chkDumpCosturaAsm.UseVisualStyleBackColor = true;
+            this.chkDumpCosturaAsm.CheckedChanged += new System.EventHandler(this.CheckedChanged);
+            // 
+            // chkDecryptStrings
+            // 
+            this.chkDecryptStrings.AutoSize = true;
+            this.chkDecryptStrings.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkDecryptStrings.Checked = true;
+            this.chkDecryptStrings.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkDecryptStrings.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkDecryptStrings.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkDecryptStrings.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptStrings.ForeColor = System.Drawing.Color.Silver;
+            this.chkDecryptStrings.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptStrings.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDecryptStrings.HoverForeColor = System.Drawing.Color.White;
+            this.chkDecryptStrings.Location = new System.Drawing.Point(625, 47);
+            this.chkDecryptStrings.Name = "chkDecryptStrings";
+            this.chkDecryptStrings.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptStrings.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDecryptStrings.PressForeColor = System.Drawing.Color.Gray;
+            this.chkDecryptStrings.Size = new System.Drawing.Size(306, 16);
+            this.chkDecryptStrings.TabIndex = 13;
+            this.chkDecryptStrings.Tag = "--dec-strings";
+            this.chkDecryptStrings.Text = "Decrypt Strings";
+            this.chkDecryptStrings.UseVisualStyleBackColor = true;
+            this.chkDecryptStrings.CheckedChanged += new System.EventHandler(this.CheckedChanged);
+            // 
+            // chkPatchAntiTD
+            // 
+            this.chkPatchAntiTD.AutoSize = true;
+            this.chkPatchAntiTD.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkPatchAntiTD.Checked = true;
+            this.chkPatchAntiTD.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkPatchAntiTD.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkPatchAntiTD.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkPatchAntiTD.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkPatchAntiTD.ForeColor = System.Drawing.Color.Silver;
+            this.chkPatchAntiTD.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkPatchAntiTD.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkPatchAntiTD.HoverForeColor = System.Drawing.Color.White;
+            this.chkPatchAntiTD.Location = new System.Drawing.Point(625, 25);
+            this.chkPatchAntiTD.Name = "chkPatchAntiTD";
+            this.chkPatchAntiTD.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkPatchAntiTD.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkPatchAntiTD.PressForeColor = System.Drawing.Color.Gray;
+            this.chkPatchAntiTD.Size = new System.Drawing.Size(306, 16);
+            this.chkPatchAntiTD.TabIndex = 11;
+            this.chkPatchAntiTD.Tag = "--rem-antis";
+            this.chkPatchAntiTD.Text = "Remove Anti Tamper & Anti Debugger";
+            this.chkPatchAntiTD.UseVisualStyleBackColor = true;
+            this.chkPatchAntiTD.CheckedChanged += new System.EventHandler(this.CheckedChanged);
+            // 
+            // chkDecryptBools
+            // 
+            this.chkDecryptBools.AutoSize = true;
+            this.chkDecryptBools.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkDecryptBools.Checked = true;
+            this.chkDecryptBools.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkDecryptBools.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkDecryptBools.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkDecryptBools.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptBools.ForeColor = System.Drawing.Color.Silver;
+            this.chkDecryptBools.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptBools.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDecryptBools.HoverForeColor = System.Drawing.Color.White;
+            this.chkDecryptBools.Location = new System.Drawing.Point(314, 91);
+            this.chkDecryptBools.Name = "chkDecryptBools";
+            this.chkDecryptBools.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptBools.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDecryptBools.PressForeColor = System.Drawing.Color.Gray;
+            this.chkDecryptBools.Size = new System.Drawing.Size(305, 16);
+            this.chkDecryptBools.TabIndex = 16;
+            this.chkDecryptBools.Tag = "--dec-bools";
+            this.chkDecryptBools.Text = "Decrypt Booleans";
+            this.chkDecryptBools.UseVisualStyleBackColor = true;
+            this.chkDecryptBools.CheckedChanged += new System.EventHandler(this.CheckedChanged);
+            // 
+            // chkDumpDNRAsm
+            // 
+            this.chkDumpDNRAsm.AutoSize = true;
+            this.chkDumpDNRAsm.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkDumpDNRAsm.Checked = true;
+            this.chkDumpDNRAsm.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkDumpDNRAsm.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkDumpDNRAsm.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkDumpDNRAsm.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDumpDNRAsm.ForeColor = System.Drawing.Color.Silver;
+            this.chkDumpDNRAsm.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDumpDNRAsm.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDumpDNRAsm.HoverForeColor = System.Drawing.Color.White;
+            this.chkDumpDNRAsm.Location = new System.Drawing.Point(314, 69);
+            this.chkDumpDNRAsm.Name = "chkDumpDNRAsm";
+            this.chkDumpDNRAsm.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDumpDNRAsm.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDumpDNRAsm.PressForeColor = System.Drawing.Color.Gray;
+            this.chkDumpDNRAsm.Size = new System.Drawing.Size(305, 16);
+            this.chkDumpDNRAsm.TabIndex = 10;
+            this.chkDumpDNRAsm.Tag = "--dump-asm";
+            this.chkDumpDNRAsm.Text = "Dump Embedded Assemblies";
+            this.chkDumpDNRAsm.UseVisualStyleBackColor = true;
+            this.chkDumpDNRAsm.CheckedChanged += new System.EventHandler(this.CheckedChanged);
+            // 
+            // chkDecryptHiddenCalls
+            // 
+            this.chkDecryptHiddenCalls.AutoSize = true;
+            this.chkDecryptHiddenCalls.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkDecryptHiddenCalls.Checked = true;
+            this.chkDecryptHiddenCalls.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkDecryptHiddenCalls.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkDecryptHiddenCalls.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkDecryptHiddenCalls.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptHiddenCalls.ForeColor = System.Drawing.Color.Silver;
+            this.chkDecryptHiddenCalls.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptHiddenCalls.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDecryptHiddenCalls.HoverForeColor = System.Drawing.Color.White;
+            this.chkDecryptHiddenCalls.Location = new System.Drawing.Point(314, 47);
+            this.chkDecryptHiddenCalls.Name = "chkDecryptHiddenCalls";
+            this.chkDecryptHiddenCalls.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptHiddenCalls.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDecryptHiddenCalls.PressForeColor = System.Drawing.Color.Gray;
+            this.chkDecryptHiddenCalls.Size = new System.Drawing.Size(305, 16);
+            this.chkDecryptHiddenCalls.TabIndex = 12;
+            this.chkDecryptHiddenCalls.Tag = "--dec-calls";
+            this.chkDecryptHiddenCalls.Text = "Decrypt Hidden Calls";
+            this.chkDecryptHiddenCalls.UseVisualStyleBackColor = true;
+            this.chkDecryptHiddenCalls.CheckedChanged += new System.EventHandler(this.CheckedChanged);
+            // 
+            // chkDeobCFlow
+            // 
+            this.chkDeobCFlow.AutoSize = true;
+            this.chkDeobCFlow.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkDeobCFlow.Checked = true;
+            this.chkDeobCFlow.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkDeobCFlow.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkDeobCFlow.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkDeobCFlow.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDeobCFlow.ForeColor = System.Drawing.Color.Silver;
+            this.chkDeobCFlow.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDeobCFlow.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDeobCFlow.HoverForeColor = System.Drawing.Color.White;
+            this.chkDeobCFlow.Location = new System.Drawing.Point(314, 25);
+            this.chkDeobCFlow.Name = "chkDeobCFlow";
+            this.chkDeobCFlow.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDeobCFlow.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDeobCFlow.PressForeColor = System.Drawing.Color.Gray;
+            this.chkDeobCFlow.Size = new System.Drawing.Size(305, 16);
+            this.chkDeobCFlow.TabIndex = 4;
+            this.chkDeobCFlow.Tag = "--deob-cflow";
+            this.chkDeobCFlow.Text = "Deobfuscate Control Flow";
+            this.chkDeobCFlow.UseVisualStyleBackColor = true;
+            this.chkDeobCFlow.CheckedChanged += new System.EventHandler(this.CheckedChanged);
+            // 
+            // chkDecryptTokens
+            // 
+            this.chkDecryptTokens.AutoSize = true;
+            this.chkDecryptTokens.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkDecryptTokens.Checked = true;
+            this.chkDecryptTokens.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkDecryptTokens.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkDecryptTokens.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkDecryptTokens.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptTokens.ForeColor = System.Drawing.Color.Silver;
+            this.chkDecryptTokens.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptTokens.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDecryptTokens.HoverForeColor = System.Drawing.Color.White;
+            this.chkDecryptTokens.Location = new System.Drawing.Point(3, 91);
+            this.chkDecryptTokens.Name = "chkDecryptTokens";
+            this.chkDecryptTokens.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptTokens.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDecryptTokens.PressForeColor = System.Drawing.Color.Gray;
+            this.chkDecryptTokens.Size = new System.Drawing.Size(305, 16);
+            this.chkDecryptTokens.TabIndex = 8;
+            this.chkDecryptTokens.Tag = "--dec-tokens";
+            this.chkDecryptTokens.Text = "Decrypt Tokens";
+            this.chkDecryptTokens.UseVisualStyleBackColor = true;
+            this.chkDecryptTokens.CheckedChanged += new System.EventHandler(this.CheckedChanged);
+            // 
+            // chkDecryptResources
+            // 
+            this.chkDecryptResources.AutoSize = true;
+            this.chkDecryptResources.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkDecryptResources.Checked = true;
+            this.chkDecryptResources.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkDecryptResources.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkDecryptResources.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkDecryptResources.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptResources.ForeColor = System.Drawing.Color.Silver;
+            this.chkDecryptResources.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptResources.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDecryptResources.HoverForeColor = System.Drawing.Color.White;
+            this.chkDecryptResources.Location = new System.Drawing.Point(3, 69);
+            this.chkDecryptResources.Name = "chkDecryptResources";
+            this.chkDecryptResources.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptResources.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDecryptResources.PressForeColor = System.Drawing.Color.Gray;
+            this.chkDecryptResources.Size = new System.Drawing.Size(305, 16);
+            this.chkDecryptResources.TabIndex = 6;
+            this.chkDecryptResources.Tag = "--dec-rsrc";
+            this.chkDecryptResources.Text = "Decrypt Resources";
+            this.chkDecryptResources.UseVisualStyleBackColor = true;
+            this.chkDecryptResources.CheckedChanged += new System.EventHandler(this.CheckedChanged);
+            // 
+            // chkRemoveRefProxies
+            // 
+            this.chkRemoveRefProxies.AutoSize = true;
+            this.chkRemoveRefProxies.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkRemoveRefProxies.Checked = true;
+            this.chkRemoveRefProxies.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkRemoveRefProxies.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkRemoveRefProxies.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkRemoveRefProxies.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkRemoveRefProxies.ForeColor = System.Drawing.Color.Silver;
+            this.chkRemoveRefProxies.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkRemoveRefProxies.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkRemoveRefProxies.HoverForeColor = System.Drawing.Color.White;
+            this.chkRemoveRefProxies.Location = new System.Drawing.Point(3, 47);
+            this.chkRemoveRefProxies.Name = "chkRemoveRefProxies";
+            this.chkRemoveRefProxies.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkRemoveRefProxies.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkRemoveRefProxies.PressForeColor = System.Drawing.Color.Gray;
+            this.chkRemoveRefProxies.Size = new System.Drawing.Size(305, 16);
+            this.chkRemoveRefProxies.TabIndex = 5;
+            this.chkRemoveRefProxies.Tag = "--inline-methods";
+            this.chkRemoveRefProxies.Text = "Inline Short Methods";
+            this.chkRemoveRefProxies.UseVisualStyleBackColor = true;
+            this.chkRemoveRefProxies.CheckedChanged += new System.EventHandler(this.CheckedChanged);
+            // 
+            // chkDecryptMethods
+            // 
+            this.chkDecryptMethods.AutoSize = true;
+            this.chkDecryptMethods.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkDecryptMethods.Checked = true;
+            this.chkDecryptMethods.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkDecryptMethods.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkDecryptMethods.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkDecryptMethods.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptMethods.ForeColor = System.Drawing.Color.Silver;
+            this.chkDecryptMethods.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptMethods.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDecryptMethods.HoverForeColor = System.Drawing.Color.White;
+            this.chkDecryptMethods.Location = new System.Drawing.Point(3, 25);
+            this.chkDecryptMethods.Name = "chkDecryptMethods";
+            this.chkDecryptMethods.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkDecryptMethods.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkDecryptMethods.PressForeColor = System.Drawing.Color.Gray;
+            this.chkDecryptMethods.Size = new System.Drawing.Size(305, 16);
+            this.chkDecryptMethods.TabIndex = 7;
+            this.chkDecryptMethods.Tag = "--dec-methods";
+            this.chkDecryptMethods.Text = "Decrypt Methods";
+            this.chkDecryptMethods.UseVisualStyleBackColor = true;
+            this.chkDecryptMethods.CheckedChanged += new System.EventHandler(this.CheckedChanged);
+            // 
+            // chkSelectUnSelectAll
+            // 
+            this.chkSelectUnSelectAll.AutoSize = true;
+            this.chkSelectUnSelectAll.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkSelectUnSelectAll.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkSelectUnSelectAll.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkSelectUnSelectAll.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkSelectUnSelectAll.ForeColor = System.Drawing.Color.Silver;
+            this.chkSelectUnSelectAll.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkSelectUnSelectAll.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkSelectUnSelectAll.HoverForeColor = System.Drawing.Color.White;
+            this.chkSelectUnSelectAll.Location = new System.Drawing.Point(3, 3);
+            this.chkSelectUnSelectAll.Name = "chkSelectUnSelectAll";
+            this.chkSelectUnSelectAll.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkSelectUnSelectAll.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkSelectUnSelectAll.PressForeColor = System.Drawing.Color.Gray;
+            this.chkSelectUnSelectAll.Size = new System.Drawing.Size(305, 16);
+            this.chkSelectUnSelectAll.TabIndex = 17;
+            this.chkSelectUnSelectAll.Tag = "";
+            this.chkSelectUnSelectAll.Text = "Select All";
+            this.chkSelectUnSelectAll.UseVisualStyleBackColor = true;
+            this.chkSelectUnSelectAll.CheckedChanged += new System.EventHandler(this.chkSelectUnSelectAll_CheckedChanged);
+            // 
+            // chkRemCalls
+            // 
+            this.chkRemCalls.AutoSize = true;
+            this.chkRemCalls.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkRemCalls.Checked = true;
+            this.chkRemCalls.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkRemCalls.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkRemCalls.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkRemCalls.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkRemCalls.ForeColor = System.Drawing.Color.Silver;
+            this.chkRemCalls.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkRemCalls.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkRemCalls.HoverForeColor = System.Drawing.Color.White;
+            this.chkRemCalls.Location = new System.Drawing.Point(314, 113);
+            this.chkRemCalls.Name = "chkRemCalls";
+            this.chkRemCalls.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkRemCalls.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkRemCalls.PressForeColor = System.Drawing.Color.Gray;
+            this.chkRemCalls.Size = new System.Drawing.Size(305, 16);
+            this.chkRemCalls.TabIndex = 2;
+            this.chkRemCalls.Tag = "--rem-calls";
+            this.chkRemCalls.Text = "Remove Calls To Obfuscator Types";
+            this.chkRemCalls.UseVisualStyleBackColor = true;
+            this.chkRemCalls.CheckedChanged += new System.EventHandler(this.CheckedChanged);
+            // 
+            // chkVerbose
+            // 
+            this.chkVerbose.AutoSize = true;
+            this.chkVerbose.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkVerbose.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkVerbose.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkVerbose.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkVerbose.ForeColor = System.Drawing.Color.Silver;
+            this.chkVerbose.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkVerbose.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkVerbose.HoverForeColor = System.Drawing.Color.White;
+            this.chkVerbose.Location = new System.Drawing.Point(625, 135);
+            this.chkVerbose.Name = "chkVerbose";
+            this.chkVerbose.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkVerbose.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkVerbose.PressForeColor = System.Drawing.Color.Gray;
+            this.chkVerbose.Size = new System.Drawing.Size(306, 21);
+            this.chkVerbose.TabIndex = 18;
+            this.chkVerbose.Tag = "--verbose";
+            this.chkVerbose.Text = "Verbose";
+            this.chkVerbose.UseVisualStyleBackColor = true;
+            // 
+            // chkPreserveAll
+            // 
+            this.chkPreserveAll.AutoSize = true;
+            this.chkPreserveAll.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkPreserveAll.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkPreserveAll.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkPreserveAll.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkPreserveAll.ForeColor = System.Drawing.Color.Silver;
+            this.chkPreserveAll.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkPreserveAll.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkPreserveAll.HoverForeColor = System.Drawing.Color.White;
+            this.chkPreserveAll.Location = new System.Drawing.Point(3, 135);
+            this.chkPreserveAll.Name = "chkPreserveAll";
+            this.chkPreserveAll.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkPreserveAll.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkPreserveAll.PressForeColor = System.Drawing.Color.Gray;
+            this.chkPreserveAll.Size = new System.Drawing.Size(305, 21);
+            this.chkPreserveAll.TabIndex = 15;
+            this.chkPreserveAll.Tag = "--preserve-all";
+            this.chkPreserveAll.Text = "Preserve All MD Tokens";
+            this.chkPreserveAll.UseVisualStyleBackColor = true;
+            this.chkPreserveAll.CheckedChanged += new System.EventHandler(this.CheckedChanged);
+            // 
+            // chkKeepOldMaxStack
+            // 
+            this.chkKeepOldMaxStack.AutoSize = true;
+            this.chkKeepOldMaxStack.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkKeepOldMaxStack.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkKeepOldMaxStack.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkKeepOldMaxStack.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkKeepOldMaxStack.ForeColor = System.Drawing.Color.Silver;
+            this.chkKeepOldMaxStack.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkKeepOldMaxStack.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkKeepOldMaxStack.HoverForeColor = System.Drawing.Color.White;
+            this.chkKeepOldMaxStack.Location = new System.Drawing.Point(314, 135);
+            this.chkKeepOldMaxStack.Name = "chkKeepOldMaxStack";
+            this.chkKeepOldMaxStack.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkKeepOldMaxStack.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkKeepOldMaxStack.PressForeColor = System.Drawing.Color.Gray;
+            this.chkKeepOldMaxStack.Size = new System.Drawing.Size(305, 21);
+            this.chkKeepOldMaxStack.TabIndex = 14;
+            this.chkKeepOldMaxStack.Tag = "--keep-max-stack";
+            this.chkKeepOldMaxStack.Text = "Keep Old Max Stack Value";
+            this.chkKeepOldMaxStack.UseVisualStyleBackColor = true;
+            this.chkKeepOldMaxStack.CheckedChanged += new System.EventHandler(this.CheckedChanged);
+            // 
+            // chkKeepTypes
+            // 
+            this.chkKeepTypes.AutoSize = true;
+            this.chkKeepTypes.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkKeepTypes.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkKeepTypes.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkKeepTypes.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkKeepTypes.ForeColor = System.Drawing.Color.Silver;
+            this.chkKeepTypes.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkKeepTypes.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkKeepTypes.HoverForeColor = System.Drawing.Color.White;
+            this.chkKeepTypes.Location = new System.Drawing.Point(625, 113);
+            this.chkKeepTypes.Name = "chkKeepTypes";
+            this.chkKeepTypes.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkKeepTypes.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkKeepTypes.PressForeColor = System.Drawing.Color.Gray;
+            this.chkKeepTypes.Size = new System.Drawing.Size(306, 16);
+            this.chkKeepTypes.TabIndex = 2;
+            this.chkKeepTypes.Tag = "--keep-types";
+            this.chkKeepTypes.Text = "Keep Obfuscator Types";
+            this.chkKeepTypes.UseVisualStyleBackColor = true;
+            this.chkKeepTypes.CheckedChanged += new System.EventHandler(this.CheckedChanged);
+            // 
+            // chkRemJunks
+            // 
+            this.chkRemJunks.AutoSize = true;
+            this.chkRemJunks.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkRemJunks.Checked = true;
+            this.chkRemJunks.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkRemJunks.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkRemJunks.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkRemJunks.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkRemJunks.ForeColor = System.Drawing.Color.Silver;
+            this.chkRemJunks.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkRemJunks.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkRemJunks.HoverForeColor = System.Drawing.Color.White;
+            this.chkRemJunks.Location = new System.Drawing.Point(3, 113);
+            this.chkRemJunks.Name = "chkRemJunks";
+            this.chkRemJunks.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkRemJunks.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkRemJunks.PressForeColor = System.Drawing.Color.Gray;
+            this.chkRemJunks.Size = new System.Drawing.Size(305, 16);
+            this.chkRemJunks.TabIndex = 2;
+            this.chkRemJunks.Tag = "--rem-junks";
+            this.chkRemJunks.Text = "Remove Junks";
+            this.chkRemJunks.UseVisualStyleBackColor = true;
+            this.chkRemJunks.CheckedChanged += new System.EventHandler(this.CheckedChanged);
+            // 
+            // chkRemSn
+            // 
+            this.chkRemSn.AutoSize = true;
+            this.chkRemSn.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
+            this.chkRemSn.Checked = true;
+            this.chkRemSn.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkRemSn.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkRemSn.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkRemSn.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkRemSn.ForeColor = System.Drawing.Color.Silver;
+            this.chkRemSn.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkRemSn.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkRemSn.HoverForeColor = System.Drawing.Color.White;
+            this.chkRemSn.Location = new System.Drawing.Point(625, 91);
+            this.chkRemSn.Name = "chkRemSn";
+            this.chkRemSn.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
+            this.chkRemSn.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
+            this.chkRemSn.PressForeColor = System.Drawing.Color.Gray;
+            this.chkRemSn.Size = new System.Drawing.Size(306, 16);
+            this.chkRemSn.TabIndex = 2;
+            this.chkRemSn.Tag = "--rem-sn";
+            this.chkRemSn.Text = "Remove Strong Name Removal Protection";
+            this.chkRemSn.UseVisualStyleBackColor = true;
+            this.chkRemSn.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
             // panel1
             // 
@@ -419,7 +947,7 @@ namespace NETReactorSlayer.GUI
             this.panel1.Location = new System.Drawing.Point(30, 566);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(5, 10, 5, 0);
-            this.panel1.Size = new System.Drawing.Size(923, 40);
+            this.panel1.Size = new System.Drawing.Size(997, 40);
             this.panel1.TabIndex = 17;
             // 
             // llblGitHub
@@ -459,7 +987,7 @@ namespace NETReactorSlayer.GUI
             this.label5.Dock = System.Windows.Forms.DockStyle.Right;
             this.label5.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.ForeColor = System.Drawing.Color.Gray;
-            this.label5.Location = new System.Drawing.Point(878, 10);
+            this.label5.Location = new System.Drawing.Point(952, 10);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(40, 12);
             this.label5.TabIndex = 4;
@@ -471,7 +999,7 @@ namespace NETReactorSlayer.GUI
             this.lblVersion.Dock = System.Windows.Forms.DockStyle.Right;
             this.lblVersion.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblVersion.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.lblVersion.Location = new System.Drawing.Point(918, 10);
+            this.lblVersion.Location = new System.Drawing.Point(992, 10);
             this.lblVersion.Name = "lblVersion";
             this.lblVersion.Size = new System.Drawing.Size(0, 12);
             this.lblVersion.TabIndex = 5;
@@ -591,512 +1119,12 @@ namespace NETReactorSlayer.GUI
             this.toolStripMenuItem5.Size = new System.Drawing.Size(185, 5);
             this.toolStripMenuItem5.Text = " ";
             // 
-            // btnStart
-            // 
-            this.btnStart.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(27)))), ((int)(((byte)(27)))));
-            this.btnStart.BorderRadius = 25;
-            this.btnStart.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnStart.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnStart.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
-            this.btnStart.FlatAppearance.BorderSize = 0;
-            this.btnStart.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(18)))), ((int)(((byte)(18)))));
-            this.btnStart.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(34)))), ((int)(((byte)(34)))));
-            this.btnStart.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnStart.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnStart.ForeColor = System.Drawing.Color.Silver;
-            this.btnStart.Location = new System.Drawing.Point(200, 5);
-            this.btnStart.Name = "btnStart";
-            this.btnStart.Size = new System.Drawing.Size(463, 45);
-            this.btnStart.TabIndex = 15;
-            this.btnStart.Text = "Start Deobfuscation";
-            this.btnStart.TextTransform = NETReactorSlayer.GUI.UserControls.NrsButton.TextTransformEnum.None;
-            this.btnStart.UseVisualStyleBackColor = false;
-            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
-            // 
-            // scrollbarLogs
-            // 
-            this.scrollbarLogs.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(27)))), ((int)(((byte)(27)))));
-            this.scrollbarLogs.Dock = System.Windows.Forms.DockStyle.Right;
-            this.scrollbarLogs.Location = new System.Drawing.Point(846, 2);
-            this.scrollbarLogs.Maximum = 10;
-            this.scrollbarLogs.Name = "scrollbarLogs";
-            this.scrollbarLogs.Size = new System.Drawing.Size(15, 177);
-            this.scrollbarLogs.TabIndex = 17;
-            this.scrollbarLogs.Text = "nrsScrollBar1";
-            this.scrollbarLogs.ViewSize = 9;
-            this.scrollbarLogs.ValueChanged += new System.EventHandler<NETReactorSlayer.GUI.UserControls.ScrollValueEventArgs>(this.scrollbarLogs_ValueChanged);
-            // 
-            // txtInput
-            // 
-            this.txtInput.AllowDrop = true;
-            this.txtInput.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(27)))), ((int)(((byte)(27)))));
-            this.txtInput.BorderRadius = 0;
-            this.txtInput.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtInput.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.txtInput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtInput.Font = new System.Drawing.Font("Segoe UI Semibold", 7.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtInput.ForeColor = System.Drawing.Color.Silver;
-            this.txtInput.Location = new System.Drawing.Point(0, 6);
-            this.txtInput.Name = "txtInput";
-            this.txtInput.PlaceHolderColor = System.Drawing.Color.Gray;
-            this.txtInput.PlaceHolderText = "DRAG & DROP TARGET FILE HERE OR ENTER FILE PATH";
-            this.txtInput.Progress = 22F;
-            this.txtInput.ProgressColor = System.Drawing.Color.MediumSeaGreen;
-            this.txtInput.Size = new System.Drawing.Size(863, 21);
-            this.txtInput.TabIndex = 2;
-            this.txtInput.Tag = "";
-            this.txtInput.Text = "DRAG & DROP TARGET FILE HERE OR ENTER FILE PATH";
-            this.txtInput.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.txtInput.TextTransform = NETReactorSlayer.GUI.UserControls.NrsTextBox.TextTransformEnum.None;
-            this.txtInput.WordWrap = false;
-            this.txtInput.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtInput_DragDrop);
-            this.txtInput.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtInput_DragEnter);
-            // 
-            // chkRemJunks
-            // 
-            this.chkRemJunks.AutoSize = true;
-            this.chkRemJunks.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
-            this.chkRemJunks.Checked = true;
-            this.chkRemJunks.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkRemJunks.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.chkRemJunks.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkRemJunks.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkRemJunks.ForeColor = System.Drawing.Color.Silver;
-            this.chkRemJunks.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkRemJunks.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkRemJunks.HoverForeColor = System.Drawing.Color.White;
-            this.chkRemJunks.Location = new System.Drawing.Point(575, 91);
-            this.chkRemJunks.Name = "chkRemJunks";
-            this.chkRemJunks.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkRemJunks.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkRemJunks.PressForeColor = System.Drawing.Color.Gray;
-            this.chkRemJunks.Size = new System.Drawing.Size(282, 16);
-            this.chkRemJunks.TabIndex = 2;
-            this.chkRemJunks.Tag = "--rem-junks";
-            this.chkRemJunks.Text = "Remove Junks";
-            this.chkRemJunks.UseVisualStyleBackColor = true;
-            this.chkRemJunks.CheckedChanged += new System.EventHandler(this.CheckedChanged);
-            // 
-            // chkDumpCosturaAsm
-            // 
-            this.chkDumpCosturaAsm.AutoSize = true;
-            this.chkDumpCosturaAsm.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
-            this.chkDumpCosturaAsm.Checked = true;
-            this.chkDumpCosturaAsm.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkDumpCosturaAsm.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.chkDumpCosturaAsm.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkDumpCosturaAsm.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDumpCosturaAsm.ForeColor = System.Drawing.Color.Silver;
-            this.chkDumpCosturaAsm.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDumpCosturaAsm.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkDumpCosturaAsm.HoverForeColor = System.Drawing.Color.White;
-            this.chkDumpCosturaAsm.Location = new System.Drawing.Point(575, 69);
-            this.chkDumpCosturaAsm.Name = "chkDumpCosturaAsm";
-            this.chkDumpCosturaAsm.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDumpCosturaAsm.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkDumpCosturaAsm.PressForeColor = System.Drawing.Color.Gray;
-            this.chkDumpCosturaAsm.Size = new System.Drawing.Size(282, 16);
-            this.chkDumpCosturaAsm.TabIndex = 9;
-            this.chkDumpCosturaAsm.Tag = "--dump-costura";
-            this.chkDumpCosturaAsm.Text = "Dump Costura-Fody Assemblies";
-            this.chkDumpCosturaAsm.UseVisualStyleBackColor = true;
-            this.chkDumpCosturaAsm.CheckedChanged += new System.EventHandler(this.CheckedChanged);
-            // 
-            // chkDecryptStrings
-            // 
-            this.chkDecryptStrings.AutoSize = true;
-            this.chkDecryptStrings.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
-            this.chkDecryptStrings.Checked = true;
-            this.chkDecryptStrings.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkDecryptStrings.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.chkDecryptStrings.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkDecryptStrings.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDecryptStrings.ForeColor = System.Drawing.Color.Silver;
-            this.chkDecryptStrings.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDecryptStrings.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkDecryptStrings.HoverForeColor = System.Drawing.Color.White;
-            this.chkDecryptStrings.Location = new System.Drawing.Point(575, 47);
-            this.chkDecryptStrings.Name = "chkDecryptStrings";
-            this.chkDecryptStrings.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDecryptStrings.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkDecryptStrings.PressForeColor = System.Drawing.Color.Gray;
-            this.chkDecryptStrings.Size = new System.Drawing.Size(282, 16);
-            this.chkDecryptStrings.TabIndex = 13;
-            this.chkDecryptStrings.Tag = "--dec-strings";
-            this.chkDecryptStrings.Text = "Decrypt Strings";
-            this.chkDecryptStrings.UseVisualStyleBackColor = true;
-            this.chkDecryptStrings.CheckedChanged += new System.EventHandler(this.CheckedChanged);
-            // 
-            // chkPatchAntiTD
-            // 
-            this.chkPatchAntiTD.AutoSize = true;
-            this.chkPatchAntiTD.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
-            this.chkPatchAntiTD.Checked = true;
-            this.chkPatchAntiTD.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkPatchAntiTD.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.chkPatchAntiTD.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkPatchAntiTD.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkPatchAntiTD.ForeColor = System.Drawing.Color.Silver;
-            this.chkPatchAntiTD.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkPatchAntiTD.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkPatchAntiTD.HoverForeColor = System.Drawing.Color.White;
-            this.chkPatchAntiTD.Location = new System.Drawing.Point(575, 25);
-            this.chkPatchAntiTD.Name = "chkPatchAntiTD";
-            this.chkPatchAntiTD.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkPatchAntiTD.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkPatchAntiTD.PressForeColor = System.Drawing.Color.Gray;
-            this.chkPatchAntiTD.Size = new System.Drawing.Size(282, 16);
-            this.chkPatchAntiTD.TabIndex = 11;
-            this.chkPatchAntiTD.Tag = "--rem-antis";
-            this.chkPatchAntiTD.Text = "Remove Anti Tamper & Anti Debugger";
-            this.chkPatchAntiTD.UseVisualStyleBackColor = true;
-            this.chkPatchAntiTD.CheckedChanged += new System.EventHandler(this.CheckedChanged);
-            // 
-            // chkDecryptBools
-            // 
-            this.chkDecryptBools.AutoSize = true;
-            this.chkDecryptBools.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
-            this.chkDecryptBools.Checked = true;
-            this.chkDecryptBools.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkDecryptBools.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.chkDecryptBools.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkDecryptBools.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDecryptBools.ForeColor = System.Drawing.Color.Silver;
-            this.chkDecryptBools.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDecryptBools.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkDecryptBools.HoverForeColor = System.Drawing.Color.White;
-            this.chkDecryptBools.Location = new System.Drawing.Point(289, 91);
-            this.chkDecryptBools.Name = "chkDecryptBools";
-            this.chkDecryptBools.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDecryptBools.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkDecryptBools.PressForeColor = System.Drawing.Color.Gray;
-            this.chkDecryptBools.Size = new System.Drawing.Size(280, 16);
-            this.chkDecryptBools.TabIndex = 16;
-            this.chkDecryptBools.Tag = "--dec-bools";
-            this.chkDecryptBools.Text = "Decrypt Booleans";
-            this.chkDecryptBools.UseVisualStyleBackColor = true;
-            this.chkDecryptBools.CheckedChanged += new System.EventHandler(this.CheckedChanged);
-            // 
-            // chkDumpDNRAsm
-            // 
-            this.chkDumpDNRAsm.AutoSize = true;
-            this.chkDumpDNRAsm.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
-            this.chkDumpDNRAsm.Checked = true;
-            this.chkDumpDNRAsm.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkDumpDNRAsm.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.chkDumpDNRAsm.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkDumpDNRAsm.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDumpDNRAsm.ForeColor = System.Drawing.Color.Silver;
-            this.chkDumpDNRAsm.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDumpDNRAsm.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkDumpDNRAsm.HoverForeColor = System.Drawing.Color.White;
-            this.chkDumpDNRAsm.Location = new System.Drawing.Point(289, 69);
-            this.chkDumpDNRAsm.Name = "chkDumpDNRAsm";
-            this.chkDumpDNRAsm.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDumpDNRAsm.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkDumpDNRAsm.PressForeColor = System.Drawing.Color.Gray;
-            this.chkDumpDNRAsm.Size = new System.Drawing.Size(280, 16);
-            this.chkDumpDNRAsm.TabIndex = 10;
-            this.chkDumpDNRAsm.Tag = "--dump-asm";
-            this.chkDumpDNRAsm.Text = "Dump Embedded Assemblies";
-            this.chkDumpDNRAsm.UseVisualStyleBackColor = true;
-            this.chkDumpDNRAsm.CheckedChanged += new System.EventHandler(this.CheckedChanged);
-            // 
-            // chkDecryptHiddenCalls
-            // 
-            this.chkDecryptHiddenCalls.AutoSize = true;
-            this.chkDecryptHiddenCalls.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
-            this.chkDecryptHiddenCalls.Checked = true;
-            this.chkDecryptHiddenCalls.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkDecryptHiddenCalls.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.chkDecryptHiddenCalls.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkDecryptHiddenCalls.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDecryptHiddenCalls.ForeColor = System.Drawing.Color.Silver;
-            this.chkDecryptHiddenCalls.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDecryptHiddenCalls.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkDecryptHiddenCalls.HoverForeColor = System.Drawing.Color.White;
-            this.chkDecryptHiddenCalls.Location = new System.Drawing.Point(289, 47);
-            this.chkDecryptHiddenCalls.Name = "chkDecryptHiddenCalls";
-            this.chkDecryptHiddenCalls.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDecryptHiddenCalls.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkDecryptHiddenCalls.PressForeColor = System.Drawing.Color.Gray;
-            this.chkDecryptHiddenCalls.Size = new System.Drawing.Size(280, 16);
-            this.chkDecryptHiddenCalls.TabIndex = 12;
-            this.chkDecryptHiddenCalls.Tag = "--dec-calls";
-            this.chkDecryptHiddenCalls.Text = "Decrypt Hidden Calls";
-            this.chkDecryptHiddenCalls.UseVisualStyleBackColor = true;
-            this.chkDecryptHiddenCalls.CheckedChanged += new System.EventHandler(this.CheckedChanged);
-            // 
-            // chkDeobCFlow
-            // 
-            this.chkDeobCFlow.AutoSize = true;
-            this.chkDeobCFlow.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
-            this.chkDeobCFlow.Checked = true;
-            this.chkDeobCFlow.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkDeobCFlow.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.chkDeobCFlow.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkDeobCFlow.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDeobCFlow.ForeColor = System.Drawing.Color.Silver;
-            this.chkDeobCFlow.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDeobCFlow.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkDeobCFlow.HoverForeColor = System.Drawing.Color.White;
-            this.chkDeobCFlow.Location = new System.Drawing.Point(289, 25);
-            this.chkDeobCFlow.Name = "chkDeobCFlow";
-            this.chkDeobCFlow.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDeobCFlow.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkDeobCFlow.PressForeColor = System.Drawing.Color.Gray;
-            this.chkDeobCFlow.Size = new System.Drawing.Size(280, 16);
-            this.chkDeobCFlow.TabIndex = 4;
-            this.chkDeobCFlow.Tag = "--deob-cflow";
-            this.chkDeobCFlow.Text = "Deobfuscate Control Flow";
-            this.chkDeobCFlow.UseVisualStyleBackColor = true;
-            this.chkDeobCFlow.CheckedChanged += new System.EventHandler(this.CheckedChanged);
-            // 
-            // chkDecryptTokens
-            // 
-            this.chkDecryptTokens.AutoSize = true;
-            this.chkDecryptTokens.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
-            this.chkDecryptTokens.Checked = true;
-            this.chkDecryptTokens.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkDecryptTokens.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.chkDecryptTokens.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkDecryptTokens.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDecryptTokens.ForeColor = System.Drawing.Color.Silver;
-            this.chkDecryptTokens.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDecryptTokens.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkDecryptTokens.HoverForeColor = System.Drawing.Color.White;
-            this.chkDecryptTokens.Location = new System.Drawing.Point(3, 91);
-            this.chkDecryptTokens.Name = "chkDecryptTokens";
-            this.chkDecryptTokens.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDecryptTokens.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkDecryptTokens.PressForeColor = System.Drawing.Color.Gray;
-            this.chkDecryptTokens.Size = new System.Drawing.Size(280, 16);
-            this.chkDecryptTokens.TabIndex = 8;
-            this.chkDecryptTokens.Tag = "--dec-tokens";
-            this.chkDecryptTokens.Text = "Decrypt Tokens";
-            this.chkDecryptTokens.UseVisualStyleBackColor = true;
-            this.chkDecryptTokens.CheckedChanged += new System.EventHandler(this.CheckedChanged);
-            // 
-            // chkDecryptResources
-            // 
-            this.chkDecryptResources.AutoSize = true;
-            this.chkDecryptResources.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
-            this.chkDecryptResources.Checked = true;
-            this.chkDecryptResources.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkDecryptResources.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.chkDecryptResources.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkDecryptResources.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDecryptResources.ForeColor = System.Drawing.Color.Silver;
-            this.chkDecryptResources.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDecryptResources.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkDecryptResources.HoverForeColor = System.Drawing.Color.White;
-            this.chkDecryptResources.Location = new System.Drawing.Point(3, 69);
-            this.chkDecryptResources.Name = "chkDecryptResources";
-            this.chkDecryptResources.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDecryptResources.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkDecryptResources.PressForeColor = System.Drawing.Color.Gray;
-            this.chkDecryptResources.Size = new System.Drawing.Size(280, 16);
-            this.chkDecryptResources.TabIndex = 6;
-            this.chkDecryptResources.Tag = "--dec-rsrc";
-            this.chkDecryptResources.Text = "Decrypt Resources";
-            this.chkDecryptResources.UseVisualStyleBackColor = true;
-            this.chkDecryptResources.CheckedChanged += new System.EventHandler(this.CheckedChanged);
-            // 
-            // chkRemoveRefProxies
-            // 
-            this.chkRemoveRefProxies.AutoSize = true;
-            this.chkRemoveRefProxies.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
-            this.chkRemoveRefProxies.Checked = true;
-            this.chkRemoveRefProxies.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkRemoveRefProxies.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.chkRemoveRefProxies.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkRemoveRefProxies.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkRemoveRefProxies.ForeColor = System.Drawing.Color.Silver;
-            this.chkRemoveRefProxies.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkRemoveRefProxies.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkRemoveRefProxies.HoverForeColor = System.Drawing.Color.White;
-            this.chkRemoveRefProxies.Location = new System.Drawing.Point(3, 47);
-            this.chkRemoveRefProxies.Name = "chkRemoveRefProxies";
-            this.chkRemoveRefProxies.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkRemoveRefProxies.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkRemoveRefProxies.PressForeColor = System.Drawing.Color.Gray;
-            this.chkRemoveRefProxies.Size = new System.Drawing.Size(280, 16);
-            this.chkRemoveRefProxies.TabIndex = 5;
-            this.chkRemoveRefProxies.Tag = "--inline-methods";
-            this.chkRemoveRefProxies.Text = "Inline Short Methods";
-            this.chkRemoveRefProxies.UseVisualStyleBackColor = true;
-            this.chkRemoveRefProxies.CheckedChanged += new System.EventHandler(this.CheckedChanged);
-            // 
-            // chkDecryptMethods
-            // 
-            this.chkDecryptMethods.AutoSize = true;
-            this.chkDecryptMethods.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
-            this.chkDecryptMethods.Checked = true;
-            this.chkDecryptMethods.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkDecryptMethods.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.chkDecryptMethods.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkDecryptMethods.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDecryptMethods.ForeColor = System.Drawing.Color.Silver;
-            this.chkDecryptMethods.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDecryptMethods.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkDecryptMethods.HoverForeColor = System.Drawing.Color.White;
-            this.chkDecryptMethods.Location = new System.Drawing.Point(3, 25);
-            this.chkDecryptMethods.Name = "chkDecryptMethods";
-            this.chkDecryptMethods.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkDecryptMethods.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkDecryptMethods.PressForeColor = System.Drawing.Color.Gray;
-            this.chkDecryptMethods.Size = new System.Drawing.Size(280, 16);
-            this.chkDecryptMethods.TabIndex = 7;
-            this.chkDecryptMethods.Tag = "--dec-methods";
-            this.chkDecryptMethods.Text = "Decrypt Methods";
-            this.chkDecryptMethods.UseVisualStyleBackColor = true;
-            this.chkDecryptMethods.CheckedChanged += new System.EventHandler(this.CheckedChanged);
-            // 
-            // chkSelectUnSelectAll
-            // 
-            this.chkSelectUnSelectAll.AutoSize = true;
-            this.chkSelectUnSelectAll.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
-            this.chkSelectUnSelectAll.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.chkSelectUnSelectAll.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkSelectUnSelectAll.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkSelectUnSelectAll.ForeColor = System.Drawing.Color.Silver;
-            this.chkSelectUnSelectAll.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkSelectUnSelectAll.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkSelectUnSelectAll.HoverForeColor = System.Drawing.Color.White;
-            this.chkSelectUnSelectAll.Location = new System.Drawing.Point(3, 3);
-            this.chkSelectUnSelectAll.Name = "chkSelectUnSelectAll";
-            this.chkSelectUnSelectAll.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkSelectUnSelectAll.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkSelectUnSelectAll.PressForeColor = System.Drawing.Color.Gray;
-            this.chkSelectUnSelectAll.Size = new System.Drawing.Size(280, 16);
-            this.chkSelectUnSelectAll.TabIndex = 17;
-            this.chkSelectUnSelectAll.Tag = "";
-            this.chkSelectUnSelectAll.Text = "Select All";
-            this.chkSelectUnSelectAll.UseVisualStyleBackColor = true;
-            this.chkSelectUnSelectAll.CheckedChanged += new System.EventHandler(this.chkSelectUnSelectAll_CheckedChanged);
-            // 
-            // chkRemCalls
-            // 
-            this.chkRemCalls.AutoSize = true;
-            this.chkRemCalls.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
-            this.chkRemCalls.Checked = true;
-            this.chkRemCalls.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkRemCalls.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.chkRemCalls.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkRemCalls.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkRemCalls.ForeColor = System.Drawing.Color.Silver;
-            this.chkRemCalls.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkRemCalls.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkRemCalls.HoverForeColor = System.Drawing.Color.White;
-            this.chkRemCalls.Location = new System.Drawing.Point(3, 113);
-            this.chkRemCalls.Name = "chkRemCalls";
-            this.chkRemCalls.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkRemCalls.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkRemCalls.PressForeColor = System.Drawing.Color.Gray;
-            this.chkRemCalls.Size = new System.Drawing.Size(280, 16);
-            this.chkRemCalls.TabIndex = 2;
-            this.chkRemCalls.Tag = "--rem-calls";
-            this.chkRemCalls.Text = "Remove Calls To Obfuscator Types";
-            this.chkRemCalls.UseVisualStyleBackColor = true;
-            this.chkRemCalls.CheckedChanged += new System.EventHandler(this.CheckedChanged);
-            // 
-            // chkKeepTypes
-            // 
-            this.chkKeepTypes.AutoSize = true;
-            this.chkKeepTypes.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
-            this.chkKeepTypes.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.chkKeepTypes.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkKeepTypes.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkKeepTypes.ForeColor = System.Drawing.Color.Silver;
-            this.chkKeepTypes.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkKeepTypes.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkKeepTypes.HoverForeColor = System.Drawing.Color.White;
-            this.chkKeepTypes.Location = new System.Drawing.Point(3, 135);
-            this.chkKeepTypes.Name = "chkKeepTypes";
-            this.chkKeepTypes.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkKeepTypes.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkKeepTypes.PressForeColor = System.Drawing.Color.Gray;
-            this.chkKeepTypes.Size = new System.Drawing.Size(280, 21);
-            this.chkKeepTypes.TabIndex = 2;
-            this.chkKeepTypes.Tag = "--keep-types";
-            this.chkKeepTypes.Text = "Keep Obfuscator Types";
-            this.chkKeepTypes.UseVisualStyleBackColor = true;
-            this.chkKeepTypes.CheckedChanged += new System.EventHandler(this.CheckedChanged);
-            // 
-            // chkPreserveAll
-            // 
-            this.chkPreserveAll.AutoSize = true;
-            this.chkPreserveAll.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
-            this.chkPreserveAll.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.chkPreserveAll.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkPreserveAll.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkPreserveAll.ForeColor = System.Drawing.Color.Silver;
-            this.chkPreserveAll.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkPreserveAll.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkPreserveAll.HoverForeColor = System.Drawing.Color.White;
-            this.chkPreserveAll.Location = new System.Drawing.Point(289, 113);
-            this.chkPreserveAll.Name = "chkPreserveAll";
-            this.chkPreserveAll.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkPreserveAll.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkPreserveAll.PressForeColor = System.Drawing.Color.Gray;
-            this.chkPreserveAll.Size = new System.Drawing.Size(280, 16);
-            this.chkPreserveAll.TabIndex = 15;
-            this.chkPreserveAll.Tag = "--preserve-all";
-            this.chkPreserveAll.Text = "Preserve All MD Tokens";
-            this.chkPreserveAll.UseVisualStyleBackColor = true;
-            this.chkPreserveAll.CheckedChanged += new System.EventHandler(this.CheckedChanged);
-            // 
-            // chkKeepOldMaxStack
-            // 
-            this.chkKeepOldMaxStack.AutoSize = true;
-            this.chkKeepOldMaxStack.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
-            this.chkKeepOldMaxStack.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.chkKeepOldMaxStack.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkKeepOldMaxStack.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkKeepOldMaxStack.ForeColor = System.Drawing.Color.Silver;
-            this.chkKeepOldMaxStack.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkKeepOldMaxStack.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkKeepOldMaxStack.HoverForeColor = System.Drawing.Color.White;
-            this.chkKeepOldMaxStack.Location = new System.Drawing.Point(575, 113);
-            this.chkKeepOldMaxStack.Name = "chkKeepOldMaxStack";
-            this.chkKeepOldMaxStack.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkKeepOldMaxStack.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkKeepOldMaxStack.PressForeColor = System.Drawing.Color.Gray;
-            this.chkKeepOldMaxStack.Size = new System.Drawing.Size(282, 16);
-            this.chkKeepOldMaxStack.TabIndex = 14;
-            this.chkKeepOldMaxStack.Tag = "--keep-max-stack";
-            this.chkKeepOldMaxStack.Text = "Keep Old Max Stack Value";
-            this.chkKeepOldMaxStack.UseVisualStyleBackColor = true;
-            this.chkKeepOldMaxStack.CheckedChanged += new System.EventHandler(this.CheckedChanged);
-            // 
-            // chkVerbose
-            // 
-            this.chkVerbose.AutoSize = true;
-            this.chkVerbose.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
-            this.chkVerbose.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.chkVerbose.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkVerbose.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkVerbose.ForeColor = System.Drawing.Color.Silver;
-            this.chkVerbose.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkVerbose.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkVerbose.HoverForeColor = System.Drawing.Color.White;
-            this.chkVerbose.Location = new System.Drawing.Point(289, 135);
-            this.chkVerbose.Name = "chkVerbose";
-            this.chkVerbose.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkVerbose.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkVerbose.PressForeColor = System.Drawing.Color.Gray;
-            this.chkVerbose.Size = new System.Drawing.Size(280, 21);
-            this.chkVerbose.TabIndex = 18;
-            this.chkVerbose.Tag = "--verbose";
-            this.chkVerbose.Text = "Verbose";
-            this.chkVerbose.UseVisualStyleBackColor = true;
-            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(27)))), ((int)(((byte)(27)))));
-            this.ClientSize = new System.Drawing.Size(983, 606);
+            this.ClientSize = new System.Drawing.Size(1057, 606);
             this.Controls.Add(this.pnlBase);
             this.Controls.Add(this.pnlHeader);
             this.Controls.Add(this.panel1);
@@ -1194,6 +1222,7 @@ namespace NETReactorSlayer.GUI
         private UserControls.NrsCheckBox chkKeepTypes;
         private UserControls.NrsCheckBox chkRemCalls;
         private UserControls.NrsCheckBox chkVerbose;
+        private UserControls.NrsCheckBox chkRemSn;
     }
 }
 

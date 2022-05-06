@@ -96,7 +96,7 @@ internal class AsmDumper : IStage
             } catch { }
     }
 
-    private bool FindResolverMethod(TypeDef type, out MethodDef method)
+    private static bool FindResolverMethod(TypeDef type, out MethodDef method)
     {
         method = null;
         foreach (var methodDef in type.Methods.ToArray())
@@ -111,7 +111,7 @@ internal class AsmDumper : IStage
         return false;
     }
 
-    private bool CheckFields(IList<FieldDef> fields)
+    private static bool CheckFields(ICollection<FieldDef> fields)
     {
         if (fields.Count != 2 && fields.Count != 3 && fields.Count != 4) return false;
         var fieldTypes = new FieldTypes(fields);
@@ -122,20 +122,20 @@ internal class AsmDumper : IStage
                                      fieldTypes.Count("System.Object") == 1);
     }
 
-    private List<EmbeddedResource> GetAssemblies(string prefix)
+    private static IEnumerable<EmbeddedResource> GetAssemblies(string prefix)
     {
         var result = new List<EmbeddedResource>();
         if (string.IsNullOrEmpty(prefix)) return null;
         foreach (var rsrc in Context.Module.Resources)
         {
-            if (!(rsrc is EmbeddedResource resource)) continue;
+            if (rsrc is not EmbeddedResource resource) continue;
             if (StartsWith(resource.Name.String, prefix, StringComparison.Ordinal)) result.Add(resource);
         }
 
         return result;
     }
 
-    private string GetAssemblyName(EmbeddedResource resource, bool fullName)
+    private static string GetAssemblyName(EmbeddedResource resource, bool fullName)
     {
         try
         {
@@ -148,6 +148,6 @@ internal class AsmDumper : IStage
         }
     }
 
-    private bool StartsWith(string left, string right, StringComparison stringComparison) =>
+    private static bool StartsWith(string left, string right, StringComparison stringComparison) =>
         left.Length > right.Length && left.Substring(0, right.Length).Equals(right, stringComparison);
 }

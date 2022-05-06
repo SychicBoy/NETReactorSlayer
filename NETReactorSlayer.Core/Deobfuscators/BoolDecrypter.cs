@@ -62,21 +62,27 @@ internal class BoolDecrypter : IStage
                 for (var z = 0; z < 8; z++)
                     iv[z * 2 + 1] = publicKeyToken.Data[z];
 
-        if (decrypterType == DnrDecrypterType.V1)
-            try
-            {
-                var v1 = new V1(iv, key);
-                _decryptedBytes = v1.Decrypt(_encryptedResource);
-                goto Continue;
-            } catch { }
+        switch (decrypterType)
+        {
+            case DnrDecrypterType.V1:
+                try
+                {
+                    var v1 = new V1(iv, key);
+                    _decryptedBytes = v1.Decrypt(_encryptedResource);
+                    goto Continue;
+                } catch { }
 
-        if (decrypterType == DnrDecrypterType.V2)
-            try
-            {
-                var v2 = new V2(iv, key, _decryptorMethod);
-                _decryptedBytes = v2.Decrypt(_encryptedResource);
-                goto Continue;
-            } catch { }
+                break;
+            case DnrDecrypterType.V2:
+                try
+                {
+                    var v2 = new V2(iv, key, _decryptorMethod);
+                    _decryptedBytes = v2.Decrypt(_encryptedResource);
+                    goto Continue;
+                } catch { }
+
+                break;
+        }
 
         Logger.Warn("Couldn't find any encrypted boolean.");
         return;
@@ -133,23 +139,24 @@ internal class BoolDecrypter : IStage
             }
     }
 
-    private EmbeddedResource GetEncryptedResource(MethodDef method)
+    private static EmbeddedResource GetEncryptedResource(MethodDef method)
     {
-        if (method == null || !method.HasBody || !method.Body.HasInstructions) return null;
+        if (method is not {HasBody: true} || !method.Body.HasInstructions) return null;
         foreach (var s in DotNetUtils.GetCodeStrings(method))
             if (DotNetUtils.GetResource(Context.Module, s) is EmbeddedResource resource)
                 return resource;
         return null;
     }
 
-    private DnrDecrypterType GetDecrypterType(MethodDef method, IList<string> additionalTypes)
+    private static DnrDecrypterType GetDecrypterType(MethodDef method, IList<string> additionalTypes)
     {
-        if (method == null || !method.IsStatic || method.Body == null) return DnrDecrypterType.Unknown;
+        if (method is not {IsStatic: true} || method.Body == null) return DnrDecrypterType.Unknown;
         additionalTypes ??= Array.Empty<string>();
         var localTypes = new LocalTypes(method);
         if (V1.CouldBeResourceDecrypter(method, localTypes, additionalTypes)) return DnrDecrypterType.V1;
         if (V2.CouldBeResourceDecrypter(localTypes, additionalTypes)) return DnrDecrypterType.V2;
-        if (V3.CouldBeResourceDecrypter(localTypes, additionalTypes)) return DnrDecrypterType.V3;
-        return DnrDecrypterType.Unknown;
+        return V3.CouldBeResourceDecrypter(localTypes, additionalTypes)
+            ? DnrDecrypterType.V3
+            : DnrDecrypterType.Unknown;
     }
 }

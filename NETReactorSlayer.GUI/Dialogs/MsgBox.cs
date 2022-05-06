@@ -248,6 +248,8 @@ internal class MsgBox : Form
                 _timer.Tag = new AnimateMsgBox(formSize, style);
                 _timer.Interval = 1;
                 break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(style), style, null);
         }
 
         _timer.Tick += timer_Tick;
@@ -312,6 +314,8 @@ internal class MsgBox : Form
                 }
 
                 break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 
@@ -342,6 +346,8 @@ internal class MsgBox : Form
             case MsgButtons.YesNoCancel:
                 _msgBox.InitYesNoCancelButtons();
                 break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(buttons), buttons, null);
         }
 
         foreach (var btn in _msgBox._buttonCollection)
@@ -374,24 +380,14 @@ internal class MsgBox : Form
 
     private static void InitIcon(MsgIcon icon)
     {
-        switch (icon)
+        _msgBox._picIcon.Image = icon switch
         {
-            case MsgIcon.Error:
-                _msgBox._picIcon.Image = Resources.Error;
-                break;
-
-            case MsgIcon.Info:
-                _msgBox._picIcon.Image = Resources.Info;
-                break;
-
-            case MsgIcon.Question:
-                _msgBox._picIcon.Image = Resources.Question;
-                break;
-
-            case MsgIcon.Warning:
-                _msgBox._picIcon.Image = Resources.Warning;
-                break;
-        }
+            MsgIcon.Error => Resources.Error,
+            MsgIcon.Info => Resources.Info,
+            MsgIcon.Question => Resources.Question,
+            MsgIcon.Warning => Resources.Warning,
+            _ => _msgBox._picIcon.Image
+        };
     }
 
     private void InitAbortRetryIgnoreButtons()
@@ -515,36 +511,17 @@ internal class MsgBox : Form
     {
         var btn = (Button) sender;
 
-        switch (btn.Text)
+        _buttonResult = btn.Text switch
         {
-            case @"Abort":
-                _buttonResult = DialogResult.Abort;
-                break;
-
-            case @"Retry":
-                _buttonResult = DialogResult.Retry;
-                break;
-
-            case @"Ignore":
-                _buttonResult = DialogResult.Ignore;
-                break;
-
-            case @"OK":
-                _buttonResult = DialogResult.OK;
-                break;
-
-            case @"Cancel":
-                _buttonResult = DialogResult.Cancel;
-                break;
-
-            case @"Yes":
-                _buttonResult = DialogResult.Yes;
-                break;
-
-            case @"No":
-                _buttonResult = DialogResult.No;
-                break;
-        }
+            @"Abort" => DialogResult.Abort,
+            @"Retry" => DialogResult.Retry,
+            @"Ignore" => DialogResult.Ignore,
+            @"OK" => DialogResult.OK,
+            @"Cancel" => DialogResult.Cancel,
+            @"Yes" => DialogResult.Yes,
+            @"No" => DialogResult.No,
+            _ => _buttonResult
+        };
 
         CloseAnimated();
     }

@@ -39,6 +39,7 @@ public class Options
         "--inline-methods", "           Inline short methods (True)",
 
         "--rem-antis", "                Remove anti tamper & anti debugger (True)",
+        "--rem-sn", "                   Remove strong name removal protection (True)",
         "--rem-calls", "                Remove calls to obfuscator methods (True)",
         "--rem-junks", "                Remove Junk Types, Methods, Fields, etc... (True)",
         "--keep-types", "               Keep obfuscator Types, Methods, Fields, etc... (False)",
@@ -60,7 +61,8 @@ public class Options
         ["dump-asm"] = new AsmDumper(),
         ["dump-costura"] = new CosturaDumper(),
         ["dec-tokens"] = new TokenDecrypter(),
-        ["dec-bools"] = new BoolDecrypter()
+        ["dec-bools"] = new BoolDecrypter(),
+        ["rem-sn"] = new StrongName()
     };
 
     public HashSet<IStage> Stages = new()
@@ -76,6 +78,7 @@ public class Options
         new CosturaDumper(),
         new TokenDecrypter(),
         new BoolDecrypter(),
+        new StrongName(),
         new Cleaner()
     };
 }

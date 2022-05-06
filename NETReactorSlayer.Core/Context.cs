@@ -221,7 +221,7 @@ public class Context
         return false;
     }
 
-    private ModuleContext GetModuleContext()
+    private static ModuleContext GetModuleContext()
     {
         var moduleContext = new ModuleContext();
         var assemblyResolver = new AssemblyResolver(moduleContext);

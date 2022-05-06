@@ -101,18 +101,20 @@ internal class MethodDecrypter : IStage
                     iv[z * 2 + 1] = publicKeyToken.Data[z];
         }
 
-        if (decrypterType == DnrDecrypterType.V1)
+        switch (decrypterType)
         {
-            var V1 = new V1(iv, key);
-            methodsData = V1.Decrypt(encryptedResource);
-            goto Continue;
-        }
-
-        if (decrypterType == DnrDecrypterType.V2)
-        {
-            var V2 = new V2(iv, key, decryptorMethod);
-            methodsData = V2.Decrypt(encryptedResource);
-            goto Continue;
+            case DnrDecrypterType.V1:
+            {
+                var V1 = new V1(iv, key);
+                methodsData = V1.Decrypt(encryptedResource);
+                goto Continue;
+            }
+            case DnrDecrypterType.V2:
+            {
+                var V2 = new V2(iv, key, decryptorMethod);
+                methodsData = V2.Decrypt(encryptedResource);
+                goto Continue;
+            }
         }
 
         Logger.Warn("Couldn't find any encrypted method.");
@@ -176,9 +178,7 @@ internal class MethodDecrypter : IStage
                             size = methodsDataReader.ReadInt32();
                         }
                         else
-                        {
                             size = methodsDataReader.ReadInt32() * 4;
-                        }
 
                         var newData = methodsDataReader.ReadBytes(size);
                         if (Context.IsNative && isUsingOffset)
@@ -246,13 +246,11 @@ internal class MethodDecrypter : IStage
                                 else
                                 {
                                     if (DeobUtils.IsCode(nativeLdci4_0, methodData))
-                                    {
                                         methodData = new byte[]
                                         {
                                             22,
                                             42
                                         };
-                                    }
                                     else
                                     {
                                         tokenToNativeMethod[methodToken] = methodData;
@@ -292,15 +290,11 @@ internal class MethodDecrypter : IStage
         using (Context.Module)
         {
             if (!isFindDnrMethod || mode == 1)
-            {
                 Context.Module = Context.AssemblyModule.Reload(
                     Context.PeImage.peImageData, CreateDumpedMethodsRestorer(dumpedMethods), null);
-            }
             else if (dumpedMethods.Count > 0)
-            {
                 Context.Module = Context.AssemblyModule.Reload(
                     Context.ModuleBytes, CreateDumpedMethodsRestorer(dumpedMethods), null);
-            }
             else
             {
                 Logger.Error("Failed to decrypt methods.");
@@ -311,40 +305,32 @@ internal class MethodDecrypter : IStage
         }
     }
 
-    private MethodDef FindDnrCompileMethod(TypeDef type)
-    {
-        foreach (var method in type.Methods)
-        {
-            if (!method.IsStatic || method.Body == null)
-                continue;
-            var sig = method.MethodSig;
-            if (sig == null || sig.Params.Count != 6)
-                continue;
-            if (GetCompileMethodType(method) != CompileMethodType.Unknown) return method;
-        }
+    private static MethodDef FindDnrCompileMethod(TypeDef type) =>
+        (from method in type.Methods
+            where method.IsStatic && method.Body != null
+            let sig = method.MethodSig
+            where sig != null && sig.Params.Count == 6
+            select method).FirstOrDefault(method => GetCompileMethodType(method) != CompileMethodType.Unknown);
 
-        return null;
-    }
-
-    private CompileMethodType GetCompileMethodType(MethodDef method)
+    private static CompileMethodType GetCompileMethodType(IMethod method)
     {
         if (DotNetUtils.IsMethod(method, "System.UInt32",
                 "(System.UInt64&,System.IntPtr,System.IntPtr,System.UInt32,System.IntPtr&,System.UInt32&)"))
             return CompileMethodType.V1;
 
-        if (DotNetUtils.IsMethod(method, "System.UInt32",
-                "(System.IntPtr,System.IntPtr,System.IntPtr,System.UInt32,System.IntPtr,System.UInt32&)"))
-            return CompileMethodType.V2;
-        return CompileMethodType.Unknown;
+        return DotNetUtils.IsMethod(method, "System.UInt32",
+            "(System.IntPtr,System.IntPtr,System.IntPtr,System.UInt32,System.IntPtr,System.UInt32&)")
+            ? CompileMethodType.V2
+            : CompileMethodType.Unknown;
     }
 
-    private DumpedMethodsRestorer CreateDumpedMethodsRestorer(DumpedMethods dumpedMethods)
+    private static DumpedMethodsRestorer CreateDumpedMethodsRestorer(DumpedMethods dumpedMethods)
     {
         if (dumpedMethods == null || dumpedMethods.Count == 0) return null;
         return new DumpedMethodsRestorer(dumpedMethods);
     }
 
-    private void PatchDwords(MyPEImage peImage, ref DataReader reader, int count)
+    private static void PatchDwords(MyPEImage peImage, ref DataReader reader, int count)
     {
         for (var i = 0; i < count; i++)
         {
@@ -354,27 +340,24 @@ internal class MethodDecrypter : IStage
         }
     }
 
-    private bool IsUsingRva(MethodDef method)
+    private static bool IsUsingRva(MethodDef method)
     {
-        if (method == null || method.Body == null) return false;
+        if (method?.Body == null) return false;
         var instrs = method.Body.Instructions;
-        for (var i = 0; i < instrs.Count; i++)
-            if (instrs[i].OpCode.Equals(OpCodes.Ldloca_S))
-                if (instrs[i + 1].OpCode.Equals(OpCodes.Ldsfld))
-                    if (instrs[i + 2].OpCode.Equals(OpCodes.Ldloc_S))
-                        if (instrs[i + 3].OpCode.Equals(OpCodes.Conv_I8))
-                            if (instrs[i + 4].OpCode.Equals(OpCodes.Add))
-                                if (instrs[i + 5].OpCode.Equals(OpCodes.Ldloc_S))
-                                    if (instrs[i + 6].OpCode.Equals(OpCodes.Conv_I8))
-                                        if (instrs[i + 7].OpCode.Equals(OpCodes.Sub))
-                                            if (instrs[i + 8].OpCode.Code.Equals(Code.Call))
-                                                return true;
-        return false;
+        return instrs.Where((t, i) => t.OpCode.Equals(OpCodes.Ldloca_S) &&
+                                      instrs[i + 1].OpCode.Equals(OpCodes.Ldsfld) &&
+                                      instrs[i + 2].OpCode.Equals(OpCodes.Ldloc_S) &&
+                                      instrs[i + 3].OpCode.Equals(OpCodes.Conv_I8) &&
+                                      instrs[i + 4].OpCode.Equals(OpCodes.Add) &&
+                                      instrs[i + 5].OpCode.Equals(OpCodes.Ldloc_S) &&
+                                      instrs[i + 6].OpCode.Equals(OpCodes.Conv_I8) &&
+                                      instrs[i + 7].OpCode.Equals(OpCodes.Sub) &&
+                                      instrs[i + 8].OpCode.Code.Equals(Code.Call)).Any();
     }
 
-    private bool IsNewer45Decryption(MethodDef method)
+    private static bool IsNewer45Decryption(MethodDef method)
     {
-        if (method == null || method.Body == null) return false;
+        if (method?.Body == null) return false;
         for (var i = 0; i < method.Body.Instructions.Count - 4; i++)
             if (method.Body.Instructions[i].IsLdcI4())
                 if (method.Body.Instructions[i + 1].OpCode.Code.Equals(Code.Mul))
@@ -386,7 +369,7 @@ internal class MethodDecrypter : IStage
         return false;
     }
 
-    private long GetXorKey(MethodDef method)
+    private static long GetXorKey(MethodDef method)
     {
         for (var i = 0; i < method.Body.Instructions.Count - 1; i++)
         {
@@ -395,9 +378,7 @@ internal class MethodDecrypter : IStage
                 var ldci4 = method.Body.Instructions[i + 1];
                 long result;
                 if (ldci4.IsLdcI4())
-                {
                     result = ldci4.GetLdcI4Value();
-                }
                 else
                 {
                     if (!ldci4.OpCode.Code.Equals(Code.Ldc_I8)) goto Continue;
@@ -413,16 +394,16 @@ internal class MethodDecrypter : IStage
         return 0L;
     }
 
-    private EmbeddedResource GetEncryptedResource(MethodDef method)
+    private static EmbeddedResource GetEncryptedResource(MethodDef method)
     {
-        if (method == null || !method.HasBody || !method.Body.HasInstructions) return null;
+        if (method is not {HasBody: true} || !method.Body.HasInstructions) return null;
         foreach (var s in DotNetUtils.GetCodeStrings(method))
             if (DotNetUtils.GetResource(Context.Module, s) is EmbeddedResource resource)
                 return resource;
         return null;
     }
 
-    private void XorEncrypt(byte[] data, long xorKey)
+    private static void XorEncrypt(byte[] data, long xorKey)
     {
         if (xorKey != 0L)
         {

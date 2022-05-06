@@ -105,9 +105,7 @@ public class QuickLZBase
                             inIndex += 7;
                         }
                         else
-                        {
                             inIndex += 3;
-                        }
 
                         for (var i = 0; i < size; i++)
                             outData[outIndex++] = b;
@@ -142,7 +140,7 @@ public class QuickLZBase
 
 public class QuickLZ : QuickLZBase
 {
-    private static readonly int DEFAULT_QCLZ_SIG = 0x5A4C4351;
+    private const int DEFAULT_QCLZ_SIG = 0x5A4C4351;
 
     public static byte[] Decompress(byte[] inData) => Decompress(inData, DEFAULT_QCLZ_SIG);
 
@@ -153,7 +151,7 @@ public class QuickLZ : QuickLZBase
         var compressedLength = BitConverter.ToInt32(inData, 8);
         var decompressedLength = BitConverter.ToInt32(inData, 12);
         var isDataCompressed = BitConverter.ToInt32(inData, 16) == 1;
-        var headerLength = 32;
+        const int headerLength = 32;
         if (BitConverter.ToInt32(inData, 0) != sig || BitConverter.ToInt32(inData, compressedLength - 4) != sig)
             throw new ApplicationException("No QCLZ sig");
 

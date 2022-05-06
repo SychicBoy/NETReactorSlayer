@@ -19,6 +19,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using dnlib.DotNet;
 using ICSharpCode.SharpZipLib.Zip.Compression;
@@ -43,15 +44,7 @@ public static class DeobUtils
     {
         if (nativeCode.Length != code.Length)
             return false;
-        for (var i = 0; i < nativeCode.Length; i++)
-        {
-            if (nativeCode[i] == -1)
-                continue;
-            if ((byte) nativeCode[i] != code[i])
-                return false;
-        }
-
-        return true;
+        return !nativeCode.Where((t, i) => t != -1 && (byte) t != code[i]).Any();
     }
 
     public static byte[] ReadFile(string filename)

@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
@@ -34,20 +35,9 @@ public class StringCounts
         strings[s] = count + 1;
     }
 
-    public bool Exists(string s)
-    {
-        if (s == null)
-            return false;
-        return strings.ContainsKey(s);
-    }
+    public bool Exists(string s) => s != null && strings.ContainsKey(s);
 
-    public bool All(IList<string> list)
-    {
-        foreach (var s in list)
-            if (!Exists(s))
-                return false;
-        return true;
-    }
+    public bool All(IList<string> list) => list.All(Exists);
 
     public int Count(string s)
     {

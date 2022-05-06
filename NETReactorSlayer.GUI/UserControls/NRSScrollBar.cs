@@ -66,10 +66,17 @@ public class NrsScrollBar : Control
         if (!Enabled)
             upIcon = Resources.scrollbar_disabled;
 
-        if (_scrollOrientation == ScrollOrientation.Vertical)
-            upIcon.RotateFlip(RotateFlipType.RotateNoneFlipY);
-        else if (_scrollOrientation == ScrollOrientation.Horizontal)
-            upIcon.RotateFlip(RotateFlipType.Rotate90FlipNone);
+        switch (_scrollOrientation)
+        {
+            case ScrollOrientation.Vertical:
+                upIcon.RotateFlip(RotateFlipType.RotateNoneFlipY);
+                break;
+            case ScrollOrientation.Horizontal:
+                upIcon.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
 
         g.DrawImageUnscaled(upIcon,
             _upArrowArea.Left + _upArrowArea.Width / 2 - upIcon.Width / 2,
@@ -274,17 +281,24 @@ public class NrsScrollBar : Control
 
         if (_trackArea.Contains(e.Location) && e.Button == MouseButtons.Left)
         {
-            if (_scrollOrientation == ScrollOrientation.Vertical)
+            switch (_scrollOrientation)
             {
-                var modRect = new Rectangle(_thumbArea.Left, _trackArea.Top, _thumbArea.Width, _trackArea.Height);
-                if (!modRect.Contains(e.Location))
-                    return;
-            }
-            else if (_scrollOrientation == ScrollOrientation.Horizontal)
-            {
-                var modRect = new Rectangle(_trackArea.Left, _thumbArea.Top, _trackArea.Width, _thumbArea.Height);
-                if (!modRect.Contains(e.Location))
-                    return;
+                case ScrollOrientation.Vertical:
+                {
+                    var modRect = new Rectangle(_thumbArea.Left, _trackArea.Top, _thumbArea.Width, _trackArea.Height);
+                    if (!modRect.Contains(e.Location))
+                        return;
+                    break;
+                }
+                case ScrollOrientation.Horizontal:
+                {
+                    var modRect = new Rectangle(_trackArea.Left, _thumbArea.Top, _trackArea.Width, _thumbArea.Height);
+                    if (!modRect.Contains(e.Location))
+                        return;
+                    break;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
             if (_scrollOrientation == ScrollOrientation.Vertical)
@@ -328,56 +342,65 @@ public class NrsScrollBar : Control
     {
         base.OnMouseMove(e);
 
-        if (!_isScrolling)
+        switch (_isScrolling)
         {
-            var thumbHot = _thumbArea.Contains(e.Location);
-            if (_thumbHot != thumbHot)
+            case false:
             {
-                _thumbHot = thumbHot;
-                Invalidate();
-            }
+                var thumbHot = _thumbArea.Contains(e.Location);
+                if (_thumbHot != thumbHot)
+                {
+                    _thumbHot = thumbHot;
+                    Invalidate();
+                }
 
-            var upArrowHot = _upArrowArea.Contains(e.Location);
-            if (_upArrowHot != upArrowHot)
-            {
-                _upArrowHot = upArrowHot;
-                Invalidate();
-            }
+                var upArrowHot = _upArrowArea.Contains(e.Location);
+                if (_upArrowHot != upArrowHot)
+                {
+                    _upArrowHot = upArrowHot;
+                    Invalidate();
+                }
 
-            var downArrowHot = _downArrowArea.Contains(e.Location);
-            if (_downArrowHot != downArrowHot)
-            {
-                _downArrowHot = downArrowHot;
-                Invalidate();
-            }
-        }
+                var downArrowHot = _downArrowArea.Contains(e.Location);
+                if (_downArrowHot != downArrowHot)
+                {
+                    _downArrowHot = downArrowHot;
+                    Invalidate();
+                }
 
-        if (_isScrolling)
-        {
-            if (e.Button != MouseButtons.Left)
-            {
+                break;
+            }
+            case true when e.Button != MouseButtons.Left:
                 OnMouseUp(null);
                 return;
-            }
-
-            var difference = new Point(e.Location.X - _initialContact.X, e.Location.Y - _initialContact.Y);
-
-            if (_scrollOrientation == ScrollOrientation.Vertical)
+            case true:
             {
-                var thumbPos = _initialValue - _trackArea.Top;
-                var newPosition = thumbPos + difference.Y;
+                var difference = new Point(e.Location.X - _initialContact.X, e.Location.Y - _initialContact.Y);
 
-                ScrollToPhysical(newPosition);
+                switch (_scrollOrientation)
+                {
+                    case ScrollOrientation.Vertical:
+                    {
+                        var thumbPos = _initialValue - _trackArea.Top;
+                        var newPosition = thumbPos + difference.Y;
+
+                        ScrollToPhysical(newPosition);
+                        break;
+                    }
+                    case ScrollOrientation.Horizontal:
+                    {
+                        var thumbPos = _initialValue - _trackArea.Left;
+                        var newPosition = thumbPos + difference.X;
+
+                        ScrollToPhysical(newPosition);
+                        break;
+                    }
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                UpdateScrollBar();
+                break;
             }
-            else if (_scrollOrientation == ScrollOrientation.Horizontal)
-            {
-                var thumbPos = _initialValue - _trackArea.Left;
-                var newPosition = thumbPos + difference.X;
-
-                ScrollToPhysical(newPosition);
-            }
-
-            UpdateScrollBar();
         }
     }
 
@@ -394,16 +417,21 @@ public class NrsScrollBar : Control
 
     private void ScrollTimerTick(object sender, EventArgs e)
     {
-        if (!_upArrowClicked && !_downArrowClicked)
+        switch (_upArrowClicked)
         {
-            _scrollTimer.Enabled = false;
-            return;
+            case false when !_downArrowClicked:
+                _scrollTimer.Enabled = false;
+                return;
+            case true:
+                ScrollBy(-1);
+                break;
+            default:
+            {
+                if (_downArrowClicked)
+                    ScrollBy(1);
+                break;
+            }
         }
-
-        if (_upArrowClicked)
-            ScrollBy(-1);
-        else if (_downArrowClicked)
-            ScrollBy(1);
     }
 
     #endregion
@@ -435,25 +463,30 @@ public class NrsScrollBar : Control
     {
         var area = ClientRectangle;
 
-        if (_scrollOrientation == ScrollOrientation.Vertical)
+        switch (_scrollOrientation)
         {
-            _upArrowArea = new Rectangle(area.Left, area.Top, ArrowButtonSize, ArrowButtonSize);
-            _downArrowArea = new Rectangle(area.Left, area.Bottom - ArrowButtonSize, ArrowButtonSize,
-                ArrowButtonSize);
-        }
-        else if (_scrollOrientation == ScrollOrientation.Horizontal)
-        {
-            _upArrowArea = new Rectangle(area.Left, area.Top, ArrowButtonSize, ArrowButtonSize);
-            _downArrowArea =
-                new Rectangle(area.Right - ArrowButtonSize, area.Top, ArrowButtonSize, ArrowButtonSize);
+            case ScrollOrientation.Vertical:
+                _upArrowArea = new Rectangle(area.Left, area.Top, ArrowButtonSize, ArrowButtonSize);
+                _downArrowArea = new Rectangle(area.Left, area.Bottom - ArrowButtonSize, ArrowButtonSize,
+                    ArrowButtonSize);
+                break;
+            case ScrollOrientation.Horizontal:
+                _upArrowArea = new Rectangle(area.Left, area.Top, ArrowButtonSize, ArrowButtonSize);
+                _downArrowArea =
+                    new Rectangle(area.Right - ArrowButtonSize, area.Top, ArrowButtonSize, ArrowButtonSize);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
-        if (_scrollOrientation == ScrollOrientation.Vertical)
-            _trackArea = new Rectangle(area.Left, area.Top + ArrowButtonSize, area.Width,
-                area.Height - ArrowButtonSize * 2);
-        else if (_scrollOrientation == ScrollOrientation.Horizontal)
-            _trackArea = new Rectangle(area.Left + ArrowButtonSize, area.Top, area.Width - ArrowButtonSize * 2,
-                area.Height);
+        _trackArea = _scrollOrientation switch
+        {
+            ScrollOrientation.Vertical => new Rectangle(area.Left, area.Top + ArrowButtonSize, area.Width,
+                area.Height - ArrowButtonSize * 2),
+            ScrollOrientation.Horizontal => new Rectangle(area.Left + ArrowButtonSize, area.Top,
+                area.Width - ArrowButtonSize * 2, area.Height),
+            _ => _trackArea
+        };
 
         UpdateThumb();
 
@@ -473,31 +506,38 @@ public class NrsScrollBar : Control
         var viewAreaSize = Maximum - ViewSize;
         var positionRatio = Value / (float) viewAreaSize;
 
-        if (_scrollOrientation == ScrollOrientation.Vertical)
+        switch (_scrollOrientation)
         {
-            var thumbSize = (int) (_trackArea.Height * _viewContentRatio);
+            case ScrollOrientation.Vertical:
+            {
+                var thumbSize = (int) (_trackArea.Height * _viewContentRatio);
 
-            if (thumbSize < MinimumThumbSize)
-                thumbSize = MinimumThumbSize;
+                if (thumbSize < MinimumThumbSize)
+                    thumbSize = MinimumThumbSize;
 
-            var trackAreaSize = _trackArea.Height - thumbSize;
-            var thumbPosition = (int) (trackAreaSize * positionRatio);
+                var trackAreaSize = _trackArea.Height - thumbSize;
+                var thumbPosition = (int) (trackAreaSize * positionRatio);
 
-            _thumbArea = new Rectangle(_trackArea.Left + 3, _trackArea.Top + thumbPosition, ScrollBarSize - 6,
-                thumbSize);
-        }
-        else if (_scrollOrientation == ScrollOrientation.Horizontal)
-        {
-            var thumbSize = (int) (_trackArea.Width * _viewContentRatio);
+                _thumbArea = new Rectangle(_trackArea.Left + 3, _trackArea.Top + thumbPosition, ScrollBarSize - 6,
+                    thumbSize);
+                break;
+            }
+            case ScrollOrientation.Horizontal:
+            {
+                var thumbSize = (int) (_trackArea.Width * _viewContentRatio);
 
-            if (thumbSize < MinimumThumbSize)
-                thumbSize = MinimumThumbSize;
+                if (thumbSize < MinimumThumbSize)
+                    thumbSize = MinimumThumbSize;
 
-            var trackAreaSize = _trackArea.Width - thumbSize;
-            var thumbPosition = (int) (trackAreaSize * positionRatio);
+                var trackAreaSize = _trackArea.Width - thumbSize;
+                var thumbPosition = (int) (trackAreaSize * positionRatio);
 
-            _thumbArea = new Rectangle(_trackArea.Left + thumbPosition, _trackArea.Top + 3, thumbSize,
-                ScrollBarSize - 6);
+                _thumbArea = new Rectangle(_trackArea.Left + thumbPosition, _trackArea.Top + 3, thumbSize,
+                    ScrollBarSize - 6);
+                break;
+            }
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
         if (forceRefresh)

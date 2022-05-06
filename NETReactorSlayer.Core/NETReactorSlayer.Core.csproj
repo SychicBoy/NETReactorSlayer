@@ -74,6 +74,7 @@
     <Compile Include="Deobfuscators\CosturaDumper.cs" />
     <Compile Include="Deobfuscators\AsmDumper.cs" />
     <Compile Include="Deobfuscators\CallDecrypter.cs" />
+    <Compile Include="Deobfuscators\StrongName.cs" />
     <Compile Include="Deobfuscators\TokenDecrypter.cs" />
     <Compile Include="Deobfuscators\NativeUnpacker.cs" />
     <Compile Include="Deobfuscators\MethodDecrypter.cs" />

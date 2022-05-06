@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using dnlib.DotNet;
 using dnlib.PE;
 using ICSharpCode.SharpZipLib.Zip.Compression;
@@ -72,9 +73,7 @@ internal class NativeUnpacker
 
     public byte[] Unpack()
     {
-        if (_peImage.PEImage.Win32Resources == null)
-            return null;
-        var dataEntry = _peImage.PEImage.Win32Resources.Find(10, "__", 0);
+        var dataEntry = _peImage.PEImage.Win32Resources?.Find(10, "__", 0);
         if (dataEntry == null)
             return null;
 
@@ -87,9 +86,7 @@ internal class NativeUnpacker
 
         byte[] inflatedData;
         if (_isNet1X)
-        {
             inflatedData = DeobUtils.Inflate(encryptedData, false);
-        }
         else
         {
             var inflatedSize = BitConverter.ToInt32(encryptedData, 0);
@@ -103,13 +100,10 @@ internal class NativeUnpacker
 
         if (BitConverter.ToInt16(inflatedData, 0) == 0x5A4D)
             return inflatedData;
-        if (BitConverter.ToInt16(inflatedData, LoaderHeaderSizeV45) == 0x5A4D)
-            return UnpackLoader(inflatedData);
-
-        return null;
+        return BitConverter.ToInt16(inflatedData, LoaderHeaderSizeV45) == 0x5A4D ? UnpackLoader(inflatedData) : null;
     }
 
-    private byte[] UnpackLoader(byte[] loaderData)
+    private static byte[] UnpackLoader(byte[] loaderData)
     {
         var loaderBytes = new byte[loaderData.Length - LoaderHeaderSizeV45];
         Array.Copy(loaderData, LoaderHeaderSizeV45, loaderBytes, 0, loaderBytes.Length);
@@ -156,7 +150,7 @@ internal class NativeUnpacker
             _peImage.OffsetReadByte(baseOffset + 0xA6)
         };
 
-    private void Decrypt(byte[] keyData, byte[] data, int offset, int count)
+    private static void Decrypt(IReadOnlyList<byte> keyData, IList<byte> data, int offset, int count)
     {
         var transform = new byte[256, 256];
         byte kb = 0;

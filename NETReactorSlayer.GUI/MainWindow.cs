@@ -38,6 +38,7 @@ namespace NETReactorSlayer.GUI;
 public partial class MainWindow : Form
 {
     private const int WmSetredraw = 11;
+    private static string _lastVersion;
     private readonly StringBuilder _arguments = new();
     private readonly Logger _logger;
     private bool _isClosing;
@@ -70,15 +71,16 @@ public partial class MainWindow : Form
         };
         txtLogs.KeyDown += (_, e) =>
         {
-            if (e.KeyData == Keys.Down)
+            switch (e.KeyData)
             {
-                _isLogsScrollLocked = true;
-                scrollbarLogs.Value++;
-            }
-            else if (e.KeyData == Keys.Up)
-            {
-                _isLogsScrollLocked = true;
-                scrollbarLogs.Value--;
+                case Keys.Down:
+                    _isLogsScrollLocked = true;
+                    scrollbarLogs.Value++;
+                    break;
+                case Keys.Up:
+                    _isLogsScrollLocked = true;
+                    scrollbarLogs.Value--;
+                    break;
             }
 
             HideCaret(txtLogs.Handle);
@@ -200,12 +202,13 @@ public partial class MainWindow : Form
             if (data.Contains("["))
                 prefix = data.Substring(data.IndexOf("[", StringComparison.Ordinal) + 1,
                     data.IndexOf("]", StringComparison.Ordinal) - 3);
-            if (prefix == "X")
-                prefixColor = Color.Firebrick;
-            else if (prefix == "!")
-                prefixColor = Color.Gold;
-            else if (prefix == "✓")
-                prefixColor = Color.MediumSeaGreen;
+            prefixColor = prefix switch
+            {
+                "X" => Color.Firebrick,
+                "!" => Color.Gold,
+                "✓" => Color.MediumSeaGreen,
+                _ => prefixColor
+            };
             if (!string.IsNullOrWhiteSpace(prefix) && prefixColor != Color.Empty)
             {
                 _logger.Write("  [");
@@ -269,9 +272,7 @@ public partial class MainWindow : Form
         if ((string[]) e.Data.GetData(DataFormats.FileDrop) is { } files && files.Length != 0)
         {
             if (CheckInputFile(files[0]))
-            {
                 txtInput.Text = files[0];
-            }
             else
             {
                 txtInput.Text = File.Exists(files[0])
@@ -383,7 +384,7 @@ public partial class MainWindow : Form
         {
             Interval = 10
         };
-        timer.Tick += delegate
+        timer.Tick += async delegate
         {
             if (Opacity < 1.0) Opacity += 0.05;
             if (Opacity >= 1.0)
@@ -392,6 +393,11 @@ public partial class MainWindow : Form
                 Show();
                 Opacity = 1.0;
                 timer.Dispose();
+                if (!await IsLatestVersion())
+                    if (MsgBox.Show(@"New version is available, Do you want to install it?",
+                            ".NETReactorSlayer",
+                            MsgBox.MsgButtons.YesNoCancel, MsgBox.MsgIcon.Question, this) == DialogResult.Yes)
+                        InstallLatestVersion();
             }
         };
         timer.Start();
@@ -417,7 +423,7 @@ public partial class MainWindow : Form
         timer.Start();
     }
 
-    private bool CheckInputFile(string filePath)
+    private static bool CheckInputFile(string filePath)
     {
         if (File.Exists(filePath))
             try
@@ -456,7 +462,7 @@ public partial class MainWindow : Form
         }
     }
 
-    private void BeginControlUpdate(Control control)
+    private static void BeginControlUpdate(IWin32Window control)
     {
         var msgSuspendUpdate = Message.Create(control.Handle, WmSetredraw, IntPtr.Zero,
             IntPtr.Zero);
@@ -465,7 +471,7 @@ public partial class MainWindow : Form
         window.DefWndProc(ref msgSuspendUpdate);
     }
 
-    private void EndControlUpdate(Control control)
+    private static void EndControlUpdate(Control control)
     {
         var wparam = new IntPtr(1);
         var msgResumeUpdate = Message.Create(control.Handle, WmSetredraw, wparam,
@@ -486,16 +492,15 @@ public partial class MainWindow : Form
 
     private void CheckedChanged(object sender, EventArgs e)
     {
-        foreach (var control in from x in tabelOptions.Controls.OfType<NrsCheckBox>()
-                 where x.Name != "chkSelectUnSelectAll"
-                 select x)
-            if (!control.Checked)
-            {
-                _return = true;
-                chkSelectUnSelectAll.Checked = false;
-                _return = false;
-                return;
-            }
+        if ((from x in tabelOptions.Controls.OfType<NrsCheckBox>()
+                where x.Name != "chkSelectUnSelectAll"
+                select x).Any(control => !control.Checked))
+        {
+            _return = true;
+            chkSelectUnSelectAll.Checked = false;
+            _return = false;
+            return;
+        }
 
         _return = true;
         chkSelectUnSelectAll.Checked = true;
@@ -541,93 +546,91 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
 
     private async void toolStripMenuItem6_Click(object sender, EventArgs e)
     {
-        var exception = new Exception("Failed to check update, Please make sure you are connected to the Internet");
         try
         {
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            var client = new HttpClient();
-            var response =
-                await client.GetAsync("https://github.com/SychicBoy/NETReactorSlayer/releases/latest");
-            response.EnsureSuccessStatusCode();
-            var responseUri = response.RequestMessage.RequestUri.ToString();
-            response.Dispose();
-            client.Dispose();
-            var latestVersionStr = responseUri.Substring(responseUri.LastIndexOf('/') + 1);
-            var currentVersionStr = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location)
-                .FileVersion;
-
-            if (int.TryParse(Regex.Match(latestVersionStr, @"[0-9]+").Value,
-                    out var latestVersion) && int.TryParse(Regex.Match(currentVersionStr, @"[0-9]+").Value,
-                    out var currentVersion))
+            if (await IsLatestVersion())
+                MsgBox.Show(@"Congratulations, You are using the latest version!", ".NETReactorSlayer",
+                    MsgBox.MsgButtons.Ok, MsgBox.MsgIcon.Info, this);
+            else
             {
-                if (latestVersion < currentVersion)
-                {
-                    MsgBox.Show(@"Congratulations, You are using the latest version!", ".NETReactorSlayer",
-                        MsgBox.MsgButtons.Ok, MsgBox.MsgIcon.Info, this);
-                }
-                else
-                {
-                    var res = MsgBox.Show(@"New version is available, Do you want to install it?",
+                if (MsgBox.Show(@"New version is available, Do you want to install it?",
                         ".NETReactorSlayer",
-                        MsgBox.MsgButtons.YesNoCancel, MsgBox.MsgIcon.Question, this);
-                    if (res == DialogResult.Yes)
-                    {
-                        var tmpPath = Path.GetTempFileName();
-                        var tmpDir = Path.GetDirectoryName(tmpPath);
-                        AddTrailing(ref tmpDir);
-                        var tmpDestDir = Path.Combine(tmpDir,
-                            $".NETReactorSlayer_v{latestVersionStr}_{DateTime.Now:yyyy-MM-dd-HH-mmmm-ss}\\");
-                        AddTrailing(ref tmpDestDir);
-                        var baseDir = Environment.CurrentDirectory;
-                        RemoveTrailing(ref baseDir);
-                        var downloadUrl =
-                            $"https://github.com/SychicBoy/NETReactorSlayer/releases/download/{latestVersionStr}/NETReactorSlayer.zip";
-                        client = new HttpClient();
-                        response = await client.GetAsync(downloadUrl);
-                        File.WriteAllBytes(tmpPath, new byte[] {0});
-                        using (var fs = new FileStream(tmpPath, FileMode.Open, FileAccess.ReadWrite))
-                        {
-                            await response.Content.CopyToAsync(fs);
-                        }
-
-                        if (!Directory.Exists(tmpDestDir))
-                            Directory.CreateDirectory(tmpDestDir);
-                        ZipFile.ExtractToDirectory(tmpPath, tmpDestDir);
-                        RemoveTrailing(ref tmpDestDir);
-                        var command = $"DEL /Q \"{baseDir}\\*\"" +
-                                      " & " +
-                                      $"XCOPY /S /Q \"{tmpDestDir}\" \"{baseDir}\"" +
-                                      " &" +
-                                      $"RMDIR /S /Q \"{tmpDestDir}\"" +
-                                      " & " +
-                                      $"\"{baseDir}\\NETReactorSlayer.exe\" updated";
-                        Process.Start(new ProcessStartInfo("cmd.exe",
-                            "/C ping 1.1.1.1 -n 1 -w 3000 > Nul & " + command)
-                        {
-                            WindowStyle = ProcessWindowStyle.Hidden
-                        }).Dispose();
-                        Process.GetCurrentProcess().Kill();
-                        Environment.Exit(0);
-                    }
-                }
-
-                return;
+                        MsgBox.MsgButtons.YesNoCancel, MsgBox.MsgIcon.Question, this) == DialogResult.Yes)
+                    InstallLatestVersion();
             }
-        } catch (Exception ex)
+        } catch (Exception exception)
         {
-            exception = ex;
+            MsgBox.Show(exception.Message, ".NETReactorSlayer", MsgBox.MsgButtons.Ok, MsgBox.MsgIcon.Error, this);
         }
-
-        MsgBox.Show(exception.Message, ".NETReactorSlayer", MsgBox.MsgButtons.Ok, MsgBox.MsgIcon.Error, this);
     }
 
-    private void AddTrailing(ref string directory)
+    private static async Task<bool> IsLatestVersion()
+    {
+        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+        var client = new HttpClient();
+        var response =
+            await client.GetAsync("https://github.com/SychicBoy/NETReactorSlayer/releases/latest");
+        response.EnsureSuccessStatusCode();
+        var responseUri = response.RequestMessage.RequestUri.ToString();
+        response.Dispose();
+        client.Dispose();
+        var latestVersionStr = _lastVersion = responseUri.Substring(responseUri.LastIndexOf('/') + 1);
+        var currentVersionStr = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location)
+            .FileVersion;
+
+        if (int.TryParse(Regex.Match(latestVersionStr, @"\d+\.\d+\.\d+\.\d+").Value.Replace(".", string.Empty),
+                out var latestVersion) && int.TryParse(
+                Regex.Match(currentVersionStr, @"\d+\.\d+\.\d+\.\d+").Value.Replace(".", string.Empty),
+                out var currentVersion))
+            return latestVersion <= currentVersion;
+
+        return true;
+    }
+
+    private static async void InstallLatestVersion()
+    {
+        var tmpPath = Path.GetTempFileName();
+        var tmpDir = Path.GetDirectoryName(tmpPath);
+        AddTrailing(ref tmpDir);
+        var tmpDestDir = Path.Combine(tmpDir,
+            $".NETReactorSlayer_v{_lastVersion}_{DateTime.Now:yyyy-MM-dd-HH-mmmm-ss}\\");
+        AddTrailing(ref tmpDestDir);
+        var baseDir = Environment.CurrentDirectory;
+        RemoveTrailing(ref baseDir);
+        var downloadUrl =
+            $"https://github.com/SychicBoy/NETReactorSlayer/releases/download/{_lastVersion}/NETReactorSlayer.zip";
+        var client = new HttpClient();
+        var response = await client.GetAsync(downloadUrl);
+        File.WriteAllBytes(tmpPath, new byte[] {0});
+        using var fs = new FileStream(tmpPath, FileMode.Open, FileAccess.ReadWrite);
+        await response.Content.CopyToAsync(fs);
+
+        if (!Directory.Exists(tmpDestDir))
+            Directory.CreateDirectory(tmpDestDir);
+        ZipFile.ExtractToDirectory(tmpPath, tmpDestDir);
+        RemoveTrailing(ref tmpDestDir);
+        var command = $"DEL /Q \"{baseDir}\\*\"" +
+                      " & " +
+                      $"XCOPY /S /Q \"{tmpDestDir}\" \"{baseDir}\"" +
+                      " &" +
+                      $"RMDIR /S /Q \"{tmpDestDir}\"" +
+                      " & " +
+                      $"\"{baseDir}\\NETReactorSlayer.exe\" updated";
+        Process.Start(new ProcessStartInfo("cmd.exe",
+            "/C ping 1.1.1.1 -n 1 -w 3000 > Nul & " + command)
+        {
+            WindowStyle = ProcessWindowStyle.Hidden
+        }).Dispose();
+        Process.GetCurrentProcess().Kill();
+    }
+
+    private static void AddTrailing(ref string directory)
     {
         if (!directory.EndsWith("\\"))
             directory += "\\";
     }
 
-    private void RemoveTrailing(ref string directory)
+    private static void RemoveTrailing(ref string directory)
     {
         if (directory.EndsWith("\\"))
             directory = directory.Substring(0, directory.Length - 1);

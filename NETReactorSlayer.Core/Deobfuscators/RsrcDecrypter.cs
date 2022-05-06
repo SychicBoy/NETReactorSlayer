@@ -98,18 +98,20 @@ internal class RsrcDecrypter : IStage
                                                             for (var z = 0; z < 8; z++)
                                                                 iv[z * 2 + 1] = publicKeyToken.Data[z];
 
-                                                    if (decrypterType == DnrDecrypterType.V1)
+                                                    switch (decrypterType)
                                                     {
-                                                        var v1 = new V1(iv, key);
-                                                        decryptedBytes = v1.Decrypt(encryptedResource);
-                                                        goto Decompress;
-                                                    }
-
-                                                    if (decrypterType == DnrDecrypterType.V2)
-                                                    {
-                                                        var v2 = new V2(iv, key, decryptorMethod);
-                                                        decryptedBytes = v2.Decrypt(encryptedResource);
-                                                        goto Decompress;
+                                                        case DnrDecrypterType.V1:
+                                                        {
+                                                            var v1 = new V1(iv, key);
+                                                            decryptedBytes = v1.Decrypt(encryptedResource);
+                                                            goto Decompress;
+                                                        }
+                                                        case DnrDecrypterType.V2:
+                                                        {
+                                                            var v2 = new V2(iv, key, decryptorMethod);
+                                                            decryptedBytes = v2.Decrypt(encryptedResource);
+                                                            goto Decompress;
+                                                        }
                                                     }
                                                 }
                                 } catch { }
@@ -158,7 +160,7 @@ internal class RsrcDecrypter : IStage
     {
         var result = new byte[size];
         Local local = null;
-        if (method == null || !method.HasBody || !method.Body.HasInstructions) return null;
+        if (method is not {HasBody: true} || !method.Body.HasInstructions) return null;
         for (var i = 0; i < method.Body.Instructions.Count; i++)
             if (local == null && method.Body.Instructions[i].OpCode.Equals(OpCodes.Newarr) &&
                 method.Body.Instructions[i].Operand.ToString().Equals("System.Byte") &&
@@ -174,7 +176,6 @@ internal class RsrcDecrypter : IStage
                      method.Body.Instructions[i + 1].IsLdcI4() &&
                      method.Body.Instructions[i + 2].IsLdcI4() &&
                      method.Body.Instructions[i + 3].OpCode.Equals(OpCodes.Stelem_I1))
-            {
                 try
                 {
                     result[method.Body.Instructions[i + 1].GetLdcI4Value()] =
@@ -183,7 +184,6 @@ internal class RsrcDecrypter : IStage
                 {
                     return result;
                 }
-            }
 
         return result;
     }
@@ -207,9 +207,7 @@ internal class RsrcDecrypter : IStage
         var pktIndex = 0;
         foreach (var instr in resourceDecrypterMethod.Body.Instructions)
             if (instr.OpCode.FlowControl != FlowControl.Next)
-            {
                 pktIndex = 0;
-            }
             else if (instr.IsLdcI4())
             {
                 if (instr.GetLdcI4Value() != PktIndexes[pktIndex++]) pktIndex = 0;
@@ -221,13 +219,14 @@ internal class RsrcDecrypter : IStage
 
     public static DnrDecrypterType GetDecrypterType(MethodDef method, IList<string> additionalTypes)
     {
-        if (method == null || !method.IsStatic || method.Body == null) return DnrDecrypterType.Unknown;
+        if (method is not {IsStatic: true} || method.Body == null) return DnrDecrypterType.Unknown;
         additionalTypes ??= Array.Empty<string>();
         var localTypes = new LocalTypes(method);
         if (V1.CouldBeResourceDecrypter(method, localTypes, additionalTypes)) return DnrDecrypterType.V1;
         if (V2.CouldBeResourceDecrypter(localTypes, additionalTypes)) return DnrDecrypterType.V2;
-        if (V3.CouldBeResourceDecrypter(localTypes, additionalTypes)) return DnrDecrypterType.V3;
-        return DnrDecrypterType.Unknown;
+        return V3.CouldBeResourceDecrypter(localTypes, additionalTypes)
+            ? DnrDecrypterType.V3
+            : DnrDecrypterType.Unknown;
     }
 
     public class V1
@@ -308,8 +307,7 @@ internal class RsrcDecrypter : IStage
                 for (var i = 0; i < _iv.Length; i++)
                 {
                     var array = _key;
-                    var num = i;
-                    array[num] ^= _iv[i];
+                    array[i] ^= _iv[i];
                 }
 
             var count = emuEndIndex - emuStartIndex + 1;
@@ -320,9 +318,14 @@ internal class RsrcDecrypter : IStage
 
         private Local CheckLocal(Instruction instr, bool isLdloc)
         {
-            if (isLdloc && !instr.IsLdloc()) return null;
-            if (!isLdloc && !instr.IsStloc()) return null;
-            return instr.GetLocal(_locals);
+            switch (isLdloc)
+            {
+                case true when !instr.IsLdloc():
+                case false when !instr.IsStloc():
+                    return null;
+                default:
+                    return instr.GetLocal(_locals);
+            }
         }
 
         private bool Find(IList<Instruction> instrs, out int startIndex, out int endIndex, out Local tmpLocal)
@@ -438,7 +441,7 @@ internal class RsrcDecrypter : IStage
             return false;
         }
 
-        private bool FindStartEnd2(
+        private static bool FindStartEnd2(
             ref IList<Instruction> instrs, out int startIndex, out int endIndex,
             out Local tmpLocal, out Parameter tmpArg, ref MethodDef methodDef, ref List<Local> locals)
         {
@@ -508,7 +511,7 @@ internal class RsrcDecrypter : IStage
             return decrypted;
         }
 
-        private uint ReadUInt32(byte[] ary, int index)
+        private static uint ReadUInt32(byte[] ary, int index)
         {
             var sizeLeft = ary.Length - index;
             if (sizeLeft >= 4) return BitConverter.ToUInt32(ary, index);
@@ -521,9 +524,9 @@ internal class RsrcDecrypter : IStage
             };
         }
 
-        private void WriteUInt32(byte[] ary, int index, uint value)
+        private static void WriteUInt32(IList<byte> ary, int index, uint value)
         {
-            var num = ary.Length - index;
+            var num = ary.Count - index;
             if (num >= 1) ary[index] = (byte) value;
             if (num >= 2) ary[index + 1] = (byte) (value >> 8);
             if (num >= 3) ary[index + 2] = (byte) (value >> 16);
@@ -545,7 +548,7 @@ internal class RsrcDecrypter : IStage
             }
 
             foreach (var instr in _instructions) _instrEmulator.Emulate(instr);
-            if (!(_instrEmulator.Pop() is Int32Value tos) || !tos.AllBitsValid())
+            if (_instrEmulator.Pop() is not Int32Value tos || !tos.AllBitsValid())
                 throw new ApplicationException("Couldn't calculate magic value");
             return (uint) tos.Value;
         }
@@ -597,12 +600,12 @@ internal class RsrcDecrypter : IStage
             _instrEmulator.Initialize(_method, _method.Parameters, _locals, _method.Body.InitLocals, false);
             _instrEmulator.SetLocal(_emuLocal, new Int32Value((int) input));
             foreach (var instr in _instructions) _instrEmulator.Emulate(instr);
-            if (!(_instrEmulator.Pop() is Int32Value tos) || !tos.AllBitsValid())
+            if (_instrEmulator.Pop() is not Int32Value tos || !tos.AllBitsValid())
                 throw new ApplicationException("Couldn't calculate magic value");
             return (uint) tos.Value;
         }
 
-        private uint ReadUInt32(byte[] ary, int index)
+        private static uint ReadUInt32(byte[] ary, int index)
         {
             var sizeLeft = ary.Length - index;
             if (sizeLeft >= 4) return BitConverter.ToUInt32(ary, index);
@@ -615,9 +618,9 @@ internal class RsrcDecrypter : IStage
             };
         }
 
-        private void WriteUInt32(byte[] ary, int index, uint value)
+        private static void WriteUInt32(IList<byte> ary, int index, uint value)
         {
-            var num = ary.Length - index;
+            var num = ary.Count - index;
             if (num >= 1) ary[index] = (byte) value;
             if (num >= 2) ary[index + 1] = (byte) (value >> 8);
             if (num >= 3) ary[index + 2] = (byte) (value >> 16);
@@ -739,9 +742,14 @@ internal class RsrcDecrypter : IStage
 
         private Local CheckLocal(Instruction instr, bool isLdloc)
         {
-            if (isLdloc && !instr.IsLdloc()) return null;
-            if (!isLdloc && !instr.IsStloc()) return null;
-            return instr.GetLocal(_locals);
+            switch (isLdloc)
+            {
+                case true when !instr.IsLdloc():
+                case false when !instr.IsStloc():
+                    return null;
+                default:
+                    return instr.GetLocal(_locals);
+            }
         }
 
         public static bool CouldBeResourceDecrypter(LocalTypes localTypes, IList<string> additionalTypes)

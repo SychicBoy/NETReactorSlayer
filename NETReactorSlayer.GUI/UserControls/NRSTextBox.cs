@@ -92,12 +92,12 @@ public partial class NrsTextBox : TextBox
         set
         {
             _transform = value;
-            if (value == TextTransformEnum.Upper)
-                Text = Text.ToUpper();
-            else if (value == TextTransformEnum.Lower)
-                Text = Text.ToLower();
-            else
-                Text = Text;
+            Text = value switch
+            {
+                TextTransformEnum.Upper => Text.ToUpper(),
+                TextTransformEnum.Lower => Text.ToLower(),
+                _ => Text
+            };
         }
     }
 

@@ -272,7 +272,7 @@ public class NrsCheckBox : CheckBox
         var g = e.Graphics;
         var rect = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
 
-        var size = 12;
+        const int size = 12;
 
         var textColor = ForeColor;
         var borderColor = BorderColor;
@@ -280,18 +280,18 @@ public class NrsCheckBox : CheckBox
 
         if (Enabled)
         {
-            if (_controlState == ControlState.Hover)
+            switch (_controlState)
             {
-                borderColor = HoverBorderColor;
-                textColor = HoverForeColor;
-                fillColor = HoverFillColor;
-            }
-
-            else if (_controlState == ControlState.Pressed)
-            {
-                borderColor = PressBorderColor;
-                textColor = PressForeColor;
-                fillColor = PressFillColor;
+                case ControlState.Hover:
+                    borderColor = HoverBorderColor;
+                    textColor = HoverForeColor;
+                    fillColor = HoverFillColor;
+                    break;
+                case ControlState.Pressed:
+                    borderColor = PressBorderColor;
+                    textColor = PressForeColor;
+                    fillColor = PressFillColor;
+                    break;
             }
         }
 

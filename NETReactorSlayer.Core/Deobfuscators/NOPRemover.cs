@@ -41,20 +41,11 @@ internal class NopRemover
         }
     }
 
-    private static bool IsNopBranchTarget(MethodDef method, Instruction nopInstr)
-    {
-        var instrs = method.Body.Instructions;
-        foreach (var instr in instrs)
-            if (instr.OpCode.OperandType == OperandType.InlineBrTarget ||
-                instr.OpCode.OperandType == OperandType.ShortInlineBrTarget && instr.Operand != null)
-            {
-                var instruction2 = (Instruction) instr.Operand;
-                if (instruction2 == nopInstr)
-                    return true;
-            }
-
-        return false;
-    }
+    private static bool IsNopBranchTarget(MethodDef method, Instruction nopInstr) =>
+        (from instr in method.Body.Instructions
+            where instr.OpCode.OperandType == OperandType.InlineBrTarget ||
+                  instr.OpCode.OperandType == OperandType.ShortInlineBrTarget && instr.Operand != null
+            select (Instruction) instr.Operand).Any(instruction2 => instruction2 == nopInstr);
 
     private static bool IsNopSwitchTarget(MethodDef method, Instruction nopInstr)
     {
@@ -64,18 +55,9 @@ internal class NopRemover
             select (Instruction[]) instr.Operand).Any(source => source.Contains(nopInstr));
     }
 
-    private static bool IsNopExceptionHandlerTarget(MethodDef method, Instruction nopInstr)
-    {
-        if (!method.Body.HasExceptionHandlers)
-            return false;
-        var exceptionHandlers = method.Body.ExceptionHandlers;
-        foreach (var exceptionHandler in exceptionHandlers)
-            if (exceptionHandler.FilterStart == nopInstr ||
-                exceptionHandler.HandlerEnd == nopInstr ||
-                exceptionHandler.HandlerStart == nopInstr ||
-                exceptionHandler.TryEnd == nopInstr ||
-                exceptionHandler.TryStart == nopInstr)
-                return true;
-        return false;
-    }
+    private static bool IsNopExceptionHandlerTarget(MethodDef method, Instruction nopInstr) =>
+        method.Body.HasExceptionHandlers && method.Body.ExceptionHandlers.Any(exceptionHandler =>
+            exceptionHandler.FilterStart == nopInstr || exceptionHandler.HandlerEnd == nopInstr ||
+            exceptionHandler.HandlerStart == nopInstr || exceptionHandler.TryEnd == nopInstr ||
+            exceptionHandler.TryStart == nopInstr);
 }

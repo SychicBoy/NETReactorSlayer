@@ -71,7 +71,7 @@ internal class SimpleDeobfuscator
 
     private static void Deobfuscate(MethodDef method, Action<Blocks> handler)
     {
-        if (method == null || !method.HasBody || !method.Body.HasInstructions) return;
+        if (method is not {HasBody: true} || !method.Body.HasInstructions) return;
         try
         {
             if (method.Body.Instructions.Any(instr => instr.OpCode.Equals(OpCodes.Switch)))

@@ -52,7 +52,7 @@ internal class CallRemover
             RemoveCalls(method, _methodRefInfos.Find(method));
     }
 
-    private static void RemoveCalls(MethodDef method, MethodDefAndDeclaringTypeDict<bool> info)
+    private static void RemoveCalls(MethodDef method, MethodDefDictBase<bool> info)
     {
         foreach (var instr in method.Body.Instructions)
             try

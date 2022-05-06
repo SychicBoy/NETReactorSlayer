@@ -37,7 +37,7 @@ public class TheAssemblyResolver : AssemblyResolver
 
     public void AddModule(ModuleDef module) => AddToCache(module.Assembly);
 
-    private static void AddOtherSearchPaths(IList<string> paths)
+    private static void AddOtherSearchPaths(ICollection<string> paths)
     {
         var dirPf = Environment.GetEnvironmentVariable("ProgramFiles");
         AddOtherAssemblySearchPaths(paths, dirPf);
@@ -53,7 +53,7 @@ public class TheAssemblyResolver : AssemblyResolver
         }
     }
 
-    private static void AddOtherAssemblySearchPaths(IList<string> paths, string path)
+    private static void AddOtherAssemblySearchPaths(ICollection<string> paths, string path)
     {
         if (string.IsNullOrEmpty(path))
             return;
@@ -159,7 +159,7 @@ public class TheAssemblyResolver : AssemblyResolver
         AddIfExists(paths, path, @"Microsoft SDKs\F#\3.0\Framework\v4.0");
     }
 
-    private static void AddSilverlightDirs(IList<string> paths, string basePath)
+    private static void AddSilverlightDirs(ICollection<string> paths, string basePath)
     {
         if (!Directory.Exists(basePath))
             return;
@@ -172,7 +172,7 @@ public class TheAssemblyResolver : AssemblyResolver
         } catch { }
     }
 
-    private static void AddIfExists(IList<string> paths, string basePath, string extraPath)
+    private static void AddIfExists(ICollection<string> paths, string basePath, string extraPath)
     {
         var path = Path.Combine(basePath, extraPath);
         if (Directory.Exists(path))

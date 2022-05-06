@@ -70,7 +70,7 @@ internal class MethodInliner : IStage
         else Logger.Warn("Couldn't find any outline method.");
     }
 
-    private bool IsInline1(MethodDef method, out OpCode code, out object operand)
+    private static bool IsInline1(MethodDef method, out OpCode code, out object operand)
     {
         code = null;
         operand = null;
@@ -98,7 +98,7 @@ internal class MethodInliner : IStage
         return len == num2;
     }
 
-    private bool IsInline2(MethodDef method, out OpCode code, out object operand)
+    private static bool IsInline2(MethodDef method, out OpCode code, out object operand)
     {
         code = null;
         operand = null;
