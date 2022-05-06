@@ -393,11 +393,15 @@ public partial class MainWindow : Form
                 Show();
                 Opacity = 1.0;
                 timer.Dispose();
-                if (!await IsLatestVersion())
-                    if (MsgBox.Show(@"New version is available, Do you want to install it?",
-                            ".NETReactorSlayer",
-                            MsgBox.MsgButtons.YesNoCancel, MsgBox.MsgIcon.Question, this) == DialogResult.Yes)
-                        InstallLatestVersion();
+                try
+                {
+                    if (!await IsLatestVersion())
+                        if (MsgBox.Show(@"New version is available, Do you want to install it?",
+                                ".NETReactorSlayer",
+                                MsgBox.MsgButtons.YesNoCancel, MsgBox.MsgIcon.Question, this) == DialogResult.Yes)
+                            InstallLatestVersion();
+                }
+                catch { }
             }
         };
         timer.Start();
