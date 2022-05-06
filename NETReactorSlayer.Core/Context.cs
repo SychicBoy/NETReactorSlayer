@@ -197,9 +197,9 @@ public class Context
                         PeImage = new MyPEImage(unpacked);
                         IsNative = true;
                         Process.Start(new ProcessStartInfo(Process.GetCurrentProcess().MainModule?.FileName,
-                                $"--delete-native-image {Process.GetCurrentProcess().Id} \"{SourcePath}\"")
+                                $"--del-temp {Process.GetCurrentProcess().Id} \"{SourcePath}\"")
                             {WindowStyle = ProcessWindowStyle.Hidden});
-                        Logger.Done("Native image unpacked.");
+                        Logger.Done("Native stub unpacked.");
                         ModuleBytes = DeobUtils.ReadModule(Module);
                         return true;
                     }

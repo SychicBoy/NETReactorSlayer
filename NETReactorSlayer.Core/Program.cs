@@ -29,7 +29,7 @@ public class Program
     {
         #region Delete Temporary Files
 
-        if (args is {Length: 3} && args[0] == "--delete-native-image" && int.TryParse(args[1], out var id) &&
+        if (args is {Length: 3} && args[0] == "--del-temp" && int.TryParse(args[1], out var id) &&
             File.Exists(args[2]))
             try
             {
