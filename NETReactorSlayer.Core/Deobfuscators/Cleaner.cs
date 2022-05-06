@@ -31,13 +31,11 @@ internal class Cleaner : IStage
     public void Execute()
     {
         FixEntrypoint();
-
         if (Context.RemoveCalls)
         {
             CallRemover.RemoveCalls(MethodsToRemove.ToList());
             Logger.Done($"{MethodsToRemove.Count} Calls to obfuscator types removed.");
         }
-
 
         if (!Context.KeepTypes)
         {
@@ -58,12 +56,18 @@ internal class Cleaner : IStage
         }
 
         if (Context.RemoveJunks)
+        {
             foreach (var method in Context.Module.GetTypes().ToList().SelectMany(type => type.Methods.ToList()))
                 try
                 {
                     RemoveAttributes(method);
                     RemoveJunks(method);
-                } catch { }
+                }
+                catch { }
+
+            foreach (var field in Context.Module.GetTypes().ToList().SelectMany(type => type.Fields))
+                RemoveAttributes(field);
+        }
     }
 
     private static void FixEntrypoint()
@@ -88,19 +92,23 @@ internal class Cleaner : IStage
             }
     }
 
-    private static void RemoveAttributes(MethodDef method)
+    private static void RemoveAttributes(IHasCustomAttribute member)
     {
-        method.IsNoInlining = false;
-        method.IsSynchronized = false;
-        method.IsNoOptimization = false;
-        for (var i = 0; i < method.CustomAttributes.Count; i++)
+        if (member is MethodDef method)
+        {
+            method.IsNoInlining = false;
+            method.IsSynchronized = false;
+            method.IsNoOptimization = false;
+        }
+
+        for (var i = 0; i < member.CustomAttributes.Count; i++)
             try
             {
-                var cattr = method.CustomAttributes[i];
+                var cattr = member.CustomAttributes[i];
                 if (cattr.Constructor is
                     {FullName: "System.Void System.Diagnostics.DebuggerHiddenAttribute::.ctor()"})
                 {
-                    method.CustomAttributes.RemoveAt(i);
+                    member.CustomAttributes.RemoveAt(i);
                     i--;
                     continue;
                 }
@@ -108,11 +116,15 @@ internal class Cleaner : IStage
                 switch (cattr.TypeFullName)
                 {
                     case "System.Diagnostics.DebuggerStepThroughAttribute":
-                        method.CustomAttributes.RemoveAt(i);
+                        member.CustomAttributes.RemoveAt(i);
                         i--;
                         continue;
                     case "System.Diagnostics.DebuggerNonUserCodeAttribute":
-                        method.CustomAttributes.RemoveAt(i);
+                        member.CustomAttributes.RemoveAt(i);
+                        i--;
+                        continue;
+                    case "System.Diagnostics.DebuggerBrowsableAttribute":
+                        member.CustomAttributes.RemoveAt(i);
                         i--;
                         continue;
                 }
@@ -124,7 +136,7 @@ internal class Cleaner : IStage
                     continue;
                 if (options != 0 && options != (int) MethodImplAttributes.NoInlining)
                     continue;
-                method.CustomAttributes.RemoveAt(i);
+                member.CustomAttributes.RemoveAt(i);
                 i--;
             } catch { }
     }
@@ -148,10 +160,16 @@ internal class Cleaner : IStage
                     var type = methodDef.DeclaringType;
                     if (type.HasEvents || type.HasProperties)
                         return false;
-                    if (type.Fields.Count != 1)
+                    if (type.Fields.Count != 1 && type.Fields.Count != 2)
                         return false;
-                    if (type.Fields[0].FieldType.FullName != "System.Boolean")
-                        return false;
+                    switch (type.Fields.Count)
+                    {
+                        case 2 when !(type.Fields.Any(x => x.FieldType.FullName == "System.Boolean") &&
+                                      type.Fields.Any(x => x.FieldType.FullName == "System.Object")):
+                        case 1 when type.Fields[0].FieldType.FullName != "System.Boolean":
+                            return false;
+                    }
+
                     if (type.IsPublic)
                         return false;
 
