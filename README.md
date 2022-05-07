@@ -17,7 +17,7 @@ GUI             |  CLI
 
 ### Features & Commands:
 
-| Description | Command | Default Value |
+| Command | Description | Default Value |
 | ------ | ------ | ------ |
 |  | Unpack native stub |  |
 | `--dec-methods` | Decrypt methods that encrypted by Necrobit | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
