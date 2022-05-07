@@ -36,3 +36,17 @@ jobs:
         
       - name: Build the Solution
         run: msbuild NETReactorSlayer.sln
+        
+      - name: Archive
+        uses: TheDoctor0/zip-release@0.6.2
+        with:
+          type: 'zip'
+          filename: 'NETReactorSlayer.zip'
+          path: 'D:\a\NETReactorSlayer\NETReactorSlayer\Debug\'
+        
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: NETReactorSlayer
+          path: NETReactorSlayer.zip
+          if-no-files-found: error
