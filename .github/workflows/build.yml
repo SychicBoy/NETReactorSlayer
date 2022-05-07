@@ -42,7 +42,7 @@ jobs:
         with:
           type: 'zip'
           filename: 'NETReactorSlayer.zip'
-          path: 'D:\a\NETReactorSlayer\NETReactorSlayer\Debug\'
+          path: 'D:\a\NETReactorSlayer\NETReactorSlayer\Debug\*'
         
       - name: Upload
         uses: actions/upload-artifact@v2
