@@ -31,20 +31,23 @@ internal class Cleaner : IStage
     public void Execute()
     {
         FixEntrypoint();
-        if (Context.RemoveCalls)
+        if (Context.RemoveCalls && MethodsToRemove.Count > 0)
         {
-            CallRemover.RemoveCalls(MethodsToRemove.ToList());
-            Logger.Done($"{MethodsToRemove.Count} Calls to obfuscator types removed.");
+            try
+            {
+                CallRemover.RemoveCalls(MethodsToRemove.ToList());
+                Logger.Done($"{MethodsToRemove.Count} Calls to obfuscator types removed.");
+            }
+            catch { }
         }
 
         if (Context.RemoveJunks)
         {
             foreach (var method in Context.Module.GetTypes().ToList().SelectMany(type => type.Methods).ToList())
-                try
-                {
-                    RemoveAttributes(method);
-                    RemoveJunks(method);
-                } catch { }
+            {
+                RemoveAttributes(method);
+                RemoveJunks(method);
+            }
 
             foreach (var field in Context.Module.GetTypes().ToList().SelectMany(type => type.Fields))
                 RemoveAttributes(field);
@@ -59,85 +62,102 @@ internal class Cleaner : IStage
                 } catch { }
 
             foreach (var typeDef in TypesToRemove.Select(type => type.ResolveTypeDef()))
-                if (typeDef.DeclaringType != null)
-                    typeDef.DeclaringType.NestedTypes.Remove(typeDef);
-                else
-                    Context.Module.Types.Remove(typeDef);
+                try
+                {
+                    if (typeDef.DeclaringType != null)
+                        typeDef.DeclaringType.NestedTypes.Remove(typeDef);
+                    else
+                        Context.Module.Types.Remove(typeDef);
+                }
+                catch { }
 
             foreach (var rsrc in ResourceToRemove)
-                Context.Module.Resources.Remove(Context.Module.Resources.Find(rsrc.Name));
+                try
+                {
+                    Context.Module.Resources.Remove(Context.Module.Resources.Find(rsrc.Name));
+                }
+                catch { }
         }
     }
 
     private static void FixEntrypoint()
     {
-        if (Context.Module.IsEntryPointValid &&
-            Context.Module.EntryPoint.DeclaringType.Name.Contains("<PrivateImplementationDetails>"))
-            if ((Context.Module.EntryPoint.Body.Instructions
-                    .Last(x => x.OpCode == OpCodes.Call && x.Operand is IMethod iMethod &&
-                               iMethod.ResolveMethodDef().IsStatic).Operand as IMethod).ResolveMethodDef() is
-                { } entryPoint)
-            {
-                foreach (var attribute in Context.Module.EntryPoint.CustomAttributes)
-                    entryPoint.CustomAttributes.Add(attribute);
-                if (Context.Module.EntryPoint.DeclaringType.DeclaringType != null)
-                    Context.Module.EntryPoint.DeclaringType.DeclaringType.NestedTypes.Remove(
-                        Context.Module.EntryPoint.DeclaringType);
-                else
-                    Context.Module.Types.Remove(Context.Module.EntryPoint.DeclaringType);
-                Logger.Done(
-                    $"Entrypoint fixed: {Context.Module.EntryPoint.MDToken.ToInt32()}->{entryPoint.MDToken.ToInt32()}");
-                Context.Module.EntryPoint = entryPoint;
-            }
+        try
+        {
+            if (Context.Module.IsEntryPointValid &&
+                Context.Module.EntryPoint.DeclaringType.Name.Contains("<PrivateImplementationDetails>"))
+                if ((Context.Module.EntryPoint.Body.Instructions
+                        .Last(x => x.OpCode == OpCodes.Call && x.Operand is IMethod iMethod &&
+                                   iMethod.ResolveMethodDef().IsStatic).Operand as IMethod).ResolveMethodDef() is
+                    { } entryPoint)
+                {
+                    foreach (var attribute in Context.Module.EntryPoint.CustomAttributes)
+                        entryPoint.CustomAttributes.Add(attribute);
+                    if (Context.Module.EntryPoint.DeclaringType.DeclaringType != null)
+                        Context.Module.EntryPoint.DeclaringType.DeclaringType.NestedTypes.Remove(
+                            Context.Module.EntryPoint.DeclaringType);
+                    else
+                        Context.Module.Types.Remove(Context.Module.EntryPoint.DeclaringType);
+                    Logger.Done(
+                        $"Entrypoint fixed: {Context.Module.EntryPoint.MDToken.ToInt32()}->{entryPoint.MDToken.ToInt32()}");
+                    Context.Module.EntryPoint = entryPoint;
+                }
+        }
+        catch { }
     }
 
     private static void RemoveAttributes(IHasCustomAttribute member)
     {
-        if (member is MethodDef method)
+        try
         {
-            method.IsNoInlining = false;
-            method.IsSynchronized = false;
-            method.IsNoOptimization = false;
-        }
-
-        for (var i = 0; i < member.CustomAttributes.Count; i++)
-            try
+            if (member is MethodDef method)
             {
-                var cattr = member.CustomAttributes[i];
-                if (cattr.Constructor is
-                    {FullName: "System.Void System.Diagnostics.DebuggerHiddenAttribute::.ctor()"})
+                method.IsNoInlining = false;
+                method.IsSynchronized = false;
+                method.IsNoOptimization = false;
+            }
+
+            for (var i = 0; i < member.CustomAttributes.Count; i++)
+                try
                 {
+                    var cattr = member.CustomAttributes[i];
+                    if (cattr.Constructor is
+                        { FullName: "System.Void System.Diagnostics.DebuggerHiddenAttribute::.ctor()" })
+                    {
+                        member.CustomAttributes.RemoveAt(i);
+                        i--;
+                        continue;
+                    }
+
+                    switch (cattr.TypeFullName)
+                    {
+                        case "System.Diagnostics.DebuggerStepThroughAttribute":
+                            member.CustomAttributes.RemoveAt(i);
+                            i--;
+                            continue;
+                        case "System.Diagnostics.DebuggerNonUserCodeAttribute":
+                            member.CustomAttributes.RemoveAt(i);
+                            i--;
+                            continue;
+                        case "System.Diagnostics.DebuggerBrowsableAttribute":
+                            member.CustomAttributes.RemoveAt(i);
+                            i--;
+                            continue;
+                    }
+
+                    if (cattr.TypeFullName != "System.Runtime.CompilerServices.MethodImplAttribute")
+                        continue;
+                    var options = 0;
+                    if (!GetMethodImplOptions(cattr, ref options))
+                        continue;
+                    if (options != 0 && options != (int)MethodImplAttributes.NoInlining)
+                        continue;
                     member.CustomAttributes.RemoveAt(i);
                     i--;
-                    continue;
                 }
-
-                switch (cattr.TypeFullName)
-                {
-                    case "System.Diagnostics.DebuggerStepThroughAttribute":
-                        member.CustomAttributes.RemoveAt(i);
-                        i--;
-                        continue;
-                    case "System.Diagnostics.DebuggerNonUserCodeAttribute":
-                        member.CustomAttributes.RemoveAt(i);
-                        i--;
-                        continue;
-                    case "System.Diagnostics.DebuggerBrowsableAttribute":
-                        member.CustomAttributes.RemoveAt(i);
-                        i--;
-                        continue;
-                }
-
-                if (cattr.TypeFullName != "System.Runtime.CompilerServices.MethodImplAttribute")
-                    continue;
-                var options = 0;
-                if (!GetMethodImplOptions(cattr, ref options))
-                    continue;
-                if (options != 0 && options != (int) MethodImplAttributes.NoInlining)
-                    continue;
-                member.CustomAttributes.RemoveAt(i);
-                i--;
-            } catch { }
+                catch { }
+        }
+        catch { }
     }
 
     private void RemoveJunks(MethodDef method)

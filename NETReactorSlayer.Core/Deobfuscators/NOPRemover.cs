@@ -29,15 +29,18 @@ internal class NopRemover
             var length = method.Body.Instructions.Count;
             var index = 0;
             for (; index < length; index++)
-                if (method.Body.Instructions[index].OpCode.Equals(OpCodes.Nop) &&
-                    !IsNopBranchTarget(method, method.Body.Instructions[index]) &&
-                    !IsNopSwitchTarget(method, method.Body.Instructions[index]) &&
-                    !IsNopExceptionHandlerTarget(method, method.Body.Instructions[index]))
+                try
                 {
-                    method.Body.Instructions.RemoveAt(index);
-                    index--;
-                    length = method.Body.Instructions.Count;
-                }
+                    if (method.Body.Instructions[index].OpCode.Equals(OpCodes.Nop) &&
+                        !IsNopBranchTarget(method, method.Body.Instructions[index]) &&
+                        !IsNopSwitchTarget(method, method.Body.Instructions[index]) &&
+                        !IsNopExceptionHandlerTarget(method, method.Body.Instructions[index]))
+                    {
+                        method.Body.Instructions.RemoveAt(index);
+                        index--;
+                        length = method.Body.Instructions.Count;
+                    }
+                } catch { }
         }
     }
 
