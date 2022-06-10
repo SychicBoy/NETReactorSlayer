@@ -31,6 +31,8 @@ public class Context
 {
     public static bool IsNative;
 
+    public static bool NecroBit;
+
     public static bool KeepTypes, RemoveCalls = true, RemoveJunks = true;
 
     private bool _preserveAll, _keepOldMaxStack;
@@ -148,13 +150,15 @@ public class Context
                 try
                 {
                     Assembly = Assembly.Load(SourcePath);
-                } catch
+                }
+                catch
                 {
                     Assembly = Assembly.UnsafeLoadFrom(SourcePath);
                 }
 
                 return true;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 try
                 {
@@ -168,7 +172,8 @@ public class Context
                             {
                                 File.WriteAllBytes(SourcePath, unpacked);
                                 break;
-                            } catch (UnauthorizedAccessException)
+                            }
+                            catch (UnauthorizedAccessException)
                             {
                                 var saveFileDialog = new SaveFileDialog
                                 {
@@ -189,7 +194,8 @@ public class Context
                         try
                         {
                             Assembly = Assembly.Load(SourcePath);
-                        } catch
+                        }
+                        catch
                         {
                             Assembly = Assembly.UnsafeLoadFrom(SourcePath);
                         }
@@ -198,7 +204,7 @@ public class Context
                         IsNative = true;
                         Process.Start(new ProcessStartInfo(Process.GetCurrentProcess().MainModule?.FileName,
                                 $"--del-temp {Process.GetCurrentProcess().Id} \"{SourcePath}\"")
-                            {WindowStyle = ProcessWindowStyle.Hidden});
+                        { WindowStyle = ProcessWindowStyle.Hidden });
                         Logger.Done("Native stub unpacked.");
                         ModuleBytes = DeobUtils.ReadModule(Module);
                         return true;
@@ -206,7 +212,8 @@ public class Context
 
                     Logger.Error("Failed to load assembly. " + ex.Message);
                     return false;
-                } catch (Exception ex1)
+                }
+                catch (Exception ex1)
                 {
                     Logger.Error("Failed to load assembly. " + ex1.Message);
                     return false;
@@ -246,18 +253,20 @@ public class Context
                 writer.MetadataOptions.Flags |= MetadataFlags.KeepOldMaxStack;
 
             if (Module.IsILOnly)
-                Module.Write(DestPath, (ModuleWriterOptions) writer);
+                Module.Write(DestPath, (ModuleWriterOptions)writer);
             else
-                Module.NativeWrite(DestPath, (NativeModuleWriterOptions) writer);
+                Module.NativeWrite(DestPath, (NativeModuleWriterOptions)writer);
 
             try
             {
                 Module?.Dispose();
                 PeImage?.Dispose();
-            } catch { }
+            }
+            catch { }
 
             Logger.Done("Saved to: " + DestFileName);
-        } catch (UnauthorizedAccessException ex)
+        }
+        catch (UnauthorizedAccessException ex)
         {
             var saveFileDialog = new SaveFileDialog
             {
@@ -275,7 +284,8 @@ public class Context
             }
 
             Logger.Error("Failed to save file. " + ex.Message);
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             Logger.Error("Failed to save file. " + ex.Message);
         }
