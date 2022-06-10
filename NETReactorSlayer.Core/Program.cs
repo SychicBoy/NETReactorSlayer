@@ -29,7 +29,7 @@ public class Program
     {
         #region Delete Temporary Files
 
-        if (args is {Length: 3} && args[0] == "--del-temp" && int.TryParse(args[1], out var id) &&
+        if (args is { Length: 3 } && args[0] == "--del-temp" && int.TryParse(args[1], out var id) &&
             File.Exists(args[2]))
             try
             {
@@ -41,7 +41,8 @@ public class Program
                         try
                         {
                             File.Delete(args[2]);
-                        } catch { }
+                        }
+                        catch { }
 
                         Thread.Sleep(1000);
                     }
@@ -49,7 +50,8 @@ public class Program
                     Process.GetCurrentProcess().Kill();
                     return;
                 }
-            } catch { }
+            }
+            catch { }
 
         #endregion
 
@@ -61,7 +63,8 @@ public class Program
         {
             Console.Clear();
             Logger.PrintLogo();
-        } catch { }
+        }
+        catch { }
 
         Context = new Context();
         if (Context.Parse(args))
@@ -69,8 +72,13 @@ public class Program
             foreach (var deobfuscatorStage in Context.DeobfuscatorOptions.Stages)
                 try
                 {
-                    deobfuscatorStage.Execute();
-                } catch (Exception ex)
+                    var thread = new Thread(deobfuscatorStage.Execute, 1024 * 1024 * 64);
+                    thread.Start();
+                    thread.Join();
+                    while (thread.IsAlive)
+                        Thread.Sleep(500);
+                }
+                catch (Exception ex)
                 {
                     Logger.Error($"{deobfuscatorStage.GetType().Name}: {ex.Message}");
                 }
