@@ -26,7 +26,7 @@ GUI             |  CLI
 | `--dec-rsrc` | Decrypt assembly resources | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | `--dec-bools` | Decrypt booleans | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | `--deob-cflow` | Deobfuscate control flow | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
-| `--deob-tokens` | Decrypt tokens | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| `--deob-tokens` | Deobfuscate tokens | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | `--dump-asm` | Dump embedded assemblies | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | `--dump-costura` | Dump assemblies that embedded by Costura.Fody | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | `--inline-methods` | Inline short methods | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
