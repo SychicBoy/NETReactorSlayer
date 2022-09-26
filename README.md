@@ -3,10 +3,10 @@
    <img alt=".NETReactorSlayer Logo" src="./Images/Logo-Light.png#gh-light-mode-only" width="1000" />
 </p>
 
-# .NETReactorSlayer <br /> <a href="https://github.com/SychicBoy/NETReactorSlayer/actions"> <img src="https://github.com/SychicBoy/NETReactorSlayer/actions/workflows/build.yml/badge.svg"></img> </a> <a href="https://github.com/SychicBoy/NETReactorSlayer/releases/latest"> <img src="https://img.shields.io/github/v/release/SychicBoy/NETReactorSlayer"></img> </a> <a href="#"> <img src="https://img.shields.io/github/downloads/SychicBoy/NETReactorSlayer/total"></img> </a> <a href="#license"> <img src="https://img.shields.io/github/license/SychicBoy/NETReactorSlayer"></img> </a> <a href="https://github.com/SychicBoy/NETReactorSlayer/commits/master"> <img src="https://img.shields.io/github/last-commit/SychicBoy/NETReactorSlayer"></img> </a> <a href="https://commerce.coinbase.com/checkout/1d7bb9ea-4853-4271-95c0-8996d2bdf3c6"><img src="https://img.shields.io/badge/donate-crypto-f46db0" alt="Donate crypto"></img></a>
+# .NETReactorSlayer <br /> <a href="https://github.com/SychicBoy/NETReactorSlayer/actions"> <img src="https://github.com/SychicBoy/NETReactorSlayer/actions/workflows/build.yml/badge.svg"></img> </a> <a href="https://github.com/SychicBoy/NETReactorSlayer/releases/latest"> <img src="https://img.shields.io/github/v/release/SychicBoy/NETReactorSlayer"></img> </a> <a href="#"> <img src="https://img.shields.io/github/downloads/SychicBoy/NETReactorSlayer/total"></img> </a> <a href="#license"> <img src="https://img.shields.io/github/license/SychicBoy/NETReactorSlayer"></img> </a> <a href="https://github.com/SychicBoy/NETReactorSlayer/commits/master"> <img src="https://img.shields.io/github/last-commit/SychicBoy/NETReactorSlayer"></img> </a>
 
 **.NETReactorSlayer** is an open source (GPLv3) deobfuscator and unpacker for [Eziriz .NET Reactor](https://www.eziriz.com/reactor_download.htm).
-<br /><br /><br />
+<br /><br />
 <h2 align="center">Preview</h2>
 
 GUI             |  CLI
@@ -58,10 +58,13 @@ Normal             |  Virtualized
 Normal             |  Virtualized
 :-------------------------:|:-------------------------:
 <img src="https://user-images.githubusercontent.com/53654076/144697246-cc975888-64ad-4371-96d8-af402bf0f8ed.png" width="600">  |  <img src="https://user-images.githubusercontent.com/53654076/144697407-afcf26b2-2d95-4143-8e94-b10b84634174.png" width="300"><br />Or<br /><img src="https://user-images.githubusercontent.com/53654076/144697662-3b6d575c-b989-4efa-979d-fa6c4d6d38a2.png" width="300">
-</details><br />
+</details>
 
 ### Contribution:
 Want to contribute to this project? Feel free to open a [pull request](https://github.com/SychicBoy/NETReactorSlayer/pulls).
+
+### Donations:
+<a href="https://codestrikers.sellix.io/"> <img src="https://user-images.githubusercontent.com/53654076/192194815-94455dd4-5a6d-4764-877e-f51c65da7d8c.png" width="200"></img> </a>
 
 ### License:
 **.NETReactorSlayer** is licensed under [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html).
