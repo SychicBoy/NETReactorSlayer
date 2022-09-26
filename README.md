@@ -31,7 +31,7 @@ GUI             |  CLI
 | `--dump-costura` | Dump assemblies that embedded by Costura.Fody | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | `--inline-methods` | Inline short methods | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | `--rename` | Rename n(amespaces), t(ypes), m(ethods), p(rops), e(vents), f(ields) | &nbsp; &nbsp; &nbsp;&nbsp; ntmfe |
-| `--rename-short` | Remove short names | &nbsp; &nbsp; &nbsp;&nbsp; False |
+| `--rename-short` | Rename short names | &nbsp; &nbsp; &nbsp;&nbsp; False |
 | `--dont-rename` | Don't rename classes, methods, etc.. | &nbsp; &nbsp; &nbsp;&nbsp; False |
 | `--rem-antis` | Remove anti tamper & anti debugger | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | `--rem-sn` | Remove strong name removal protection | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
