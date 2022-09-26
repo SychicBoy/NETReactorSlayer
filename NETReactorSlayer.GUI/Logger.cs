@@ -21,8 +21,10 @@ namespace NETReactorSlayer.GUI;
 
 internal class Logger
 {
-    private readonly RichTextBox _richTextBox;
-    public Logger(RichTextBox richTextBox) => _richTextBox = richTextBox;
+    public Logger(RichTextBox richTextBox)
+    {
+        _richTextBox = richTextBox;
+    }
 
     public void Write(string text, Color? color = null)
     {
@@ -52,5 +54,10 @@ internal class Logger
         _richTextBox.AppendText(Environment.NewLine);
     }
 
-    public void Clear() => _richTextBox.Clear();
+    public void Clear()
+    {
+        _richTextBox.Clear();
+    }
+
+    private readonly RichTextBox _richTextBox;
 }

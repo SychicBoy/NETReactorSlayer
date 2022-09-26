@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
+using NETReactorSlayer.Core.Helper;
 
 namespace NETReactorSlayer.Core.Deobfuscators;
 
@@ -24,35 +25,36 @@ internal class MethodInliner : IStage
 {
     public void Execute()
     {
-        var count = 0L;
+        long count = 0;
         var proxies = new HashSet<MethodDef>();
         foreach (var type in Context.Module.GetTypes())
         foreach (var method in from x in type.Methods.ToList() where x.HasBody && x.Body.HasInstructions select x)
             try
             {
-                foreach (var instr
-                         in method.Body.Instructions)
+                var length = method.Body.Instructions.Count;
+                var i = 0;
+                for (; i < length; i++)
                 {
-                    MethodDef Method;
-                    if (instr
-                            .OpCode.Equals(OpCodes.Call) &&
-                        (Method = instr
-                            .Operand as MethodDef) != null &&
-                        (IsInline1(Method, out var opCode, out var obj) ||
-                         IsInline2(Method, out opCode, out obj)))
-                    {
-                        count += 1L;
-                        if (Method.DeclaringType == method.DeclaringType)
-                        {
-                            instr
-                                .OpCode = opCode;
-                            instr
-                                .Operand = obj;
-                            proxies.Add(Method);
-                        }
-                    }
+                    MethodDef methodDef;
+                    if (!method.Body.Instructions[i].OpCode.Equals(OpCodes.Call) ||
+                        (methodDef = method.Body.Instructions[i].Operand as MethodDef) == null ||
+                        !IsInlineMethod(methodDef, out var instructions) ||
+                        !IsCompatibleType(method.DeclaringType, methodDef.DeclaringType)) continue;
+                    count++;
+                    method.Body.Instructions[i].OpCode = OpCodes.Nop;
+                    method.Body.Instructions[i].Operand = null;
+                    length += instructions.Count;
+                    foreach (var instr in instructions)
+                        method.Body.Instructions.Insert(i++, instr);
+                    method.Body.UpdateInstructionOffsets();
+                    proxies.Add(methodDef);
                 }
-            } catch { }
+
+                SimpleDeobfuscator.DeobfuscateBlocks(method);
+            }
+            catch
+            {
+            }
 
         foreach (var type in Context.Module.GetTypes())
         foreach (var method in from x in type.Methods.ToArray() where x.HasBody && x.Body.HasInstructions select x)
@@ -61,58 +63,72 @@ internal class MethodInliner : IStage
             {
                 MethodDef item;
                 if (instruction.OpCode.OperandType == OperandType.InlineMethod &&
-                    (item = instruction.Operand as MethodDef) != null &&
-                    proxies.Contains(item)) proxies.Remove(item);
-            } catch { }
-
-        foreach (var Method in proxies) Method.DeclaringType.Remove(Method);
-        if (count > 0L) Logger.Done((int) count + " Methods inlined.");
-        else Logger.Warn("Couldn't find any outline method.");
-    }
-
-    private static bool IsInline1(MethodDef method, out OpCode code, out object operand)
-    {
-        code = null;
-        operand = null;
-        if (!method.HasBody || !method.IsStatic) return false;
-        var instructions = method.Body.Instructions;
-        var num = instructions.Count - 1;
-        if (num < 1 || instructions[num].OpCode != OpCodes.Ret) return false;
-        var code2 = instructions[num - 1].OpCode.Code;
-        if (code2 != Code.Call && code2 != Code.Callvirt && code2 != Code.Newobj) return false;
-        code = instructions[num - 1].OpCode;
-        operand = instructions[num - 1].Operand;
-        var len = (from i in instructions
-            where i.OpCode != OpCodes.Nop
-            select i).Count() - 2;
-        if (len != method.Parameters.Count) return false;
-        var num2 = 0;
-        for (var j = 0; j < instructions.Count - 2; j++)
-            if (instructions[j].OpCode != OpCodes.Nop)
+                    (item = instruction.Operand as MethodDef) != null && proxies.Contains(item))
+                    proxies.Remove(item);
+            }
+            catch
             {
-                if (!instructions[j].IsLdarg()) return false;
-                if (instructions[j].GetParameterIndex() != num2) return false;
-                num2++;
             }
 
-        return len == num2;
+        foreach (var method in proxies) method.DeclaringType.Remove(method);
+        InlinedMethods += count;
     }
 
-    private static bool IsInline2(MethodDef method, out OpCode code, out object operand)
+    #region Fields
+
+    public static long InlinedMethods;
+
+    #endregion
+
+    #region Private Methods
+
+    private static bool IsInlineMethod(MethodDef method, out List<Instruction> instructions)
     {
-        code = null;
-        operand = null;
-        if (!method.HasBody || !method.IsInternalCall) return false;
-        var instructions = method.Body.Instructions;
-        var num = instructions.Count - 1;
-        if (num < 1 || instructions[num].OpCode != OpCodes.Ret) return false;
-        var code2 = instructions[num - 1].OpCode.Code;
-        if (code2 != Code.Ldfld) return false;
-        code = instructions[num - 1].OpCode;
-        operand = instructions[num - 1].Operand;
-        var len = (from i in instructions
-            where i.OpCode != OpCodes.Nop
-            select i).Count() - 2;
-        return len == 1 && len == method.Parameters.Count - 1;
+        instructions = new List<Instruction>();
+        if (!method.HasBody || !method.IsStatic) return false;
+        var list = method.Body.Instructions;
+        var index = list.Count - 1;
+        if (index < 1 || list[index].OpCode != OpCodes.Ret) return false;
+        var code = list[index - 1].OpCode.Code;
+        int length;
+        if (code != Code.Call && code != Code.Callvirt && code != Code.Newobj)
+        {
+            if (code != Code.Ldfld) return false;
+            instructions.Add(new Instruction(list[index - 1].OpCode, list[index - 1].Operand));
+            length = (from i in list
+                where i.OpCode != OpCodes.Nop
+                select i).Count() - 2;
+            return length == 1 && length == method.Parameters.Count - 1;
+        }
+
+        instructions.Add(new Instruction(list[index - 1].OpCode, list[index - 1].Operand));
+        length = list.Count(i => i.OpCode != OpCodes.Nop) - 2;
+        var count = list.Count - 2;
+        if (length != method.Parameters.Count)
+        {
+            if (list[index - 2].IsLdcI4() && --length == method.Parameters.Count)
+            {
+                count = list.Count - 3;
+                instructions.Insert(0, new Instruction(list[index - 2].OpCode, list[index - 2].Operand));
+            }
+            else
+                return false;
+        }
+
+        var num = 0;
+        for (var j = 0; j < count; j++)
+            if (list[j].OpCode != OpCodes.Nop)
+            {
+                if (!list[j].IsLdarg()) return false;
+                if (list[j].GetParameterIndex() != num) return false;
+                num++;
+            }
+
+        return length == num;
     }
+
+    private static bool IsCompatibleType(IType origType, IType newType) =>
+        new SigComparer(SigComparerOptions.IgnoreModifiers).Equals(origType, newType);
+
+    #endregion
 }

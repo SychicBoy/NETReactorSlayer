@@ -22,18 +22,24 @@ namespace NETReactorSlayer.GUI.UserControls;
 
 public partial class NrsButton : Button
 {
-    public enum TextTransformEnum
+    public NrsButton()
     {
-        None,
-        Upper,
-        Lower
+        InitializeComponent();
+    }
+
+    [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
+    public static extern IntPtr CreateRoundRectRgn(
+        int nLeftRect, int nTopRect, int nRightRect, int nBottomRect,
+        int nWidthEllipse, int nHeightEllipse);
+
+    private void SizeChange(object sender, EventArgs e)
+    {
+        Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _borderRadius, 20));
     }
 
     private int _borderRadius;
     private string _text;
     private TextTransformEnum _transform;
-
-    public NrsButton() => InitializeComponent();
 
     public int BorderRadius
     {
@@ -42,21 +48,6 @@ public partial class NrsButton : Button
         {
             _borderRadius = value;
             Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _borderRadius, 20));
-        }
-    }
-
-    public TextTransformEnum TextTransform
-    {
-        get => _transform;
-        set
-        {
-            _transform = value;
-            base.Text = value switch
-            {
-                TextTransformEnum.Upper => Text.ToUpper(),
-                TextTransformEnum.Lower => Text.ToLower(),
-                _ => Text
-            };
         }
     }
 
@@ -75,11 +66,25 @@ public partial class NrsButton : Button
         }
     }
 
-    [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
-    public static extern IntPtr CreateRoundRectRgn(
-        int nLeftRect, int nTopRect, int nRightRect, int nBottomRect,
-        int nWidthEllipse, int nHeightEllipse);
+    public TextTransformEnum TextTransform
+    {
+        get => _transform;
+        set
+        {
+            _transform = value;
+            base.Text = value switch
+            {
+                TextTransformEnum.Upper => Text.ToUpper(),
+                TextTransformEnum.Lower => Text.ToLower(),
+                _ => Text
+            };
+        }
+    }
 
-    private void SizeChange(object sender, EventArgs e) =>
-        Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _borderRadius, 20));
+    public enum TextTransformEnum
+    {
+        None,
+        Upper,
+        Lower
+    }
 }

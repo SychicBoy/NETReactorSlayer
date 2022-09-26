@@ -39,10 +39,10 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup>
-	  <SignAssembly>true</SignAssembly>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-	  <AssemblyOriginatorKeyFile>..\NETReactorSlayer.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\NETReactorSlayer.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>

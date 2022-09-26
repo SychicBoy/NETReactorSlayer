@@ -21,271 +21,182 @@ using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 using dnlib.IO;
-using NETReactorSlayer.Core.Helper.De4dot;
-using static NETReactorSlayer.Core.Deobfuscators.RsrcDecrypter;
+using NETReactorSlayer.Core.Helper;
 
 namespace NETReactorSlayer.Core.Deobfuscators;
 
 internal class MethodDecrypter : IStage
 {
-    private readonly short[] nativeLdci4 = { 85, 139, 236, 184, -1, -1, -1, -1, 93, 195 };
-    private readonly short[] nativeLdci4_0 = { 85, 139, 236, 51, 192, 93, 195 };
-
-    private MethodDef decryptorMethod;
-    private EmbeddedResource encryptedResource;
-    private byte[] methodsData;
-
     public void Execute()
     {
-        var dumpedMethods = new DumpedMethods();
-        var tokenToNativeMethod = new Dictionary<uint, byte[]>();
-        var tokenToNativeCode = new Dictionary<uint, byte[]>();
-        foreach (var type in Context.Module.GetTypes())
-            foreach (var method in type.Methods.ToList())
-                if (DotNetUtils.IsMethod(method, "System.UInt32",
-                        "(System.IntPtr,System.IntPtr,System.IntPtr,System.UInt32,System.IntPtr,System.UInt32&)") ||
-                    DotNetUtils.IsMethod(method, "System.UInt32",
-                        "(System.UInt64&,System.IntPtr,System.IntPtr,System.UInt32,System.IntPtr&,System.UInt32&)"))
-                    foreach (var methodDef in from x in method.DeclaringType.Methods
-                                              where x.IsStatic && x.HasBody && x.Body.HasInstructions
-                                              select x)
-                        foreach (var call in DotNetUtils.GetMethodCalls(methodDef))
-                            if (call.MDToken.ToInt32() == method.MDToken.ToInt32())
-                            {
-                                decryptorMethod = methodDef;
-                                break;
-                            }
-
-        var cctor = Context.Module.GlobalType.FindStaticConstructor();
-        if (cctor is { HasBody: true } && cctor.Body.HasInstructions)
-            foreach (var instr in cctor.Body.Instructions)
-                if (instr.OpCode.Equals(OpCodes.Call))
-                    if (instr.Operand is MethodDef { DeclaringType: { }, HasBody: true } methodDef &&
-                        methodDef.Body.HasInstructions)
-                        if (DotNetUtils.GetMethod(methodDef.DeclaringType,
-                                "System.Security.Cryptography.SymmetricAlgorithm", "()") != null &&
-                            GetEncryptedResource(methodDef) != null &&
-                            GetDecrypterType(methodDef, Array.Empty<string>()) != DnrDecrypterType.Unknown)
-                        {
-                            decryptorMethod = methodDef;
-                            break;
-                        }
-
-        if (decryptorMethod == null)
+        if (!Find())
         {
             Logger.Warn("Couldn't find any encrypted method.");
             return;
         }
 
-        encryptedResource = GetEncryptedResource(decryptorMethod);
-        Cleaner.ResourceToRemove.Add(encryptedResource);
-        Cleaner.MethodsToRemove.Add(decryptorMethod);
-        SimpleDeobfuscator.Deobfuscate(decryptorMethod);
-        var decrypterType = GetDecrypterType(decryptorMethod, Array.Empty<string>());
-        var key = GetBytes(decryptorMethod, 32);
-        if (decrypterType == DnrDecrypterType.V3)
-        {
-            var V3 = new V3(decryptorMethod);
-            methodsData = V3.Decrypt(encryptedResource);
-            goto Continue;
-        }
+        Context.ObfuscatorInfo.NecroBit = true;
 
-        var iv = GetBytes(decryptorMethod, 16);
-        if (IsNeedReverse(decryptorMethod))
-            Array.Reverse(iv);
-        if (UsesPublicKeyToken(decryptorMethod))
-        {
-            var publicKeyToken = Context.Module.Assembly.PublicKeyToken;
-            if (publicKeyToken != null && publicKeyToken.Data.Length != 0)
-                for (var z = 0; z < 8; z++)
-                    iv[z * 2 + 1] = publicKeyToken.Data[z];
-        }
-
-        switch (decrypterType)
-        {
-            case DnrDecrypterType.V1:
-                {
-                    var V1 = new V1(iv, key);
-                    methodsData = V1.Decrypt(encryptedResource);
-                    goto Continue;
-                }
-            case DnrDecrypterType.V2:
-                {
-                    var V2 = new V2(iv, key, decryptorMethod);
-                    methodsData = V2.Decrypt(encryptedResource);
-                    goto Continue;
-                }
-        }
-
-        Logger.Warn("Couldn't find any encrypted method.");
-        return;
-    Continue:
-        if (encryptedResource == null)
-        {
-            Logger.Warn("Couldn't find any encrypted method.");
-            return;
-        }
-
-        if (methodsData == null)
-        {
-            Logger.Error("Failed to decrypt methods.");
-            return;
-        }
-
-        var isFindDnrMethod = false;
-        var mode = -1;
         try
         {
-            XorEncrypt(methodsData, GetXorKey(decryptorMethod));
-            isFindDnrMethod = FindDnrCompileMethod(decryptorMethod.DeclaringType) != null;
-            var methodsDataReader = ByteArrayDataReaderFactory.CreateReader(methodsData);
-            var tmp = methodsDataReader.ReadInt32();
-            if ((tmp & unchecked((long)(ulong)-16777216)) == 100663296L)
-                methodsDataReader.ReadInt32();
-            else
-                methodsDataReader.Position -= 4U;
-            var patchCount = methodsDataReader.ReadInt32();
-            mode = methodsDataReader.ReadInt32();
-            tmp = methodsDataReader.ReadInt32();
+            var bytes = _encryptedResource.Decrypt();
+
+            if (!RestoreMethodsBody(bytes))
+                throw new InvalidOperationException();
+
+            Cleaner.AddResourceToBeRemoved(_encryptedResource.EmbeddedResource);
+            Cleaner.AddCallToBeRemoved(_encryptedResource.DecrypterMethod);
+            Logger.Done($"{Context.Module.GetTypes().SelectMany(x => x.Methods).Count()} Methods decrypted.");
+        }
+        catch
+        {
+            Logger.Error("An unexpected error occurred during decrypting methods.");
+        }
+
+        _encryptedResource?.Dispose();
+    }
+
+    #region Private Methods
+
+    private bool Find()
+    {
+        foreach (var type in Context.Module.GetTypes())
+        foreach (var methodDef in from method in type.Methods.ToList()
+                 where DotNetUtils.IsMethod(method, "System.UInt32",
+                           "(System.IntPtr,System.IntPtr,System.IntPtr,System.UInt32,System.IntPtr,System.UInt32&)") ||
+                       DotNetUtils.IsMethod(method, "System.UInt32",
+                           "(System.UInt64&,System.IntPtr,System.IntPtr,System.UInt32,System.IntPtr&,System.UInt32&)")
+                 from methodDef in from x in method.DeclaringType.Methods
+                     where x.IsStatic && x.HasBody && x.Body.HasInstructions
+                     select x
+                 from call in DotNetUtils.GetMethodCalls(methodDef)
+                 where call.MDToken.ToInt32() == method.MDToken.ToInt32()
+                 select methodDef)
+        {
+            if (!EncryptedResource.IsKnownDecrypter(methodDef, Array.Empty<string>(), true))
+                continue;
+
+            _encryptedResource = new EncryptedResource(methodDef);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool RestoreMethodsBody(byte[] bytes)
+    {
+        var dumpedMethods = new DumpedMethods();
+        XorEncrypt(bytes, GetXorKey(_encryptedResource.DecrypterMethod));
+        var isFindDnrMethod = FindDnrCompileMethod(_encryptedResource.DecrypterMethod.DeclaringType) != null;
+        var methodsDataReader = ByteArrayDataReaderFactory.CreateReader(bytes);
+        var tmp = methodsDataReader.ReadInt32();
+        if ((tmp & -16777216L) == 100663296L)
+            methodsDataReader.ReadInt32();
+        else
             methodsDataReader.Position -= 4U;
-            if ((tmp & unchecked((long)(ulong)-16777216)) == 100663296L)
+        var patchCount = methodsDataReader.ReadInt32();
+        var mode = methodsDataReader.ReadInt32();
+        tmp = methodsDataReader.ReadInt32();
+        methodsDataReader.Position -= 4U;
+        if ((tmp & -16777216L) == 100663296L)
+        {
+            methodsDataReader.Position += (uint)(8 * patchCount);
+            patchCount = methodsDataReader.ReadInt32();
+            mode = methodsDataReader.ReadInt32();
+            PatchDwords(Context.PeImage, ref methodsDataReader, patchCount);
+            while (methodsDataReader.Position < (ulong)(bytes.Length - 1))
             {
-                methodsDataReader.Position += (uint)(8 * patchCount);
-                patchCount = methodsDataReader.ReadInt32();
-                mode = methodsDataReader.ReadInt32();
-                PatchDwords(Context.PeImage, ref methodsDataReader, patchCount);
-                while (methodsDataReader.Position < (ulong)(methodsData.Length - 1))
-                {
-                    methodsDataReader.ReadUInt32();
-                    var numDwords = methodsDataReader.ReadInt32();
-                    PatchDwords(Context.PeImage, ref methodsDataReader, numDwords / 2);
-                }
-            }
-            else
-            {
-                if (!isFindDnrMethod || mode == 1)
-                {
-                    PatchDwords(Context.PeImage, ref methodsDataReader, patchCount);
-                    var isNewer45Decryption = IsNewer45Decryption(decryptorMethod);
-                    var isUsingOffset = !IsUsingRva(decryptorMethod);
-                    while (methodsDataReader.Position < (ulong)(methodsData.Length - 1))
-                    {
-                        var rva = (uint)methodsDataReader.ReadInt32();
-                        int size;
-                        if (!isNewer45Decryption)
-                        {
-                            methodsDataReader.ReadInt32();
-                            size = methodsDataReader.ReadInt32();
-                        }
-                        else
-                            size = methodsDataReader.ReadInt32() * 4;
-
-                        var newData = methodsDataReader.ReadBytes(size);
-                        if (Context.IsNative && isUsingOffset)
-                            Context.PeImage.DotNetSafeWriteOffset(rva, newData);
-                        else
-                            Context.PeImage.DotNetSafeWrite(rva, newData);
-                    }
-                }
-                else
-                {
-                    var methodDef = Context.PeImage.Metadata.TablesStream.MethodTable;
-                    var rvaToIndex = new Dictionary<uint, int>((int)methodDef.Rows);
-                    var offset = (uint)methodDef.StartOffset;
-                    var i = 0;
-                    while (i < methodDef.Rows)
-                    {
-                        var rva2 = Context.PeImage.OffsetReadUInt32(offset);
-                        offset += methodDef.RowSize;
-                        if (rva2 != 0U)
-                        {
-                            if ((Context.PeImage.ReadByte(rva2) & 3) == 2)
-                                rva2 += 1U;
-                            else
-                                rva2 += (uint)(4 * (Context.PeImage.ReadByte(rva2 + 1U) >> 4));
-                            rvaToIndex[rva2] = i;
-                        }
-
-                        i++;
-                    }
-
-                    PatchDwords(Context.PeImage, ref methodsDataReader, patchCount);
-                    methodsDataReader.ReadInt32();
-                    dumpedMethods = new DumpedMethods();
-                    while (methodsDataReader.Position < (ulong)(methodsData.Length - 1))
-                    {
-                        var rva3 = methodsDataReader.ReadUInt32();
-                        var index = methodsDataReader.ReadUInt32();
-                        var isNativeCode = index >= 1879048192U;
-                        var size2 = methodsDataReader.ReadInt32();
-                        var methodData = methodsDataReader.ReadBytes(size2);
-                        if (rvaToIndex.TryGetValue(rva3, out var methodIndex))
-                        {
-                            var methodToken = (uint)(100663297 + methodIndex);
-                            if (isNativeCode)
-                            {
-                                if (tokenToNativeCode != null) tokenToNativeCode[methodToken] = methodData;
-
-                                if (DeobUtils.IsCode(nativeLdci4, methodData))
-                                {
-                                    var val = BitConverter.ToUInt32(methodData, 4);
-                                    methodData = new byte[]
-                                    {
-                                        32,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        42
-                                    };
-                                    methodData[1] = (byte)val;
-                                    methodData[2] = (byte)(val >> 8);
-                                    methodData[3] = (byte)(val >> 16);
-                                    methodData[4] = (byte)(val >> 24);
-                                }
-                                else
-                                {
-                                    if (DeobUtils.IsCode(nativeLdci4_0, methodData))
-                                        methodData = new byte[]
-                                        {
-                                            22,
-                                            42
-                                        };
-                                    else
-                                    {
-                                        tokenToNativeMethod[methodToken] = methodData;
-                                        methodData = new byte[]
-                                        {
-                                            32,
-                                            222,
-                                            192,
-                                            173,
-                                            222,
-                                            109,
-                                            122
-                                        };
-                                    }
-                                }
-                            }
-
-                            var dumpedMethod = new DumpedMethod();
-                            Context.PeImage.ReadMethodTableRowTo(dumpedMethod,
-                                MDToken.ToRID(methodToken));
-                            dumpedMethod.code = methodData;
-                            var codeReader = Context.PeImage.Reader;
-                            codeReader.Position = Context.PeImage.RvaToOffset(dumpedMethod.mdRVA);
-                            var mbHeader = MethodBodyParser.ParseMethodBody(ref codeReader, out _,
-                                out dumpedMethod.extraSections);
-                            Context.PeImage.UpdateMethodHeaderInfo(dumpedMethod, mbHeader);
-                            dumpedMethods.Add(dumpedMethod);
-                        }
-                    }
-                }
+                methodsDataReader.ReadUInt32();
+                var numDwords = methodsDataReader.ReadInt32();
+                PatchDwords(Context.PeImage, ref methodsDataReader, numDwords / 2);
             }
         }
-        catch (Exception ex)
+        else
         {
-            Logger.Error("Failed to decrypt methods. " + ex.Message);
+            if (!isFindDnrMethod || mode == 1)
+            {
+                PatchDwords(Context.PeImage, ref methodsDataReader, patchCount);
+                var isNewer45Decryption = IsNewer45Decryption(_encryptedResource.DecrypterMethod);
+                var isUsingOffset = !IsUsingRva(_encryptedResource.DecrypterMethod);
+                while (methodsDataReader.Position < (ulong)(bytes.Length - 1))
+                {
+                    var rva = (uint)methodsDataReader.ReadInt32();
+                    int size;
+                    if (!isNewer45Decryption)
+                    {
+                        methodsDataReader.ReadInt32();
+                        size = methodsDataReader.ReadInt32();
+                    }
+                    else
+                        size = methodsDataReader.ReadInt32() * 4;
+
+                    var newData = methodsDataReader.ReadBytes(size);
+                    if (Context.ObfuscatorInfo.NativeStub && isUsingOffset)
+                        Context.PeImage.DotNetSafeWriteOffset(rva, newData);
+                    else
+                        Context.PeImage.DotNetSafeWrite(rva, newData);
+                }
+            }
+            else
+            {
+                var methodDef = Context.PeImage.Metadata.TablesStream.MethodTable;
+                var rvaToIndex = new Dictionary<uint, int>((int)methodDef.Rows);
+                var offset = (uint)methodDef.StartOffset;
+                var i = 0;
+                while (i < methodDef.Rows)
+                {
+                    var rva2 = Context.PeImage.OffsetReadUInt32(offset);
+                    offset += methodDef.RowSize;
+                    if (rva2 != 0U)
+                    {
+                        if ((Context.PeImage.ReadByte(rva2) & 3) == 2)
+                            rva2 += 1U;
+                        else
+                            rva2 += (uint)(4 * (Context.PeImage.ReadByte(rva2 + 1U) >> 4));
+                        rvaToIndex[rva2] = i;
+                    }
+
+                    i++;
+                }
+
+                PatchDwords(Context.PeImage, ref methodsDataReader, patchCount);
+                methodsDataReader.ReadInt32();
+                while (methodsDataReader.Position < (ulong)(bytes.Length - 1))
+                {
+                    var rva3 = methodsDataReader.ReadUInt32();
+                    var index = methodsDataReader.ReadUInt32();
+                    var isNativeCode = index >= 1879048192U;
+                    var size2 = methodsDataReader.ReadInt32();
+                    var methodData = methodsDataReader.ReadBytes(size2);
+                    if (!rvaToIndex.TryGetValue(rva3, out var methodIndex)) continue;
+                    var methodToken = (uint)(100663297 + methodIndex);
+                    if (isNativeCode)
+                    {
+                        if (DeobUtils.IsCode(_nativeLdci4, methodData))
+                        {
+                            var int32 = BitConverter.ToUInt32(methodData, 4);
+                            methodData = new byte[]
+                                { 32, (byte)int32, (byte)(int32 >> 8), (byte)(int32 >> 16), (byte)(int32 >> 24), 42 };
+                        }
+                        else
+                            methodData = DeobUtils.IsCode(_nativeLdci40, methodData)
+                                ? new byte[] { 22, 42 }
+                                : new byte[] { 32, 222, 192, 173, 222, 109, 122 };
+                    }
+
+                    var dumpedMethod = new DumpedMethod();
+                    Context.PeImage.ReadMethodTableRowTo(dumpedMethod,
+                        MDToken.ToRID(methodToken));
+                    dumpedMethod.code = methodData;
+                    var codeReader = Context.PeImage.Reader;
+                    codeReader.Position = Context.PeImage.RvaToOffset(dumpedMethod.mdRVA);
+                    var mbHeader = MethodBodyParser.ParseMethodBody(ref codeReader, out _,
+                        out dumpedMethod.extraSections);
+                    Context.PeImage.UpdateMethodHeaderInfo(dumpedMethod, mbHeader);
+                    dumpedMethods.Add(dumpedMethod);
+                }
+            }
         }
 
         using (Context.Module)
@@ -297,49 +208,24 @@ internal class MethodDecrypter : IStage
                 Context.Module = Context.AssemblyModule.Reload(
                     Context.ModuleBytes, CreateDumpedMethodsRestorer(dumpedMethods), null);
             else
-            {
-                Logger.Error("Failed to decrypt methods.");
-                return;
-            }
-
-            Context.NecroBit = true;
-            Logger.Done("Methods decrypted.");
+                return false;
         }
+
+        return true;
     }
 
-    private static MethodDef FindDnrCompileMethod(TypeDef type) =>
-        (from method in type.Methods
-         where method.IsStatic && method.Body != null
-         let sig = method.MethodSig
-         where sig != null && sig.Params.Count == 6
-         select method).FirstOrDefault(method => GetCompileMethodType(method) != CompileMethodType.Unknown);
-
-    private static CompileMethodType GetCompileMethodType(IMethod method)
+    private static bool IsNewer45Decryption(MethodDef method)
     {
-        if (DotNetUtils.IsMethod(method, "System.UInt32",
-                "(System.UInt64&,System.IntPtr,System.IntPtr,System.UInt32,System.IntPtr&,System.UInt32&)"))
-            return CompileMethodType.V1;
-
-        return DotNetUtils.IsMethod(method, "System.UInt32",
-            "(System.IntPtr,System.IntPtr,System.IntPtr,System.UInt32,System.IntPtr,System.UInt32&)")
-            ? CompileMethodType.V2
-            : CompileMethodType.Unknown;
-    }
-
-    private static DumpedMethodsRestorer CreateDumpedMethodsRestorer(DumpedMethods dumpedMethods)
-    {
-        if (dumpedMethods == null || dumpedMethods.Count == 0) return null;
-        return new DumpedMethodsRestorer(dumpedMethods);
-    }
-
-    private static void PatchDwords(MyPEImage peImage, ref DataReader reader, int count)
-    {
-        for (var i = 0; i < count; i++)
-        {
-            var rva = reader.ReadUInt32();
-            var data = reader.ReadUInt32();
-            peImage.DotNetSafeWrite(rva, BitConverter.GetBytes(data));
-        }
+        if (method?.Body == null) return false;
+        for (var i = 0; i < method.Body.Instructions.Count - 4; i++)
+            if (method.Body.Instructions[i].IsLdcI4())
+                if (method.Body.Instructions[i + 1].OpCode.Code.Equals(Code.Mul))
+                    if (method.Body.Instructions[i + 2].IsLdcI4())
+                        if (method.Body.Instructions[i + 3].OpCode.Code.Equals(Code.Ldloca_S) ||
+                            method.Body.Instructions[i + 3].OpCode.Code.Equals(Code.Ldloca))
+                            if (method.Body.Instructions[i + 4].OpCode.Code.Equals(Code.Call))
+                                return true;
+        return false;
     }
 
     private static bool IsUsingRva(MethodDef method)
@@ -357,18 +243,22 @@ internal class MethodDecrypter : IStage
                                       instrs[i + 8].OpCode.Code.Equals(Code.Call)).Any();
     }
 
-    private static bool IsNewer45Decryption(MethodDef method)
+    private static CompileMethodType GetCompileMethodType(IMethod method)
     {
-        if (method?.Body == null) return false;
-        for (var i = 0; i < method.Body.Instructions.Count - 4; i++)
-            if (method.Body.Instructions[i].IsLdcI4())
-                if (method.Body.Instructions[i + 1].OpCode.Code.Equals(Code.Mul))
-                    if (method.Body.Instructions[i + 2].IsLdcI4())
-                        if (method.Body.Instructions[i + 3].OpCode.Code.Equals(Code.Ldloca_S) ||
-                            method.Body.Instructions[i + 3].OpCode.Code.Equals(Code.Ldloca))
-                            if (method.Body.Instructions[i + 4].OpCode.Code.Equals(Code.Call))
-                                return true;
-        return false;
+        if (DotNetUtils.IsMethod(method, "System.UInt32",
+                "(System.UInt64&,System.IntPtr,System.IntPtr,System.UInt32,System.IntPtr&,System.UInt32&)"))
+            return CompileMethodType.V1;
+
+        return DotNetUtils.IsMethod(method, "System.UInt32",
+            "(System.IntPtr,System.IntPtr,System.IntPtr,System.UInt32,System.IntPtr,System.UInt32&)")
+            ? CompileMethodType.V2
+            : CompileMethodType.Unknown;
+    }
+
+    private static DumpedMethodsRestorer CreateDumpedMethodsRestorer(DumpedMethods dumpedMethods)
+    {
+        if (dumpedMethods == null || dumpedMethods.Count == 0) return null;
+        return new DumpedMethodsRestorer(dumpedMethods);
     }
 
     private static long GetXorKey(MethodDef method)
@@ -390,38 +280,52 @@ internal class MethodDecrypter : IStage
                 return result;
             }
 
-        Continue:;
+            Continue: ;
         }
 
-        return 0L;
+        return 0;
     }
 
-    private static EmbeddedResource GetEncryptedResource(MethodDef method)
+    private static MethodDef FindDnrCompileMethod(TypeDef type) =>
+        (from method in type.Methods
+            where method.IsStatic && method.Body != null
+            let sig = method.MethodSig
+            where sig != null && sig.Params.Count == 6
+            select method).FirstOrDefault(method => GetCompileMethodType(method) != CompileMethodType.Unknown);
+
+    private static void PatchDwords(MyPEImage peImage, ref DataReader reader, int count)
     {
-        if (method is not { HasBody: true } || !method.Body.HasInstructions) return null;
-        foreach (var s in DotNetUtils.GetCodeStrings(method))
-            if (DotNetUtils.GetResource(Context.Module, s) is EmbeddedResource resource)
-                return resource;
-        return null;
+        for (var i = 0; i < count; i++)
+        {
+            var rva = reader.ReadUInt32();
+            var data = reader.ReadUInt32();
+            peImage.DotNetSafeWrite(rva, BitConverter.GetBytes(data));
+        }
     }
 
     private static void XorEncrypt(byte[] data, long xorKey)
     {
-        if (xorKey != 0L)
+        if (xorKey == 0L) return;
+        var stream = new MemoryStream(data);
+        var reader = new BinaryReader(stream);
+        var writer = new BinaryWriter(stream);
+        var count = data.Length / 8;
+        for (var i = 0; i < count; i++)
         {
-            var stream = new MemoryStream(data);
-            var reader = new BinaryReader(stream);
-            var writer = new BinaryWriter(stream);
-            var count = data.Length / 8;
-            for (var i = 0; i < count; i++)
-            {
-                var val = reader.ReadInt64();
-                val ^= xorKey;
-                stream.Position -= 8L;
-                writer.Write(val);
-            }
+            var val = reader.ReadInt64();
+            val ^= xorKey;
+            stream.Position -= 8L;
+            writer.Write(val);
         }
     }
+
+    #endregion
+
+    #region Fields
+
+    private readonly short[] _nativeLdci4 = { 85, 139, 236, 184, -1, -1, -1, -1, 93, 195 };
+    private readonly short[] _nativeLdci40 = { 85, 139, 236, 51, 192, 93, 195 };
+    private EncryptedResource _encryptedResource;
 
     private enum CompileMethodType
     {
@@ -429,4 +333,6 @@ internal class MethodDecrypter : IStage
         V1,
         V2
     }
+
+    #endregion
 }

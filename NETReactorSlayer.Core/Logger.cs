@@ -14,15 +14,13 @@
 */
 
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace NETReactorSlayer.Core;
 
 internal class Logger
 {
-    public static bool Verbose;
-
     public static void Done(string message)
     {
         Console.Write("  [");
@@ -35,7 +33,7 @@ internal class Logger
 
     public static void Warn(string message)
     {
-        if (!Verbose)
+        if (!Context.Options.Verbose)
             return;
         Console.Write("  [");
         Console.ForegroundColor = ConsoleColor.DarkYellow;
@@ -68,15 +66,39 @@ internal class Logger
 
     public static void PrintUsage()
     {
+        List<string> arguments = new()
+        {
+            "--dec-methods BOOL", "              Decrypt methods body (True)",
+            "--fix-proxy BOOL", "                Fix proxied calls (True)",
+            "--dec-strings BOOL", "              Decrypt strings (True)",
+            "--dec-rsrc BOOL", "                 Decrypt assembly resources (True)",
+            "--dec-bools BOOL", "                Decrypt booleans (True)",
+            "--deob-cflow BOOL", "               Deobfuscate control flow (True)",
+            "--deob-tokens BOOL", "              Deobfuscate tokens (True)",
+            "--dump-asm BOOL", "                 Dump embedded assemblies (True)",
+            "--dump-costura BOOL", "             Dump assemblies that embedded by \"Costura.Fody\" (True)",
+            "--inline-methods BOOL", "           Inline short methods (True)",
+            "--rem-antis BOOL", "                Remove anti tamper & anti debugger (True)",
+            "--rem-sn BOOL", "                   Remove strong name removal protection (True)",
+            "--rem-calls BOOL", "                Remove calls to obfuscator methods (True)",
+            "--rem-junks BOOL", "                Remove junk types, methods, fields, etc... (True)",
+            "--rename FLAGS", "                  Rename n(amespaces), t(ypes), m(ethods), p(rops), e(vents), f(ields)",
+            "--rename-short BOOL", "             Remove short names (False)",
+            "--dont-rename BOOL", "              Don't rename classes, methods, etc... (False)",
+            "--keep-types BOOL", "               Keep obfuscator types, methods, fields, etc... (False)",
+            "--preserve-all BOOL", "             Preserve all metadata tokens (False)",
+            "--keep-max-stack BOOL", "           Keep old max stack value (False)",
+            "--no-pause BOOL", "                 Close cli immediately after deobfuscation (False)",
+            "--verbose BOOL", "                  Verbose mode (False)"
+        };
         Console.Write("  Usage: ");
         Console.ForegroundColor = ConsoleColor.Gray;
         Console.WriteLine("NETReactorSlayer <AssemblyPath> <Options>\r\n");
         Console.ForegroundColor = ConsoleColor.White;
         Console.WriteLine("  Options:");
         Console.ForegroundColor = ConsoleColor.Gray;
-        for (var i = 0; i < Program.Context.DeobfuscatorOptions.Arguments.Count; i += 2)
-            Console.WriteLine("  " + Program.Context.DeobfuscatorOptions.Arguments[i] + "   " +
-                              Program.Context.DeobfuscatorOptions.Arguments[i + 1]);
+        for (var i = 0; i < arguments.Count; i += 2)
+            Console.WriteLine("  " + arguments[i] + "   " + arguments[i + 1]);
         Console.ForegroundColor = ConsoleColor.White;
     }
 
@@ -110,7 +132,8 @@ internal class Logger
         Console.ForegroundColor = ConsoleColor.White;
         Console.Write("  Version: ");
         Console.ForegroundColor = ConsoleColor.DarkCyan;
-        Console.WriteLine(FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion);
+        Console.WriteLine((Attribute.GetCustomAttribute(Assembly.GetEntryAssembly() ?? throw new InvalidOperationException(),
+            typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute)?.InformationalVersion);
         Console.ForegroundColor = ConsoleColor.White;
         Console.Write("  Supported .NET Reactor versions: ");
         Console.ForegroundColor = ConsoleColor.DarkCyan;

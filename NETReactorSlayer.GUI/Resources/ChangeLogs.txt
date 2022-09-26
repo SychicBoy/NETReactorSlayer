@@ -1,1 +1,8 @@
-No change logs available.
+Changes:
+-Bug fixes and stability improvements.
+
+New features:
+-Rename obfuscated symbols name.
+-Restore the type of fields & parameters that have had their type turned into object.
+-Support both static & dynamic control flow deobfuscation.
+-Support both static & dynamic string decryption.

@@ -19,5 +19,9 @@ namespace NETReactorSlayer_x64;
 
 internal class Program
 {
-    [STAThread] private static void Main(string[] args) => NETReactorSlayer.Core.Program.Main(args);
+    [STAThread]
+    private static void Main(string[] args)
+    {
+        NETReactorSlayer.Core.Program.Main(args);
+    }
 }

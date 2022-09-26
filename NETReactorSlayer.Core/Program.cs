@@ -16,44 +16,19 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
+using NETReactorSlayer.Core.Deobfuscators;
 
 namespace NETReactorSlayer.Core;
 
 public class Program
 {
-    public static Context Context = new();
-
     public static void Main(string[] args)
     {
-        #region Delete Temporary Files
-
-        if (args is { Length: 3 } && args[0] == "--del-temp" && int.TryParse(args[1], out var id) &&
-            File.Exists(args[2]))
-            try
-            {
-                if (Process.GetProcessById(id) is { } process)
-                {
-                    process.WaitForExit();
-                    while (File.Exists(args[2]))
-                    {
-                        try
-                        {
-                            File.Delete(args[2]);
-                        }
-                        catch { }
-
-                        Thread.Sleep(1000);
-                    }
-
-                    Process.GetCurrentProcess().Kill();
-                    return;
-                }
-            }
-            catch { }
-
-        #endregion
+        if (!CheckArguments(args))
+            return;
 
         Console.Title = ".NET Reactor Slayer";
         Console.OutputEncoding = Encoding.UTF8;
@@ -64,32 +39,94 @@ public class Program
             Console.Clear();
             Logger.PrintLogo();
         }
-        catch { }
+        catch
+        {
+        }
 
         Context = new Context();
-        if (Context.Parse(args))
+        if (Context.Load(new Options(args)))
         {
-            foreach (var deobfuscatorStage in Context.DeobfuscatorOptions.Stages)
+            DeobfuscateBegin();
+            DeobfuscateEnd();
+        }
+
+        if (Context.Options.NoPause)
+            return;
+
+        Console.WriteLine("\r\n  Press any key to exit . . .");
+        Console.ReadKey();
+    }
+
+    #region Private Methods
+
+    private static bool CheckArguments(string[] args)
+    {
+        if (args is not { Length: 3 } || args[0] != "--del-temp" ||
+            !int.TryParse(args[1], out var id) || !File.Exists(args[2])) return true;
+
+        try
+        {
+            if (Process.GetProcessById(id) is { } process)
+            {
+                process.WaitForExit();
+                while (File.Exists(args[2]))
+                {
+                    try
+                    {
+                        File.Delete(args[2]);
+                    }
+                    catch
+                    {
+                    }
+
+                    Thread.Sleep(1000);
+                }
+
+                Process.GetCurrentProcess().Kill();
+                return false;
+            }
+        }
+        catch
+        {
+        }
+
+        return true;
+    }
+
+    private static void DeobfuscateBegin()
+    {
+        foreach (var deobfuscatorStage in Context.Options.Stages)
+        {
+            var thread = new Thread(() =>
+            {
                 try
                 {
-                    var thread = new Thread(deobfuscatorStage.Execute, 1024 * 1024 * 64);
-                    thread.Start();
-                    thread.Join();
-                    while (thread.IsAlive)
-                        Thread.Sleep(500);
+                    deobfuscatorStage.Execute();
                 }
                 catch (Exception ex)
                 {
                     Logger.Error($"{deobfuscatorStage.GetType().Name}: {ex.Message}");
                 }
-
-            Context.Save();
-        }
-
-        if (!Context.NoPause)
-        {
-            Console.WriteLine("\r\n  Press any key to exit . . .");
-            Console.ReadKey();
+            }, 1024 * 1024 * 64);
+            thread.Start();
+            thread.Join();
+            while (thread.IsAlive) Thread.Sleep(500);
         }
     }
+
+    private static void DeobfuscateEnd()
+    {
+        if (Context.Options.Stages.Any(x => x.GetType().Name.Equals(nameof(MethodInliner))))
+            if (MethodInliner.InlinedMethods > 0)
+                Logger.Done(MethodInliner.InlinedMethods + " Methods inlined.");
+            else Logger.Warn("Couldn't find any outline method.");
+
+        Context.Save();
+    }
+
+    #endregion
+
+    #region Fields
+    public static Context Context = new();
+    #endregion
 }

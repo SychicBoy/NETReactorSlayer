@@ -21,13 +21,6 @@ namespace NETReactorSlayer.GUI.UserControls;
 
 public class NrsCheckBox : CheckBox
 {
-    public enum ControlState
-    {
-        Normal,
-        Hover,
-        Pressed
-    }
-
     #region Constructor Region
 
     public NrsCheckBox()
@@ -53,6 +46,13 @@ public class NrsCheckBox : CheckBox
     }
 
     #endregion
+
+    public enum ControlState
+    {
+        Normal,
+        Hover,
+        Pressed
+    }
 
     #region Field Region
 
@@ -279,7 +279,6 @@ public class NrsCheckBox : CheckBox
         var fillColor = FillColor;
 
         if (Enabled)
-        {
             switch (_controlState)
             {
                 case ControlState.Hover:
@@ -293,7 +292,6 @@ public class NrsCheckBox : CheckBox
                     fillColor = PressFillColor;
                     break;
             }
-        }
 
         using (var b = new SolidBrush(BackColor))
         {

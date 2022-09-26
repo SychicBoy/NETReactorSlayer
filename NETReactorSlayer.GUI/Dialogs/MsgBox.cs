@@ -27,44 +27,6 @@ namespace NETReactorSlayer.GUI.Dialogs;
 
 internal class MsgBox : Form
 {
-    public enum AnimateStyle
-    {
-        SlideDown = 1,
-        FadeIn = 2,
-        ZoomIn = 3
-    }
-
-    public enum MsgButtons
-    {
-        AbortRetryIgnore = 1,
-        Ok = 2,
-        OkCancel = 3,
-        RetryCancel = 4,
-        YesNo = 5,
-        YesNoCancel = 6
-    }
-
-    public enum MsgIcon
-    {
-        Error = 3,
-        Warning = 4,
-        Info = 5,
-        Question = 6
-    }
-
-    private static MsgBox _msgBox;
-    private static DialogResult _buttonResult;
-    private static Timer _timer;
-    private readonly List<Button> _buttonCollection = new();
-    private readonly FlowLayoutPanel _flpButtons = new();
-    private readonly Label _lblMessage;
-    private readonly Label _lblTitle;
-    private readonly PictureBox _picIcon = new();
-    private readonly Panel _plBase = new();
-    private readonly Panel _plFooter = new();
-    private readonly Panel _plHeader = new();
-    private readonly Panel _plIcon = new();
-
     private MsgBox()
     {
         FormBorderStyle = FormBorderStyle.None;
@@ -267,8 +229,8 @@ internal class MsgBox : Form
 
     private static void timer_Tick(object sender, EventArgs e)
     {
-        var timer = (Timer) sender;
-        var animate = (AnimateMsgBox) timer.Tag;
+        var timer = (Timer)sender;
+        var animate = (AnimateMsgBox)timer.Tag;
 
         switch (animate.Style)
         {
@@ -509,7 +471,7 @@ internal class MsgBox : Form
 
     private void ButtonClick(object sender, EventArgs e)
     {
-        var btn = (Button) sender;
+        var btn = (Button)sender;
 
         _buttonResult = btn.Text switch
         {
@@ -536,7 +498,7 @@ internal class MsgBox : Form
 
         if (message.Length < 150)
         {
-            if ((int) size.Width > 350) width = (int) size.Width;
+            if ((int)size.Width > 350) width = (int)size.Width;
         }
         else
         {
@@ -595,16 +557,56 @@ internal class MsgBox : Form
         };
         timer.Start();
     }
+
+    private readonly List<Button> _buttonCollection = new();
+    private readonly FlowLayoutPanel _flpButtons = new();
+    private readonly Label _lblMessage;
+    private readonly Label _lblTitle;
+    private readonly PictureBox _picIcon = new();
+    private readonly Panel _plBase = new();
+    private readonly Panel _plFooter = new();
+    private readonly Panel _plHeader = new();
+    private readonly Panel _plIcon = new();
+
+    private static DialogResult _buttonResult;
+
+    private static MsgBox _msgBox;
+    private static Timer _timer;
+
+    public enum AnimateStyle
+    {
+        SlideDown = 1,
+        FadeIn = 2,
+        ZoomIn = 3
+    }
+
+    public enum MsgButtons
+    {
+        AbortRetryIgnore = 1,
+        Ok = 2,
+        OkCancel = 3,
+        RetryCancel = 4,
+        YesNo = 5,
+        YesNoCancel = 6
+    }
+
+    public enum MsgIcon
+    {
+        Error = 3,
+        Warning = 4,
+        Info = 5,
+        Question = 6
+    }
 }
 
 internal class AnimateMsgBox
 {
-    public Size FormSize;
-    public MsgBox.AnimateStyle Style;
-
     public AnimateMsgBox(Size formSize, MsgBox.AnimateStyle style)
     {
         FormSize = formSize;
         Style = style;
     }
+
+    public Size FormSize;
+    public MsgBox.AnimateStyle Style;
 }

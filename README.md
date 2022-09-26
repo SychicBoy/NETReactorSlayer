@@ -1,6 +1,6 @@
 <p align="center">
-  <img alt=".NETReactorSlayer Logo" src="Logo-Dark.png#gh-dark-mode-only" width="1000" />
-   <img alt=".NETReactorSlayer Logo" src="Logo-Light.png#gh-light-mode-only" width="1000" />
+  <img alt=".NETReactorSlayer Logo" src="./Images/Logo-Dark.png#gh-dark-mode-only" width="1000" />
+   <img alt=".NETReactorSlayer Logo" src="./Images/Logo-Light.png#gh-light-mode-only" width="1000" />
 </p>
 
 # .NETReactorSlayer <br /> <a href="https://github.com/SychicBoy/NETReactorSlayer/actions"> <img src="https://github.com/SychicBoy/NETReactorSlayer/actions/workflows/build.yml/badge.svg"></img> </a> <a href="https://github.com/SychicBoy/NETReactorSlayer/releases/latest"> <img src="https://img.shields.io/github/v/release/SychicBoy/NETReactorSlayer"></img> </a> <a href="#"> <img src="https://img.shields.io/github/downloads/SychicBoy/NETReactorSlayer/total"></img> </a> <a href="#license"> <img src="https://img.shields.io/github/license/SychicBoy/NETReactorSlayer"></img> </a> <a href="https://github.com/SychicBoy/NETReactorSlayer/commits/master"> <img src="https://img.shields.io/github/last-commit/SychicBoy/NETReactorSlayer"></img> </a> <a href="https://commerce.coinbase.com/checkout/1d7bb9ea-4853-4271-95c0-8996d2bdf3c6"><img src="https://img.shields.io/badge/donate-crypto-f46db0" alt="Donate crypto"></img></a>
@@ -20,16 +20,19 @@ GUI             |  CLI
 | Command | Description | Default Value |
 | ------ | ------ | ------ |
 |  | Unpack native stub |  |
-| `--dec-methods` | Decrypt methods that encrypted by Necrobit | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
-| `--dec-calls` | Decrypt hidden calls | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| `--dec-methods` | Decrypt methods body | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| `--fix-proxy` | Fix proxied calls | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | `--dec-strings` | Decrypt strings | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | `--dec-rsrc` | Decrypt assembly resources | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
-| `--dec-tokens` | Decrypt tokens | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | `--dec-bools` | Decrypt booleans | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | `--deob-cflow` | Deobfuscate control flow | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| `--deob-tokens` | Decrypt tokens | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | `--dump-asm` | Dump embedded assemblies | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | `--dump-costura` | Dump assemblies that embedded by Costura.Fody | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | `--inline-methods` | Inline short methods | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
+| `--rename` | Rename n(amespaces), t(ypes), m(ethods), p(rops), e(vents), f(ields) | &nbsp; &nbsp; &nbsp;&nbsp; ntmfe |
+| `--rename-short` | Remove short names | &nbsp; &nbsp; &nbsp;&nbsp; False |
+| `--dont-rename` | Don't rename classes, methods, etc.. | &nbsp; &nbsp; &nbsp;&nbsp; False |
 | `--rem-antis` | Remove anti tamper & anti debugger | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | `--rem-sn` | Remove strong name removal protection | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
 | `--rem-calls` | Remove calls to obfuscator methods | &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; True |
@@ -40,11 +43,8 @@ GUI             |  CLI
 | `--no-pause` | Close CLI immediately after deobfuscation | &nbsp; &nbsp; &nbsp;&nbsp; False |
 | `--verbose` | Verbose mode | &nbsp; &nbsp; &nbsp;&nbsp; False |
 
-### Usage:
-Just drag and drop target obfuscated assembly on it.
-
 ### Known Issues:
-- If target assembly not working after deobfuscation try using `--preserve-all` and/or `--keep-max-stack` command(s).
+- If target file is not working after deobfuscation try using `--preserve-all` and/or `--keep-max-stack` command(s).
 
 - Since **.NETReactorSlayer** does not yet have the ability to de-virtualize virtualized functions, if the target protected assembly contains virtualized functions, **.NETReactorSlayer** may fail to de-obfuscate some protections such as string encryption and control flow.
 

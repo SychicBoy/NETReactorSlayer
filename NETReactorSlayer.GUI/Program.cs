@@ -27,11 +27,9 @@ internal static class Program
     [STAThread]
     private static void Main(string[] args)
     {
-        if (Environment.Version.Major >= 3)
-            SetProcessDPIAware();
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
-        if (args is {Length: > 0})
+        if (args is { Length: > 0 })
             if (args[0] == "updated")
             {
                 Application.Run(new MainWindow(args[0]));
@@ -41,5 +39,6 @@ internal static class Program
         Application.Run(new MainWindow());
     }
 
-    [DllImport("user32.dll")] private static extern void SetProcessDPIAware();
+    [DllImport("user32.dll")]
+    private static extern void SetProcessDPIAware();
 }

@@ -23,10 +23,6 @@ namespace NETReactorSlayer.GUI.UserControls;
 
 public class NrsScrollBar : Control
 {
-    public static int ScrollBarSize = 16;
-    public static int ArrowButtonSize = 15;
-    public static int MinimumThumbSize = 11;
-
     #region Constructor Region
 
     public NrsScrollBar()
@@ -43,12 +39,6 @@ public class NrsScrollBar : Control
         };
         _scrollTimer.Tick += ScrollTimerTick;
     }
-
-    #endregion
-
-    #region Event Region
-
-    public event EventHandler<ScrollValueEventArgs> ValueChanged;
 
     #endregion
 
@@ -108,6 +98,17 @@ public class NrsScrollBar : Control
             g.FillRectangle(b, _thumbArea);
         }
     }
+
+    #endregion
+
+    public static int ArrowButtonSize = 15;
+    public static int MinimumThumbSize = 11;
+
+    public static int ScrollBarSize = 16;
+
+    #region Event Region
+
+    public event EventHandler<ScrollValueEventArgs> ValueChanged;
 
     #endregion
 
@@ -438,7 +439,10 @@ public class NrsScrollBar : Control
 
     #region Method Region
 
-    public void ScrollTo(int position) => Value = position;
+    public void ScrollTo(int position)
+    {
+        Value = position;
+    }
 
     public void ScrollToPhysical(int positionInPixels)
     {
@@ -446,10 +450,10 @@ public class NrsScrollBar : Control
 
         var trackAreaSize = isVert ? _trackArea.Height - _thumbArea.Height : _trackArea.Width - _thumbArea.Width;
 
-        var positionRatio = positionInPixels / (float) trackAreaSize;
+        var positionRatio = positionInPixels / (float)trackAreaSize;
         var viewScrollSize = Maximum - ViewSize;
 
-        var newValue = (int) (positionRatio * viewScrollSize);
+        var newValue = (int)(positionRatio * viewScrollSize);
         Value = newValue;
     }
 
@@ -502,21 +506,21 @@ public class NrsScrollBar : Control
         if (Value > maximumValue)
             Value = maximumValue;
 
-        _viewContentRatio = ViewSize / (float) Maximum;
+        _viewContentRatio = ViewSize / (float)Maximum;
         var viewAreaSize = Maximum - ViewSize;
-        var positionRatio = Value / (float) viewAreaSize;
+        var positionRatio = Value / (float)viewAreaSize;
 
         switch (_scrollOrientation)
         {
             case ScrollOrientation.Vertical:
             {
-                var thumbSize = (int) (_trackArea.Height * _viewContentRatio);
+                var thumbSize = (int)(_trackArea.Height * _viewContentRatio);
 
                 if (thumbSize < MinimumThumbSize)
                     thumbSize = MinimumThumbSize;
 
                 var trackAreaSize = _trackArea.Height - thumbSize;
-                var thumbPosition = (int) (trackAreaSize * positionRatio);
+                var thumbPosition = (int)(trackAreaSize * positionRatio);
 
                 _thumbArea = new Rectangle(_trackArea.Left + 3, _trackArea.Top + thumbPosition, ScrollBarSize - 6,
                     thumbSize);
@@ -524,13 +528,13 @@ public class NrsScrollBar : Control
             }
             case ScrollOrientation.Horizontal:
             {
-                var thumbSize = (int) (_trackArea.Width * _viewContentRatio);
+                var thumbSize = (int)(_trackArea.Width * _viewContentRatio);
 
                 if (thumbSize < MinimumThumbSize)
                     thumbSize = MinimumThumbSize;
 
                 var trackAreaSize = _trackArea.Width - thumbSize;
-                var thumbPosition = (int) (trackAreaSize * positionRatio);
+                var thumbPosition = (int)(trackAreaSize * positionRatio);
 
                 _thumbArea = new Rectangle(_trackArea.Left + thumbPosition, _trackArea.Top + 3, thumbSize,
                     ScrollBarSize - 6);
@@ -552,7 +556,10 @@ public class NrsScrollBar : Control
 
 public class ScrollValueEventArgs : EventArgs
 {
-    public ScrollValueEventArgs(int value) => Value = value;
+    public ScrollValueEventArgs(int value)
+    {
+        Value = value;
+    }
 
     public int Value { get; }
 }

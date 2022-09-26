@@ -24,19 +24,19 @@ internal class CosturaDumper : IStage
 {
     public void Execute()
     {
-        var count = 0L;
+        long count = 0;
         foreach (var resource in Context.Module.Resources)
         {
             if (resource is not EmbeddedResource embeddedResource) continue;
             if (embeddedResource.Name == "costura.metadata")
             {
-                Cleaner.ResourceToRemove.Add(embeddedResource);
+                Cleaner.AddResourceToBeRemoved(embeddedResource);
                 continue;
             }
 
             if (!embeddedResource.Name.EndsWith(".compressed")) continue;
-            Cleaner.ResourceToRemove.Add(embeddedResource);
-            count += 1L;
+            Cleaner.AddResourceToBeRemoved(embeddedResource);
+            count++;
             try
             {
                 using var resourceStream = embeddedResource.CreateReader().AsStream();
@@ -47,38 +47,47 @@ internal class CosturaDumper : IStage
                 {
                     memoryStream.Position = 0L;
                     File.WriteAllBytes(
-                        $"{Context.SourceDir}\\{GetAssemblyName(memoryStream.ToArray(), false)}.dll",
+                        $"{Context.Options.SourceDir}\\{GetAssemblyName(memoryStream.ToArray(), false)}.dll",
                         memoryStream.ToArray());
-                } catch
+                }
+                catch
                 {
                     File.WriteAllBytes(
-                        $"{Context.SourceDir}\\{embeddedResource.Name.Replace(".compressed", "").Replace("costura.", "")}",
+                        $"{Context.Options.SourceDir}\\{embeddedResource.Name.Replace(".compressed", "").Replace("costura.", "")}",
                         memoryStream.ToArray());
                 }
 
                 memoryStream.Close();
                 deflateStream.Close();
-            } catch { }
+            }
+            catch
+            {
+            }
         }
 
         try
         {
-            for (var i = 0;
-                 i < Context.Module.GlobalType.FindStaticConstructor().Body.Instructions.ToList().Count;
-                 i++)
-                if (Context.Module.GlobalType.FindStaticConstructor().Body.Instructions[i].Operand
-                    .ToString().Contains("Costura.AssemblyLoader::Attach()"))
+            var cctor = Context.Module.GlobalType.FindStaticConstructor();
+            if (cctor.HasBody && cctor.Body.HasInstructions)
+                for (var i = 0; i < cctor.Body.Instructions.ToList().Count; i++)
                 {
-                    Context.Module.GlobalType.FindStaticConstructor().Body.Instructions.RemoveAt(i);
+                    if (cctor.Body.Instructions[i].Operand == null || !cctor.Body.Instructions[i].Operand
+                            .ToString().Contains("Costura.AssemblyLoader::Attach()")) continue;
+                    cctor.Body.Instructions.RemoveAt(i);
                     break;
                 }
-        } catch { }
+        }
+        catch
+        {
+        }
 
-        if (count > 0L)
-            Logger.Done((int) count + " Embedded assemblies dumped (Costura.Fody).");
+        if (count > 0)
+            Logger.Done(count + " Embedded assemblies dumped (Costura.Fody).");
         else
             Logger.Warn("Couldn't find any embedded assembly (Costura.Fody).");
     }
+
+    #region Private Methods
 
     private static string GetAssemblyName(byte[] data, bool fullName)
     {
@@ -87,9 +96,12 @@ internal class CosturaDumper : IStage
             using var module = ModuleDefMD.Load(data);
             if (fullName) return module.Assembly.FullName;
             return module.Assembly.Name;
-        } catch
+        }
+        catch
         {
             return null;
         }
     }
+
+    #endregion
 }

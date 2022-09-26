@@ -37,24 +37,15 @@ namespace NETReactorSlayer.GUI;
 
 public partial class MainWindow : Form
 {
-    private const int WmSetredraw = 11;
-    private static string _lastVersion;
-    private readonly StringBuilder _arguments = new();
-    private readonly Logger _logger;
-    private bool _isClosing;
-    private bool _isLogsScrollLocked;
-    private bool _isMouseDown;
-    private Point _lastLocation;
-
-    private bool _return;
-
+    private static readonly string InformationalVersion = (Attribute.GetCustomAttribute(Assembly.GetEntryAssembly() ?? throw new InvalidOperationException(),
+        typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute)?.InformationalVersion;
     public MainWindow(string arg = "")
     {
         if (arg == "updated")
-            MsgBox.Show(Resources.ChangeLogs.Replace("\n", "\n● "), "What's New", MsgBox.MsgButtons.Ok,
+            MsgBox.Show(Resources.ChangeLogs.Replace("\n-", "\n● "), "What's New", MsgBox.MsgButtons.Ok,
                 MsgBox.MsgIcon.Info, this);
         InitializeComponent();
-        lblVersion.Text = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
+        lblVersion.Text = InformationalVersion;
         txtLogs.Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, txtLogs.Width, txtLogs.Height, 25, 20));
         pnlBase.Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, pnlBase.Width, pnlBase.Height, 25, 20));
         pnlTextBox.Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, pnlTextBox.Width, pnlTextBox.Height, 25, 20));
@@ -98,16 +89,7 @@ public partial class MainWindow : Form
         };
         ctxLogs.Renderer = new ToolStripProfessionalRenderer(new MenuColorTable());
         ctxMenu.Renderer = new ToolStripProfessionalRenderer(new MenuColorTable());
-    }
-
-    protected override CreateParams CreateParams
-    {
-        get
-        {
-            var cp = base.CreateParams;
-            cp.ClassStyle |= 0x00020000;
-            return cp;
-        }
+        ctxRename.Renderer = new ToolStripProfessionalRenderer(new MenuColorTable());
     }
 
     private async void btnStart_Click(object sender, EventArgs e)
@@ -150,7 +132,8 @@ public partial class MainWindow : Form
                 _logger.WriteLine("X64", Color.SteelBlue);
             else
                 _logger.WriteLine("X86", Color.SteelBlue);
-        } catch
+        }
+        catch
         {
             try
             {
@@ -160,7 +143,8 @@ public partial class MainWindow : Form
                 _logger.WriteLine(Path.GetFileName(image.Filename), Color.SteelBlue);
                 _logger.Write("  Architecture: ");
                 _logger.WriteLine(isX64 ? "X64" : "X86", Color.SteelBlue);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.Write("  Error: ");
                 _logger.WriteLine(ex.Message.Replace("\r", "").Replace("\n", ". "), Color.Firebrick);
@@ -269,7 +253,7 @@ public partial class MainWindow : Form
 
     private async void txtInput_DragDrop(object sender, DragEventArgs e)
     {
-        if ((string[]) e.Data.GetData(DataFormats.FileDrop) is { } files && files.Length != 0)
+        if ((string[])e.Data.GetData(DataFormats.FileDrop) is { } files && files.Length != 0)
         {
             if (CheckInputFile(files[0]))
                 txtInput.Text = files[0];
@@ -326,7 +310,10 @@ public partial class MainWindow : Form
             txtLogs.SelectionStart = txtLogs.Find(txtLogs.Lines[scrollbarLogs.Value]) - 1;
             txtLogs.SelectionLength = 0;
             txtLogs.ScrollToCaret();
-        } catch { }
+        }
+        catch
+        {
+        }
 
         EndControlUpdate(txtLogs);
     }
@@ -348,10 +335,10 @@ public partial class MainWindow : Form
     }
 
     private void llblWebsite_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) =>
-        Process.Start((sender as LinkLabel).Tag.ToString());
+        Process.Start((sender as LinkLabel)?.Tag.ToString() ?? throw new InvalidOperationException());
 
     private void llblGitHub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) =>
-        Process.Start((sender as LinkLabel).Tag.ToString());
+        Process.Start((sender as LinkLabel)?.Tag.ToString() ?? throw new InvalidOperationException());
 
     private void picBrowse_Click(object sender, EventArgs e)
     {
@@ -401,7 +388,9 @@ public partial class MainWindow : Form
                                 MsgBox.MsgButtons.YesNoCancel, MsgBox.MsgIcon.Question, this) == DialogResult.Yes)
                             InstallLatestVersion();
                 }
-                catch { }
+                catch
+                {
+                }
             }
         };
         timer.Start();
@@ -433,11 +422,18 @@ public partial class MainWindow : Form
             try
             {
                 File.OpenRead(filePath).Close();
-                using (File.Create(Path.Combine(Path.GetDirectoryName(filePath), Path.GetRandomFileName()),
-                           1, FileOptions.DeleteOnClose)) { }
+                using (File.Create(
+                           Path.Combine(Path.GetDirectoryName(filePath) ?? throw new InvalidOperationException(),
+                               Path.GetRandomFileName()),
+                           1, FileOptions.DeleteOnClose))
+                {
+                }
 
                 return true;
-            } catch { }
+            }
+            catch
+            {
+            }
 
         return false;
     }
@@ -492,10 +488,16 @@ public partial class MainWindow : Form
         int nLeftRect, int nTopRect, int nRightRect, int nBottomRect,
         int nWidthEllipse, int nHeightEllipse);
 
-    [DllImport("user32.dll")] private static extern int HideCaret(IntPtr hwnd);
+    [DllImport("user32.dll")]
+    private static extern int HideCaret(IntPtr hwnd);
 
     private void CheckedChanged(object sender, EventArgs e)
     {
+        if (sender as NrsCheckBox == chkPreserveAll && chkPreserveAll!.Checked)
+            chkKeepTypes.Checked = true;
+        else if (sender as NrsCheckBox == chkKeepTypes && chkPreserveAll!.Checked && !chkKeepTypes!.Checked)
+            chkPreserveAll.Checked = false;
+
         if ((from x in tabelOptions.Controls.OfType<NrsCheckBox>()
                 where x.Name != "chkSelectUnSelectAll"
                 select x).Any(control => !control.Checked))
@@ -521,6 +523,21 @@ public partial class MainWindow : Form
         }
 
         var @checked = chkSelectUnSelectAll.Checked;
+        if (!@checked)
+        {
+            chkRename.Tag = "--dont-rename";
+            chkRename.Checked = false;
+            foreach (ToolStripMenuItem control in ctxRename.Items)
+                control.Text = control.Text.Replace("✓", "X");
+        }
+        else
+        {
+            chkRename.Tag = "--rename --rename ntmfpe";
+            chkRename.Checked = true;
+            foreach (ToolStripMenuItem control in ctxRename.Items)
+                control.Text = control.Text.Replace("X", "✓");
+        }
+
         foreach (var control in from x in tabelOptions.Controls.OfType<NrsCheckBox>()
                  where x.Name != @"chkSelectUnSelectAll"
                  select x)
@@ -536,12 +553,13 @@ public partial class MainWindow : Form
     private void picMenu_MouseLeave(object sender, EventArgs e) => picMenu.Image = Resources.Menu;
 
     private void picMenu_MouseClick(object sender, MouseEventArgs e) =>
-        ctxMenu.Show(sender as Control, new Point(e.X, e.Y));
+        ctxMenu.Show(sender as Control ?? throw new InvalidOperationException(), new Point(e.X, e.Y));
 
     private void toolStripMenuItem4_Click(object sender, EventArgs e) => Close();
 
-    private void toolStripMenuItem7_Click(object sender, EventArgs e) => MsgBox.Show(
-        $@"Product Name: .NETReactorSlayer
+    private void toolStripMenuItem7_Click(object sender, EventArgs e) =>
+        MsgBox.Show(
+            $@"Product Name: .NETReactorSlayer
 Version: {lblVersion.Text}
 Description: An open source (GPLv3) deobfuscator for Eziriz .NET Reactor
 Author: SychicBoy
@@ -562,7 +580,8 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
                         MsgBox.MsgButtons.YesNoCancel, MsgBox.MsgIcon.Question, this) == DialogResult.Yes)
                     InstallLatestVersion();
             }
-        } catch (Exception exception)
+        }
+        catch (Exception exception)
         {
             MsgBox.Show(exception.Message, ".NETReactorSlayer", MsgBox.MsgButtons.Ok, MsgBox.MsgIcon.Error, this);
         }
@@ -579,8 +598,7 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
         response.Dispose();
         client.Dispose();
         var latestVersionStr = _lastVersion = responseUri.Substring(responseUri.LastIndexOf('/') + 1);
-        var currentVersionStr = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location)
-            .FileVersion;
+        var currentVersionStr = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
 
         if (int.TryParse(Regex.Match(latestVersionStr, @"\d+\.\d+\.\d+\.\d+").Value.Replace(".", string.Empty),
                 out var latestVersion) && int.TryParse(
@@ -605,7 +623,7 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
             $"https://github.com/SychicBoy/NETReactorSlayer/releases/download/{_lastVersion}/NETReactorSlayer.zip";
         var client = new HttpClient();
         var response = await client.GetAsync(downloadUrl);
-        File.WriteAllBytes(tmpPath, new byte[] {0});
+        File.WriteAllBytes(tmpPath, new byte[] { 0 });
         using var fs = new FileStream(tmpPath, FileMode.Open, FileAccess.ReadWrite);
         await response.Content.CopyToAsync(fs);
 
@@ -621,10 +639,11 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
                       " & " +
                       $"\"{baseDir}\\NETReactorSlayer.exe\" updated";
         Process.Start(new ProcessStartInfo("cmd.exe",
-            "/C ping 1.1.1.1 -n 1 -w 3000 > Nul & " + command)
-        {
-            WindowStyle = ProcessWindowStyle.Hidden
-        }).Dispose();
+                "/C ping 1.1.1.1 -n 1 -w 3000 > Nul & " + command)
+            {
+                WindowStyle = ProcessWindowStyle.Hidden
+            })
+            ?.Dispose();
         Process.GetCurrentProcess().Kill();
     }
 
@@ -638,5 +657,74 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
     {
         if (directory.EndsWith("\\"))
             directory = directory.Substring(0, directory.Length - 1);
+    }
+
+    private void SetRenamingOptions(object sender, EventArgs e)
+    {
+        if (sender is not ToolStripMenuItem control) return;
+        if (control.Tag is not string option || chkRename.Tag is not string tag) return;
+        tag = tag.Replace("--rename ", string.Empty).Replace("--dont-rename", string.Empty);
+        var text = control.Text;
+        if (text.Contains("✓"))
+        {
+            control.Text = text.Replace("✓", "X");
+            chkRename.Tag = "--rename " + tag.Replace(option, string.Empty);
+        }
+        else if (text.Contains("X") && !tag.Contains(option))
+        {
+            control.Text = text.Replace("X", "✓");
+            chkRename.Tag = $"--rename {tag}{option}";
+        }
+
+        if (chkRename.Tag.ToString().Replace("--rename ", string.Empty).Length < 1)
+        {
+            if (!chkRename.Checked) return;
+            chkRename.Checked = false;
+            chkRename.Tag = "--dont-rename";
+        }
+        else if (!chkRename.Checked) chkRename.Checked = true;
+    }
+
+    private void KeepCtxRenameOpen(object sender, MouseEventArgs e) => ctxRename.Tag = "open";
+
+    private void ctxRename_Closing(object sender, ToolStripDropDownClosingEventArgs e)
+    {
+        if (ctxRename.Tag is not "open") return;
+        ctxRename.Tag = "close";
+        e.Cancel = true;
+    }
+
+    private void OpenCtxRename(object sender, MouseEventArgs e)
+    {
+        if (chkRename.Tag.ToString() == "--dont-rename" ||
+            chkRename.Tag.ToString().Replace("--rename ", string.Empty).Length < 1)
+        {
+            if (chkRename.Checked)
+                chkRename.Checked = false;
+        }
+        else if (!chkRename.Checked) chkRename.Checked = true;
+
+        ctxRename.Show(chkRename, new Point(e.X, e.Y));
+    }
+
+    private readonly StringBuilder _arguments = new();
+    private readonly Logger _logger;
+    private bool _isClosing;
+    private bool _isLogsScrollLocked;
+    private bool _isMouseDown;
+    private Point _lastLocation;
+    private bool _return;
+
+    private const int WmSetredraw = 11;
+    private static string _lastVersion;
+
+    protected override CreateParams CreateParams
+    {
+        get
+        {
+            var cp = base.CreateParams;
+            cp.ClassStyle |= 0x00020000;
+            return cp;
+        }
     }
 }

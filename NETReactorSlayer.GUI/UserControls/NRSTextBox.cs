@@ -22,20 +22,6 @@ namespace NETReactorSlayer.GUI.UserControls;
 
 public partial class NrsTextBox : TextBox
 {
-    public enum TextTransformEnum
-    {
-        None,
-        Upper,
-        Lower
-    }
-
-    private int _borderRadius;
-    private Color _foreColor = Color.Silver;
-    private string _placeHolderText = string.Empty;
-    private float _progress;
-    private Color _progressColor = Color.MediumSeaGreen;
-    private TextTransformEnum _transform;
-
     public NrsTextBox()
     {
         InitializeComponent();
@@ -59,9 +45,7 @@ public partial class NrsTextBox : TextBox
         TextChanged += (_, _) =>
         {
             if (Text.Length > 0)
-            {
                 base.ForeColor = ForeColor;
-            }
             else if (!DesignMode)
             {
                 if (Focused)
@@ -76,6 +60,23 @@ public partial class NrsTextBox : TextBox
         };
     }
 
+    [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
+    public static extern IntPtr CreateRoundRectRgn(
+        int nLeftRect, int nTopRect, int nRightRect, int nBottomRect,
+        int nWidthEllipse, int nHeightEllipse);
+
+    private void SizeChange(object sender, EventArgs e)
+    {
+        Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _borderRadius, 20));
+    }
+
+    private int _borderRadius;
+    private Color _foreColor = Color.Silver;
+    private string _placeHolderText = string.Empty;
+    private float _progress;
+    private Color _progressColor = Color.MediumSeaGreen;
+    private TextTransformEnum _transform;
+
     public int BorderRadius
     {
         get => _borderRadius;
@@ -86,20 +87,17 @@ public partial class NrsTextBox : TextBox
         }
     }
 
-    public TextTransformEnum TextTransform
+    public new Color ForeColor
     {
-        get => _transform;
+        get => _foreColor;
         set
         {
-            _transform = value;
-            Text = value switch
-            {
-                TextTransformEnum.Upper => Text.ToUpper(),
-                TextTransformEnum.Lower => Text.ToLower(),
-                _ => Text
-            };
+            _foreColor = value;
+            base.ForeColor = ForeColor;
         }
     }
+
+    public Color PlaceHolderColor { get; set; } = Color.Gray;
 
     public string PlaceHolderText
     {
@@ -121,18 +119,6 @@ public partial class NrsTextBox : TextBox
         }
     }
 
-    public new Color ForeColor
-    {
-        get => _foreColor;
-        set
-        {
-            _foreColor = value;
-            base.ForeColor = ForeColor;
-        }
-    }
-
-    public Color PlaceHolderColor { get; set; } = Color.Gray;
-
     public float Progress
     {
         get => _progress;
@@ -153,11 +139,25 @@ public partial class NrsTextBox : TextBox
         }
     }
 
-    [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
-    public static extern IntPtr CreateRoundRectRgn(
-        int nLeftRect, int nTopRect, int nRightRect, int nBottomRect,
-        int nWidthEllipse, int nHeightEllipse);
+    public TextTransformEnum TextTransform
+    {
+        get => _transform;
+        set
+        {
+            _transform = value;
+            Text = value switch
+            {
+                TextTransformEnum.Upper => Text.ToUpper(),
+                TextTransformEnum.Lower => Text.ToLower(),
+                _ => Text
+            };
+        }
+    }
 
-    private void SizeChange(object sender, EventArgs e) =>
-        Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _borderRadius, 20));
+    public enum TextTransformEnum
+    {
+        None,
+        Upper,
+        Lower
+    }
 }
