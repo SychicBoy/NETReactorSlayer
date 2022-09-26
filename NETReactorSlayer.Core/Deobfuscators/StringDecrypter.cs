@@ -31,21 +31,23 @@ internal class StringDecrypter : IStage
 {
     public void Execute()
     {
-        if (!Find())
-        {
-            var count = InlineStringsDynamically();
-            if(count > 0)
-                Logger.Done(count + " Strings decrypted.");
-            else
-                Logger.Warn("Couldn't find any encrypted string.");
-            return;
-        }
-
         try
         {
+            long count = 0;
+
+            if (!Find())
+            {
+                count = InlineStringsDynamically();
+                if(count > 0)
+                    Logger.Done(count + " Strings decrypted.");
+                else
+                    Logger.Warn("Couldn't find any encrypted string.");
+                return;
+            }
+
             _decryptedResource = _encryptedResource.Decrypt();
 
-            var count = InlineStringsStatically();
+            count = InlineStringsStatically();
 
             if (count > 0)
             {
@@ -86,6 +88,11 @@ internal class StringDecrypter : IStage
                     FindKeyIv(method);
 
                     _encryptedResource = new EncryptedResource(method, new[] { "System.String" });
+                    if (_encryptedResource.EmbeddedResource == null)
+                    {
+                        _encryptedResource.Dispose();
+                        continue;
+                    }
 
                     return true;
                 }

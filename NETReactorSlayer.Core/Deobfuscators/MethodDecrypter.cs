@@ -29,16 +29,16 @@ internal class MethodDecrypter : IStage
 {
     public void Execute()
     {
-        if (!Find())
-        {
-            Logger.Warn("Couldn't find any encrypted method.");
-            return;
-        }
-
-        Context.ObfuscatorInfo.NecroBit = true;
-
         try
         {
+            if (!Find())
+            {
+                Logger.Warn("Couldn't find any encrypted method.");
+                return;
+            }
+
+            Context.ObfuscatorInfo.NecroBit = true;
+
             var bytes = _encryptedResource.Decrypt();
 
             if (!RestoreMethodsBody(bytes))
@@ -73,12 +73,17 @@ internal class MethodDecrypter : IStage
                  where call.MDToken.ToInt32() == method.MDToken.ToInt32()
                  select methodDef)
         {
-            if (!EncryptedResource.IsKnownDecrypter(methodDef, Array.Empty<string>(), true))
-                continue;
+                if (!EncryptedResource.IsKnownDecrypter(methodDef, Array.Empty<string>(), true))
+                    continue;
 
-            _encryptedResource = new EncryptedResource(methodDef);
+                _encryptedResource = new EncryptedResource(methodDef);
+                if (_encryptedResource.EmbeddedResource == null)
+                {
+                    _encryptedResource.Dispose();
+                    continue;
+                }
 
-            return true;
+                return true;
         }
 
         return false;

@@ -28,14 +28,14 @@ internal class ProxyCallFixer : IStage
 {
     public void Execute()
     {
-        if (!Find())
-        {
-            Logger.Warn("Couldn't find any hidden call.");
-            return;
-        }
-
         try
         {
+            if (!Find())
+            {
+                Logger.Warn("Couldn't find any hidden call.");
+                return;
+            }
+
             var bytes = _encryptedResource.Decrypt();
 
             if (!GetDictionary(bytes))
@@ -81,6 +81,11 @@ internal class ProxyCallFixer : IStage
             return false;
 
         _encryptedResource = new EncryptedResource(methodDef);
+        if (_encryptedResource.EmbeddedResource == null)
+        {
+            _encryptedResource.Dispose();
+            return false;
+        }
 
         return true;
     }

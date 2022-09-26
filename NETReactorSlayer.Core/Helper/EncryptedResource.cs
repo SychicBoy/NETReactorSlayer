@@ -85,13 +85,13 @@ internal class EncryptedResource : IDisposable
     private EmbeddedResource GetEncryptedResource()
     {
         if (DecrypterMethod is not { HasBody: true, Body.HasInstructions: true })
-            throw new NullReferenceException();
+            return null;
 
         foreach (var s in DotNetUtils.GetCodeStrings(DecrypterMethod))
             if (DotNetUtils.GetResource(Context.Module, s) is EmbeddedResource resource)
                 return resource;
 
-        throw new NullReferenceException();
+        return null;
     }
 
     private IDecrypter GetDecrypter()

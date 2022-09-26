@@ -26,14 +26,14 @@ internal class ResourceResolver : IStage
 {
     public void Execute()
     {
-        if (!Find())
-        {
-            Logger.Warn("Couldn't find any encrypted resource.");
-            return;
-        }
-
         try
         {
+            if (!Find())
+            {
+                Logger.Warn("Couldn't find any encrypted resource.");
+                return;
+            }
+
             DeobUtils.DecryptAndAddResources(Context.Module,
                 () => Decompress(_encryptedResource.Decrypt()));
 
@@ -78,6 +78,12 @@ internal class ResourceResolver : IStage
                     continue;
 
                 _encryptedResource = new EncryptedResource(decrypterMethod);
+                if (_encryptedResource.EmbeddedResource == null)
+                {
+                    _encryptedResource.Dispose();
+                    continue;
+                }
+
                 _methodToRemove.AddRange(type.Methods);
                 return true;
             }

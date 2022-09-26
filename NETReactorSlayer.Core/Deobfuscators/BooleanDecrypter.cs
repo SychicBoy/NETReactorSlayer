@@ -26,14 +26,14 @@ internal class BooleanDecrypter : IStage
 {
     public void Execute()
     {
-        if (!Find())
-        {
-            Logger.Warn("Couldn't find any encrypted boolean.");
-            return;
-        }
-
         try
         {
+            if (!Find())
+            {
+                Logger.Warn("Couldn't find any encrypted boolean.");
+                return;
+            }
+
             var bytes = _encryptedResource.Decrypt();
 
             var count = InlineAllBooleans(bytes);
@@ -71,6 +71,11 @@ internal class BooleanDecrypter : IStage
                 EncryptedResource.IsKnownDecrypter(methodDef, Array.Empty<string>(), true))
             {
                 _encryptedResource = new EncryptedResource(methodDef);
+                if (_encryptedResource.EmbeddedResource == null)
+                {
+                    _encryptedResource.Dispose();
+                    continue;
+                }
                 return true;
             }
 

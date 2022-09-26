@@ -145,6 +145,12 @@ internal class ControlFlowDeobfuscator : IStage
             break;
         }
 
+        if(_fields.All(x=> x.Value == 0))
+        {
+            _fields.Clear();
+            return;
+        }
+
         if (typeDef != null)
             Cleaner.AddTypeToBeRemoved(typeDef);
     }
