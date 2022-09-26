@@ -11,7 +11,7 @@
 
 GUI             |  CLI
 :-------------------------:|:-------------------------:
-<img src="https://user-images.githubusercontent.com/53654076/167086262-3706190c-8ebe-4c68-b763-c32196862830.png" width="700">  |  <img src="https://user-images.githubusercontent.com/53654076/167219261-c6adac8b-d039-4d09-a98a-19173ed233a8.png" width="700">
+<img src="https://user-images.githubusercontent.com/53654076/192174151-dee6134c-9ac8-46e1-8ae7-96ff1432666b.png" width="700">  |  <img src="https://user-images.githubusercontent.com/53654076/192175117-87533ec8-117d-4470-8ce3-53dc4f4f6a33.png" width="700">
 
 <br />
 
