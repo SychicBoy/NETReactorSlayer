@@ -8,6 +8,7 @@ on:
   push:
     paths-ignore:
         - '**.md'
+        - '**.yml'
     branches: [ master ]
   pull_request:
     branches: [ master ]
