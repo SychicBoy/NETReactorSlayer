@@ -129,9 +129,6 @@ internal class Cleaner : IStage
             catch
             {
             }
-
-        //foreach (var typeDef in NamespacesToRemove.Select(type => type.ResolveTypeDef()))
-        //    typeDef.Namespace = "";
     }
 
     private void FixEntrypoint()
@@ -143,19 +140,17 @@ internal class Cleaner : IStage
             if ((Context.Module.EntryPoint.Body.Instructions
                     .Last(x => x.OpCode == OpCodes.Call && x.Operand is IMethod iMethod &&
                                iMethod.ResolveMethodDef().IsStatic).Operand as IMethod).ResolveMethodDef() is
-                { } entryPoint)
-            {
-                foreach (var attribute in Context.Module.EntryPoint.CustomAttributes)
-                    entryPoint.CustomAttributes.Add(attribute);
-                if (Context.Module.EntryPoint.DeclaringType.DeclaringType != null)
-                    Context.Module.EntryPoint.DeclaringType.DeclaringType.NestedTypes.Remove(
-                        Context.Module.EntryPoint.DeclaringType);
-                else
-                    Context.Module.Types.Remove(Context.Module.EntryPoint.DeclaringType);
-                Logger.Done(
-                    $"Entrypoint fixed: {Context.Module.EntryPoint.MDToken.ToInt32()}->{entryPoint.MDToken.ToInt32()}");
-                Context.Module.EntryPoint = entryPoint;
-            }
+                not { } entryPoint) return;
+            foreach (var attribute in Context.Module.EntryPoint.CustomAttributes)
+                entryPoint.CustomAttributes.Add(attribute);
+            if (Context.Module.EntryPoint.DeclaringType.DeclaringType != null)
+                Context.Module.EntryPoint.DeclaringType.DeclaringType.NestedTypes.Remove(
+                    Context.Module.EntryPoint.DeclaringType);
+            else
+                Context.Module.Types.Remove(Context.Module.EntryPoint.DeclaringType);
+            Logger.Done(
+                $"Entrypoint fixed: {Context.Module.EntryPoint.MDToken.ToInt32()}->{entryPoint.MDToken.ToInt32()}");
+            Context.Module.EntryPoint = entryPoint;
         }
         catch
         {
@@ -380,7 +375,7 @@ internal class Cleaner : IStage
     {
         if (!Context.Options.RemoveJunks) return;
         foreach (var type in Context.Module.GetTypes())
-        foreach (var method in type.Methods.Where(x=> x.HasBody))
+        foreach (var method in type.Methods.Where(x => x.HasBody))
             try
             {
                 if (method.DeclaringType == null ||
@@ -399,10 +394,15 @@ internal class Cleaner : IStage
     private bool RemoveMethodIfDnrTrial(MethodDef method)
     {
         if (!method.Body.HasInstructions || !method.Body.Instructions.Any(x =>
-                x.OpCode.Equals(OpCodes.Ldstr) && x.Operand != null && x.Operand.ToString() ==
-                "This assembly is protected by an unregistered version of Eziriz's \".NET Reactor\"!")) return false;
+                x.OpCode.Equals(OpCodes.Ldstr) && x.Operand != null && (x.Operand.ToString() ==
+                                                                        "This assembly is protected by an unregistered version of Eziriz's \".NET Reactor\"!" ||
+                                                                        x.Operand.ToString() ==
+                                                                        "This assembly is protected by an unregistered version of Eziriz's \".NET Reactor\"! This assembly won't further work.")))
+            return false;
         MethodCallRemover.RemoveCalls(method);
-        Context.Module.Types.Remove(method.DeclaringType);
+        if (method.DeclaringType is { IsGlobalModuleType: false })
+            Context.Module.Types.Remove(method.DeclaringType);
+
         return true;
     }
 
