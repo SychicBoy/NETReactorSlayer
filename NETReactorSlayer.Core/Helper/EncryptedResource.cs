@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using de4dot.blocks;
-using de4dot.blocks.cflow;
-using dnlib.DotNet;
-/*
+﻿/*
     Copyright (C) 2021 CodeStrikers.org
     This file is part of NETReactorSlayer.
     NETReactorSlayer is free software: you can redistribute it and/or modify
@@ -19,6 +13,12 @@ using dnlib.DotNet;
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using de4dot.blocks;
+using de4dot.blocks.cflow;
+using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
 namespace NETReactorSlayer.Core.Helper;
@@ -87,7 +87,7 @@ internal class EncryptedResource : IDisposable
 
         return false;
     }
-
+    
     public byte[] Decrypt() => Decrypter.Decrypt(EmbeddedResource);
 
     #region Private Methods
@@ -187,6 +187,16 @@ internal class EncryptedResource : IDisposable
 
     #endregion
 
+    #region Enums
+
+    public enum DecrypterVersion
+    {
+        V69,
+        V6X
+    }
+
+    #endregion
+
     #region Interfaces
 
     private interface IDecrypter
@@ -273,6 +283,7 @@ internal class EncryptedResource : IDisposable
             var encrypted = resource.CreateReader().ToArray();
             var decrypted = new byte[encrypted.Length];
             var sum = 0U;
+
             if (_isNewDecrypter)
                 for (var i = 0; i < encrypted.Length; i += 4)
                 {
@@ -296,9 +307,10 @@ internal class EncryptedResource : IDisposable
         {
             var origInstrs = _method.Body.Instructions;
             if (!Find(origInstrs, out var emuStartIndex, out var emuEndIndex, out _emuLocal) &&
-                !FindStartEnd(origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal))
+                !FindStartEnd(origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal) &&
+                !FindStartEnd2(origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal))
             {
-                if (!FindStartEnd2(ref origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal, out _emuArg,
+                if (!FindStartEnd3(ref origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal, out _emuArg,
                         ref _emuMethod, ref _locals)) return false;
                 _isNewDecrypter = true;
             }
@@ -347,11 +359,9 @@ internal class EncryptedResource : IDisposable
             {
                 var instr = instrs[i];
                 if (instr.OpCode.FlowControl != FlowControl.Next) break;
-                if (instr.IsStloc() && instr.GetLocal(_locals) == _emuLocal)
-                {
-                    endIndex = i - 1;
-                    return true;
-                }
+                if (!instr.IsStloc() || instr.GetLocal(_locals) != _emuLocal) continue;
+                endIndex = i - 1;
+                return true;
             }
 
             endIndex = 0;
@@ -393,9 +403,68 @@ internal class EncryptedResource : IDisposable
             return false;
         }
 
-        private bool FindStartEnd(
-            IList<Instruction> instrs, out int startIndex, out int endIndex,
-            out Local tmpLocal)
+        private bool FindStartEnd(IList<Instruction> instrs, out int startIndex, out int endIndex, out Local tmpLocal)
+        {
+            var i = 0;
+            while (i + 8 < instrs.Count)
+            {
+                if (instrs[i].OpCode.Code.Equals(Code.Conv_R_Un) &&
+                    instrs[i + 1].OpCode.Code.Equals(Code.Conv_R8) &&
+                    instrs[i + 2].OpCode.Code.Equals(Code.Conv_U4) &&
+                    instrs[i + 3].OpCode.Code.Equals(Code.Add))
+                {
+                    var newEndIndex = i + 3;
+                    var newStartIndex = -1;
+                    for (var x = newEndIndex; x > 0; x--)
+                        if (instrs[x].OpCode.FlowControl != FlowControl.Next)
+                        {
+                            if (instrs[x].OpCode.Equals(OpCodes.Bne_Un) || instrs[x].OpCode.Equals(OpCodes.Bne_Un_S))
+                            {
+                                _decrypterVersion = DecrypterVersion.V69;
+                                continue;
+                            }
+                            newStartIndex = x + 1;
+                            break;
+                        }
+
+                    if (!_decrypterVersion.Equals(DecrypterVersion.V69))
+                    {
+                        startIndex = 0;
+                        endIndex = 0;
+                        tmpLocal = null;
+                        return false;
+                    }
+
+                    if (newStartIndex >= 0)
+                    {
+                        var checkLocs = new List<Local>();
+                        var ckStartIndex = -1;
+                        for (var y = newEndIndex; y >= newStartIndex; y--)
+                            if (CheckLocal(instrs[y], true) is { } loc)
+                            {
+                                if (!checkLocs.Contains(loc)) checkLocs.Add(loc);
+                                if (checkLocs.Count == 10) break;
+
+                                ckStartIndex = y;
+                            }
+
+                        endIndex = newEndIndex;
+                        startIndex = Math.Max(ckStartIndex, newStartIndex);
+                        tmpLocal = CheckLocal(instrs[startIndex], true);
+                        return true;
+                    }
+                }
+
+                i++;
+            }
+
+            endIndex = 0;
+            startIndex = 0;
+            tmpLocal = null;
+            return false;
+        }
+
+        private bool FindStartEnd2(IList<Instruction> instrs, out int startIndex, out int endIndex, out Local tmpLocal)
         {
             var i = 0;
             while (i + 8 < instrs.Count)
@@ -443,7 +512,7 @@ internal class EncryptedResource : IDisposable
             return false;
         }
 
-        private bool FindStartEnd2(ref IList<Instruction> instrs, out int startIndex, out int endIndex,
+        private bool FindStartEnd3(ref IList<Instruction> instrs, out int startIndex, out int endIndex,
             out Local tmpLocal, out Parameter tmpArg, ref MethodDef methodDef, ref List<Local> locals)
         {
             foreach (var instr in instrs)
@@ -515,7 +584,38 @@ internal class EncryptedResource : IDisposable
                 _instrEmulator.SetArg(_emuArg, new Int32Value((int)input));
             }
 
-            foreach (var instr in _instructions) _instrEmulator.Emulate(instr);
+            var index = 0;
+            while (index < _instructions.Count)
+            {
+                try
+                {
+                    if (_decrypterVersion != DecrypterVersion.V69)
+                        goto Emulate;
+                    if (!_instructions[index].IsLdloc()) goto Emulate;
+                    if (!_instructions[index + 1].OpCode.Equals(OpCodes.Ldc_I4_0) &&
+                        (!_instructions[index + 1].IsLdcI4() || _instructions[index + 1].GetLdcI4Value() != 0))
+                        goto Emulate;
+                    if (!_instructions[index + 2].OpCode.Equals(OpCodes.Bne_Un) &&
+                        !_instructions[index + 2].OpCode.Equals(OpCodes.Bne_Un_S)) goto Emulate;
+                    if (!_instructions[index + 3].IsLdloc()) goto Emulate;
+                    if (!_instructions[index + 4].OpCode.Equals(OpCodes.Ldc_I4_1) &&
+                        (!_instructions[index + 4].IsLdcI4() || _instructions[index + 4].GetLdcI4Value() != 1))
+                        goto Emulate;
+                    if (!_instructions[index + 5].OpCode.Equals(OpCodes.Sub)) goto Emulate;
+                    if (!_instructions[index + 6].IsStloc()) goto Emulate;
+                    if (_instrEmulator.GetLocal(CheckLocal(_instructions[index + 6], false)
+                            .Index) is Int32Value local && local.Value != Int32Value.Zero.Value)
+                        index += 7;
+                }
+                catch
+                {
+                }
+
+                Emulate:
+                _instrEmulator.Emulate(_instructions[index]);
+                index++;
+            }
+
             if (_instrEmulator.Pop() is not Int32Value tos || !tos.AllBitsValid())
                 throw new ApplicationException("Couldn't calculate magic value");
             return (uint)tos.Value;
@@ -525,7 +625,7 @@ internal class EncryptedResource : IDisposable
 
         #region Fields
 
-        private readonly InstructionEmulator _instrEmulator = new();
+        private InstructionEmulator _instrEmulator = new();
         private readonly byte[] _key, _iv;
         private readonly MethodDef _method;
         private Parameter _emuArg;
@@ -534,6 +634,7 @@ internal class EncryptedResource : IDisposable
         private List<Instruction> _instructions;
         private bool _isNewDecrypter;
         private List<Local> _locals;
+        private DecrypterVersion _decrypterVersion = DecrypterVersion.V6X;
 
         #endregion
     }
@@ -547,7 +648,7 @@ internal class EncryptedResource : IDisposable
             if (!Initialize()) throw new ApplicationException("Could not initialize decrypter");
         }
 
-        public static bool CouldBeResourceDecrypter(LocalTypes localTypes, IList<string> additionalTypes)
+        public static bool CouldBeResourceDecrypter(LocalTypes localTypes, IEnumerable<string> additionalTypes)
         {
             var requiredTypes = new List<string>
             {
@@ -563,6 +664,7 @@ internal class EncryptedResource : IDisposable
             var encrypted = resource.CreateReader().ToArray();
             var decrypted = new byte[encrypted.Length];
             var sum = 0U;
+
             for (var i = 0; i < encrypted.Length; i += 4)
             {
                 sum = CalculateMagic(sum);
@@ -578,7 +680,8 @@ internal class EncryptedResource : IDisposable
         {
             var origInstrs = _method.Body.Instructions;
             if (!Find(origInstrs, out var emuStartIndex, out var emuEndIndex, out _emuLocal) &&
-                !FindStartEnd(origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal)) return false;
+                !FindStartEnd(origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal) &&
+                !FindStartEnd2(origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal)) return false;
             var count = emuEndIndex - emuStartIndex + 1;
             _instructions = new List<Instruction>(count);
             for (var i = 0; i < count; i++) _instructions.Add(origInstrs[emuStartIndex + i].Clone());
@@ -589,7 +692,39 @@ internal class EncryptedResource : IDisposable
         {
             _instrEmulator.Initialize(_method, _method.Parameters, _locals, _method.Body.InitLocals, false);
             _instrEmulator.SetLocal(_emuLocal, new Int32Value((int)input));
-            foreach (var instr in _instructions) _instrEmulator.Emulate(instr);
+
+            var index = 0;
+            while (index < _instructions.Count)
+            {
+                try
+                {
+                    if (_decrypterVersion != DecrypterVersion.V69)
+                        goto Emulate;
+                    if (!_instructions[index].IsLdloc()) goto Emulate;
+                    if (!_instructions[index + 1].OpCode.Equals(OpCodes.Ldc_I4_0) &&
+                        (!_instructions[index + 1].IsLdcI4() || _instructions[index + 1].GetLdcI4Value() != 0))
+                        goto Emulate;
+                    if (!_instructions[index + 2].OpCode.Equals(OpCodes.Bne_Un) &&
+                        !_instructions[index + 2].OpCode.Equals(OpCodes.Bne_Un_S)) goto Emulate;
+                    if (!_instructions[index + 3].IsLdloc()) goto Emulate;
+                    if (!_instructions[index + 4].OpCode.Equals(OpCodes.Ldc_I4_1) &&
+                        (!_instructions[index + 4].IsLdcI4() || _instructions[index + 4].GetLdcI4Value() != 1))
+                        goto Emulate;
+                    if (!_instructions[index + 5].OpCode.Equals(OpCodes.Sub)) goto Emulate;
+                    if (!_instructions[index + 6].IsStloc()) goto Emulate;
+                    if (_instrEmulator.GetLocal(CheckLocal(_instructions[index + 6], false)
+                            .Index) is Int32Value local && local.Value != Int32Value.Zero.Value)
+                        index += 7;
+                }
+                catch
+                {
+                }
+
+                Emulate:
+                _instrEmulator.Emulate(_instructions[index]);
+                index++;
+            }
+
             if (_instrEmulator.Pop() is not Int32Value tos || !tos.AllBitsValid())
                 throw new ApplicationException("Couldn't calculate magic value");
             return (uint)tos.Value;
@@ -689,6 +824,67 @@ internal class EncryptedResource : IDisposable
             {
                 if (instrs[i].OpCode.Code.Equals(Code.Conv_R_Un) &&
                     instrs[i + 1].OpCode.Code.Equals(Code.Conv_R8) &&
+                    instrs[i + 2].OpCode.Code.Equals(Code.Conv_U4) &&
+                    instrs[i + 3].OpCode.Code.Equals(Code.Add))
+                {
+                    var newEndIndex = i + 3;
+                    var newStartIndex = -1;
+                    for (var x = newEndIndex; x > 0; x--)
+                        if (instrs[x].OpCode.FlowControl != FlowControl.Next)
+                        {
+                            if (instrs[x].OpCode.Equals(OpCodes.Bne_Un) || instrs[x].OpCode.Equals(OpCodes.Bne_Un_S))
+                            {
+                                _decrypterVersion = DecrypterVersion.V69;
+                                continue;
+                            }
+                            newStartIndex = x + 1;
+                            break;
+                        }
+
+                    if (!_decrypterVersion.Equals(DecrypterVersion.V69))
+                    {
+                        startIndex = 0;
+                        endIndex = 0;
+                        tmpLocal = null;
+                        return false;
+                    }
+
+                    if (newStartIndex >= 0)
+                    {
+                        var checkLocs = new List<Local>();
+                        var ckStartIndex = -1;
+                        for (var y = newEndIndex; y >= newStartIndex; y--)
+                            if (CheckLocal(instrs[y], true) is { } loc)
+                            {
+                                if (!checkLocs.Contains(loc)) checkLocs.Add(loc);
+                                if (checkLocs.Count == 10) break;
+
+                                ckStartIndex = y;
+                            }
+
+                        endIndex = newEndIndex;
+                        startIndex = Math.Max(ckStartIndex, newStartIndex);
+                        tmpLocal = CheckLocal(instrs[startIndex], true);
+                        return true;
+                    }
+                }
+
+                i++;
+            }
+
+            endIndex = 0;
+            startIndex = 0;
+            tmpLocal = null;
+            return false;
+        }
+
+        private bool FindStartEnd2(IList<Instruction> instrs, out int startIndex, out int endIndex, out Local tmpLocal)
+        {
+            var i = 0;
+            while (i + 8 < instrs.Count)
+            {
+                if (instrs[i].OpCode.Code.Equals(Code.Conv_R_Un) &&
+                    instrs[i + 1].OpCode.Code.Equals(Code.Conv_R8) &&
                     instrs[i + 2].OpCode.Code.Equals(Code.Conv_U4) && instrs[i + 3].OpCode.Code.Equals(Code.Add))
                 {
                     var newEndIndex = i + 3;
@@ -745,11 +941,12 @@ internal class EncryptedResource : IDisposable
 
         #region Fields
 
-        private readonly InstructionEmulator _instrEmulator = new();
+        private InstructionEmulator _instrEmulator = new();
         private readonly List<Local> _locals;
         private readonly MethodDef _method;
         private Local _emuLocal;
         private List<Instruction> _instructions;
+        private DecrypterVersion _decrypterVersion = DecrypterVersion.V6X;
 
         #endregion
     }
@@ -772,7 +969,7 @@ internal class EncryptedResource : IDisposable
         }
 
         public static bool CouldBeResourceDecrypter(MethodDef method, LocalTypes localTypes,
-            IList<string> additionalTypes)
+            IEnumerable<string> additionalTypes)
         {
             var requiredTypes = new List<string>
             {
@@ -868,7 +1065,8 @@ internal class EncryptedResource : IDisposable
             var origInstrs = _emuMethod.Body.Instructions;
 
             if (!Find(origInstrs, out var emuStartIndex, out var emuEndIndex, out _emuLocal))
-                if (!FindStartEnd(origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal))
+                if (!FindStartEnd(origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal) &&
+                    !FindStartEnd2(origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal))
                     return false;
 
             for (var i = 0; i < _iv.Length; i++)
@@ -899,6 +1097,67 @@ internal class EncryptedResource : IDisposable
         }
 
         private bool FindStartEnd(IList<Instruction> instrs, out int startIndex, out int endIndex, out Local tmpLocal)
+        {
+            var i = 0;
+            while (i + 8 < instrs.Count)
+            {
+                if (instrs[i].OpCode.Code.Equals(Code.Conv_R_Un) &&
+                    instrs[i + 1].OpCode.Code.Equals(Code.Conv_R8) &&
+                    instrs[i + 2].OpCode.Code.Equals(Code.Conv_U4) &&
+                    instrs[i + 3].OpCode.Code.Equals(Code.Add))
+                {
+                    var newEndIndex = i + 3;
+                    var newStartIndex = -1;
+                    for (var x = newEndIndex; x > 0; x--)
+                        if (instrs[x].OpCode.FlowControl != FlowControl.Next)
+                        {
+                            if (instrs[x].OpCode.Equals(OpCodes.Bne_Un) || instrs[x].OpCode.Equals(OpCodes.Bne_Un_S))
+                            {
+                                _decrypterVersion = DecrypterVersion.V69;
+                                continue;
+                            }
+                            newStartIndex = x + 1;
+                            break;
+                        }
+
+                    if (!_decrypterVersion.Equals(DecrypterVersion.V69))
+                    {
+                        startIndex = 0;
+                        endIndex = 0;
+                        tmpLocal = null;
+                        return false;
+                    }
+
+                    if (newStartIndex >= 0)
+                    {
+                        var checkLocs = new List<Local>();
+                        var ckStartIndex = -1;
+                        for (var y = newEndIndex; y >= newStartIndex; y--)
+                            if (CheckLocal(instrs[y], true) is { } loc)
+                            {
+                                if (!checkLocs.Contains(loc)) checkLocs.Add(loc);
+                                if (checkLocs.Count == 10) break;
+
+                                ckStartIndex = y;
+                            }
+
+                        endIndex = newEndIndex;
+                        startIndex = Math.Max(ckStartIndex, newStartIndex);
+                        tmpLocal = CheckLocal(instrs[startIndex], true);
+                        return true;
+                    }
+                }
+
+                i++;
+            }
+
+            endIndex = 0;
+            startIndex = 0;
+            tmpLocal = null;
+            return false;
+        }
+
+        private bool FindStartEnd2(IList<Instruction> instrs, out int startIndex, out int endIndex, out Local tmpLocal)
         {
             for (var i = 0; i + 8 < instrs.Count; i++)
             {
@@ -1025,8 +1284,37 @@ internal class EncryptedResource : IDisposable
             _instrEmulator.Initialize(_emuMethod, _emuMethod.Parameters, _locals, _emuMethod.Body.InitLocals, false);
             _instrEmulator.SetLocal(_emuLocal, new Int32Value((int)input));
 
-            foreach (var instr in _instructions)
-                _instrEmulator.Emulate(instr);
+            var index = 0;
+            while (index < _instructions.Count)
+            {
+                try
+                {
+                    if (_decrypterVersion != DecrypterVersion.V69)
+                        goto Emulate;
+                    if (!_instructions[index].IsLdloc()) goto Emulate;
+                    if (!_instructions[index + 1].OpCode.Equals(OpCodes.Ldc_I4_0) &&
+                        (!_instructions[index + 1].IsLdcI4() || _instructions[index + 1].GetLdcI4Value() != 0))
+                        goto Emulate;
+                    if (!_instructions[index + 2].OpCode.Equals(OpCodes.Bne_Un) &&
+                        !_instructions[index + 2].OpCode.Equals(OpCodes.Bne_Un_S)) goto Emulate;
+                    if (!_instructions[index + 3].IsLdloc()) goto Emulate;
+                    if (!_instructions[index + 4].OpCode.Equals(OpCodes.Ldc_I4_1) &&
+                        (!_instructions[index + 4].IsLdcI4() || _instructions[index + 4].GetLdcI4Value() != 1))
+                        goto Emulate;
+                    if (!_instructions[index + 5].OpCode.Equals(OpCodes.Sub)) goto Emulate;
+                    if (!_instructions[index + 6].IsStloc()) goto Emulate;
+                    if (_instrEmulator.GetLocal(CheckLocal(_instructions[index + 6], false)
+                            .Index) is Int32Value local && local.Value != Int32Value.Zero.Value)
+                        index += 7;
+                }
+                catch
+                {
+                }
+
+                Emulate:
+                _instrEmulator.Emulate(_instructions[index]);
+                index++;
+            }
 
             var tos = _instrEmulator.Pop() as Int32Value;
             if (tos == null || !tos.AllBitsValid())
@@ -1072,6 +1360,7 @@ internal class EncryptedResource : IDisposable
         private readonly List<Local> _locals;
         private readonly InstructionEmulator _instrEmulator = new();
         private Local _emuLocal;
+        private DecrypterVersion _decrypterVersion = DecrypterVersion.V6X;
 
         #endregion
     }
