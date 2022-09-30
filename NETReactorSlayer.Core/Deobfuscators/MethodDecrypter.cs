@@ -100,7 +100,11 @@ internal class MethodDecrypter : IStage
             methodsDataReader.ReadInt32();
         else
             methodsDataReader.Position -= 4U;
+
         var patchCount = methodsDataReader.ReadInt32();
+        if (patchCount > methodsDataReader.BytesLeft / 8)
+            patchCount = methodsDataReader.ReadInt32();
+
         var mode = methodsDataReader.ReadInt32();
         tmp = methodsDataReader.ReadInt32();
         methodsDataReader.Position -= 4U;
