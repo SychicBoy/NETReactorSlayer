@@ -23,11 +23,11 @@ namespace NETReactorSlayer.Core.Helper;
 
 internal class NativeUnpacker
 {
-    public NativeUnpacker(IPEImage peImage) => _peImage = new MyPEImage(peImage);
+    public NativeUnpacker(IPEImage peImage) => _peImage = new MyPeImage(peImage);
 
     public byte[] Unpack()
     {
-        var dataEntry = _peImage.PEImage.Win32Resources?.Find(10, "__", 0);
+        var dataEntry = _peImage.PeImage.Win32Resources?.Find(10, "__", 0);
         if (dataEntry == null)
             return null;
 
@@ -206,7 +206,7 @@ internal class NativeUnpacker
         -1, 0x88, 0x44, 0x24, 0x30, 0x88, 0x44, 0x24, 0x31, 0x88, 0x44, 0x24, 0x33, 0x55, 0x56
     };
 
-    private readonly MyPEImage _peImage;
+    private readonly MyPeImage _peImage;
 
     private readonly short[] _startMethodNet1XPattern =
     {

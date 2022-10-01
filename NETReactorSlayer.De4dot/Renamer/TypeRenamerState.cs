@@ -34,15 +34,10 @@ public class TypeRenamerState
         InternalTypeNameCreator = new TypeNameCreator(_existingNames);
     }
 
-    public void AddTypeName(string name)
-    {
-        _existingNames.Add(name);
-    }
+    public void AddTypeName(string name) => _existingNames.Add(name);
 
-    public string GetTypeName(string oldName, string newName)
-    {
-        return _existingNames.GetName(oldName, new NameCreator2(newName));
-    }
+    public string GetTypeName(string oldName, string newName) =>
+        _existingNames.GetName(oldName, new NameCreator2(newName));
 
     public string CreateNamespace(TypeDef type, string ns)
     {

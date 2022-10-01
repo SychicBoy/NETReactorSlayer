@@ -22,7 +22,6 @@ using dnlib.DotNet;
 using dnlib.DotNet.Writer;
 using dnlib.PE;
 using NETReactorSlayer.Core.Helper;
-using AssemblyResolver = dnlib.DotNet.AssemblyResolver;
 
 namespace NETReactorSlayer.Core;
 
@@ -48,7 +47,7 @@ public class Context
             AssemblyModule = new AssemblyModule(Options.SourcePath, ModuleContext);
             Module = AssemblyModule.Load();
             ModuleBytes = DeobUtils.ReadModule(Module);
-            PeImage = new MyPEImage(ModuleBytes);
+            PeImage = new MyPeImage(ModuleBytes);
             try
             {
                 Assembly = Assembly.Load(Options.SourcePath);
@@ -102,7 +101,7 @@ public class Context
                         Assembly = Assembly.UnsafeLoadFrom(Options.SourcePath);
                     }
 
-                    PeImage = new MyPEImage(unpacked);
+                    PeImage = new MyPeImage(unpacked);
                     ObfuscatorInfo.NativeStub = true;
                     Process.Start(new ProcessStartInfo(Process.GetCurrentProcess().MainModule?.FileName,
                             $"--del-temp {Process.GetCurrentProcess().Id} \"{Options.SourcePath}\"")
@@ -197,5 +196,5 @@ public class Context
     public static byte[] ModuleBytes { get; set; }
     public static ModuleContext ModuleContext { get; set; }
     public static Options Options { get; private set; }
-    public static MyPEImage PeImage { get; set; }
+    public static MyPeImage PeImage { get; set; }
 }

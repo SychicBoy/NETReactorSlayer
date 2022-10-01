@@ -29,80 +29,35 @@ public class MTypeDef : Ref
         BaseType = new TypeInfo(baseRef, baseDef);
     }
 
-    public void Add(MEventDef e)
-    {
-        _events.Add(e);
-    }
+    public void Add(MEventDef e) => _events.Add(e);
 
-    public void Add(MFieldDef f)
-    {
-        _fields.Add(f);
-    }
+    public void Add(MFieldDef f) => _fields.Add(f);
 
-    public void Add(MMethodDef m)
-    {
-        _methods.Add(m);
-    }
+    public void Add(MMethodDef m) => _methods.Add(m);
 
-    public void Add(MPropertyDef p)
-    {
-        _properties.Add(p);
-    }
+    public void Add(MPropertyDef p) => _properties.Add(p);
 
-    public void Add(MTypeDef t)
-    {
-        _types.Add(t);
-    }
+    public void Add(MTypeDef t) => _types.Add(t);
 
-    public MMethodDef FindMethod(MemberRef mr)
-    {
-        return _methods.Find(mr);
-    }
+    public MMethodDef FindMethod(MemberRef mr) => _methods.Find(mr);
 
-    public MMethodDef FindMethod(IMethodDefOrRef md)
-    {
-        return _methods.Find(md);
-    }
+    public MMethodDef FindMethod(IMethodDefOrRef md) => _methods.Find(md);
 
-    public MMethodDef FindMethod(MethodDef md)
-    {
-        return _methods.Find(md);
-    }
+    public MMethodDef FindMethod(MethodDef md) => _methods.Find(md);
 
-    public MMethodDef FindAnyMethod(MemberRef mr)
-    {
-        return _methods.FindAny(mr);
-    }
+    public MMethodDef FindAnyMethod(MemberRef mr) => _methods.FindAny(mr);
 
-    public MFieldDef FindField(MemberRef fr)
-    {
-        return _fields.Find(fr);
-    }
+    public MFieldDef FindField(MemberRef fr) => _fields.Find(fr);
 
-    public MFieldDef FindAnyField(MemberRef fr)
-    {
-        return _fields.FindAny(fr);
-    }
+    public MFieldDef FindAnyField(MemberRef fr) => _fields.FindAny(fr);
 
-    public MPropertyDef Find(PropertyDef pr)
-    {
-        return _properties.Find(pr);
-    }
+    public MPropertyDef Find(PropertyDef pr) => _properties.Find(pr);
 
-    public MPropertyDef FindAny(PropertyDef pr)
-    {
-        return _properties.FindAny(pr);
-    }
+    public MPropertyDef FindAny(PropertyDef pr) => _properties.FindAny(pr);
 
-    public MEventDef Find(EventDef er)
-    {
-        return _events.Find(er);
-    }
+    public MEventDef Find(EventDef er) => _events.Find(er);
 
-    public MEventDef FindAny(EventDef er)
-    {
-        return _events.FindAny(er);
-    }
+    public MEventDef FindAny(EventDef er) => _events.FindAny(er);
 
     public MPropertyDef Create(PropertyDef newProp)
     {
@@ -177,10 +132,7 @@ public class MTypeDef : Ref
         _types.OnTypesRenamed();
     }
 
-    public bool IsNested()
-    {
-        return NestingType != null;
-    }
+    public bool IsNested() => NestingType != null;
 
     public bool IsGlobalType()
     {

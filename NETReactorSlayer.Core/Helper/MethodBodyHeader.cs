@@ -2,8 +2,8 @@
 
 public class MethodBodyHeader
 {
-    public uint codeSize;
-    public ushort flags;
-    public uint localVarSigTok;
-    public ushort maxStack;
+    public uint CodeSize;
+    public ushort Flags;
+    public uint LocalVarSigTok;
+    public ushort MaxStack;
 }

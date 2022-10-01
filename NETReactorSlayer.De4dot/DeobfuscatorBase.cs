@@ -34,74 +34,36 @@ public abstract class DeobfuscatorBase : IDeobfuscator, IModuleWriterListener
         InitializedDataCreator = new InitializedDataCreator(module);
     }
 
-    protected virtual bool CheckValidName(string name)
-    {
-        return _optionsBase.ValidNameRegex.IsMatch(name);
-    }
+    protected virtual bool CheckValidName(string name) => _optionsBase.ValidNameRegex.IsMatch(name);
 
-    private static bool IsTypeWithInvalidBaseType(TypeDef moduleType, TypeDef type)
-    {
-        return type.BaseType == null && !type.IsInterface && type != moduleType;
-    }
+    private static bool IsTypeWithInvalidBaseType(TypeDef moduleType, TypeDef type) =>
+        type.BaseType == null && !type.IsInterface && type != moduleType;
 
-    public override string ToString()
-    {
-        return Name;
-    }
+    public override string ToString() => Name;
 
     protected virtual void Dispose(bool disposing)
     {
     }
 
-    public virtual bool IsValidNamespaceName(string ns)
-    {
-        return ns != null && ns.Split('.').All(CheckValidName);
-    }
+    public virtual bool IsValidNamespaceName(string ns) => ns != null && ns.Split('.').All(CheckValidName);
 
-    public virtual bool IsValidTypeName(string name)
-    {
-        return name != null && CheckValidName(name);
-    }
+    public virtual bool IsValidTypeName(string name) => name != null && CheckValidName(name);
 
-    public virtual bool IsValidMethodName(string name)
-    {
-        return name != null && CheckValidName(name);
-    }
+    public virtual bool IsValidMethodName(string name) => name != null && CheckValidName(name);
 
-    public virtual bool IsValidPropertyName(string name)
-    {
-        return name != null && CheckValidName(name);
-    }
+    public virtual bool IsValidPropertyName(string name) => name != null && CheckValidName(name);
 
-    public virtual bool IsValidEventName(string name)
-    {
-        return name != null && CheckValidName(name);
-    }
+    public virtual bool IsValidEventName(string name) => name != null && CheckValidName(name);
 
-    public virtual bool IsValidFieldName(string name)
-    {
-        return name != null && CheckValidName(name);
-    }
+    public virtual bool IsValidFieldName(string name) => name != null && CheckValidName(name);
 
-    public virtual bool IsValidGenericParamName(string name)
-    {
-        return name != null && CheckValidName(name);
-    }
+    public virtual bool IsValidGenericParamName(string name) => name != null && CheckValidName(name);
 
-    public virtual bool IsValidMethodArgName(string name)
-    {
-        return name != null && CheckValidName(name);
-    }
+    public virtual bool IsValidMethodArgName(string name) => name != null && CheckValidName(name);
 
-    public virtual bool IsValidMethodReturnArgName(string name)
-    {
-        return string.IsNullOrEmpty(name) || CheckValidName(name);
-    }
+    public virtual bool IsValidMethodReturnArgName(string name) => string.IsNullOrEmpty(name) || CheckValidName(name);
 
-    public virtual bool IsValidResourceKeyName(string name)
-    {
-        return name != null && CheckValidName(name);
-    }
+    public virtual bool IsValidResourceKeyName(string name) => name != null && CheckValidName(name);
 
     public void Dispose()
     {
@@ -139,10 +101,7 @@ public abstract class DeobfuscatorBase : IDeobfuscator, IModuleWriterListener
 
     public class OptionsBase : IDeobfuscatorOptions
     {
-        public OptionsBase()
-        {
-            RenameResourcesInCode = true;
-        }
+        public OptionsBase() => RenameResourcesInCode = true;
 
         public bool RenameResourcesInCode { get; set; }
 

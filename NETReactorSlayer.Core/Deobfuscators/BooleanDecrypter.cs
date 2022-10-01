@@ -76,6 +76,7 @@ internal class BooleanDecrypter : IStage
                     _encryptedResource.Dispose();
                     continue;
                 }
+
                 return true;
             }
 

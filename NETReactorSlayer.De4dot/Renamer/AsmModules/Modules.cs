@@ -26,10 +26,7 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules;
 
 public class Modules : IResolver
 {
-    public Modules(IDeobfuscatorContext deobfuscatorContext)
-    {
-        _deobfuscatorContext = deobfuscatorContext;
-    }
+    public Modules(IDeobfuscatorContext deobfuscatorContext) => _deobfuscatorContext = deobfuscatorContext;
 
     public void Add(Module module)
     {
@@ -377,10 +374,7 @@ public class Modules : IResolver
             _modulesDict.Add(module);
         }
 
-        public Module Lookup(string moduleName)
-        {
-            return _modulesDict.Lookup(moduleName);
-        }
+        public Module Lookup(string moduleName) => _modulesDict.Lookup(moduleName);
 
         private readonly ModulesDict _modulesDict = new();
 
@@ -413,10 +407,7 @@ public class Modules : IResolver
 
     private class AssemblyKeyDictionary<T> where T : class
     {
-        public bool TryGetValue(ITypeDefOrRef type, out T value)
-        {
-            return _dict.TryGetValue(type, out value);
-        }
+        public bool TryGetValue(ITypeDefOrRef type, out T value) => _dict.TryGetValue(type, out value);
 
         public void TryGetSimilarValue(ITypeDefOrRef type, out T value)
         {

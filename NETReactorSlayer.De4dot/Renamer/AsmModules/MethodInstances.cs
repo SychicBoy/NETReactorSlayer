@@ -30,10 +30,7 @@ public class MethodInstances
         return list;
     }
 
-    public IEnumerable<List<MethodInst>> GetMethods()
-    {
-        return _methodInstances.Values;
-    }
+    public IEnumerable<List<MethodInst>> GetMethods() => _methodInstances.Values;
 
     private readonly Dictionary<IMethodDefOrRef, List<MethodInst>> _methodInstances =
         new(MethodEqualityComparer.DontCompareDeclaringTypes);

@@ -10,10 +10,7 @@ public class MethodInst
         MethodRef = methodRef;
     }
 
-    public override string ToString()
-    {
-        return MethodRef.ToString();
-    }
+    public override string ToString() => MethodRef.ToString();
 
     public IMethodDefOrRef MethodRef;
     public MMethodDef OrigMethodDef;

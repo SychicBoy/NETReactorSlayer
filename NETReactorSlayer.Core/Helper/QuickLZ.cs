@@ -13,9 +13,9 @@ using System;
 
 namespace NETReactorSlayer.Core.Helper;
 
-public class QuickLZ : QuickLZBase
+public class QuickLz : QuickLzBase
 {
-    public static byte[] Decompress(byte[] inData) => Decompress(inData, DEFAULT_QCLZ_SIG);
+    public static byte[] Decompress(byte[] inData) => Decompress(inData, DefaultQclzSig);
 
     public static byte[] Decompress(byte[] inData, int sig)
     {
@@ -40,5 +40,5 @@ public class QuickLZ : QuickLZBase
         return outData;
     }
 
-    private const int DEFAULT_QCLZ_SIG = 0x5A4C4351;
+    private const int DefaultQclzSig = 0x5A4C4351;
 }

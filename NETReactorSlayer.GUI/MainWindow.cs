@@ -37,8 +37,6 @@ namespace NETReactorSlayer.GUI;
 
 public partial class MainWindow : Form
 {
-    private static readonly string InformationalVersion = (Attribute.GetCustomAttribute(Assembly.GetEntryAssembly() ?? throw new InvalidOperationException(),
-        typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute)?.InformationalVersion;
     public MainWindow(string arg = "")
     {
         if (arg == "updated")
@@ -716,6 +714,11 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
     private bool _return;
 
     private const int WmSetredraw = 11;
+
+    private static readonly string InformationalVersion = (Attribute.GetCustomAttribute(
+        Assembly.GetEntryAssembly() ?? throw new InvalidOperationException(),
+        typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute)?.InformationalVersion;
+
     private static string _lastVersion;
 
     protected override CreateParams CreateParams

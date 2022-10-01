@@ -22,20 +22,15 @@ namespace NETReactorSlayer.GUI.UserControls;
 
 public partial class NrsButton : Button
 {
-    public NrsButton()
-    {
-        InitializeComponent();
-    }
+    public NrsButton() => InitializeComponent();
 
     [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
     public static extern IntPtr CreateRoundRectRgn(
         int nLeftRect, int nTopRect, int nRightRect, int nBottomRect,
         int nWidthEllipse, int nHeightEllipse);
 
-    private void SizeChange(object sender, EventArgs e)
-    {
+    private void SizeChange(object sender, EventArgs e) =>
         Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _borderRadius, 20));
-    }
 
     private int _borderRadius;
     private string _text;

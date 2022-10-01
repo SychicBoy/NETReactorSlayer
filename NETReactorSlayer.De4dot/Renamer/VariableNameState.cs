@@ -71,20 +71,11 @@ public class VariableNameState
         return this;
     }
 
-    public void MergeMethods(VariableNameState other)
-    {
-        _existingMethodNames.Merge(other._existingMethodNames);
-    }
+    public void MergeMethods(VariableNameState other) => _existingMethodNames.Merge(other._existingMethodNames);
 
-    public void MergeProperties(VariableNameState other)
-    {
-        _existingPropertyNames.Merge(other._existingPropertyNames);
-    }
+    public void MergeProperties(VariableNameState other) => _existingPropertyNames.Merge(other._existingPropertyNames);
 
-    public void MergeEvents(VariableNameState other)
-    {
-        _existingEventNames.Merge(other._existingEventNames);
-    }
+    public void MergeEvents(VariableNameState other) => _existingEventNames.Merge(other._existingEventNames);
 
     public string GetNewPropertyName(PropertyDef propertyDef)
     {
@@ -117,66 +108,34 @@ public class VariableNameState
         return newName;
     }
 
-    public void AddFieldName(string fieldName)
-    {
-        _existingVariableNames.Add(fieldName);
-    }
+    public void AddFieldName(string fieldName) => _existingVariableNames.Add(fieldName);
 
-    public void AddParamName(string paramName)
-    {
-        _existingVariableNames.Add(paramName);
-    }
+    public void AddParamName(string paramName) => _existingVariableNames.Add(paramName);
 
-    public void AddMethodName(string methodName)
-    {
-        _existingMethodNames.Add(methodName);
-    }
+    public void AddMethodName(string methodName) => _existingMethodNames.Add(methodName);
 
-    public void AddPropertyName(string propName)
-    {
-        _existingPropertyNames.Add(propName);
-    }
+    public void AddPropertyName(string propName) => _existingPropertyNames.Add(propName);
 
-    public void AddEventName(string eventName)
-    {
-        _existingEventNames.Add(eventName);
-    }
+    public void AddEventName(string eventName) => _existingEventNames.Add(eventName);
 
-    public bool IsMethodNameUsed(string methodName)
-    {
-        return _existingMethodNames.Exists(methodName);
-    }
+    public bool IsMethodNameUsed(string methodName) => _existingMethodNames.Exists(methodName);
 
-    public bool IsPropertyNameUsed(string propName)
-    {
-        return _existingPropertyNames.Exists(propName);
-    }
+    public bool IsPropertyNameUsed(string propName) => _existingPropertyNames.Exists(propName);
 
-    public bool IsEventNameUsed(string eventName)
-    {
-        return _existingEventNames.Exists(eventName);
-    }
+    public bool IsEventNameUsed(string eventName) => _existingEventNames.Exists(eventName);
 
-    public string GetNewFieldName(FieldDef field)
-    {
-        return _existingVariableNames.GetName(field.Name,
+    public string GetNewFieldName(FieldDef field) =>
+        _existingVariableNames.GetName(field.Name,
             () => _variableNameCreator.Create(field.FieldSig.GetFieldType()));
-    }
 
-    public string GetNewFieldName(string oldName, INameCreator nameCreator)
-    {
-        return _existingVariableNames.GetName(oldName, () => nameCreator.Create());
-    }
+    public string GetNewFieldName(string oldName, INameCreator nameCreator) =>
+        _existingVariableNames.GetName(oldName, () => nameCreator.Create());
 
-    public string GetNewParamName(string oldName, Parameter param)
-    {
-        return _existingVariableNames.GetName(oldName, () => _variableNameCreator.Create(param.Type));
-    }
+    public string GetNewParamName(string oldName, Parameter param) =>
+        _existingVariableNames.GetName(oldName, () => _variableNameCreator.Create(param.Type));
 
-    public string GetNewMethodName(string oldName, INameCreator nameCreator)
-    {
-        return _existingMethodNames.GetName(oldName, nameCreator);
-    }
+    public string GetNewMethodName(string oldName, INameCreator nameCreator) =>
+        _existingMethodNames.GetName(oldName, nameCreator);
 
     private NameCreator _eventNameCreator;
     private ExistingNames _existingEventNames;

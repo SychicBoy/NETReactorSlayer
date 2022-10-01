@@ -30,10 +30,8 @@ public class InterfaceMethodInfos
     }
 
     // Returns the previous classMethod, or null if none
-    public MMethodDef AddMethod(TypeInfo iface, MMethodDef ifaceMethod, MMethodDef classMethod)
-    {
-        return AddMethod(iface.TypeRef, ifaceMethod, classMethod);
-    }
+    public MMethodDef AddMethod(TypeInfo iface, MMethodDef ifaceMethod, MMethodDef classMethod) =>
+        AddMethod(iface.TypeRef, ifaceMethod, classMethod);
 
     // Returns the previous classMethod, or null if none
     public MMethodDef AddMethod(ITypeDefOrRef iface, MMethodDef ifaceMethod, MMethodDef classMethod)

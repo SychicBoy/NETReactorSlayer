@@ -29,10 +29,7 @@ namespace NETReactorSlayer.De4dot.Renamer;
 
 public class ResourceRenamer
 {
-    public ResourceRenamer(Module module)
-    {
-        _module = module;
-    }
+    public ResourceRenamer(Module module) => _module = module;
 
     public void Rename(List<TypeInfo> renamedTypes)
     {
@@ -210,10 +207,7 @@ public class ResourceRenamer
             _newResourceName = newResourceName;
         }
 
-        public override string ToString()
-        {
-            return $"{_resource.Name} => {_newResourceName}";
-        }
+        public override string ToString() => $"{_resource.Name} => {_newResourceName}";
 
         private readonly string _newResourceName;
         private readonly Resource _resource;

@@ -5,13 +5,7 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules;
 
 public class MethodDefDict : MethodDefDict<MMethodDef>
 {
-    public IEnumerable<MMethodDef> GetSorted()
-    {
-        return DictHelper.GetSorted(GetValues());
-    }
+    public IEnumerable<MMethodDef> GetSorted() => DictHelper.GetSorted(GetValues());
 
-    public void Add(MMethodDef methodDef)
-    {
-        Add(methodDef.MethodDef, methodDef);
-    }
+    public void Add(MMethodDef methodDef) => Add(methodDef.MethodDef, methodDef);
 }

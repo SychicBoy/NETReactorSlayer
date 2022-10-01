@@ -38,7 +38,7 @@ internal class StringDecrypter : IStage
             if (!Find())
             {
                 count = InlineStringsDynamically();
-                if(count > 0)
+                if (count > 0)
                     Logger.Done(count + " Strings decrypted.");
                 else
                     Logger.Warn("Couldn't find any encrypted string.");
@@ -65,6 +65,34 @@ internal class StringDecrypter : IStage
 
         _encryptedResource?.Dispose();
     }
+
+    #region Nested Types
+
+    public class StacktracePatcher
+    {
+        public static void Patch()
+        {
+            harmony = new Harmony(HarmonyId);
+            harmony.PatchAll(Assembly.GetExecutingAssembly());
+        }
+
+        private const string HarmonyId = "_";
+        private static Harmony harmony;
+
+        [HarmonyPatch(typeof(StackFrame), "GetMethod")]
+        public class PatchStackTraceGetMethod
+        {
+            public static void Postfix(ref MethodBase __result)
+            {
+                if (__result.DeclaringType != typeof(RuntimeMethodHandle)) return;
+                __result = MethodToReplace ?? MethodBase.GetCurrentMethod();
+            }
+
+            public static MethodInfo MethodToReplace;
+        }
+    }
+
+    #endregion
 
     #region Private Methods
 
@@ -200,6 +228,7 @@ internal class StringDecrypter : IStage
             return method.MDToken.ToInt32().Equals(_encryptedResource.DecrypterMethod.MDToken.ToInt32()) ||
                    method.Equals(_encryptedResource.DecrypterMethod);
         }
+
         long count = 0;
         foreach (var type in Context.Module.GetTypes())
         foreach (var method in (from x in type.Methods where x.HasBody && x.Body.HasInstructions select x).ToArray())
@@ -271,12 +300,12 @@ internal class StringDecrypter : IStage
                         continue;
 
                     var result = (StacktracePatcher.PatchStackTraceGetMethod.MethodToReplace =
-                        Context.Assembly.ManifestModule.ResolveMethod(
-                            (int)methodDef.ResolveMethodDef().MDToken.Raw) as MethodInfo)
+                            Context.Assembly.ManifestModule.ResolveMethod(
+                                (int)methodDef.ResolveMethodDef().MDToken.Raw) as MethodInfo)
                         .Invoke(null, new object[] { method.Body.Instructions[i].GetLdcI4Value() });
 
                     if (result is not string operand) continue;
-                    
+
                     if (count < 1 && IsDecrypterMethod(method) && type != methodDef.DeclaringType)
                         Cleaner.AddMethodToBeRemoved(method);
 
@@ -299,34 +328,11 @@ internal class StringDecrypter : IStage
     private byte[] _key, _iv, _decryptedResource;
     private EncryptedResource _encryptedResource;
     private StringDecrypterVersion _stringDecrypterVersion;
-    private enum StringDecrypterVersion { V37, V38 }
 
-    #endregion
-
-    #region Nested Types
-
-    public class StacktracePatcher
+    private enum StringDecrypterVersion
     {
-        private const string HarmonyId = "_";
-        private static Harmony harmony;
-
-        public static void Patch()
-        {
-            harmony = new Harmony(HarmonyId);
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
-        }
-
-        [HarmonyPatch(typeof(StackFrame), "GetMethod")]
-        public class PatchStackTraceGetMethod
-        {
-            public static MethodInfo MethodToReplace;
-
-            public static void Postfix(ref MethodBase __result)
-            {
-                if (__result.DeclaringType != typeof(RuntimeMethodHandle)) return;
-                __result = MethodToReplace ?? MethodBase.GetCurrentMethod();
-            }
-        }
+        V37,
+        V38
     }
 
     #endregion

@@ -10,15 +10,9 @@ public class Tuple<T1, T2>
         return Item1.Equals(other.Item1) && Item2.Equals(other.Item2);
     }
 
-    public override int GetHashCode()
-    {
-        return Item1.GetHashCode() + Item2.GetHashCode();
-    }
+    public override int GetHashCode() => Item1.GetHashCode() + Item2.GetHashCode();
 
-    public override string ToString()
-    {
-        return "<" + Item1 + "," + Item2 + ">";
-    }
+    public override string ToString() => "<" + Item1 + "," + Item2 + ">";
 
     public T1 Item1 { get; }
     public T2 Item2 { get; }

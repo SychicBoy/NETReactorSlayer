@@ -439,10 +439,7 @@ public class NrsScrollBar : Control
 
     #region Method Region
 
-    public void ScrollTo(int position)
-    {
-        Value = position;
-    }
+    public void ScrollTo(int position) => Value = position;
 
     public void ScrollToPhysical(int positionInPixels)
     {
@@ -556,10 +553,7 @@ public class NrsScrollBar : Control
 
 public class ScrollValueEventArgs : EventArgs
 {
-    public ScrollValueEventArgs(int value)
-    {
-        Value = value;
-    }
+    public ScrollValueEventArgs(int value) => Value = value;
 
     public int Value { get; }
 }

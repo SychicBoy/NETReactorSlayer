@@ -4,10 +4,7 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules;
 
 public class MethodNameGroup
 {
-    public void Add(MMethodDef method)
-    {
-        Methods.Add(method);
-    }
+    public void Add(MMethodDef method) => Methods.Add(method);
 
     public void Merge(MethodNameGroup other)
     {
@@ -76,10 +73,7 @@ public class MethodNameGroup
         return false;
     }
 
-    public override string ToString()
-    {
-        return $"{Methods.Count} -- {(Methods.Count > 0 ? Methods[0].ToString() : "")}";
-    }
+    public override string ToString() => $"{Methods.Count} -- {(Methods.Count > 0 ? Methods[0].ToString() : "")}";
 
     public int Count => Methods.Count;
 

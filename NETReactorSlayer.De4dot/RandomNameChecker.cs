@@ -230,20 +230,11 @@ public static class RandomNameChecker
             else if (IsUpper(c)) upper++;
     }
 
-    private static bool IsLower(char c)
-    {
-        return 'a' <= c && c <= 'z';
-    }
+    private static bool IsLower(char c) => 'a' <= c && c <= 'z';
 
-    private static bool IsUpper(char c)
-    {
-        return 'A' <= c && c <= 'Z';
-    }
+    private static bool IsUpper(char c) => 'A' <= c && c <= 'Z';
 
-    private static bool IsDigit(char c)
-    {
-        return '0' <= c && c <= '9';
-    }
+    private static bool IsDigit(char c) => '0' <= c && c <= '9';
 
     private static readonly Regex AllUpper = new(@"^[A-Z]+$");
 

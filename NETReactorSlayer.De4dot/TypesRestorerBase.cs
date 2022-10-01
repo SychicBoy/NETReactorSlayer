@@ -8,10 +8,7 @@ namespace NETReactorSlayer.De4dot;
 
 public abstract class TypesRestorerBase
 {
-    public TypesRestorerBase(ModuleDef module)
-    {
-        _module = module;
-    }
+    public TypesRestorerBase(ModuleDef module) => _module = module;
 
     private UpdatedMethod GetUpdatedMethod(MethodDef method)
     {
@@ -48,10 +45,7 @@ public abstract class TypesRestorerBase
             AddMethods(type.Methods);
     }
 
-    private void AddMethods(IEnumerable<MethodDef> methods)
-    {
-        _allMethods.AddRange(methods);
-    }
+    private void AddMethods(IEnumerable<MethodDef> methods) => _allMethods.AddRange(methods);
 
     private void AddAllFields()
     {
@@ -314,10 +308,8 @@ public abstract class TypesRestorerBase
     }
 
 
-    private void AddMethodArgType(IGenericParameterProvider gpp, Parameter methodParam, ITypeDefOrRef type)
-    {
+    private void AddMethodArgType(IGenericParameterProvider gpp, Parameter methodParam, ITypeDefOrRef type) =>
         AddMethodArgType(gpp, methodParam, type.ToTypeSig());
-    }
 
     private void AddMethodArgType(IGenericParameterProvider gpp, Parameter methodParam, TypeSig type)
     {
@@ -539,10 +531,7 @@ public abstract class TypesRestorerBase
 
     private class UpdatedField
     {
-        public UpdatedField(FieldDef field)
-        {
-            Token = field.MDToken.ToInt32();
-        }
+        public UpdatedField(FieldDef field) => Token = field.MDToken.ToInt32();
 
         public readonly int Token;
 
@@ -551,15 +540,9 @@ public abstract class TypesRestorerBase
 
     private class TypeInfo<T>
     {
-        public TypeInfo(T arg)
-        {
-            Arg = arg;
-        }
+        public TypeInfo(T arg) => Arg = arg;
 
-        public void Add(TypeSig type)
-        {
-            Add(type, false);
-        }
+        public void Add(TypeSig type) => Add(type, false);
 
         public void Add(TypeSig type, bool wasNewobj)
         {
@@ -574,10 +557,7 @@ public abstract class TypesRestorerBase
             Types[type] = true;
         }
 
-        public void Clear()
-        {
-            Types.Clear();
-        }
+        public void Clear() => Types.Clear();
 
         public bool UpdateNewType(ModuleDef module)
         {

@@ -2,7 +2,7 @@
 
 namespace NETReactorSlayer.Core.Helper;
 
-public class QuickLZBase
+public class QuickLzBase
 {
     protected static uint Read32(byte[] data, int index) => BitConverter.ToUInt32(data, index);
 
@@ -104,9 +104,9 @@ public class QuickLZBase
             {
                 Copy(inData, inIndex, outData, outIndex, 4);
                 var index = (int)(val1 & 0x0F);
-                outIndex += indexInc[index];
-                inIndex += indexInc[index];
-                val1 >>= indexInc[index];
+                outIndex += IndexInc[index];
+                inIndex += IndexInc[index];
+                val1 >>= IndexInc[index];
                 if (outIndex >= decompressedLength - 4)
                     break;
             }
@@ -125,5 +125,5 @@ public class QuickLZBase
         }
     }
 
-    private static readonly int[] indexInc = { 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0 };
+    private static readonly int[] IndexInc = { 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0 };
 }

@@ -30,10 +30,7 @@ public abstract class Ref
         Index = index;
     }
 
-    public override string ToString()
-    {
-        return MemberRef?.ToString() ?? string.Empty;
-    }
+    public override string ToString() => MemberRef?.ToString() ?? string.Empty;
 
     public readonly IMemberRef MemberRef;
 

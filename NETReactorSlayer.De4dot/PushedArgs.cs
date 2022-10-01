@@ -13,20 +13,11 @@ public class PushedArgs
             _args.Add(null);
     }
 
-    public void Add(Instruction instr)
-    {
-        _args[_nextIndex--] = instr;
-    }
+    public void Add(Instruction instr) => _args[_nextIndex--] = instr;
 
-    public void Set(int i, Instruction instr)
-    {
-        _args[i] = instr;
-    }
+    public void Set(int i, Instruction instr) => _args[i] = instr;
 
-    internal void Pop()
-    {
-        _args[++_nextIndex] = null;
-    }
+    internal void Pop() => _args[++_nextIndex] = null;
 
     public Instruction Get(int i)
     {
@@ -35,10 +26,7 @@ public class PushedArgs
         return null;
     }
 
-    public Instruction GetEnd(int i)
-    {
-        return Get(_args.Count - 1 - i);
-    }
+    public Instruction GetEnd(int i) => Get(_args.Count - 1 - i);
 
     private readonly List<Instruction> _args;
     private int _nextIndex;

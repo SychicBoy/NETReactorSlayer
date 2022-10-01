@@ -73,17 +73,17 @@ internal class MethodDecrypter : IStage
                  where call.MDToken.ToInt32() == method.MDToken.ToInt32()
                  select methodDef)
         {
-                if (!EncryptedResource.IsKnownDecrypter(methodDef, Array.Empty<string>(), true))
-                    continue;
+            if (!EncryptedResource.IsKnownDecrypter(methodDef, Array.Empty<string>(), true))
+                continue;
 
-                _encryptedResource = new EncryptedResource(methodDef);
-                if (_encryptedResource.EmbeddedResource == null)
-                {
-                    _encryptedResource.Dispose();
-                    continue;
-                }
+            _encryptedResource = new EncryptedResource(methodDef);
+            if (_encryptedResource.EmbeddedResource == null)
+            {
+                _encryptedResource.Dispose();
+                continue;
+            }
 
-                return true;
+            return true;
         }
 
         return false;
@@ -212,7 +212,7 @@ internal class MethodDecrypter : IStage
         {
             if (!isFindDnrMethod || mode == 1)
                 Context.Module = Context.AssemblyModule.Reload(
-                    Context.PeImage.peImageData, CreateDumpedMethodsRestorer(dumpedMethods), null);
+                    Context.PeImage.PeImageData, CreateDumpedMethodsRestorer(dumpedMethods), null);
             else if (dumpedMethods.Count > 0)
                 Context.Module = Context.AssemblyModule.Reload(
                     Context.ModuleBytes, CreateDumpedMethodsRestorer(dumpedMethods), null);
@@ -302,7 +302,7 @@ internal class MethodDecrypter : IStage
             where sig != null && sig.Params.Count == 6
             select method).FirstOrDefault(method => GetCompileMethodType(method) != CompileMethodType.Unknown);
 
-    private static void PatchDwords(MyPEImage peImage, ref DataReader reader, int count)
+    private static void PatchDwords(MyPeImage peImage, ref DataReader reader, int count)
     {
         for (var i = 0; i < count; i++)
         {

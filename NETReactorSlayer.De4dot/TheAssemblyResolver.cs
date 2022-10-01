@@ -33,10 +33,7 @@ public class TheAssemblyResolver : AssemblyResolver
         AddOtherSearchPaths(PostSearchPaths);
     }
 
-    public void AddModule(ModuleDef module)
-    {
-        AddToCache(module.Assembly);
-    }
+    public void AddModule(ModuleDef module) => AddToCache(module.Assembly);
 
     private static void AddOtherSearchPaths(ICollection<string> paths)
     {

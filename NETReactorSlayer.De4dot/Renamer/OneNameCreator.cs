@@ -21,15 +21,9 @@ namespace NETReactorSlayer.De4dot.Renamer;
 
 public class OneNameCreator : INameCreator
 {
-    public OneNameCreator(string name)
-    {
-        _name = name;
-    }
+    public OneNameCreator(string name) => _name = name;
 
-    public string Create()
-    {
-        return _name;
-    }
+    public string Create() => _name;
 
     private readonly string _name;
 }

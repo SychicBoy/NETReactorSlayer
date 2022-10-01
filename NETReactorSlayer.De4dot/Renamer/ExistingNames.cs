@@ -25,30 +25,17 @@ namespace NETReactorSlayer.De4dot.Renamer;
 
 public class ExistingNames
 {
-    public void Add(string name)
-    {
-        _allNames[name] = true;
-    }
+    public void Add(string name) => _allNames[name] = true;
 
-    public bool Exists(string name)
-    {
-        return _allNames.ContainsKey(name);
-    }
+    public bool Exists(string name) => _allNames.ContainsKey(name);
 
-    public string GetName(UTF8String oldName, INameCreator nameCreator)
-    {
-        return GetName(UTF8String.ToSystemStringOrEmpty(oldName), nameCreator);
-    }
+    public string GetName(UTF8String oldName, INameCreator nameCreator) =>
+        GetName(UTF8String.ToSystemStringOrEmpty(oldName), nameCreator);
 
-    public string GetName(string oldName, INameCreator nameCreator)
-    {
-        return GetName(oldName, nameCreator.Create);
-    }
+    public string GetName(string oldName, INameCreator nameCreator) => GetName(oldName, nameCreator.Create);
 
-    public string GetName(UTF8String oldName, Func<string> createNewName)
-    {
-        return GetName(UTF8String.ToSystemStringOrEmpty(oldName), createNewName);
-    }
+    public string GetName(UTF8String oldName, Func<string> createNewName) =>
+        GetName(UTF8String.ToSystemStringOrEmpty(oldName), createNewName);
 
     public string GetName(string oldName, Func<string> createNewName)
     {

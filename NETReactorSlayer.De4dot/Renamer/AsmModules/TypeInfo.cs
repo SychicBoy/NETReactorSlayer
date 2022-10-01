@@ -36,10 +36,7 @@ public class TypeInfo
         TypeDef = other.TypeDef;
     }
 
-    public override int GetHashCode()
-    {
-        return TypeDef.GetHashCode() + new SigComparer().GetHashCode(TypeRef);
-    }
+    public override int GetHashCode() => TypeDef.GetHashCode() + new SigComparer().GetHashCode(TypeRef);
 
     public override bool Equals(object obj)
     {
@@ -50,10 +47,7 @@ public class TypeInfo
                new SigComparer().Equals(TypeRef, other.TypeRef);
     }
 
-    public override string ToString()
-    {
-        return TypeRef.ToString();
-    }
+    public override string ToString() => TypeRef.ToString();
 
     public readonly MTypeDef TypeDef;
     public readonly ITypeDefOrRef TypeRef;

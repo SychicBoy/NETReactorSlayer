@@ -29,10 +29,7 @@ namespace NETReactorSlayer.De4dot;
 
 public class InitializedDataCreator
 {
-    public InitializedDataCreator(ModuleDef module)
-    {
-        _module = module;
-    }
+    public InitializedDataCreator(ModuleDef module) => _module = module;
 
     private MemberRef CreateInitializeArrayMethod()
     {

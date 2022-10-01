@@ -18,15 +18,9 @@ public class MemberInfo
         NewName = newTypeName;
     }
 
-    public bool GotNewName()
-    {
-        return OldName != NewName;
-    }
+    public bool GotNewName() => OldName != NewName;
 
-    public override string ToString()
-    {
-        return $"O:{OldFullName} -- N:{NewName}";
-    }
+    public override string ToString() => $"O:{OldFullName} -- N:{NewName}";
 
     protected Ref MemberRef;
     public string NewName;

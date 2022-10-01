@@ -25,20 +25,11 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules;
 
 public class Module : IResolver
 {
-    public Module(IObfuscatedFile obfuscatedFile)
-    {
-        ObfuscatedFile = obfuscatedFile;
-    }
+    public Module(IObfuscatedFile obfuscatedFile) => ObfuscatedFile = obfuscatedFile;
 
-    public IEnumerable<MTypeDef> GetAllTypes()
-    {
-        return _types.GetValues();
-    }
+    public IEnumerable<MTypeDef> GetAllTypes() => _types.GetValues();
 
-    public IEnumerable<MethodDef> GetAllMethods()
-    {
-        return _allMethods;
-    }
+    public IEnumerable<MethodDef> GetAllMethods() => _allMethods;
 
     public void FindAllMemberRefs(ref int typeIndex)
     {
@@ -193,10 +184,7 @@ public class Module : IResolver
         return gis.GenericType.TypeDefOrRef;
     }
 
-    public MTypeDef ResolveType(ITypeDefOrRef typeRef)
-    {
-        return _types.Find(GetNonGenericTypeRef(typeRef));
-    }
+    public MTypeDef ResolveType(ITypeDefOrRef typeRef) => _types.Find(GetNonGenericTypeRef(typeRef));
 
     public MMethodDef ResolveMethod(IMethodDefOrRef methodRef)
     {

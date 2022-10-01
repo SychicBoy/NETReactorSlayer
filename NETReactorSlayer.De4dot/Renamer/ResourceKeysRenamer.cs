@@ -224,10 +224,7 @@ public class ResourceKeysRenamer
         return sb.ToString();
     }
 
-    private string CreateDefaultName()
-    {
-        return CreateName(counter => $"{DefaultKeyName}{counter}");
-    }
+    private string CreateDefaultName() => CreateName(counter => $"{DefaultKeyName}{counter}");
 
     private string CreateName(Func<int, string> create)
     {
@@ -258,10 +255,7 @@ public class ResourceKeysRenamer
             NewName = newName;
         }
 
-        public override string ToString()
-        {
-            return $"{Element} => {NewName}";
-        }
+        public override string ToString() => $"{Element} => {NewName}";
 
         public readonly ResourceElement Element;
         public readonly string NewName;

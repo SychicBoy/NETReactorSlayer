@@ -25,10 +25,7 @@ namespace NETReactorSlayer.De4dot.Renamer;
 
 public class DerivedFrom
 {
-    public DerivedFrom(string className)
-    {
-        AddName(className);
-    }
+    public DerivedFrom(string className) => AddName(className);
 
     public DerivedFrom(string[] classNames)
     {
@@ -36,15 +33,9 @@ public class DerivedFrom
             AddName(className);
     }
 
-    private void AddName(string className)
-    {
-        _classNames[className] = true;
-    }
+    private void AddName(string className) => _classNames[className] = true;
 
-    public bool Check(MTypeDef type)
-    {
-        return Check(type, 0);
-    }
+    public bool Check(MTypeDef type) => Check(type, 0);
 
     public bool Check(MTypeDef type, int recurseCount)
     {

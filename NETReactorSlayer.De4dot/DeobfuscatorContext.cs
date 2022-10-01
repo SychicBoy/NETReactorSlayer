@@ -38,15 +38,9 @@ public class DeobfuscatorContext : IDeobfuscatorContext
         return gis.GenericType.TypeDefOrRef;
     }
 
-    public void Clear()
-    {
-        _dataDict.Clear();
-    }
+    public void Clear() => _dataDict.Clear();
 
-    public void SetData(string name, object data)
-    {
-        _dataDict[name] = data;
-    }
+    public void SetData(string name, object data) => _dataDict[name] = data;
 
     public object GetData(string name)
     {
@@ -54,10 +48,7 @@ public class DeobfuscatorContext : IDeobfuscatorContext
         return value;
     }
 
-    public void ClearData(string name)
-    {
-        _dataDict.Remove(name);
-    }
+    public void ClearData(string name) => _dataDict.Remove(name);
 
     public TypeDef ResolveType(ITypeDefOrRef type)
     {

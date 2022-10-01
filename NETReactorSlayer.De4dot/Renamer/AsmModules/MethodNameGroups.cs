@@ -24,15 +24,9 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules;
 
 public class MethodNameGroups
 {
-    public void Same(MMethodDef a, MMethodDef b)
-    {
-        Merge(Get(a), Get(b));
-    }
+    public void Same(MMethodDef a, MMethodDef b) => Merge(Get(a), Get(b));
 
-    public void Add(MMethodDef methodDef)
-    {
-        Get(methodDef);
-    }
+    public void Add(MMethodDef methodDef) => Get(methodDef);
 
     public MethodNameGroup Get(MMethodDef method)
     {
@@ -64,10 +58,7 @@ public class MethodNameGroups
             _methodGroups[methodDef] = a;
     }
 
-    public IEnumerable<MethodNameGroup> GetAllGroups()
-    {
-        return Utils.Unique(_methodGroups.Values);
-    }
+    public IEnumerable<MethodNameGroup> GetAllGroups() => Utils.Unique(_methodGroups.Values);
 
     private readonly Dictionary<MMethodDef, MethodNameGroup> _methodGroups = new();
 }

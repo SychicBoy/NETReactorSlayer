@@ -18,10 +18,7 @@ public class NameRegex
     }
 
     // Returns true if the regex matches. Use MatchValue to get result.
-    public bool IsMatch(string s)
-    {
-        return _regex.IsMatch(s);
-    }
+    public bool IsMatch(string s) => _regex.IsMatch(s);
 
     public override string ToString()
     {

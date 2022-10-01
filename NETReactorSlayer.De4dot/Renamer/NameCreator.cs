@@ -12,15 +12,9 @@ public class NameCreator : NameCreatorCounter
         Num = num;
     }
 
-    public NameCreator Clone()
-    {
-        return new NameCreator(_prefix, Num);
-    }
+    public NameCreator Clone() => new NameCreator(_prefix, Num);
 
-    public override string Create()
-    {
-        return _prefix + Num++;
-    }
+    public override string Create() => _prefix + Num++;
 
     private readonly string _prefix;
 }

@@ -8,19 +8,19 @@ public class StringCounts
 {
     public void Add(string s)
     {
-        strings.TryGetValue(s, out var count);
-        strings[s] = count + 1;
+        _strings.TryGetValue(s, out var count);
+        _strings[s] = count + 1;
     }
 
-    public bool Exists(string s) => s != null && strings.ContainsKey(s);
+    public bool Exists(string s) => s != null && _strings.ContainsKey(s);
 
     public bool All(IList<string> list) => list.All(Exists);
 
     public int Count(string s)
     {
-        strings.TryGetValue(s, out var count);
+        _strings.TryGetValue(s, out var count);
         return count;
     }
 
-    private readonly Dictionary<string, int> strings = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, int> _strings = new(StringComparer.Ordinal);
 }

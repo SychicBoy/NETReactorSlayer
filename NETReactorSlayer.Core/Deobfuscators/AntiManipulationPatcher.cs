@@ -27,15 +27,15 @@ internal class AntiManipulationPatcher : IStage
         bool antiTamper = false,
             antiDebugger = false;
         foreach (var type in Context.Module.GetTypes())
-        foreach (var method in type.Methods.Where(x=> x.HasBody && x.Body.HasInstructions))
+        foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
         {
-                if (RemoveAntiTamper(method))
-                    antiTamper = true;
-                else if (RemoveAntiDebugger(method))
-                    antiDebugger = true;
-                else
-                    continue;
-                Cleaner.AddCallToBeRemoved(method);
+            if (RemoveAntiTamper(method))
+                antiTamper = true;
+            else if (RemoveAntiDebugger(method))
+                antiDebugger = true;
+            else
+                continue;
+            Cleaner.AddCallToBeRemoved(method);
         }
 
         if (!antiTamper)
@@ -57,7 +57,6 @@ internal class AntiManipulationPatcher : IStage
         method.Body = cli;
         Logger.Done("Anti tamper removed.");
         return true;
-
     }
 
     private bool RemoveAntiDebugger(MethodDef method)

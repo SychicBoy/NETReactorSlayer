@@ -6,8 +6,5 @@ public class GlobalTypeNameCreator : TypeNameCreator
     {
     }
 
-    protected override NameCreator CreateNameCreator(string prefix)
-    {
-        return base.CreateNameCreator("G" + prefix);
-    }
+    protected override NameCreator CreateNameCreator(string prefix) => base.CreateNameCreator("G" + prefix);
 }

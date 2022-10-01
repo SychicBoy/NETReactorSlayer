@@ -49,10 +49,7 @@ public class InterfaceMethodInfo
             AddMethod(ifaceMethod, classMethod);
     }
 
-    public override string ToString()
-    {
-        return Face.ToString();
-    }
+    public override string ToString() => Face.ToString();
 
     public TypeInfo Face { get; }
 

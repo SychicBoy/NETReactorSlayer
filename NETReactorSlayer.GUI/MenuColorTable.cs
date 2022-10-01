@@ -20,10 +20,7 @@ namespace NETReactorSlayer.GUI;
 
 public class MenuColorTable : ProfessionalColorTable
 {
-    public MenuColorTable()
-    {
-        UseSystemColors = false;
-    }
+    public MenuColorTable() => UseSystemColors = false;
 
     public override Color MenuBorder => Color.Black;
 

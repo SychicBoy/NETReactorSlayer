@@ -4,10 +4,7 @@ namespace NETReactorSlayer.De4dot.Renamer;
 
 public class NameInfos
 {
-    public void Add(string name, NameCreator nameCreator)
-    {
-        _nameInfos.Add(new NameInfo(name, nameCreator));
-    }
+    public void Add(string name, NameCreator nameCreator) => _nameInfos.Add(new NameInfo(name, nameCreator));
 
     public NameCreator Find(string typeName)
     {

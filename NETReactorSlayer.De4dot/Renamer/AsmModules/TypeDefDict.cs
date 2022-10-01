@@ -5,13 +5,7 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules;
 
 public class TypeDefDict : TypeDefDict<MTypeDef>
 {
-    public IEnumerable<MTypeDef> GetSorted()
-    {
-        return DictHelper.GetSorted(GetValues());
-    }
+    public IEnumerable<MTypeDef> GetSorted() => DictHelper.GetSorted(GetValues());
 
-    public void Add(MTypeDef typeDef)
-    {
-        Add(typeDef.TypeDef, typeDef);
-    }
+    public void Add(MTypeDef typeDef) => Add(typeDef.TypeDef, typeDef);
 }

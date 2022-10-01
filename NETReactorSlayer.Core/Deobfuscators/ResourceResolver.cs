@@ -123,7 +123,7 @@ internal class ResourceResolver : IStage
     {
         try
         {
-            return QuickLZ.Decompress(bytes);
+            return QuickLz.Decompress(bytes);
         }
         catch
         {

@@ -37,40 +37,19 @@ public class TypeInfo : MemberInfo
         OldNamespace = typeDef.TypeDef.Namespace.String;
     }
 
-    private bool IsWinFormsClass()
-    {
-        return _memberInfos.IsWinFormsClass(Type);
-    }
+    private bool IsWinFormsClass() => _memberInfos.IsWinFormsClass(Type);
 
-    public PropertyInfo Property(MPropertyDef prop)
-    {
-        return _memberInfos.Property(prop);
-    }
+    public PropertyInfo Property(MPropertyDef prop) => _memberInfos.Property(prop);
 
-    public EventInfo Event(MEventDef evt)
-    {
-        return _memberInfos.Event(evt);
-    }
+    public EventInfo Event(MEventDef evt) => _memberInfos.Event(evt);
 
-    public FieldInfo Field(MFieldDef field)
-    {
-        return _memberInfos.Field(field);
-    }
+    public FieldInfo Field(MFieldDef field) => _memberInfos.Field(field);
 
-    public MethodInfo Method(MMethodDef method)
-    {
-        return _memberInfos.Method(method);
-    }
+    public MethodInfo Method(MMethodDef method) => _memberInfos.Method(method);
 
-    public GenericParamInfo GenericParam(MGenericParamDef gparam)
-    {
-        return _memberInfos.GenericParam(gparam);
-    }
+    public GenericParamInfo GenericParam(MGenericParamDef gparam) => _memberInfos.GenericParam(gparam);
 
-    public ParamInfo Param(MParamDef param)
-    {
-        return _memberInfos.Param(param);
-    }
+    public ParamInfo Param(MParamDef param) => _memberInfos.Param(param);
 
     private TypeInfo GetBase()
     {
@@ -81,10 +60,7 @@ public class TypeInfo : MemberInfo
         return baseInfo;
     }
 
-    private bool IsModuleType()
-    {
-        return Type.TypeDef.IsGlobalModuleType;
-    }
+    private bool IsModuleType() => Type.TypeDef.IsGlobalModuleType;
 
     public void PrepareRenameTypes(TypeRenamerState state)
     {
@@ -462,10 +438,8 @@ public class TypeInfo : MemberInfo
         return true;
     }
 
-    private void PrepareRenameGenericParams(IEnumerable<MGenericParamDef> genericParams, INameChecker checker)
-    {
+    private void PrepareRenameGenericParams(IEnumerable<MGenericParamDef> genericParams, INameChecker checker) =>
         PrepareRenameGenericParams(genericParams, checker, null);
-    }
 
     private void PrepareRenameGenericParams(IEnumerable<MGenericParamDef> genericParams, INameChecker checker,
         IEnumerable<MGenericParamDef> otherGenericParams)
@@ -890,10 +864,8 @@ public class TypeInfo : MemberInfo
         }
     }
 
-    private static bool IsThisOrDup(Instruction instr)
-    {
-        return instr.GetParameterIndex() == 0 || instr.OpCode.Code == Code.Dup;
-    }
+    private static bool IsThisOrDup(Instruction instr) =>
+        instr.GetParameterIndex() == 0 || instr.OpCode.Code == Code.Dup;
 
     private static bool IsEventHandlerCtor(IMethod method)
     {
@@ -908,10 +880,8 @@ public class TypeInfo : MemberInfo
         return true;
     }
 
-    private static bool IsEventHandlerType(IType type)
-    {
-        return type.FullName.EndsWith("EventHandler", StringComparison.Ordinal);
-    }
+    private static bool IsEventHandlerType(IType type) =>
+        type.FullName.EndsWith("EventHandler", StringComparison.Ordinal);
 
     private string FindWindowsFormsClassName(MTypeDef type)
     {

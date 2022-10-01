@@ -28,9 +28,9 @@ namespace NETReactorSlayer.Core.Helper;
 
 public class DumpedMethodsRestorer : IRowReader<RawMethodRow>, IColumnReader, IMethodDecrypter
 {
-    public DumpedMethodsRestorer(DumpedMethods dumpedMethods) => this.dumpedMethods = dumpedMethods;
+    public DumpedMethodsRestorer(DumpedMethods dumpedMethods) => _dumpedMethods = dumpedMethods;
 
-    private DumpedMethod GetDumpedMethod(uint rid) => dumpedMethods.Get(0x06000000 | rid);
+    private DumpedMethod GetDumpedMethod(uint rid) => _dumpedMethods.Get(0x06000000 | rid);
 
     public bool ReadColumn(MDTable table, uint rid, ColumnInfo column, out uint value)
     {
@@ -55,7 +55,7 @@ public class DumpedMethodsRestorer : IRowReader<RawMethodRow>, IColumnReader, IM
             return false;
         }
 
-        methodBody = MethodBodyReader.CreateCilBody(module, dm.code, dm.extraSections, parameters, dm.mhFlags,
+        methodBody = MethodBodyReader.CreateCilBody(_module, dm.code, dm.extraSections, parameters, dm.mhFlags,
             dm.mhMaxStack, dm.mhCodeSize, dm.mhLocalVarSigTok, gpContext);
         return true;
     }
@@ -73,11 +73,11 @@ public class DumpedMethodsRestorer : IRowReader<RawMethodRow>, IColumnReader, IM
         return true;
     }
 
-    private readonly DumpedMethods dumpedMethods;
-    private ModuleDefMD module;
+    private readonly DumpedMethods _dumpedMethods;
+    private ModuleDefMD _module;
 
     public ModuleDefMD Module
     {
-        set => module = value;
+        set => _module = value;
     }
 }

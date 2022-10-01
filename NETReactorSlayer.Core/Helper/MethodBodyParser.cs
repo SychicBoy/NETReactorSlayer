@@ -46,34 +46,34 @@ public static class MethodBodyParser
         var b = Peek(ref reader);
         if ((b & 3) == 2)
         {
-            mbHeader.flags = 2;
-            mbHeader.maxStack = 8;
-            mbHeader.codeSize = (uint)(reader.ReadByte() >> 2);
-            mbHeader.localVarSigTok = 0;
+            mbHeader.Flags = 2;
+            mbHeader.MaxStack = 8;
+            mbHeader.CodeSize = (uint)(reader.ReadByte() >> 2);
+            mbHeader.LocalVarSigTok = 0;
             codeOffset = 1;
         }
         else if ((b & 7) == 3)
         {
-            mbHeader.flags = reader.ReadUInt16();
-            codeOffset = (uint)(4 * (mbHeader.flags >> 12));
+            mbHeader.Flags = reader.ReadUInt16();
+            codeOffset = (uint)(4 * (mbHeader.Flags >> 12));
             if (codeOffset != 12)
                 throw new InvalidMethodBody();
-            mbHeader.maxStack = reader.ReadUInt16();
-            mbHeader.codeSize = reader.ReadUInt32();
-            if (mbHeader.codeSize > int.MaxValue)
+            mbHeader.MaxStack = reader.ReadUInt16();
+            mbHeader.CodeSize = reader.ReadUInt32();
+            if (mbHeader.CodeSize > int.MaxValue)
                 throw new InvalidMethodBody();
-            mbHeader.localVarSigTok = reader.ReadUInt32();
-            if (mbHeader.localVarSigTok != 0 && mbHeader.localVarSigTok >> 24 != 0x11)
+            mbHeader.LocalVarSigTok = reader.ReadUInt32();
+            if (mbHeader.LocalVarSigTok != 0 && mbHeader.LocalVarSigTok >> 24 != 0x11)
                 throw new InvalidMethodBody();
         }
         else
             throw new InvalidMethodBody();
 
-        if (mbHeader.codeSize + codeOffset > reader.Length)
+        if (mbHeader.CodeSize + codeOffset > reader.Length)
             throw new InvalidMethodBody();
-        code = reader.ReadBytes((int)mbHeader.codeSize);
+        code = reader.ReadBytes((int)mbHeader.CodeSize);
 
-        extraSections = (mbHeader.flags & 8) != 0 ? ReadExtraSections2(ref reader) : null;
+        extraSections = (mbHeader.Flags & 8) != 0 ? ReadExtraSections2(ref reader) : null;
 
         return mbHeader;
     }

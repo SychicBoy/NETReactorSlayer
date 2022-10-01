@@ -26,36 +26,36 @@ public class AssemblyModule
 {
     public AssemblyModule(string filename, ModuleContext moduleContext)
     {
-        this.filename = Path.GetFullPath(filename);
-        this.moduleContext = moduleContext;
+        _filename = Path.GetFullPath(filename);
+        _moduleContext = moduleContext;
     }
 
     public ModuleDefMD Load()
     {
-        var options = new ModuleCreationOptions(moduleContext) { TryToLoadPdbFromDisk = false };
-        return SetModule(ModuleDefMD.Load(filename, options));
+        var options = new ModuleCreationOptions(_moduleContext) { TryToLoadPdbFromDisk = false };
+        return SetModule(ModuleDefMD.Load(_filename, options));
     }
 
     public ModuleDefMD Load(byte[] fileData)
     {
-        var options = new ModuleCreationOptions(moduleContext) { TryToLoadPdbFromDisk = false };
+        var options = new ModuleCreationOptions(_moduleContext) { TryToLoadPdbFromDisk = false };
         return SetModule(ModuleDefMD.Load(fileData, options));
     }
 
     private ModuleDefMD SetModule(ModuleDefMD newModule)
     {
-        module = newModule;
-        TheAssemblyResolver.Instance.AddModule(module);
-        module.EnableTypeDefFindCache = true;
-        module.Location = filename;
-        return module;
+        _module = newModule;
+        TheAssemblyResolver.Instance.AddModule(_module);
+        _module.EnableTypeDefFindCache = true;
+        _module.Location = _filename;
+        return _module;
     }
 
     public ModuleDefMD Reload(
         byte[] newModuleData, DumpedMethodsRestorer dumpedMethodsRestorer, IStringDecrypter stringDecrypter)
     {
-        TheAssemblyResolver.Instance.Remove(module);
-        var options = new ModuleCreationOptions(moduleContext) { TryToLoadPdbFromDisk = false };
+        TheAssemblyResolver.Instance.Remove(_module);
+        var options = new ModuleCreationOptions(_moduleContext) { TryToLoadPdbFromDisk = false };
         var mod = ModuleDefMD.Load(newModuleData, options);
         if (dumpedMethodsRestorer != null)
             dumpedMethodsRestorer.Module = mod;
@@ -66,9 +66,9 @@ public class AssemblyModule
         return SetModule(mod);
     }
 
-    public override string ToString() => filename;
+    public override string ToString() => _filename;
 
-    private readonly string filename;
-    private readonly ModuleContext moduleContext;
-    private ModuleDefMD module;
+    private readonly string _filename;
+    private readonly ModuleContext _moduleContext;
+    private ModuleDefMD _module;
 }

@@ -87,8 +87,27 @@ internal class EncryptedResource : IDisposable
 
         return false;
     }
-    
+
     public byte[] Decrypt() => Decrypter.Decrypt(EmbeddedResource);
+
+    #region Enums
+
+    public enum DecrypterVersion
+    {
+        V69,
+        V6X
+    }
+
+    #endregion
+
+    #region Interfaces
+
+    private interface IDecrypter
+    {
+        byte[] Decrypt(EmbeddedResource resource);
+    }
+
+    #endregion
 
     #region Private Methods
 
@@ -184,25 +203,6 @@ internal class EncryptedResource : IDisposable
     private IList<string> AdditionalTypes { get; }
 
     private IDecrypter Decrypter { get; set; }
-
-    #endregion
-
-    #region Enums
-
-    public enum DecrypterVersion
-    {
-        V69,
-        V6X
-    }
-
-    #endregion
-
-    #region Interfaces
-
-    private interface IDecrypter
-    {
-        byte[] Decrypt(EmbeddedResource resource);
-    }
 
     #endregion
 
@@ -423,6 +423,7 @@ internal class EncryptedResource : IDisposable
                                 _decrypterVersion = DecrypterVersion.V69;
                                 continue;
                             }
+
                             newStartIndex = x + 1;
                             break;
                         }
@@ -625,7 +626,7 @@ internal class EncryptedResource : IDisposable
 
         #region Fields
 
-        private InstructionEmulator _instrEmulator = new();
+        private readonly InstructionEmulator _instrEmulator = new();
         private readonly byte[] _key, _iv;
         private readonly MethodDef _method;
         private Parameter _emuArg;
@@ -837,6 +838,7 @@ internal class EncryptedResource : IDisposable
                                 _decrypterVersion = DecrypterVersion.V69;
                                 continue;
                             }
+
                             newStartIndex = x + 1;
                             break;
                         }
@@ -941,7 +943,7 @@ internal class EncryptedResource : IDisposable
 
         #region Fields
 
-        private InstructionEmulator _instrEmulator = new();
+        private readonly InstructionEmulator _instrEmulator = new();
         private readonly List<Local> _locals;
         private readonly MethodDef _method;
         private Local _emuLocal;
@@ -1116,6 +1118,7 @@ internal class EncryptedResource : IDisposable
                                 _decrypterVersion = DecrypterVersion.V69;
                                 continue;
                             }
+
                             newStartIndex = x + 1;
                             break;
                         }

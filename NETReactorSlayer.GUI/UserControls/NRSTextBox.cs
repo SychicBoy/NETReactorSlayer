@@ -65,10 +65,8 @@ public partial class NrsTextBox : TextBox
         int nLeftRect, int nTopRect, int nRightRect, int nBottomRect,
         int nWidthEllipse, int nHeightEllipse);
 
-    private void SizeChange(object sender, EventArgs e)
-    {
+    private void SizeChange(object sender, EventArgs e) =>
         Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _borderRadius, 20));
-    }
 
     private int _borderRadius;
     private Color _foreColor = Color.Silver;

@@ -340,8 +340,7 @@ internal class MsgBox : Form
         Focus();
     }
 
-    private static void InitIcon(MsgIcon icon)
-    {
+    private static void InitIcon(MsgIcon icon) =>
         _msgBox._picIcon.Image = icon switch
         {
             MsgIcon.Error => Resources.Error,
@@ -350,7 +349,6 @@ internal class MsgBox : Form
             MsgIcon.Warning => Resources.Warning,
             _ => _msgBox._picIcon.Image
         };
-    }
 
     private void InitAbortRetryIgnoreButtons()
     {

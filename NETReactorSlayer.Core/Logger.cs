@@ -132,8 +132,10 @@ internal class Logger
         Console.ForegroundColor = ConsoleColor.White;
         Console.Write("  Version: ");
         Console.ForegroundColor = ConsoleColor.DarkCyan;
-        Console.WriteLine((Attribute.GetCustomAttribute(Assembly.GetEntryAssembly() ?? throw new InvalidOperationException(),
-            typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute)?.InformationalVersion);
+        Console.WriteLine((Attribute.GetCustomAttribute(
+                Assembly.GetEntryAssembly() ?? throw new InvalidOperationException(),
+                typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute)
+            ?.InformationalVersion);
         Console.ForegroundColor = ConsoleColor.White;
         Console.Write("  Supported .NET Reactor versions: ");
         Console.ForegroundColor = ConsoleColor.DarkCyan;

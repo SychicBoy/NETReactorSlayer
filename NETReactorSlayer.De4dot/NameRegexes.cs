@@ -27,10 +27,7 @@ public class NameRegexes
     {
     }
 
-    public NameRegexes(string regex)
-    {
-        Set(regex);
-    }
+    public NameRegexes(string regex) => Set(regex);
 
     public void Set(string regexesString)
     {

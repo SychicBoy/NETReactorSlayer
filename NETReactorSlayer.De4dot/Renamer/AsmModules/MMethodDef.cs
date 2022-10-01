@@ -40,25 +40,13 @@ public class MMethodDef : Ref
         ReturnParamDef = new MParamDef(methodDef.Parameters.ReturnParameter, -1);
     }
 
-    public bool IsPublic()
-    {
-        return MethodDef.IsPublic;
-    }
+    public bool IsPublic() => MethodDef.IsPublic;
 
-    public bool IsVirtual()
-    {
-        return MethodDef.IsVirtual;
-    }
+    public bool IsVirtual() => MethodDef.IsVirtual;
 
-    public bool IsNewSlot()
-    {
-        return MethodDef.IsNewSlot;
-    }
+    public bool IsNewSlot() => MethodDef.IsNewSlot;
 
-    public bool IsStatic()
-    {
-        return MethodDef.IsStatic;
-    }
+    public bool IsStatic() => MethodDef.IsStatic;
 
     public IEnumerable<MParamDef> AllParamDefs
     {

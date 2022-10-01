@@ -11,16 +11,14 @@ public class DeobfuscatorInfo : DeobfuscatorInfoBase
         _renameShort = renameShort;
     }
 
-    public override IDeobfuscator CreateDeobfuscator()
-    {
-        return new Deobfuscator(_module, new Deobfuscator.Options
+    public override IDeobfuscator CreateDeobfuscator() =>
+        new Deobfuscator(_module, new Deobfuscator.Options
         {
             ValidNameRegex = ValidNameRegex.Get(),
             RestoreTypes = true,
             RemoveNamespaces = true,
             RenameShort = _renameShort
         });
-    }
 
     private readonly ModuleDefMD _module;
     private readonly bool _renameShort;

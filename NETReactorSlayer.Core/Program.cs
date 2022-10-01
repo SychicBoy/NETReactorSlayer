@@ -57,6 +57,12 @@ public class Program
         Console.ReadKey();
     }
 
+    #region Fields
+
+    public static Context Context = new();
+
+    #endregion
+
     #region Private Methods
 
     private static bool CheckArguments(string[] args)
@@ -124,9 +130,5 @@ public class Program
         Context.Save();
     }
 
-    #endregion
-
-    #region Fields
-    public static Context Context = new();
     #endregion
 }

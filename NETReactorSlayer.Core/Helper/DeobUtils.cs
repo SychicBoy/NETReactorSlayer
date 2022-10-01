@@ -49,13 +49,13 @@ public static class DeobUtils
 
     public static byte[] ReadFile(string filename)
     {
-        const int MAX_BYTES_READ = 0x200000;
+        const int maxBytesRead = 0x200000;
 
         using var fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
         var fileData = new byte[(int)fileStream.Length];
 
         int bytes, offset = 0, length = fileData.Length;
-        while ((bytes = fileStream.Read(fileData, offset, Math.Min(MAX_BYTES_READ, length - offset))) > 0)
+        while ((bytes = fileStream.Read(fileData, offset, Math.Min(maxBytesRead, length - offset))) > 0)
             offset += bytes;
         if (offset != length)
             throw new ApplicationException("Could not read all bytes");

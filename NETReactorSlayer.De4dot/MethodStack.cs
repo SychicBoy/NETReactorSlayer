@@ -176,10 +176,8 @@ public static class MethodStack
     }
 
     public static TypeSig GetLoadedType(MethodDef method, IList<Instruction> instructions, int instrIndex,
-        out bool wasNewobj)
-    {
-        return GetLoadedType(method, instructions, instrIndex, 0, out wasNewobj);
-    }
+        out bool wasNewobj) =>
+        GetLoadedType(method, instructions, instrIndex, 0, out wasNewobj);
 
     public static TypeSig GetLoadedType(MethodDef method, IList<Instruction> instructions, int instrIndex,
         int argIndexFromEnd, out bool wasNewobj)
@@ -352,10 +350,7 @@ public static class MethodStack
 
     private class Branch
     {
-        public Branch()
-        {
-            Variants = new List<int>();
-        }
+        public Branch() => Variants = new List<int>();
 
         public int Current;
 
@@ -374,10 +369,7 @@ public static class MethodStack
             Visited = visited;
         }
 
-        public State Clone()
-        {
-            return new State(Index, Branch, ValidArgs, SkipPushes, AddPushes, new HashSet<int>(Visited));
-        }
+        public State Clone() => new State(Index, Branch, ValidArgs, SkipPushes, AddPushes, new HashSet<int>(Visited));
 
         public readonly HashSet<int> Visited;
 

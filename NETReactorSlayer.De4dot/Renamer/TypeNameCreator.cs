@@ -28,10 +28,7 @@ public class TypeNameCreator : ITypeNameCreator
             _nameInfos.Add(name, CreateNameCreator(name));
     }
 
-    protected virtual NameCreator CreateNameCreator(string prefix)
-    {
-        return new NameCreator(prefix);
-    }
+    protected virtual NameCreator CreateNameCreator(string prefix) => new NameCreator(prefix);
 
     private NameCreator GetNameCreator(TypeDef typeDef, string newBaseTypeName)
     {

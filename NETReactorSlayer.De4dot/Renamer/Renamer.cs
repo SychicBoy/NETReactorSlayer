@@ -127,10 +127,7 @@ public class Renamer
             const int maxClasses = 1;
             if (list.Count != maxClasses)
                 continue;
-            foreach (var type in list)
-            {
-                _memberInfos.Type(type).NewNamespace = "";
-            }
+            foreach (var type in list) _memberInfos.Type(type).NewNamespace = "";
         }
     }
 
@@ -989,10 +986,7 @@ public class Renamer
         return newEventName;
     }
 
-    private MEventDef GetOverriddenEvent(MMethodDef overrideMethod)
-    {
-        return GetOverriddenEvent(overrideMethod, out _);
-    }
+    private MEventDef GetOverriddenEvent(MMethodDef overrideMethod) => GetOverriddenEvent(overrideMethod, out _);
 
     private MEventDef GetOverriddenEvent(MMethodDef overrideMethod, out MMethodDef overriddenMethod)
     {
@@ -1216,10 +1210,7 @@ public class Renamer
         return prefix.ToUpperInvariant() + UpperFirst(name) + "_";
     }
 
-    private static string UpperFirst(string s)
-    {
-        return s.Substring(0, 1).ToUpperInvariant() + s.Substring(1);
-    }
+    private static string UpperFirst(string s) => s.Substring(0, 1).ToUpperInvariant() + s.Substring(1);
 
     private static string GetPrefix(TypeSig typeRef)
     {
@@ -1321,10 +1312,8 @@ public class Renamer
             _memberInfos.Type(method.Owner).RenameMethod(method, newMethodNameWithPrefix);
     }
 
-    private MMethodDef GetOverriddenMethod(MMethodDef overrideMethod)
-    {
-        return _modules.ResolveMethod(overrideMethod.MethodDef.Overrides[0].MethodDeclaration);
-    }
+    private MMethodDef GetOverriddenMethod(MMethodDef overrideMethod) =>
+        _modules.ResolveMethod(overrideMethod.MethodDef.Overrides[0].MethodDeclaration);
 
     private string GetSuggestedMethodName(MethodNameGroup group)
     {
@@ -1670,10 +1659,7 @@ public class Renamer
             _allTypes = allTypes;
         }
 
-        public void Add(MethodNameGroup group)
-        {
-            _groups.Add(group);
-        }
+        public void Add(MethodNameGroup group) => _groups.Add(group);
 
         public void VisitAll(Action<MethodNameGroup> func)
         {
@@ -1723,10 +1709,7 @@ public class Renamer
 
     private class MergeStateHelper
     {
-        public MergeStateHelper(MemberInfos memberInfos)
-        {
-            _memberInfos = memberInfos;
-        }
+        public MergeStateHelper(MemberInfos memberInfos) => _memberInfos = memberInfos;
 
         public void Merge(MergeStateFlags mergeStateFlags, MethodNameGroup group)
         {

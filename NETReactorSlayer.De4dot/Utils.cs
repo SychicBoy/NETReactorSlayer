@@ -36,10 +36,7 @@ public static class Utils
         return dict.Keys;
     }
 
-    public static string ToCsharpString(UTF8String s)
-    {
-        return ToCsharpString(UTF8String.ToSystemStringOrEmpty(s));
-    }
+    public static string ToCsharpString(UTF8String s) => ToCsharpString(UTF8String.ToSystemStringOrEmpty(s));
 
     public static string ToCsharpString(string s)
     {
@@ -102,15 +99,9 @@ public static class Utils
         sb.Append(c);
     }
 
-    public static string RemoveNewlines(object o)
-    {
-        return RemoveNewlines(o.ToString());
-    }
+    public static string RemoveNewlines(object o) => RemoveNewlines(o.ToString());
 
-    public static string RemoveNewlines(string s)
-    {
-        return s.Replace('\n', ' ').Replace('\r', ' ');
-    }
+    public static string RemoveNewlines(string s) => s.Replace('\n', ' ').Replace('\r', ' ');
 
     public static string GetFullPath(string path)
     {
@@ -153,10 +144,7 @@ public static class Utils
         return name.Substring(index + 1);
     }
 
-    public static string GetDirName(string name)
-    {
-        return Path.GetDirectoryName(name);
-    }
+    public static string GetDirName(string name) => Path.GetDirectoryName(name);
 
     public static string GetOurBaseDir()
     {
@@ -165,10 +153,7 @@ public static class Utils
         return _ourBaseDir = GetDirName(typeof(Utils).Assembly.Location);
     }
 
-    public static string GetPathOfOurFile(string filename)
-    {
-        return Path.Combine(GetOurBaseDir(), filename);
-    }
+    public static string GetPathOfOurFile(string filename) => Path.Combine(GetOurBaseDir(), filename);
 
     // This fixes a mono (tested 2.10.5) String.StartsWith() bug. NB: stringComparison must be
     // Ordinal or OrdinalIgnoreCase!

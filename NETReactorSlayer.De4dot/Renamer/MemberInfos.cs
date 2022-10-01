@@ -24,75 +24,33 @@ namespace NETReactorSlayer.De4dot.Renamer;
 
 public class MemberInfos
 {
-    public MemberInfos()
-    {
-        _checkWinFormsClass = new DerivedFrom(WinformsClasses);
-    }
+    public MemberInfos() => _checkWinFormsClass = new DerivedFrom(WinformsClasses);
 
-    public bool IsWinFormsClass(MTypeDef type)
-    {
-        return _checkWinFormsClass.Check(type);
-    }
+    public bool IsWinFormsClass(MTypeDef type) => _checkWinFormsClass.Check(type);
 
-    public TypeInfo Type(MTypeDef t)
-    {
-        return _allTypeInfos[t];
-    }
+    public TypeInfo Type(MTypeDef t) => _allTypeInfos[t];
 
-    public bool TryGetType(MTypeDef t, out TypeInfo info)
-    {
-        return _allTypeInfos.TryGetValue(t, out info);
-    }
+    public bool TryGetType(MTypeDef t, out TypeInfo info) => _allTypeInfos.TryGetValue(t, out info);
 
-    public bool TryGetEvent(MEventDef e, out EventInfo info)
-    {
-        return _allEventInfos.TryGetValue(e, out info);
-    }
+    public bool TryGetEvent(MEventDef e, out EventInfo info) => _allEventInfos.TryGetValue(e, out info);
 
-    public bool TryGetProperty(MPropertyDef p, out PropertyInfo info)
-    {
-        return _allPropertyInfos.TryGetValue(p, out info);
-    }
+    public bool TryGetProperty(MPropertyDef p, out PropertyInfo info) => _allPropertyInfos.TryGetValue(p, out info);
 
-    public PropertyInfo Property(MPropertyDef prop)
-    {
-        return _allPropertyInfos[prop];
-    }
+    public PropertyInfo Property(MPropertyDef prop) => _allPropertyInfos[prop];
 
-    public EventInfo Event(MEventDef evt)
-    {
-        return _allEventInfos[evt];
-    }
+    public EventInfo Event(MEventDef evt) => _allEventInfos[evt];
 
-    public FieldInfo Field(MFieldDef field)
-    {
-        return _allFieldInfos[field];
-    }
+    public FieldInfo Field(MFieldDef field) => _allFieldInfos[field];
 
-    public MethodInfo Method(MMethodDef method)
-    {
-        return _allMethodInfos[method];
-    }
+    public MethodInfo Method(MMethodDef method) => _allMethodInfos[method];
 
-    public GenericParamInfo GenericParam(MGenericParamDef gparam)
-    {
-        return _allGenericParamInfos[gparam];
-    }
+    public GenericParamInfo GenericParam(MGenericParamDef gparam) => _allGenericParamInfos[gparam];
 
-    public ParamInfo Param(MParamDef param)
-    {
-        return _allParamInfos[param];
-    }
+    public ParamInfo Param(MParamDef param) => _allParamInfos[param];
 
-    public void Add(MPropertyDef prop)
-    {
-        _allPropertyInfos[prop] = new PropertyInfo(prop);
-    }
+    public void Add(MPropertyDef prop) => _allPropertyInfos[prop] = new PropertyInfo(prop);
 
-    public void Add(MEventDef evt)
-    {
-        _allEventInfos[evt] = new EventInfo(evt);
-    }
+    public void Add(MEventDef evt) => _allEventInfos[evt] = new EventInfo(evt);
 
     public void Initialize(Modules modules)
     {

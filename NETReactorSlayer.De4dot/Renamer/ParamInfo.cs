@@ -10,10 +10,7 @@ public class ParamInfo
         NewName = paramDef.ParameterDef.Name;
     }
 
-    public bool GotNewName()
-    {
-        return OldName != NewName;
-    }
+    public bool GotNewName() => OldName != NewName;
 
     public string NewName;
     public string OldName;

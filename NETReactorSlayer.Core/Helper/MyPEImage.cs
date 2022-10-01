@@ -26,25 +26,25 @@ using dnlib.PE;
 
 namespace NETReactorSlayer.Core.Helper;
 
-public sealed class MyPEImage : IDisposable
+public sealed class MyPeImage : IDisposable
 {
-    public MyPEImage(IPEImage peImage) => Initialize(peImage);
+    public MyPeImage(IPEImage peImage) => Initialize(peImage);
 
-    public MyPEImage(byte[] peImageData)
+    public MyPeImage(byte[] peImageData)
     {
-        ownPeImage = true;
-        this.peImageData = peImageData;
+        _ownPeImage = true;
+        PeImageData = peImageData;
         Initialize(new PEImage(peImageData));
     }
 
     private void Initialize(IPEImage peImage)
     {
-        PEImage = peImage;
+        PeImage = peImage;
         Reader = peImage.CreateReader();
     }
 
     public ImageSectionHeader FindSection(RVA rva) =>
-        PEImage.ImageSectionHeaders.FirstOrDefault(section =>
+        PeImage.ImageSectionHeaders.FirstOrDefault(section =>
             section.VirtualAddress <= rva &&
             rva < section.VirtualAddress + Math.Max(section.VirtualSize, section.SizeOfRawData));
 
@@ -63,13 +63,13 @@ public sealed class MyPEImage : IDisposable
 
     public void UpdateMethodHeaderInfo(DumpedMethod dm, MethodBodyHeader mbHeader)
     {
-        dm.mhFlags = mbHeader.flags;
-        dm.mhMaxStack = mbHeader.maxStack;
+        dm.mhFlags = mbHeader.Flags;
+        dm.mhMaxStack = mbHeader.MaxStack;
         dm.mhCodeSize = dm.code == null ? 0 : (uint)dm.code.Length;
-        dm.mhLocalVarSigTok = mbHeader.localVarSigTok;
+        dm.mhLocalVarSigTok = mbHeader.LocalVarSigTok;
     }
 
-    public uint RvaToOffset(uint rva) => (uint)PEImage.ToFileOffset((RVA)rva);
+    public uint RvaToOffset(uint rva) => (uint)PeImage.ToFileOffset((RVA)rva);
 
     private static bool IsInside(ImageSectionHeader section, uint offset, uint length) =>
         offset >= section.PointerToRawData &&
@@ -99,7 +99,7 @@ public sealed class MyPEImage : IDisposable
         return Reader.ReadBytes(size);
     }
 
-    public void OffsetWrite(uint offset, byte[] data) => Array.Copy(data, 0, peImageData, offset, data.Length);
+    public void OffsetWrite(uint offset, byte[] data) => Array.Copy(data, 0, PeImageData, offset, data.Length);
 
     private static bool Intersect(uint offset1, uint length1, uint offset2, uint length2) =>
         !(offset1 + length1 <= offset2 || offset2 + length2 <= offset1);
@@ -113,7 +113,7 @@ public sealed class MyPEImage : IDisposable
         {
             var length = (uint)data.Length;
 
-            if (!IsInside(dotNetSection, offset, length))
+            if (!IsInside(_dotNetSection, offset, length))
                 return false;
             if (Intersect(offset, length, Metadata.ImageCor20Header))
                 return false;
@@ -126,27 +126,27 @@ public sealed class MyPEImage : IDisposable
     }
 
     public bool DotNetSafeWrite(uint rva, byte[] data) =>
-        DotNetSafeWriteOffset((uint)PEImage.ToFileOffset((RVA)rva), data);
+        DotNetSafeWriteOffset((uint)PeImage.ToFileOffset((RVA)rva), data);
 
     public void Dispose()
     {
-        if (ownPeImage)
+        if (_ownPeImage)
         {
-            metadata?.Dispose();
-            PEImage?.Dispose();
+            _metadata?.Dispose();
+            PeImage?.Dispose();
         }
 
-        metadata = null;
-        PEImage = null;
+        _metadata = null;
+        PeImage = null;
         Reader = default;
     }
 
-    private readonly bool ownPeImage;
+    private readonly bool _ownPeImage;
 
-    private bool dnFileInitialized;
-    private ImageSectionHeader dotNetSection;
-    private Metadata metadata;
-    public byte[] peImageData;
+    private bool _dnFileInitialized;
+    private ImageSectionHeader _dotNetSection;
+    private Metadata _metadata;
+    public byte[] PeImageData;
 
     public DataReader Reader;
 
@@ -154,20 +154,20 @@ public sealed class MyPEImage : IDisposable
     {
         get
         {
-            if (dnFileInitialized)
-                return metadata;
-            dnFileInitialized = true;
+            if (_dnFileInitialized)
+                return _metadata;
+            _dnFileInitialized = true;
 
-            var dotNetDir = PEImage.ImageNTHeaders.OptionalHeader.DataDirectories[14];
+            var dotNetDir = PeImage.ImageNTHeaders.OptionalHeader.DataDirectories[14];
             if (dotNetDir.VirtualAddress != 0 && dotNetDir.Size >= 0x48)
             {
-                metadata = MetadataFactory.CreateMetadata(PEImage, false);
-                dotNetSection = FindSection(dotNetDir.VirtualAddress);
+                _metadata = MetadataFactory.CreateMetadata(PeImage, false);
+                _dotNetSection = FindSection(dotNetDir.VirtualAddress);
             }
 
-            return metadata;
+            return _metadata;
         }
     }
 
-    public IPEImage PEImage { get; private set; }
+    public IPEImage PeImage { get; private set; }
 }

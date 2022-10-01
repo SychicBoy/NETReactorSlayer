@@ -35,6 +35,7 @@ public class Options
                 path = key;
                 continue;
             }
+
             if (args.Count < i + 2)
                 break;
             var value = args[i + 1];

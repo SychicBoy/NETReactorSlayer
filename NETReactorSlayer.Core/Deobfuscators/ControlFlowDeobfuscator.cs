@@ -45,6 +45,12 @@ internal class ControlFlowDeobfuscator : IStage
                 "Couldn't found any equations, looks like there's no control flow obfuscation applied to methods.");
     }
 
+    #region Fields
+
+    private readonly Dictionary<IField, int> _fields = new();
+
+    #endregion
+
     #region Private Methods
 
     private void Initialize()
@@ -135,7 +141,6 @@ internal class ControlFlowDeobfuscator : IStage
                     }
             else if (type.Fields.Where(x => x.FieldType.FullName == "System.Int32").All(x => !x.IsStatic))
                 foreach (var instances in type.Fields.Where(x => x.FieldType.ToTypeDefOrRef().Equals(type)))
-                {
                     try
                     {
                         var instance = Context.Assembly.ManifestModule.ResolveField((int)instances.MDToken.Raw)
@@ -158,8 +163,10 @@ internal class ControlFlowDeobfuscator : IStage
                         }
 
                         break;
-                    } catch{ }
-                }
+                    }
+                    catch
+                    {
+                    }
 
             if (_fields.Count < 100) continue;
             typeDef = type;
@@ -201,12 +208,6 @@ internal class ControlFlowDeobfuscator : IStage
 
         return count;
     }
-
-    #endregion
-
-    #region Fields
-
-    private readonly Dictionary<IField, int> _fields = new();
 
     #endregion
 }
