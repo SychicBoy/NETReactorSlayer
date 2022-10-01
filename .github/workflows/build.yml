@@ -32,7 +32,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
         
       - name: Setup NuGet
-        uses: NuGet/setup-nuget@v1.0.6
+        uses: NuGet/setup-nuget@v1.0.7
         
       - name: Restore NuGet packages
         run: nuget restore NETReactorSlayer.sln
