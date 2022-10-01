@@ -15,6 +15,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 using NETReactorSlayer.Core.Helper;
@@ -44,12 +45,6 @@ internal class ControlFlowDeobfuscator : IStage
                 "Couldn't found any equations, looks like there's no control flow obfuscation applied to methods.");
     }
 
-    #region Fields
-
-    private readonly Dictionary<IField, int> _fields = new();
-
-    #endregion
-
     #region Private Methods
 
     private void Initialize()
@@ -66,8 +61,7 @@ internal class ControlFlowDeobfuscator : IStage
                      x => x.IsSealed &&
                           x.HasFields &&
                           x.Fields.Count(f =>
-                              f.FieldType.FullName == "System.Int32" && f.IsAssembly && !f.HasConstant) >=
-                          100))
+                              f.FieldType.FullName == "System.Int32" && f.IsAssembly && !f.HasConstant) >= 100))
         {
             _fields.Clear();
             foreach (var method in type.Methods.Where(x =>
@@ -120,32 +114,59 @@ internal class ControlFlowDeobfuscator : IStage
                      x => x.IsSealed &&
                           x.HasFields &&
                           x.Fields.Count(f =>
-                              f.FieldType.FullName == "System.Int32" && f.IsStatic && f.IsAssembly && !f.HasConstant) >=
-                          100))
+                              f.FieldType.FullName == "System.Int32" && f.IsAssembly && !f.HasConstant) >= 100))
         {
             _fields.Clear();
 
-            foreach (var field in type.Fields.Where(x => x.FieldType.FullName == "System.Int32"))
-                try
+            if (type.Fields.Where(x => x.FieldType.FullName == "System.Int32").All(x => x.IsStatic))
+                foreach (var field in type.Fields.Where(x => x.FieldType.FullName == "System.Int32"))
+                    try
+                    {
+                        var obj = Context.Assembly.ManifestModule.ResolveField((int)field.MDToken.Raw).GetValue(null);
+                        if (obj == null || !int.TryParse(obj.ToString(), out var value))
+                            continue;
+                        if (!_fields.ContainsKey(field))
+                            _fields.Add(field, value);
+                        else
+                            _fields[field] = value;
+                    }
+                    catch
+                    {
+                    }
+            else if (type.Fields.Where(x => x.FieldType.FullName == "System.Int32").All(x => !x.IsStatic))
+                foreach (var instances in type.Fields.Where(x => x.FieldType.ToTypeDefOrRef().Equals(type)))
                 {
-                    var obj = Context.Assembly.ManifestModule.ResolveField((int)field.MDToken.Raw).GetValue(null);
-                    if (obj == null || !int.TryParse(obj.ToString(), out var value))
-                        continue;
-                    if (!_fields.ContainsKey(field))
-                        _fields.Add(field, value);
-                    else
-                        _fields[field] = value;
-                }
-                catch
-                {
+                    try
+                    {
+                        var instance = Context.Assembly.ManifestModule.ResolveField((int)instances.MDToken.Raw)
+                            .GetValue(null);
+                        if (instance == null) continue;
+
+                        var runtimeFields = instance.GetType().GetRuntimeFields().ToList();
+                        if (runtimeFields.Count(x => x.FieldType == typeof(int)) < 100)
+                            continue;
+
+                        foreach (var runtimeField in runtimeFields.Where(x => x.FieldType == typeof(int)))
+                        {
+                            var field = type.Fields.FirstOrDefault(x =>
+                                x.MDToken.ToInt32().Equals(runtimeField.MetadataToken));
+                            if (field == null) continue;
+                            if (!_fields.ContainsKey(field))
+                                _fields.Add(field, (int)runtimeField.GetValue(instance));
+                            else
+                                _fields[field] = (int)runtimeField.GetValue(instance);
+                        }
+
+                        break;
+                    } catch{ }
                 }
 
-            if (_fields.Count == 0) continue;
+            if (_fields.Count < 100) continue;
             typeDef = type;
             break;
         }
 
-        if(_fields.All(x=> x.Value == 0))
+        if (_fields.All(x => x.Value == 0))
         {
             _fields.Clear();
             return;
@@ -180,6 +201,12 @@ internal class ControlFlowDeobfuscator : IStage
 
         return count;
     }
+
+    #endregion
+
+    #region Fields
+
+    private readonly Dictionary<IField, int> _fields = new();
 
     #endregion
 }

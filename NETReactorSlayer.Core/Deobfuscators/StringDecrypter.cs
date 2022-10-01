@@ -33,7 +33,7 @@ internal class StringDecrypter : IStage
     {
         try
         {
-            long count = 0;
+            long count;
 
             if (!Find())
             {
