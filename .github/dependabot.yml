@@ -9,14 +9,8 @@ updates:
     schedule:
       interval: "weekly"
 
-  # Maintain dependencies for npm
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-
-  # Maintain dependencies for Composer
-  - package-ecosystem: "composer"
+  # Maintain dependencies for nuget
+  - package-ecosystem: "nuget"
     directory: "/"
     schedule:
       interval: "weekly"
