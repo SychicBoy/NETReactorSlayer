@@ -48,7 +48,7 @@ jobs:
           path: 'D:\a\NETReactorSlayer\NETReactorSlayer\Debug\*'
         
       - name: Upload
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: NETReactorSlayer
           path: NETReactorSlayer.zip
