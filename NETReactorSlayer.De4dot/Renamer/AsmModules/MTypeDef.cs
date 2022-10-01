@@ -209,7 +209,8 @@ public class MTypeDef : Ref
         //---	virtual functions.
         // Done. See initializeAllInterfaces().
 
-        var methodsDict = new Dictionary<IMethodDefOrRef, MMethodDef>(MethodEqualityComparer.DontCompareDeclaringTypes);
+        var methodsDict =
+            new Dictionary<IMethodDefOrRef, MMethodDef>(MethodEqualityComparer.DontCompareDeclaringTypes);
 
         //--- * If this class explicitly specifies that it implements the interface (i.e., the
         //---	interfaces that appear in this class‘ InterfaceImpl table, §22.23)
@@ -413,15 +414,15 @@ public class MTypeDef : Ref
         }
     }
 
-    private readonly Dictionary<TypeInfo, bool> _allImplementedInterfaces = new();
-    private readonly EventDefDict _events = new();
-    private readonly FieldDefDict _fields = new();
+    private readonly Dictionary<TypeInfo, bool> _allImplementedInterfaces = new Dictionary<TypeInfo, bool>();
+    private readonly EventDefDict _events = new EventDefDict();
+    private readonly FieldDefDict _fields = new FieldDefDict();
     private readonly List<MGenericParamDef> _genericParams;
-    private readonly InterfaceMethodInfos _interfaceMethodInfos = new();
-    private readonly MethodDefDict _methods = new();
-    private readonly PropertyDefDict _properties = new();
-    private readonly TypeDefDict _types = new();
-    private readonly MethodInstances _virtualMethodInstances = new();
+    private readonly InterfaceMethodInfos _interfaceMethodInfos = new InterfaceMethodInfos();
+    private readonly MethodDefDict _methods = new MethodDefDict();
+    private readonly PropertyDefDict _properties = new PropertyDefDict();
+    private readonly TypeDefDict _types = new TypeDefDict();
+    private readonly MethodInstances _virtualMethodInstances = new MethodInstances();
 
     private bool _initializeVirtualMembersCalled;
 

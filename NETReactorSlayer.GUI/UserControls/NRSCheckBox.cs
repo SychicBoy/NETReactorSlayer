@@ -17,312 +17,313 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace NETReactorSlayer.GUI.UserControls;
-
-public class NrsCheckBox : CheckBox
+namespace NETReactorSlayer.GUI.UserControls
 {
-    #region Constructor Region
-
-    public NrsCheckBox()
+    public sealed class NrsCheckBox : CheckBox
     {
-        SetStyle(ControlStyles.SupportsTransparentBackColor |
-                 ControlStyles.OptimizedDoubleBuffer |
-                 ControlStyles.ResizeRedraw |
-                 ControlStyles.UserPaint, true);
-        Cursor = Cursors.Hand;
-    }
+        #region Constructor Region
 
-    #endregion
-
-    #region Method Region
-
-    private void SetControlState(ControlState controlState)
-    {
-        if (_controlState != controlState)
+        public NrsCheckBox()
         {
-            _controlState = controlState;
-            Invalidate();
+            SetStyle(ControlStyles.SupportsTransparentBackColor |
+                     ControlStyles.OptimizedDoubleBuffer |
+                     ControlStyles.ResizeRedraw |
+                     ControlStyles.UserPaint, true);
+            Cursor = Cursors.Hand;
         }
-    }
 
-    #endregion
+        #endregion
 
-    public enum ControlState
-    {
-        Normal,
-        Hover,
-        Pressed
-    }
+        #region Method Region
 
-    #region Field Region
-
-    private ControlState _controlState = ControlState.Normal;
-
-    private bool _spacePressed;
-
-    #endregion
-
-    #region Event Handler Region
-
-    protected override void OnMouseMove(MouseEventArgs e)
-    {
-        base.OnMouseMove(e);
-
-        if (_spacePressed)
-            return;
-
-        if (e.Button == MouseButtons.Left)
-            SetControlState(ClientRectangle.Contains(e.Location) ? ControlState.Pressed : ControlState.Hover);
-        else
-            SetControlState(ControlState.Hover);
-    }
-
-    protected override void OnMouseDown(MouseEventArgs e)
-    {
-        base.OnMouseDown(e);
-
-        if (!ClientRectangle.Contains(e.Location))
-            return;
-
-        SetControlState(ControlState.Pressed);
-    }
-
-    protected override void OnMouseUp(MouseEventArgs e)
-    {
-        base.OnMouseUp(e);
-
-        if (_spacePressed)
-            return;
-
-        SetControlState(ControlState.Normal);
-    }
-
-    protected override void OnMouseLeave(EventArgs e)
-    {
-        base.OnMouseLeave(e);
-
-        if (_spacePressed)
-            return;
-
-        SetControlState(ControlState.Normal);
-    }
-
-    protected override void OnMouseCaptureChanged(EventArgs e)
-    {
-        base.OnMouseCaptureChanged(e);
-
-        if (_spacePressed)
-            return;
-
-        var location = Cursor.Position;
-
-        if (!ClientRectangle.Contains(location))
-            SetControlState(ControlState.Normal);
-    }
-
-    protected override void OnGotFocus(EventArgs e)
-    {
-        base.OnGotFocus(e);
-
-        Invalidate();
-    }
-
-    protected override void OnLostFocus(EventArgs e)
-    {
-        base.OnLostFocus(e);
-
-        _spacePressed = false;
-
-        var location = Cursor.Position;
-
-        SetControlState(!ClientRectangle.Contains(location) ? ControlState.Normal : ControlState.Hover);
-    }
-
-    protected override void OnKeyDown(KeyEventArgs e)
-    {
-        base.OnKeyDown(e);
-
-        if (e.KeyCode == Keys.Space)
+        private void SetControlState(ControlState controlState)
         {
-            _spacePressed = true;
+            if (_controlState != controlState)
+            {
+                _controlState = controlState;
+                Invalidate();
+            }
+        }
+
+        #endregion
+
+        public enum ControlState
+        {
+            Normal,
+            Hover,
+            Pressed
+        }
+
+        #region Field Region
+
+        private ControlState _controlState = ControlState.Normal;
+
+        private bool _spacePressed;
+
+        #endregion
+
+        #region Event Handler Region
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            if (_spacePressed)
+                return;
+
+            if (e.Button == MouseButtons.Left)
+                SetControlState(ClientRectangle.Contains(e.Location) ? ControlState.Pressed : ControlState.Hover);
+            else
+                SetControlState(ControlState.Hover);
+        }
+
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+
+            if (!ClientRectangle.Contains(e.Location))
+                return;
+
             SetControlState(ControlState.Pressed);
         }
-    }
 
-    protected override void OnKeyUp(KeyEventArgs e)
-    {
-        base.OnKeyUp(e);
-
-        if (e.KeyCode == Keys.Space)
+        protected override void OnMouseUp(MouseEventArgs e)
         {
+            base.OnMouseUp(e);
+
+            if (_spacePressed)
+                return;
+
+            SetControlState(ControlState.Normal);
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+
+            if (_spacePressed)
+                return;
+
+            SetControlState(ControlState.Normal);
+        }
+
+        protected override void OnMouseCaptureChanged(EventArgs e)
+        {
+            base.OnMouseCaptureChanged(e);
+
+            if (_spacePressed)
+                return;
+
+            var location = Cursor.Position;
+
+            if (!ClientRectangle.Contains(location))
+                SetControlState(ControlState.Normal);
+        }
+
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+
+            Invalidate();
+        }
+
+        protected override void OnLostFocus(EventArgs e)
+        {
+            base.OnLostFocus(e);
+
             _spacePressed = false;
 
             var location = Cursor.Position;
 
             SetControlState(!ClientRectangle.Contains(location) ? ControlState.Normal : ControlState.Hover);
         }
-    }
 
-    #endregion
-
-    #region Paint Region
-
-    #region OhHover
-
-    private Color _borderColor = Color.Silver;
-
-    public Color BorderColor
-    {
-        get => _borderColor;
-        set
+        protected override void OnKeyDown(KeyEventArgs e)
         {
-            _borderColor = value;
-            Invalidate();
-        }
-    }
+            base.OnKeyDown(e);
 
-    private Color _hoverBorderColor = Color.Gray;
-
-    public Color HoverBorderColor
-    {
-        get => _hoverBorderColor;
-        set
-        {
-            _hoverBorderColor = value;
-            Invalidate();
-        }
-    }
-
-    private Color _pressBorderColor = Color.Gray;
-
-    public Color PressBorderColor
-    {
-        get => _pressBorderColor;
-        set
-        {
-            _pressBorderColor = value;
-            Invalidate();
-        }
-    }
-
-    private Color _hoverForeColor = Color.Gray;
-
-    public Color HoverForeColor
-    {
-        get => _hoverForeColor;
-        set
-        {
-            _hoverForeColor = value;
-            Invalidate();
-        }
-    }
-
-    private Color _pressForeColor = Color.Gray;
-
-    public Color PressForeColor
-    {
-        get => _pressForeColor;
-        set
-        {
-            _pressForeColor = value;
-            Invalidate();
-        }
-    }
-
-    #endregion
-
-    private Color _fillColor = Color.FromArgb(238, 30, 35);
-
-    public Color FillColor
-    {
-        get => _fillColor;
-        set
-        {
-            _fillColor = value;
-            Invalidate();
-        }
-    }
-
-    private Color _hoverFillColor = Color.FromArgb(188, 14, 18);
-
-    public Color HoverFillColor
-    {
-        get => _hoverFillColor;
-        set
-        {
-            _hoverFillColor = value;
-            Invalidate();
-        }
-    }
-
-    private Color _pressFillColor = Color.FromArgb(117, 9, 12);
-
-    public Color PressFillColor
-    {
-        get => _pressFillColor;
-        set
-        {
-            _pressFillColor = value;
-            Invalidate();
-        }
-    }
-
-    protected override void OnPaint(PaintEventArgs e)
-    {
-        var g = e.Graphics;
-        var rect = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
-
-        const int size = 12;
-
-        var textColor = ForeColor;
-        var borderColor = BorderColor;
-        var fillColor = FillColor;
-
-        if (Enabled)
-            switch (_controlState)
+            if (e.KeyCode == Keys.Space)
             {
-                case ControlState.Hover:
-                    borderColor = HoverBorderColor;
-                    textColor = HoverForeColor;
-                    fillColor = HoverFillColor;
-                    break;
-                case ControlState.Pressed:
-                    borderColor = PressBorderColor;
-                    textColor = PressForeColor;
-                    fillColor = PressFillColor;
-                    break;
+                _spacePressed = true;
+                SetControlState(ControlState.Pressed);
+            }
+        }
+
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            base.OnKeyUp(e);
+
+            if (e.KeyCode == Keys.Space)
+            {
+                _spacePressed = false;
+
+                var location = Cursor.Position;
+
+                SetControlState(!ClientRectangle.Contains(location) ? ControlState.Normal : ControlState.Hover);
+            }
+        }
+
+        #endregion
+
+        #region Paint Region
+
+        #region OhHover
+
+        private Color _borderColor = Color.Silver;
+
+        public Color BorderColor
+        {
+            get => _borderColor;
+            set
+            {
+                _borderColor = value;
+                Invalidate();
+            }
+        }
+
+        private Color _hoverBorderColor = Color.Gray;
+
+        public Color HoverBorderColor
+        {
+            get => _hoverBorderColor;
+            set
+            {
+                _hoverBorderColor = value;
+                Invalidate();
+            }
+        }
+
+        private Color _pressBorderColor = Color.Gray;
+
+        public Color PressBorderColor
+        {
+            get => _pressBorderColor;
+            set
+            {
+                _pressBorderColor = value;
+                Invalidate();
+            }
+        }
+
+        private Color _hoverForeColor = Color.Gray;
+
+        public Color HoverForeColor
+        {
+            get => _hoverForeColor;
+            set
+            {
+                _hoverForeColor = value;
+                Invalidate();
+            }
+        }
+
+        private Color _pressForeColor = Color.Gray;
+
+        public Color PressForeColor
+        {
+            get => _pressForeColor;
+            set
+            {
+                _pressForeColor = value;
+                Invalidate();
+            }
+        }
+
+        #endregion
+
+        private Color _fillColor = Color.FromArgb(238, 30, 35);
+
+        public Color FillColor
+        {
+            get => _fillColor;
+            set
+            {
+                _fillColor = value;
+                Invalidate();
+            }
+        }
+
+        private Color _hoverFillColor = Color.FromArgb(188, 14, 18);
+
+        public Color HoverFillColor
+        {
+            get => _hoverFillColor;
+            set
+            {
+                _hoverFillColor = value;
+                Invalidate();
+            }
+        }
+
+        private Color _pressFillColor = Color.FromArgb(117, 9, 12);
+
+        public Color PressFillColor
+        {
+            get => _pressFillColor;
+            set
+            {
+                _pressFillColor = value;
+                Invalidate();
+            }
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            var g = e.Graphics;
+            var rect = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
+
+            const int size = 12;
+
+            var textColor = ForeColor;
+            var borderColor = BorderColor;
+            var fillColor = FillColor;
+
+            if (Enabled)
+                switch (_controlState)
+                {
+                    case ControlState.Hover:
+                        borderColor = HoverBorderColor;
+                        textColor = HoverForeColor;
+                        fillColor = HoverFillColor;
+                        break;
+                    case ControlState.Pressed:
+                        borderColor = PressBorderColor;
+                        textColor = PressForeColor;
+                        fillColor = PressFillColor;
+                        break;
+                }
+
+            using (var b = new SolidBrush(BackColor))
+            {
+                g.FillRectangle(b, rect);
             }
 
-        using (var b = new SolidBrush(BackColor))
-        {
-            g.FillRectangle(b, rect);
-        }
-
-        using (var p = new Pen(borderColor))
-        {
-            var boxRect = new Rectangle(0, rect.Height / 2 - size / 2, size, size);
-            g.DrawRectangle(p, boxRect);
-        }
-
-        if (Checked)
-        {
-            using var b = new SolidBrush(fillColor);
-            var boxRect = new Rectangle(2, rect.Height / 2 - (size - 4) / 2, size - 3, size - 3);
-            g.FillRectangle(b, boxRect);
-        }
-
-        using (var b = new SolidBrush(textColor))
-        {
-            var stringFormat = new StringFormat
+            using (var p = new Pen(borderColor))
             {
-                LineAlignment = StringAlignment.Center,
-                Alignment = StringAlignment.Near
-            };
+                var boxRect = new Rectangle(0, rect.Height / 2 - size / 2, size, size);
+                g.DrawRectangle(p, boxRect);
+            }
 
-            var modRect = new Rectangle(size + 4, 0, rect.Width - size, rect.Height);
-            g.DrawString(Text, Font, b, modRect, stringFormat);
+            if (Checked)
+                using (var b = new SolidBrush(fillColor))
+                {
+                    var boxRect = new Rectangle(2, rect.Height / 2 - (size - 4) / 2, size - 3, size - 3);
+                    g.FillRectangle(b, boxRect);
+                }
+
+            using (var b = new SolidBrush(textColor))
+            {
+                var stringFormat = new StringFormat
+                {
+                    LineAlignment = StringAlignment.Center,
+                    Alignment = StringAlignment.Near
+                };
+
+                var modRect = new Rectangle(size + 4, 0, rect.Width - size, rect.Height);
+                g.DrawString(Text, Font, b, modRect, stringFormat);
+            }
         }
-    }
 
-    #endregion
+        #endregion
+    }
 }

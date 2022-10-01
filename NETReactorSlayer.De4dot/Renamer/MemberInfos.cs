@@ -81,13 +81,19 @@ public class MemberInfos
         }
     }
 
-    private readonly Dictionary<MEventDef, EventInfo> _allEventInfos = new();
-    private readonly Dictionary<MFieldDef, FieldInfo> _allFieldInfos = new();
-    private readonly Dictionary<MGenericParamDef, GenericParamInfo> _allGenericParamInfos = new();
-    private readonly Dictionary<MMethodDef, MethodInfo> _allMethodInfos = new();
-    private readonly Dictionary<MParamDef, ParamInfo> _allParamInfos = new();
-    private readonly Dictionary<MPropertyDef, PropertyInfo> _allPropertyInfos = new();
-    private readonly Dictionary<MTypeDef, TypeInfo> _allTypeInfos = new();
+    private readonly Dictionary<MEventDef, EventInfo> _allEventInfos = new Dictionary<MEventDef, EventInfo>();
+    private readonly Dictionary<MFieldDef, FieldInfo> _allFieldInfos = new Dictionary<MFieldDef, FieldInfo>();
+
+    private readonly Dictionary<MGenericParamDef, GenericParamInfo> _allGenericParamInfos =
+        new Dictionary<MGenericParamDef, GenericParamInfo>();
+
+    private readonly Dictionary<MMethodDef, MethodInfo> _allMethodInfos = new Dictionary<MMethodDef, MethodInfo>();
+    private readonly Dictionary<MParamDef, ParamInfo> _allParamInfos = new Dictionary<MParamDef, ParamInfo>();
+
+    private readonly Dictionary<MPropertyDef, PropertyInfo> _allPropertyInfos =
+        new Dictionary<MPropertyDef, PropertyInfo>();
+
+    private readonly Dictionary<MTypeDef, TypeInfo> _allTypeInfos = new Dictionary<MTypeDef, TypeInfo>();
     private readonly DerivedFrom _checkWinFormsClass;
 
     private static readonly string[] WinformsClasses =

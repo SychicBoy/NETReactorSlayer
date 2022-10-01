@@ -17,184 +17,173 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Windows.Forms;
 using dnlib.DotNet;
 using dnlib.DotNet.Writer;
 using dnlib.PE;
 using NETReactorSlayer.Core.Helper;
 
-namespace NETReactorSlayer.Core;
-
-public class Context
+namespace NETReactorSlayer.Core
 {
-    public bool Load(Options options)
+    public class Context
     {
-        Options = options;
-        if (string.IsNullOrEmpty(Options.SourcePath))
+        public bool Load(Options options)
         {
-            Logger.Error("No input files specified.\r\n");
-            Logger.PrintUsage();
-            return false;
-        }
-
-        Logger.Done($"{Options.Stages.Count}/14 Modules loaded...");
-
-        #region Load Assembly
-
-        try
-        {
-            ModuleContext = GetModuleContext();
-            AssemblyModule = new AssemblyModule(Options.SourcePath, ModuleContext);
-            Module = AssemblyModule.Load();
-            ModuleBytes = DeobUtils.ReadModule(Module);
-            PeImage = new MyPeImage(ModuleBytes);
-            try
+            Options = options;
+            if (string.IsNullOrEmpty(Options.SourcePath))
             {
-                Assembly = Assembly.Load(Options.SourcePath);
-            }
-            catch
-            {
-                Assembly = Assembly.UnsafeLoadFrom(Options.SourcePath);
+                Logger.Error("No input files specified.\r\n");
+                Logger.PrintUsage();
+                return false;
             }
 
-            return true;
+            Logger.Done($"{Options.Stages.Count}/14 Modules loaded...");
+
+            return LoadAssembly();
         }
-        catch (Exception ex)
+
+        public void Save()
         {
             try
             {
-                if (new NativeUnpacker(new PEImage(Options.SourcePath)).Unpack() is { } unpacked)
+                ModuleWriterOptionsBase writer;
+                if (Module.IsILOnly)
+                    writer = new ModuleWriterOptions(Module);
+                else
+                    writer = new NativeModuleWriterOptions(Module, false);
+
+                writer.Logger = DummyLogger.NoThrowInstance;
+                if (Options.PreserveAllMdTokens)
+                    writer.MetadataOptions.Flags |= MetadataFlags.PreserveAll;
+                if (Options.KeepOldMaxStackValue)
+                    writer.MetadataOptions.Flags |= MetadataFlags.KeepOldMaxStack;
+
+                if (Module.IsILOnly)
+                    Module.Write(Options.DestPath, (ModuleWriterOptions)writer);
+                else
+                    Module.NativeWrite(Options.DestPath, (NativeModuleWriterOptions)writer);
+
+                try
                 {
-                    #region Create A Temporary File
-
-                    Options.SourcePath = $"{Options.SourceDir}\\PEImage.tmp";
-                    while (true)
-                        try
-                        {
-                            File.WriteAllBytes(Options.SourcePath, unpacked);
-                            break;
-                        }
-                        catch (UnauthorizedAccessException)
-                        {
-                            var saveFileDialog = new SaveFileDialog
-                            {
-                                Filter = "Temporary File (*.tmp)| *.tmp",
-                                Title = "Save Temporary File",
-                                FileName = "PEImage.tmp",
-                                RestoreDirectory = true
-                            };
-                            if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                                Options.SourcePath = saveFileDialog.FileName;
-                            else throw;
-                        }
-
-                    #endregion
-
-                    AssemblyModule = new AssemblyModule(Options.SourcePath, ModuleContext);
-                    Module = AssemblyModule.Load(unpacked);
-                    try
-                    {
-                        Assembly = Assembly.Load(Options.SourcePath);
-                    }
-                    catch
-                    {
-                        Assembly = Assembly.UnsafeLoadFrom(Options.SourcePath);
-                    }
-
-                    PeImage = new MyPeImage(unpacked);
-                    ObfuscatorInfo.NativeStub = true;
-                    Process.Start(new ProcessStartInfo(Process.GetCurrentProcess().MainModule?.FileName,
-                            $"--del-temp {Process.GetCurrentProcess().Id} \"{Options.SourcePath}\"")
-                        { WindowStyle = ProcessWindowStyle.Hidden });
-                    Logger.Done("Native stub unpacked.");
-                    ModuleBytes = DeobUtils.ReadModule(Module);
-                    return true;
+                    Module?.Dispose();
+                    PeImage?.Dispose();
+                }
+                catch
+                {
                 }
 
-                Logger.Error("Failed to load assembly. " + ex.Message);
-                return false;
+                Logger.Done("Saved to: " + Options.DestFileName);
             }
-            catch (Exception ex1)
+            catch (Exception ex)
             {
-                Logger.Error("Failed to load assembly. " + ex1.Message);
-                return false;
+                Logger.Error("Failed to save file. " + ex.Message);
             }
+        }
+
+        #region Private Methods
+
+        private bool LoadAssembly()
+        {
+            try
+            {
+                ModuleContext = GetModuleContext();
+                AssemblyModule = new AssemblyModule(Options.SourcePath, ModuleContext);
+                Module = AssemblyModule.Load();
+                ModuleBytes = DeobUtils.ReadModule(Module);
+                PeImage = new MyPeImage(ModuleBytes);
+                try
+                {
+                    Assembly = Assembly.Load(Options.SourcePath);
+                }
+                catch
+                {
+                    Assembly = Assembly.UnsafeLoadFrom(Options.SourcePath);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    var unpacked = new NativeUnpacker(new PEImage(Options.SourcePath)).Unpack();
+                    if (unpacked != null)
+                    {
+                        #region Create A Temporary File
+
+                        Options.SourcePath = $"{Options.SourceDir}\\PEImage.tmp";
+                        File.WriteAllBytes(Options.SourcePath, unpacked);
+
+                        #endregion
+
+                        AssemblyModule = new AssemblyModule(Options.SourcePath, ModuleContext);
+                        Module = AssemblyModule.Load(unpacked);
+                        try
+                        {
+                            Assembly = Assembly.Load(Options.SourcePath);
+                        }
+                        catch
+                        {
+                            Assembly = Assembly.UnsafeLoadFrom(Options.SourcePath);
+                        }
+
+                        PeImage = new MyPeImage(unpacked);
+                        ObfuscatorInfo.NativeStub = true;
+                        Process.Start(new ProcessStartInfo(Process.GetCurrentProcess().MainModule?.FileName,
+                                $"--del-temp {Process.GetCurrentProcess().Id} \"{Options.SourcePath}\"")
+                        { WindowStyle = ProcessWindowStyle.Hidden });
+                        Logger.Done("Native stub unpacked.");
+                        ModuleBytes = DeobUtils.ReadModule(Module);
+                        return true;
+                    }
+
+                    if (ex is FileLoadException)
+                    {
+                        Logger.Error(Environment.Is64BitProcess
+                            ? "Failed to load assembly. Try x86 version."
+                            : "Failed to load assembly. Try x64 version.");
+                    }
+                    else
+                        Logger.Error("Failed to load assembly. " + ex.Message);
+
+                    return false;
+                }
+                catch (Exception ex1)
+                {
+                    Logger.Error("Failed to load assembly. " + ex1.Message);
+                    return false;
+                }
+            }
+        }
+
+        private static ModuleContext GetModuleContext()
+        {
+            var moduleContext = new ModuleContext();
+            var assemblyResolver = new AssemblyResolver(moduleContext);
+            var resolver = new Resolver(assemblyResolver);
+            moduleContext.AssemblyResolver = assemblyResolver;
+            moduleContext.Resolver = resolver;
+            assemblyResolver.DefaultModuleContext = moduleContext;
+            return moduleContext;
         }
 
         #endregion
+
+        #region Fields
+
+        public static ObfuscatorInfo ObfuscatorInfo = new ObfuscatorInfo();
+
+        #endregion
+
+        #region Properties
+
+        public static Assembly Assembly { get; set; }
+        public static AssemblyModule AssemblyModule { get; set; }
+        public static ModuleDefMD Module { get; set; }
+        public static byte[] ModuleBytes { get; set; }
+        public static ModuleContext ModuleContext { get; set; }
+        public static Options Options { get; private set; }
+        public static MyPeImage PeImage { get; set; }
+
+        #endregion
     }
-
-    private static ModuleContext GetModuleContext()
-    {
-        var moduleContext = new ModuleContext();
-        var assemblyResolver = new AssemblyResolver(moduleContext);
-        var resolver = new Resolver(assemblyResolver);
-        moduleContext.AssemblyResolver = assemblyResolver;
-        moduleContext.Resolver = resolver;
-        assemblyResolver.DefaultModuleContext = moduleContext;
-        return moduleContext;
-    }
-
-    public void Save()
-    {
-        try
-        {
-            ModuleWriterOptionsBase writer = Module.IsILOnly
-                ? new ModuleWriterOptions(Module)
-                : new NativeModuleWriterOptions(Module, false);
-            writer.Logger = DummyLogger.NoThrowInstance;
-            if (Options.PreserveAllMdTokens)
-                writer.MetadataOptions.Flags |= MetadataFlags.PreserveAll;
-            if (Options.KeepOldMaxStackValue)
-                writer.MetadataOptions.Flags |= MetadataFlags.KeepOldMaxStack;
-
-            if (Module.IsILOnly)
-                Module.Write(Options.DestPath, (ModuleWriterOptions)writer);
-            else
-                Module.NativeWrite(Options.DestPath, (NativeModuleWriterOptions)writer);
-
-            try
-            {
-                Module?.Dispose();
-                PeImage?.Dispose();
-            }
-            catch
-            {
-            }
-
-            Logger.Done("Saved to: " + Options.DestFileName);
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            var saveFileDialog = new SaveFileDialog
-            {
-                Filter = "Assembly (*.exe,*.dll)| *.exe;*.dll",
-                Title = "Save Assembly",
-                FileName = Options.DestFileName,
-                RestoreDirectory = true
-            };
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                Options.DestPath = saveFileDialog.FileName;
-                Options.DestFileName = Path.GetFileName(saveFileDialog.FileName);
-                Save();
-                return;
-            }
-
-            Logger.Error("Failed to save file. " + ex.Message);
-        }
-        catch (Exception ex)
-        {
-            Logger.Error("Failed to save file. " + ex.Message);
-        }
-    }
-
-    public static ObfuscatorInfo ObfuscatorInfo = new();
-    public static Assembly Assembly { get; set; }
-    public static AssemblyModule AssemblyModule { get; set; }
-    public static ModuleDefMD Module { get; set; }
-    public static byte[] ModuleBytes { get; set; }
-    public static ModuleContext ModuleContext { get; set; }
-    public static Options Options { get; private set; }
-    public static MyPeImage PeImage { get; set; }
 }

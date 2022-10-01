@@ -61,7 +61,8 @@ public abstract class DeobfuscatorBase : IDeobfuscator, IModuleWriterListener
 
     public virtual bool IsValidMethodArgName(string name) => name != null && CheckValidName(name);
 
-    public virtual bool IsValidMethodReturnArgName(string name) => string.IsNullOrEmpty(name) || CheckValidName(name);
+    public virtual bool IsValidMethodReturnArgName(string name) =>
+        string.IsNullOrEmpty(name) || CheckValidName(name);
 
     public virtual bool IsValidResourceKeyName(string name) => name != null && CheckValidName(name);
 
@@ -79,7 +80,7 @@ public abstract class DeobfuscatorBase : IDeobfuscator, IModuleWriterListener
             if (!IsTypeWithInvalidBaseType(moduleType, type))
                 continue;
             var corSig = Module.CorLibTypes.GetCorLibTypeSig(type);
-            if (corSig is { ElementType: ElementType.Object })
+            if (corSig.ElementType == ElementType.Object)
                 continue;
             type.BaseType = Module.CorLibTypes.Object.TypeDefOrRef;
         }
@@ -92,7 +93,10 @@ public abstract class DeobfuscatorBase : IDeobfuscator, IModuleWriterListener
     private readonly OptionsBase _optionsBase;
     protected InitializedDataCreator InitializedDataCreator;
     protected ModuleDefMD Module;
-    public const string DefaultAsianValidNameRegex = @"^[\u2E80-\u9FFFa-zA-Z_<{$][\u2E80-\u9FFFa-zA-Z_0-9<>{}$.`-]*$";
+
+    public const string DefaultAsianValidNameRegex =
+        @"^[\u2E80-\u9FFFa-zA-Z_<{$][\u2E80-\u9FFFa-zA-Z_0-9<>{}$.`-]*$";
+
     public const string DefaultValidNameRegex = @"^[a-zA-Z_<{$][a-zA-Z_0-9<>{}$.`-]*$";
     public abstract string Name { get; }
     public virtual RenamingOptions RenamingOptions { get; set; }

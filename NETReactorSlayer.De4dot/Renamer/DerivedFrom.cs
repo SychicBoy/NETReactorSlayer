@@ -61,6 +61,6 @@ public class DerivedFrom
         return val;
     }
 
-    private readonly Dictionary<string, bool> _classNames = new(StringComparer.Ordinal);
-    private readonly Dictionary<MTypeDef, bool> _results = new();
+    private readonly Dictionary<string, bool> _classNames = new Dictionary<string, bool>(StringComparer.Ordinal);
+    private readonly Dictionary<MTypeDef, bool> _results = new Dictionary<MTypeDef, bool>();
 }

@@ -301,14 +301,13 @@ public class Modules : IResolver
         return null;
     }
 
-    private readonly List<MTypeDef> _allTypes = new();
-    private readonly AssemblyHash _assemblyHash = new();
-    private readonly List<MTypeDef> _baseTypes = new();
+    private readonly List<MTypeDef> _allTypes = new List<MTypeDef>();
+    private readonly AssemblyHash _assemblyHash = new AssemblyHash();
+    private readonly List<MTypeDef> _baseTypes = new List<MTypeDef>();
     private readonly IDeobfuscatorContext _deobfuscatorContext;
-    private readonly List<Module> _modules = new();
-    private readonly Dictionary<ModuleDef, Module> _modulesDict = new();
-
-    private readonly AssemblyKeyDictionary<MTypeDef> _typeToTypeDefDict = new();
+    private readonly List<Module> _modules = new List<Module>();
+    private readonly Dictionary<ModuleDef, Module> _modulesDict = new Dictionary<ModuleDef, Module>();
+    private readonly AssemblyKeyDictionary<MTypeDef> _typeToTypeDefDict = new AssemblyKeyDictionary<MTypeDef>();
     private bool _initializeCalled;
     public IEnumerable<MTypeDef> AllTypes => _allTypes;
     public IEnumerable<MTypeDef> BaseTypes => _baseTypes;
@@ -376,7 +375,7 @@ public class Modules : IResolver
 
         public Module Lookup(string moduleName) => _modulesDict.Lookup(moduleName);
 
-        private readonly ModulesDict _modulesDict = new();
+        private readonly ModulesDict _modulesDict = new ModulesDict();
 
         private Module _mainModule;
         public IEnumerable<Module> Modules => _modulesDict.Modules;
@@ -462,9 +461,10 @@ public class Modules : IResolver
         }
 
         private readonly Dictionary<ITypeDefOrRef, T> _dict =
-            new(new TypeEqualityComparer(SigComparerOptions.CompareAssemblyVersion));
+            new Dictionary<ITypeDefOrRef, T>(new TypeEqualityComparer(SigComparerOptions.CompareAssemblyVersion));
 
-        private readonly Dictionary<ITypeDefOrRef, List<ITypeDefOrRef>> _refs = new(TypeEqualityComparer.Instance);
+        private readonly Dictionary<ITypeDefOrRef, List<ITypeDefOrRef>> _refs =
+            new Dictionary<ITypeDefOrRef, List<ITypeDefOrRef>>(TypeEqualityComparer.Instance);
 
         public T this[ITypeDefOrRef type]
         {

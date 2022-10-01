@@ -8,7 +8,7 @@ namespace NETReactorSlayer.De4dot;
 
 public abstract class TypesRestorerBase
 {
-    public TypesRestorerBase(ModuleDef module) => _module = module;
+    protected TypesRestorerBase(ModuleDef module) => _module = module;
 
     private UpdatedMethod GetUpdatedMethod(MethodDef method)
     {
@@ -121,7 +121,8 @@ public abstract class TypesRestorerBase
         var fixReturnType = IsUnknownType(method.MethodSig.GetRetType());
 
         _argInfos.Clear();
-        foreach (var arg in method.Parameters.Where(arg => !arg.IsHiddenThisParameter).Where(arg => IsUnknownType(arg)))
+        foreach (var arg in method.Parameters.Where(arg => !arg.IsHiddenThisParameter)
+                     .Where(arg => IsUnknownType(arg)))
             _argInfos[arg] = new TypeInfo<Parameter>(arg);
         if (_argInfos.Count == 0 && !fixReturnType)
             return;
@@ -197,7 +198,8 @@ public abstract class TypesRestorerBase
                     pushedArgs = MethodStack.GetPushedArgInstructions(instructions, i);
                     if (pushedArgs.NumValidArgs < 1)
                         break;
-                    AddMethodArgType(method, GetParameter(methodParams, pushedArgs.GetEnd(0)), instr.Operand as IField);
+                    AddMethodArgType(method, GetParameter(methodParams, pushedArgs.GetEnd(0)),
+                        instr.Operand as IField);
                     break;
 
                 case Code.Stfld:
@@ -218,7 +220,8 @@ public abstract class TypesRestorerBase
                     pushedArgs = MethodStack.GetPushedArgInstructions(instructions, i);
                     if (pushedArgs.NumValidArgs < 1)
                         break;
-                    AddMethodArgType(method, GetParameter(methodParams, pushedArgs.GetEnd(0)), instr.Operand as IField);
+                    AddMethodArgType(method, GetParameter(methodParams, pushedArgs.GetEnd(0)),
+                        instr.Operand as IField);
                     break;
 
                 case Code.Starg:
@@ -503,14 +506,15 @@ public abstract class TypesRestorerBase
         return null;
     }
 
-    private readonly Dictionary<Parameter, TypeInfo<Parameter>> _argInfos = new();
+    private readonly Dictionary<Parameter, TypeInfo<Parameter>> _argInfos =
+        new Dictionary<Parameter, TypeInfo<Parameter>>();
 
     private readonly Dictionary<IField, TypeInfo<FieldDef>> _fieldWrites =
-        new(FieldEqualityComparer.CompareDeclaringTypes);
+        new Dictionary<IField, TypeInfo<FieldDef>>(FieldEqualityComparer.CompareDeclaringTypes);
 
     private readonly ModuleDef _module;
-    private readonly Dictionary<int, UpdatedField> _updatedFields = new();
-    private readonly Dictionary<int, UpdatedMethod> _updatedMethods = new();
+    private readonly Dictionary<int, UpdatedField> _updatedFields = new Dictionary<int, UpdatedField>();
+    private readonly Dictionary<int, UpdatedMethod> _updatedMethods = new Dictionary<int, UpdatedMethod>();
 
     private List<MethodDef> _allMethods;
 
@@ -591,6 +595,7 @@ public abstract class TypesRestorerBase
         private bool _newobjTypes;
         public TypeSig NewType;
 
-        public Dictionary<TypeSig, bool> Types { get; } = new(TypeEqualityComparer.Instance);
+        public Dictionary<TypeSig, bool> Types { get; } =
+            new Dictionary<TypeSig, bool>(TypeEqualityComparer.Instance);
     }
 }

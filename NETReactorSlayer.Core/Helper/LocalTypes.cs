@@ -21,21 +21,22 @@ using System.Collections.Generic;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
-namespace NETReactorSlayer.Core.Helper;
-
-public class LocalTypes : StringCounts
+namespace NETReactorSlayer.Core.Helper
 {
-    public LocalTypes(MethodDef method)
+    public class LocalTypes : StringCounts
     {
-        if (method is { Body: { } })
-            Initialize(method.Body.Variables);
-    }
+        public LocalTypes(MethodDef method)
+        {
+            if (method.HasBody)
+                Initialize(method.Body.Variables);
+        }
 
-    private void Initialize(IEnumerable<Local> locals)
-    {
-        if (locals == null)
-            return;
-        foreach (var local in locals)
-            Add(local.Type.FullName);
+        private void Initialize(IEnumerable<Local> locals)
+        {
+            if (locals == null)
+                return;
+            foreach (var local in locals)
+                Add(local.Type.FullName);
+        }
     }
 }

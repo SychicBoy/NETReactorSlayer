@@ -16,17 +16,18 @@
 using NETReactorSlayer.De4dot;
 using NETReactorSlayer.De4dot.Renamer;
 
-namespace NETReactorSlayer.Core.Deobfuscators;
-
-internal class SymbolRenamer : IStage
+namespace NETReactorSlayer.Core.Deobfuscators
 {
-    public void Execute()
+    internal class SymbolRenamer : IStage
     {
-        Logger.Done("Renaming obfuscated symbols...");
-        var deobfuscator =
-            new DeobfuscatorInfo(Context.Module, Context.Options.RenameShort).CreateDeobfuscator();
-        var obfuscatedFile = new ObfuscatedFile(Context.Module, deobfuscator);
-        obfuscatedFile.DeobfuscatorOptions.RenamerFlags = Context.Options.RenamerFlags;
-        new Renamer(obfuscatedFile).Rename();
+        public void Execute()
+        {
+            Logger.Done("Renaming obfuscated symbols...");
+            var deobfuscator =
+                new DeobfuscatorInfo(Context.Module, Context.Options.RenameShort).CreateDeobfuscator();
+            var obfuscatedFile = new ObfuscatedFile(Context.Module, deobfuscator);
+            obfuscatedFile.DeobfuscatorOptions.RenamerFlags = Context.Options.RenamerFlags;
+            new Renamer(obfuscatedFile).Rename();
+        }
     }
 }

@@ -41,7 +41,8 @@ public class InitializedDataCreator
                 DotNetUtils.FindOrCreateTypeRef(_module, _module.CorLibTypes.AssemblyRef, "System", "Array", false);
             var runtimeFieldHandleType = DotNetUtils.FindOrCreateTypeRef(_module, _module.CorLibTypes.AssemblyRef,
                 "System", "RuntimeFieldHandle", true);
-            var methodSig = MethodSig.CreateStatic(_module.CorLibTypes.Void, systemArrayType, runtimeFieldHandleType);
+            var methodSig =
+                MethodSig.CreateStatic(_module.CorLibTypes.Void, systemArrayType, runtimeFieldHandleType);
             _initializeArrayMethod = _module.UpdateRowId(new MemberRefUser(_module, "InitializeArray", methodSig,
                 runtimeHelpersType.TypeDefOrRef));
         }
@@ -127,7 +128,7 @@ public class InitializedDataCreator
     }
 
     private readonly ModuleDef _module;
-    private readonly Dictionary<long, TypeDef> _sizeToArrayType = new();
+    private readonly Dictionary<long, TypeDef> _sizeToArrayType = new Dictionary<long, TypeDef>();
 
     private MemberRef _initializeArrayMethod;
     private TypeDef _ourType;

@@ -49,7 +49,7 @@ public class InterfaceMethodInfos
     }
 
     private readonly Dictionary<ITypeDefOrRef, InterfaceMethodInfo> _interfaceMethods =
-        new(TypeEqualityComparer.Instance);
+        new Dictionary<ITypeDefOrRef, InterfaceMethodInfo>(TypeEqualityComparer.Instance);
 
     public IEnumerable<InterfaceMethodInfo> AllInfos => _interfaceMethods.Values;
 }

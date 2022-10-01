@@ -20,218 +20,219 @@ using System.Linq;
 using NETReactorSlayer.Core.Deobfuscators;
 using NETReactorSlayer.De4dot.Renamer;
 
-namespace NETReactorSlayer.Core;
-
-public class Options
+namespace NETReactorSlayer.Core
 {
-    public Options(IReadOnlyList<string> args)
+    public class Options
     {
-        var path = string.Empty;
-        for (var i = 0; i < args.Count; i++)
+        public Options(IReadOnlyList<string> args)
         {
-            var key = args[i];
-            if (File.Exists(key))
+            var path = string.Empty;
+            for (var i = 0; i < args.Count; i++)
             {
-                path = key;
-                continue;
-            }
+                var key = args[i];
+                if (File.Exists(key))
+                {
+                    path = key;
+                    continue;
+                }
 
-            if (args.Count < i + 2)
-                break;
-            var value = args[i + 1];
-            if (bool.TryParse(value, out var flag))
-            {
-                i++;
-                if (!flag)
+                if (args.Count < i + 2)
+                    break;
+                var value = args[i + 1];
+                if (bool.TryParse(value, out var flag))
+                {
+                    i++;
+                    if (!flag)
+                        switch (key)
+                        {
+                            case "--dec-methods":
+                                RemoveStage(typeof(MethodDecrypter));
+                                MethodDecrypter = false;
+                                continue;
+                            case "--fix-proxy":
+                                RemoveStage(typeof(ProxyCallFixer));
+                                CallDecrypter = false;
+                                continue;
+                            case "--dec-strings":
+                                RemoveStage(typeof(StringDecrypter));
+                                StrDecrypter = false;
+                                continue;
+                            case "--dec-rsrc":
+                                RemoveStage(typeof(ResourceResolver));
+                                RsrcDecrypter = false;
+                                continue;
+                            case "--dec-bools":
+                                RemoveStage(typeof(BooleanDecrypter));
+                                BoolDecrypter = false;
+                                continue;
+                            case "--deob-cflow":
+                                RemoveStage(typeof(ControlFlowDeobfuscator));
+                                CFlowDeob = false;
+                                continue;
+                            case "--deob-tokens":
+                                RemoveStage(typeof(TokenDeobfuscator));
+                                TokenDecrypter = false;
+                                continue;
+                            case "--dump-asm":
+                                RemoveStage(typeof(AssemblyResolver));
+                                AsmDumper = false;
+                                continue;
+                            case "--dump-costura":
+                                RemoveStage(typeof(CosturaDumper));
+                                CosturaDumper = false;
+                                continue;
+                            case "--inline-methods":
+                                RemoveStage(typeof(MethodInliner));
+                                MethodInliner = false;
+                                continue;
+                            case "--rem-antis":
+                                RemoveStage(typeof(AntiManipulationPatcher));
+                                AntiTd = false;
+                                continue;
+                            case "--rem-sn":
+                                RemoveStage(typeof(StrongNamePatcher));
+                                StrongName = false;
+                                continue;
+                            case "--rem-calls":
+                                RemoveCallsToObfuscatorTypes = false;
+                                continue;
+                            case "--rem-junks":
+                                RemoveJunks = false;
+                                continue;
+                        }
+
                     switch (key)
                     {
-                        case "--dec-methods":
-                            RemoveStage(typeof(MethodDecrypter));
-                            MethodDecrypter = false;
-                            continue;
-                        case "--fix-proxy":
-                            RemoveStage(typeof(ProxyCallFixer));
-                            CallDecrypter = false;
-                            continue;
-                        case "--dec-strings":
-                            RemoveStage(typeof(StringDecrypter));
-                            StrDecrypter = false;
-                            continue;
-                        case "--dec-rsrc":
-                            RemoveStage(typeof(ResourceResolver));
-                            RsrcDecrypter = false;
-                            continue;
-                        case "--dec-bools":
-                            RemoveStage(typeof(BooleanDecrypter));
-                            BoolDecrypter = false;
-                            continue;
-                        case "--deob-cflow":
-                            RemoveStage(typeof(ControlFlowDeobfuscator));
-                            CFlowDeob = false;
-                            continue;
-                        case "--deob-tokens":
-                            RemoveStage(typeof(TokenDeobfuscator));
-                            TokenDecrypter = false;
-                            continue;
-                        case "--dump-asm":
-                            RemoveStage(typeof(AssemblyResolver));
-                            AsmDumper = false;
-                            continue;
-                        case "--dump-costura":
-                            RemoveStage(typeof(CosturaDumper));
-                            CosturaDumper = false;
-                            continue;
-                        case "--inline-methods":
-                            RemoveStage(typeof(MethodInliner));
-                            MethodInliner = false;
-                            continue;
-                        case "--rem-antis":
-                            RemoveStage(typeof(AntiManipulationPatcher));
-                            AntiTd = false;
-                            continue;
-                        case "--rem-sn":
-                            RemoveStage(typeof(StrongNamePatcher));
-                            StrongName = false;
-                            continue;
-                        case "--rem-calls":
-                            RemoveCallsToObfuscatorTypes = false;
-                            continue;
-                        case "--rem-junks":
-                            RemoveJunks = false;
-                            continue;
+                        case "--keep-types":
+                            KeepObfuscatorTypes = flag;
+                            break;
+                        case "--preserve-all":
+                            PreserveAllMdTokens = flag;
+                            break;
+                        case "--keep-max-stack":
+                            KeepOldMaxStackValue = flag;
+                            break;
+                        case "--no-pause":
+                            NoPause = flag;
+                            break;
+                        case "--verbose":
+                            Verbose = flag;
+                            break;
                     }
+                }
 
                 switch (key)
                 {
-                    case "--keep-types":
-                        KeepObfuscatorTypes = flag;
+                    case "--dont-rename":
+                        Rename = false;
+                        RemoveStage(typeof(SymbolRenamer));
                         break;
-                    case "--preserve-all":
-                        PreserveAllMdTokens = flag;
+                    case "--rename":
+                    {
+                        var chars = value.ToCharArray();
+                        RenamerFlags = RenamerFlags.RenameMethodArgs | RenamerFlags.RenameGenericParams;
+                        foreach (var @char in chars)
+                            switch (@char)
+                            {
+                                case 'n':
+                                    RenamerFlags |= RenamerFlags.RenameNamespaces;
+                                    break;
+                                case 't':
+                                    RenamerFlags |= RenamerFlags.RenameTypes;
+                                    break;
+                                case 'm':
+                                    RenamerFlags |= RenamerFlags.RenameMethods;
+                                    break;
+                                case 'f':
+                                    RenamerFlags |= RenamerFlags.RenameFields;
+                                    break;
+                                case 'p':
+                                    RenamerFlags |= RenamerFlags.RenameProperties | RenamerFlags.RestoreProperties |
+                                                    RenamerFlags.RestorePropertiesFromNames;
+                                    break;
+                                case 'e':
+                                    RenamerFlags |= RenamerFlags.RenameEvents | RenamerFlags.RestoreEvents |
+                                                    RenamerFlags.RestoreEventsFromNames;
+                                    break;
+                            }
+
                         break;
-                    case "--keep-max-stack":
-                        KeepOldMaxStackValue = flag;
-                        break;
-                    case "--no-pause":
-                        NoPause = flag;
-                        break;
-                    case "--verbose":
-                        Verbose = flag;
-                        break;
+                    }
                 }
             }
 
-            switch (key)
-            {
-                case "--dont-rename":
-                    Rename = false;
-                    RemoveStage(typeof(SymbolRenamer));
-                    break;
-                case "--rename":
-                {
-                    var chars = value.ToCharArray();
-                    RenamerFlags = RenamerFlags.RenameMethodArgs | RenamerFlags.RenameGenericParams;
-                    foreach (var @char in chars)
-                        switch (@char)
-                        {
-                            case 'n':
-                                RenamerFlags |= RenamerFlags.RenameNamespaces;
-                                break;
-                            case 't':
-                                RenamerFlags |= RenamerFlags.RenameTypes;
-                                break;
-                            case 'm':
-                                RenamerFlags |= RenamerFlags.RenameMethods;
-                                break;
-                            case 'f':
-                                RenamerFlags |= RenamerFlags.RenameFields;
-                                break;
-                            case 'p':
-                                RenamerFlags |= RenamerFlags.RenameProperties | RenamerFlags.RestoreProperties |
-                                                RenamerFlags.RestorePropertiesFromNames;
-                                break;
-                            case 'e':
-                                RenamerFlags |= RenamerFlags.RenameEvents | RenamerFlags.RestoreEvents |
-                                                RenamerFlags.RestoreEventsFromNames;
-                                break;
-                        }
-
-                    break;
-                }
-            }
+            if (path == string.Empty)
+                return;
+            SourcePath = path;
+            SourceFileName = Path.GetFileNameWithoutExtension(path);
+            SourceFileExt = Path.GetExtension(path);
+            SourceDir = Path.GetDirectoryName(path);
+            DestPath = SourceDir + "\\" + SourceFileName + "_Slayed" + SourceFileExt;
+            DestFileName = SourceFileName + "_Slayed" + SourceFileExt;
         }
 
-        if (path == string.Empty)
-            return;
-        SourcePath = path;
-        SourceFileName = Path.GetFileNameWithoutExtension(path);
-        SourceFileExt = Path.GetExtension(path);
-        SourceDir = Path.GetDirectoryName(path);
-        DestPath = SourceDir + "\\" + SourceFileName + "_Slayed" + SourceFileExt;
-        DestFileName = SourceFileName + "_Slayed" + SourceFileExt;
+        private void RemoveStage(Type type) =>
+            Stages.Remove(
+                Stages.FirstOrDefault(x =>
+                    x.GetType().Name == type.Name));
+
+        public readonly bool AntiTd = true;
+        public readonly bool AsmDumper = true;
+        public readonly bool BoolDecrypter = true;
+        public readonly bool CallDecrypter = true;
+        public readonly bool CFlowDeob = true;
+        public readonly bool CosturaDumper = true;
+        public string DestFileName;
+        public string DestPath;
+        public readonly bool KeepObfuscatorTypes;
+        public readonly bool KeepOldMaxStackValue;
+        public readonly bool MethodDecrypter = true;
+        public readonly bool MethodInliner = true;
+        public readonly bool NoPause;
+        public readonly bool PreserveAllMdTokens;
+        public readonly bool RemoveCallsToObfuscatorTypes = true;
+        public readonly bool RemoveJunks = true;
+        public readonly bool Rename = true;
+
+        public readonly RenamerFlags RenamerFlags =
+            RenamerFlags.RenameNamespaces |
+            RenamerFlags.RenameTypes |
+            RenamerFlags.RenameEvents |
+            RenamerFlags.RenameFields |
+            RenamerFlags.RenameMethods |
+            RenamerFlags.RenameMethodArgs |
+            RenamerFlags.RenameGenericParams |
+            RenamerFlags.RestoreEventsFromNames |
+            RenamerFlags.RestoreEvents;
+
+        public readonly bool RenameShort = false;
+        public readonly bool RsrcDecrypter = true;
+        public string SourceDir;
+        public string SourceFileExt;
+        public string SourceFileName;
+        public string SourcePath;
+
+        public readonly List<IStage> Stages = new List<IStage>
+        {
+            new MethodDecrypter(),
+            new ControlFlowDeobfuscator(),
+            new AntiManipulationPatcher(),
+            new MethodInliner(),
+            new ProxyCallFixer(),
+            new StringDecrypter(),
+            new ResourceResolver(),
+            new AssemblyResolver(),
+            new CosturaDumper(),
+            new TokenDeobfuscator(),
+            new BooleanDecrypter(),
+            new StrongNamePatcher(),
+            new Cleaner(),
+            new SymbolRenamer()
+        };
+
+        public readonly bool StrDecrypter = true;
+        public readonly bool StrongName = true;
+        public readonly bool TokenDecrypter = true;
+        public readonly bool Verbose;
     }
-
-    private void RemoveStage(Type type) =>
-        Stages.Remove(
-            Stages.FirstOrDefault(x =>
-                x.GetType().Name == type.Name));
-
-    public readonly bool AntiTd = true;
-    public readonly bool AsmDumper = true;
-    public readonly bool BoolDecrypter = true;
-    public readonly bool CallDecrypter = true;
-    public readonly bool CFlowDeob = true;
-    public readonly bool CosturaDumper = true;
-    public readonly bool KeepObfuscatorTypes;
-    public readonly bool KeepOldMaxStackValue;
-    public readonly bool MethodDecrypter = true;
-    public readonly bool MethodInliner = true;
-    public readonly bool NoPause;
-    public readonly bool PreserveAllMdTokens;
-    public readonly bool RemoveCallsToObfuscatorTypes = true;
-    public readonly bool RemoveJunks = true;
-    public readonly bool Rename = true;
-
-    public readonly RenamerFlags RenamerFlags =
-        RenamerFlags.RenameNamespaces |
-        RenamerFlags.RenameTypes |
-        RenamerFlags.RenameEvents |
-        RenamerFlags.RenameFields |
-        RenamerFlags.RenameMethods |
-        RenamerFlags.RenameMethodArgs |
-        RenamerFlags.RenameGenericParams |
-        RenamerFlags.RestoreEventsFromNames |
-        RenamerFlags.RestoreEvents;
-
-    public readonly bool RenameShort = false;
-    public readonly bool RsrcDecrypter = true;
-
-    public readonly List<IStage> Stages = new()
-    {
-        new MethodDecrypter(),
-        new ControlFlowDeobfuscator(),
-        new AntiManipulationPatcher(),
-        new MethodInliner(),
-        new ProxyCallFixer(),
-        new StringDecrypter(),
-        new ResourceResolver(),
-        new AssemblyResolver(),
-        new CosturaDumper(),
-        new TokenDeobfuscator(),
-        new BooleanDecrypter(),
-        new StrongNamePatcher(),
-        new Cleaner(),
-        new SymbolRenamer()
-    };
-
-    public readonly bool StrDecrypter = true;
-    public readonly bool StrongName = true;
-    public readonly bool TokenDecrypter = true;
-    public readonly bool Verbose;
-    public string DestFileName;
-    public string DestPath;
-    public string SourceDir;
-    public string SourceFileExt;
-    public string SourceFileName;
-    public string SourcePath;
 }

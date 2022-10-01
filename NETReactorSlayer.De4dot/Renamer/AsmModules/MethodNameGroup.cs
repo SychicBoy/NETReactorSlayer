@@ -77,5 +77,5 @@ public class MethodNameGroup
 
     public int Count => Methods.Count;
 
-    public List<MMethodDef> Methods { get; } = new();
+    public List<MMethodDef> Methods { get; } = new List<MMethodDef>();
 }

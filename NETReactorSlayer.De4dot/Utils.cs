@@ -228,5 +228,5 @@ public static class Utils
 
     private static string _ourBaseDir;
 
-    private static readonly Random Random = new();
+    private static readonly Random Random = new Random();
 }

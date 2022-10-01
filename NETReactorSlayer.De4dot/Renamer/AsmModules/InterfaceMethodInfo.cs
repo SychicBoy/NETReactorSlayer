@@ -53,5 +53,6 @@ public class InterfaceMethodInfo
 
     public TypeInfo Face { get; }
 
-    public Dictionary<MethodDefKey, MMethodDef> IfaceMethodToClassMethod { get; } = new();
+    public Dictionary<MethodDefKey, MMethodDef> IfaceMethodToClassMethod { get; } =
+        new Dictionary<MethodDefKey, MMethodDef>();
 }

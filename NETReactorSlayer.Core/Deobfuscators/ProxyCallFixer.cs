@@ -22,137 +22,139 @@ using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 using NETReactorSlayer.Core.Helper;
 
-namespace NETReactorSlayer.Core.Deobfuscators;
-
-internal class ProxyCallFixer : IStage
+namespace NETReactorSlayer.Core.Deobfuscators
 {
-    public void Execute()
+    internal class ProxyCallFixer : IStage
     {
-        try
+        public void Execute()
         {
-            if (!Find())
+            try
             {
-                Logger.Warn("Couldn't find any hidden call.");
-                return;
-            }
-
-            var bytes = _encryptedResource.Decrypt();
-
-            if (!GetDictionary(bytes))
-                throw new InvalidOperationException();
-
-            var count = RestoreCalls();
-
-            if (count > 0)
-            {
-                Logger.Done(count + " Hidden calls restored.");
-                Cleaner.AddMethodToBeRemoved(_encryptedResource.DecrypterMethod);
-                Cleaner.AddResourceToBeRemoved(_encryptedResource.EmbeddedResource);
-            }
-            else
-                Logger.Warn("Couldn't find any hidden call.");
-        }
-        catch
-        {
-            Logger.Error("An unexpected error occurred during decrypting hidden calls.");
-        }
-
-        _encryptedResource?.Dispose();
-    }
-
-    #region Private Methods
-
-    private bool Find()
-    {
-        var callCounter = new CallCounter();
-        foreach (var type in from x in Context.Module.GetTypes()
-                 where x.Namespace.Equals("") && DotNetUtils.DerivesFromDelegate(x)
-                 select x)
-            if (type.FindStaticConstructor() is { } cctor)
-                foreach (var method in DotNetUtils.GetMethodCalls(cctor))
-                    if (method.MethodSig.GetParamCount() == 1 &&
-                        method.GetParam(0).FullName == "System.RuntimeTypeHandle")
-                        callCounter.Add(method);
-
-        if (callCounter.Most() is not { } mostCalls) return false;
-
-        var methodDef = mostCalls.ResolveMethodDef();
-        if (methodDef == null || !EncryptedResource.IsKnownDecrypter(methodDef, Array.Empty<string>(), true))
-            return false;
-
-        _encryptedResource = new EncryptedResource(methodDef);
-        if (_encryptedResource.EmbeddedResource == null)
-        {
-            _encryptedResource.Dispose();
-            return false;
-        }
-
-        return true;
-    }
-
-    private bool GetDictionary(byte[] bytes)
-    {
-        var length = bytes.Length / 8;
-        _dictionary = new Dictionary<int, int>();
-        var reader = new BinaryReader(new MemoryStream(bytes));
-        for (var i = 0; i < length; i++)
-        {
-            var key = reader.ReadInt32();
-            var value = reader.ReadInt32();
-            if (!_dictionary.ContainsKey(key)) _dictionary.Add(key, value);
-        }
-
-        reader.Close();
-        return true;
-    }
-
-    private void GetCallInfo(IMDTokenProvider field, out IMethod calledMethod, out OpCode callOpcode)
-    {
-        callOpcode = OpCodes.Call;
-        _dictionary.TryGetValue((int)field.MDToken.Raw, out var token);
-        if ((token & 1073741824) > 0) callOpcode = OpCodes.Callvirt;
-        token &= 1073741823;
-        calledMethod = Context.Module.ResolveToken(token) as IMethod;
-    }
-
-    private long RestoreCalls()
-    {
-        long count = 0;
-        foreach (var type in Context.Module.GetTypes())
-        foreach (var method in (from x in type.Methods where x.HasBody && x.Body.HasInstructions select x).ToArray())
-        {
-            for (var i = 0; i < method.Body.Instructions.Count; i++)
-                try
+                if (!Find())
                 {
-                    if (!method.Body.Instructions[i].OpCode.Equals(OpCodes.Ldsfld) ||
-                        !method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Call)) continue;
-                    var field = method.Body.Instructions[i].Operand as IField;
-                    GetCallInfo(field, out var iMethod, out var opCpde);
-                    if (iMethod == null) continue;
-                    iMethod = Context.Module.Import(iMethod);
-                    if (iMethod == null) continue;
-                    method.Body.Instructions[i].OpCode = OpCodes.Nop;
-                    method.Body.Instructions[i + 1] = Instruction.Create(opCpde, iMethod);
-                    method.Body.UpdateInstructionOffsets();
-                    count++;
-                    Cleaner.AddTypeToBeRemoved(field?.DeclaringType);
-                }
-                catch
-                {
+                    Logger.Warn("Couldn't find any hidden call.");
+                    return;
                 }
 
-            SimpleDeobfuscator.DeobfuscateBlocks(method);
+                var bytes = _encryptedResource.Decrypt();
+
+                if (!GetDictionary(bytes))
+                    throw new InvalidOperationException();
+
+                var count = RestoreCalls();
+
+                if (count > 0)
+                {
+                    Logger.Done(count + " Hidden calls restored.");
+                    Cleaner.AddMethodToBeRemoved(_encryptedResource.DecrypterMethod);
+                    Cleaner.AddResourceToBeRemoved(_encryptedResource.EmbeddedResource);
+                }
+                else
+                    Logger.Warn("Couldn't find any hidden call.");
+            }
+            catch
+            {
+                Logger.Error("An unexpected error occurred during decrypting hidden calls.");
+            }
+
+            _encryptedResource?.Dispose();
         }
 
-        return count;
+        #region Private Methods
+
+        private bool Find()
+        {
+            var callCounter = new CallCounter();
+            foreach (var type in from x in Context.Module.GetTypes()
+                     where x.Namespace.Equals("") && DotNetUtils.DerivesFromDelegate(x)
+                     select x)
+                if (type.FindStaticConstructor() is MethodDef cctor)
+                    foreach (var method in DotNetUtils.GetMethodCalls(cctor))
+                        if (method.MethodSig.GetParamCount() == 1 &&
+                            method.GetParam(0).FullName == "System.RuntimeTypeHandle")
+                            callCounter.Add(method);
+
+            if (!(callCounter.Most() is IMethod mostCalls)) return false;
+
+            var methodDef = mostCalls.ResolveMethodDef();
+            if (methodDef == null || !EncryptedResource.IsKnownDecrypter(methodDef, Array.Empty<string>(), true))
+                return false;
+
+            _encryptedResource = new EncryptedResource(methodDef);
+            if (_encryptedResource.EmbeddedResource == null)
+            {
+                _encryptedResource.Dispose();
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool GetDictionary(byte[] bytes)
+        {
+            var length = bytes.Length / 8;
+            _dictionary = new Dictionary<int, int>();
+            var reader = new BinaryReader(new MemoryStream(bytes));
+            for (var i = 0; i < length; i++)
+            {
+                var key = reader.ReadInt32();
+                var value = reader.ReadInt32();
+                if (!_dictionary.ContainsKey(key)) _dictionary.Add(key, value);
+            }
+
+            reader.Close();
+            return true;
+        }
+
+        private void GetCallInfo(IMDTokenProvider field, out IMethod calledMethod, out OpCode callOpcode)
+        {
+            callOpcode = OpCodes.Call;
+            _dictionary.TryGetValue((int)field.MDToken.Raw, out var token);
+            if ((token & 1073741824) > 0) callOpcode = OpCodes.Callvirt;
+            token &= 1073741823;
+            calledMethod = Context.Module.ResolveToken(token) as IMethod;
+        }
+
+        private long RestoreCalls()
+        {
+            long count = 0;
+            foreach (var type in Context.Module.GetTypes())
+            foreach (var method in (from x in type.Methods where x.HasBody && x.Body.HasInstructions select x)
+                     .ToArray())
+            {
+                for (var i = 0; i < method.Body.Instructions.Count; i++)
+                    try
+                    {
+                        if (!method.Body.Instructions[i].OpCode.Equals(OpCodes.Ldsfld) ||
+                            !method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Call)) continue;
+                        var field = method.Body.Instructions[i].Operand as IField;
+                        GetCallInfo(field, out var iMethod, out var opCpde);
+                        if (iMethod == null) continue;
+                        iMethod = Context.Module.Import(iMethod);
+                        if (iMethod == null) continue;
+                        method.Body.Instructions[i].OpCode = OpCodes.Nop;
+                        method.Body.Instructions[i + 1] = Instruction.Create(opCpde, iMethod);
+                        method.Body.UpdateInstructionOffsets();
+                        count++;
+                        Cleaner.AddTypeToBeRemoved(field?.DeclaringType);
+                    }
+                    catch
+                    {
+                    }
+
+                SimpleDeobfuscator.DeobfuscateBlocks(method);
+            }
+
+            return count;
+        }
+
+        #endregion
+
+        #region Fields
+
+        private Dictionary<int, int> _dictionary;
+        private EncryptedResource _encryptedResource;
+
+        #endregion
     }
-
-    #endregion
-
-    #region Fields
-
-    private Dictionary<int, int> _dictionary;
-    private EncryptedResource _encryptedResource;
-
-    #endregion
 }

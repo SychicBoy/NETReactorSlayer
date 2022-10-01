@@ -167,7 +167,9 @@ public class ResourceKeysRenamer
                         break;
 
                     case "System.String System.Resources.ResourceManager::GetString(System.String)":
-                    case "System.IO.UnmanagedMemoryStream System.Resources.ResourceManager::GetStream(System.String)":
+                    case
+                        "System.IO.UnmanagedMemoryStream System.Resources.ResourceManager::GetStream(System.String)"
+                        :
                     case "System.Object System.Resources.ResourceManager::GetObject(System.String)":
                         ldstrIndex = i - 1;
                         break;
@@ -241,7 +243,7 @@ public class ResourceKeysRenamer
 
     private readonly ModuleDefMD _module;
     private readonly INameChecker _nameChecker;
-    private readonly Dictionary<string, bool> _newNames = new();
+    private readonly Dictionary<string, bool> _newNames = new Dictionary<string, bool>();
 
     private const string DefaultKeyName = "Key";
 

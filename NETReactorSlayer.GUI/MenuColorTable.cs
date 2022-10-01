@@ -16,15 +16,16 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace NETReactorSlayer.GUI;
-
-public class MenuColorTable : ProfessionalColorTable
+namespace NETReactorSlayer.GUI
 {
-    public MenuColorTable() => UseSystemColors = false;
+    public class MenuColorTable : ProfessionalColorTable
+    {
+        public MenuColorTable() => UseSystemColors = false;
 
-    public override Color MenuBorder => Color.Black;
+        public override Color MenuBorder => Color.Black;
 
-    public override Color MenuItemBorder => Color.Black;
+        public override Color MenuItemBorder => Color.Black;
 
-    public override Color MenuItemSelected => Color.FromArgb(18, 18, 18);
+        public override Color MenuItemSelected => Color.FromArgb(18, 18, 18);
+    }
 }

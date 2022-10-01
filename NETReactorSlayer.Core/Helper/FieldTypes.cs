@@ -1,21 +1,22 @@
 ﻿using System.Collections.Generic;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.Core.Helper;
-
-public class FieldTypes : StringCounts
+namespace NETReactorSlayer.Core.Helper
 {
-    public FieldTypes(IEnumerable<FieldDef> fields) => Initialize(fields);
-
-    private void Initialize(IEnumerable<FieldDef> fields)
+    public class FieldTypes : StringCounts
     {
-        if (fields == null)
-            return;
-        foreach (var field in fields)
+        public FieldTypes(IEnumerable<FieldDef> fields) => Initialize(fields);
+
+        private void Initialize(IEnumerable<FieldDef> fields)
         {
-            var type = field.FieldSig.GetFieldType();
-            if (type != null)
-                Add(type.FullName);
+            if (fields == null)
+                return;
+            foreach (var field in fields)
+            {
+                var type = field.FieldSig.GetFieldType();
+                if (type != null)
+                    Add(type.FullName);
+            }
         }
     }
 }

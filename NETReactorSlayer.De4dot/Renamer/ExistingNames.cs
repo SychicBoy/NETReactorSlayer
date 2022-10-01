@@ -64,5 +64,5 @@ public class ExistingNames
             _allNames[key] = true;
     }
 
-    private readonly Dictionary<string, bool> _allNames = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, bool> _allNames = new Dictionary<string, bool>(StringComparer.Ordinal);
 }

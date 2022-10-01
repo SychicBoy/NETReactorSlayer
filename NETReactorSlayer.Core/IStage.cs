@@ -1,6 +1,7 @@
-﻿namespace NETReactorSlayer.Core;
-
-public interface IStage
+﻿namespace NETReactorSlayer.Core
 {
-    public void Execute();
+    public interface IStage
+    {
+        void Execute();
+    }
 }

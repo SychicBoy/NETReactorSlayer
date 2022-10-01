@@ -133,10 +133,13 @@ public abstract class TypeNames
         return s.Substring(0, 1).ToUpperInvariant() + s.Substring(1);
     }
 
-    protected NameCreator FnPtrNameCreator = new("fnptr_");
+    protected NameCreator FnPtrNameCreator = new NameCreator("fnptr_");
     protected Dictionary<string, string> FullNameToShortName;
     protected Dictionary<string, string> FullNameToShortNamePrefix;
-    protected NameCreator GenericParamNameCreator = new("gparam_");
-    protected Dictionary<string, NameCreator> TypeNamesDict = new(StringComparer.Ordinal);
-    protected NameCreator UnknownNameCreator = new("unknown_");
+    protected NameCreator GenericParamNameCreator = new NameCreator("gparam_");
+
+    protected Dictionary<string, NameCreator> TypeNamesDict =
+        new Dictionary<string, NameCreator>(StringComparer.Ordinal);
+
+    protected NameCreator UnknownNameCreator = new NameCreator("unknown_");
 }

@@ -236,7 +236,7 @@ public static class RandomNameChecker
 
     private static bool IsDigit(char c) => '0' <= c && c <= '9';
 
-    private static readonly Regex AllUpper = new(@"^[A-Z]+$");
+    private static readonly Regex AllUpper = new Regex(@"^[A-Z]+$");
 
-    private static readonly Regex NoUpper = new(@"^[^A-Z]+$");
+    private static readonly Regex NoUpper = new Regex(@"^[^A-Z]+$");
 }

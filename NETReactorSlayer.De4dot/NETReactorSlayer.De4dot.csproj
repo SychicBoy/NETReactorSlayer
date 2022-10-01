@@ -1,152 +1,39 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{AC8D9E60-5E24-4FE1-8D3C-D100571D5944}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NETReactorSlayer.De4dot</RootNamespace>
-    <AssemblyName>NETReactorSlayer.De4dot</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <LangVersion>10.0</LangVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\NETReactorSlayer.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="AssemblyData, Version=3.1.41592.3405, Culture=neutral, PublicKeyToken=d3f3ed1e47f67fc6, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Libs\AssemblyData.dll</HintPath>
-    </Reference>
-    <Reference Include="de4dot.blocks, Version=3.1.41592.3405, Culture=neutral, PublicKeyToken=d3f3ed1e47f67fc6, processorArchitecture=MSIL">
-      <HintPath>..\packages\de4dot.blocks.3.2.0\lib\de4dot.blocks.dll</HintPath>
-    </Reference>
-    <Reference Include="dnlib, Version=3.5.0.0, Culture=neutral, PublicKeyToken=50e96378b6e77999, processorArchitecture=MSIL">
-      <HintPath>..\packages\dnlib.3.5.0\lib\net45\dnlib.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="DeobfuscatorInfo.cs" />
-    <Compile Include="IDeobfuscatorOptions.cs" />
-    <Compile Include="IModuleWriterListener.cs" />
-    <Compile Include="DeobfuscatorContext.cs" />
-    <Compile Include="DeobfuscatorBase.cs" />
-    <Compile Include="DeobfuscatorInfoBase.cs" />
-    <Compile Include="Deobfuscator.cs" />
-    <Compile Include="IDeobfuscator.cs" />
-    <Compile Include="IDeobfuscatorInfo.cs" />
-    <Compile Include="InitializedDataCreator.cs" />
-    <Compile Include="IDeobfuscatorContext.cs" />
-    <Compile Include="IObfuscatedFile.cs" />
-    <Compile Include="MethodStack.cs" />
-    <Compile Include="NameRegex.cs" />
-    <Compile Include="NameRegexes.cs" />
-    <Compile Include="NameRegexOption.cs" />
-    <Compile Include="ObfuscatedFile.cs" />
-    <Compile Include="Option.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PushedArgs.cs" />
-    <Compile Include="RandomNameChecker.cs" />
-    <Compile Include="Renamer\AsmModules\MEventDef.cs" />
-    <Compile Include="Renamer\AsmModules\EventDefDict.cs" />
-    <Compile Include="Renamer\AsmModules\MFieldDef.cs" />
-    <Compile Include="Renamer\AsmModules\FieldDefDict.cs" />
-    <Compile Include="Renamer\AsmModules\MGenericParamDef.cs" />
-    <Compile Include="Renamer\AsmModules\InterfaceMethodInfo.cs" />
-    <Compile Include="Renamer\AsmModules\InterfaceMethodInfos.cs" />
-    <Compile Include="Renamer\AsmModules\IResolver.cs" />
-    <Compile Include="Renamer\AsmModules\MemberRefFinder.cs" />
-    <Compile Include="Renamer\AsmModules\MMethodDef.cs" />
-    <Compile Include="Renamer\AsmModules\MethodDefDict.cs" />
-    <Compile Include="Renamer\AsmModules\MethodDefKey.cs" />
-    <Compile Include="Renamer\AsmModules\MethodInst.cs" />
-    <Compile Include="Renamer\AsmModules\MethodInstances.cs" />
-    <Compile Include="Renamer\AsmModules\MethodNameGroup.cs" />
-    <Compile Include="Renamer\AsmModules\MethodNameGroups.cs" />
-    <Compile Include="Renamer\AsmModules\Module.cs" />
-    <Compile Include="Renamer\AsmModules\Modules.cs" />
-    <Compile Include="Renamer\AsmModules\MTypeDef.cs" />
-    <Compile Include="Renamer\AsmModules\MParamDef.cs" />
-    <Compile Include="Renamer\AsmModules\MPropertyDef.cs" />
-    <Compile Include="Renamer\AsmModules\PropertyDefDict.cs" />
-    <Compile Include="Renamer\AsmModules\Ref.cs" />
-    <Compile Include="Renamer\AsmModules\DictHelper.cs" />
-    <Compile Include="Renamer\AsmModules\TypeInfo.cs" />
-    <Compile Include="Renamer\AsmModules\TypeDefDict.cs" />
-    <Compile Include="Renamer\DerivedFrom.cs" />
-    <Compile Include="Renamer\EventInfo.cs" />
-    <Compile Include="Renamer\ExistingNames.cs" />
-    <Compile Include="Renamer\FieldInfo.cs" />
-    <Compile Include="Renamer\GenericParamInfo.cs" />
-    <Compile Include="Renamer\GenericParamNameCreator.cs" />
-    <Compile Include="Renamer\GlobalTypeNameCreator.cs" />
-    <Compile Include="Renamer\INameChecker.cs" />
-    <Compile Include="Renamer\INameCreator.cs" />
-    <Compile Include="Renamer\ITypeNameCreator.cs" />
-    <Compile Include="Renamer\MemberInfo.cs" />
-    <Compile Include="Renamer\MemberInfos.cs" />
-    <Compile Include="Renamer\MethodInfo.cs" />
-    <Compile Include="Renamer\NameCreator.cs" />
-    <Compile Include="Renamer\NameCreator2.cs" />
-    <Compile Include="Renamer\NameCreatorCounter.cs" />
-    <Compile Include="Renamer\OneNameCreator.cs" />
-    <Compile Include="Renamer\NameInfos.cs" />
-    <Compile Include="Renamer\ParamInfo.cs" />
-    <Compile Include="Renamer\PropertyInfo.cs" />
-    <Compile Include="Renamer\PropertyNameCreator.cs" />
-    <Compile Include="Renamer\Renamer.cs" />
-    <Compile Include="Renamer\RenamerFlags.cs" />
-    <Compile Include="Renamer\ResourceKeysRenamer.cs" />
-    <Compile Include="Renamer\ResourceRenamer.cs" />
-    <Compile Include="Renamer\TypeInfo.cs" />
-    <Compile Include="Renamer\TypeNameCreator.cs" />
-    <Compile Include="Renamer\TypeNames.cs" />
-    <Compile Include="Renamer\TypeRenamerState.cs" />
-    <Compile Include="Renamer\VariableNameCreator.cs" />
-    <Compile Include="Renamer\VariableNameState.cs" />
-    <Compile Include="RenamingOptions.cs" />
-    <Compile Include="TheAssemblyResolver.cs" />
-    <Compile Include="Tuple.cs" />
-    <Compile Include="TypesRestorer.cs" />
-    <Compile Include="TypesRestorerBase.cs" />
-    <Compile Include="Utils.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="NETReactorSlayer.snk" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup />
-  <ItemGroup>
-    <Content Include="Libs\AssemblyData.dll" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>net6.0;netcoreapp3.1;net48</TargetFrameworks>
+		<LangVersion>7.3</LangVersion>
+		<OutputType>Library</OutputType>
+		<OutputPath>..\Debug\</OutputPath>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<OutputPath>..\Debug\</OutputPath>
+		<LangVersion>default</LangVersion>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<LangVersion>default</LangVersion>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net48|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net48|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\de4dot.blocks\de4dot.blocks.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="dnlib" Version="3.5.0" />
+	</ItemGroup>
 </Project>

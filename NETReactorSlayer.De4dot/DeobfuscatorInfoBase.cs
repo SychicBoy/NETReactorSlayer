@@ -21,7 +21,7 @@ namespace NETReactorSlayer.De4dot;
 
 public abstract class DeobfuscatorInfoBase : IDeobfuscatorInfo
 {
-    public DeobfuscatorInfoBase(string nameRegex) =>
+    protected DeobfuscatorInfoBase(string nameRegex) =>
         ValidNameRegex = new NameRegexOption(null, MakeArgName("name"), "Valid name regex pattern",
             nameRegex ?? DeobfuscatorBase.DefaultValidNameRegex);
 

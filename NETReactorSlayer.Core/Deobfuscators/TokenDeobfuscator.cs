@@ -18,48 +18,47 @@ using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
-namespace NETReactorSlayer.Core.Deobfuscators;
-
-internal class TokenDeobfuscator : IStage
+namespace NETReactorSlayer.Core.Deobfuscators
 {
-    public void Execute()
+    internal class TokenDeobfuscator : IStage
     {
-        TypeDef typeDef = null;
-        MethodDef fieldMethod = null;
-        MethodDef typeMethod = null;
-        long count = 0;
-        foreach (var type in Context.Module.GetTypes()
-                     .Where(x => !x.HasProperties && !x.HasEvents && x.Fields.Count != 0))
-        foreach (var _ in type.Fields.Where(x => x.FieldType.FullName.Equals("System.ModuleHandle")))
+        public void Execute()
         {
-            foreach (var method in type.Methods.Where(x => x.MethodSig != null &&
-                                                           x.MethodSig.Params.Count.Equals(1) &&
-                                                           x.MethodSig.Params[0].GetElementType() == ElementType.I4)
-                         .ToList())
-                if (method.MethodSig.RetType.GetFullName().Equals("System.RuntimeTypeHandle"))
-                    typeMethod = method;
-                else if (method.MethodSig.RetType.GetFullName().Equals("System.RuntimeFieldHandle"))
-                    fieldMethod = method;
-            if (typeMethod == null || fieldMethod == null) continue;
-            typeDef = type;
-            goto Continue;
-        }
-
-        Continue:
-        if (typeDef != null)
-            foreach (var type in Context.Module.GetTypes())
-            foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
+            TypeDef typeDef = null;
+            MethodDef fieldMethod = null;
+            MethodDef typeMethod = null;
+            long count = 0;
+            foreach (var type in Context.Module.GetTypes()
+                         .Where(x => !x.HasProperties && !x.HasEvents && x.Fields.Count != 0))
+            foreach (var _ in type.Fields.Where(x => x.FieldType.FullName.Equals("System.ModuleHandle")))
             {
-                var gpContext = GenericParamContext.Create(method);
-                var blocks = new Blocks(method);
-                foreach (var block in blocks.MethodBlocks.GetAllBlocks())
-                    for (var i = 0; i < block.Instructions.Count; i++)
-                        try
-                        {
-                            if (block.Instructions[i].OpCode.Code.Equals(Code.Ldc_I4) &&
-                                block.Instructions[i + 1].OpCode.Code == Code.Call)
+                foreach (var method in type.Methods.Where(x => x.MethodSig != null &&
+                                                               x.MethodSig.Params.Count.Equals(1) &&
+                                                               x.MethodSig.Params[0].GetElementType() == ElementType.I4)
+                             .ToList())
+                    if (method.MethodSig.RetType.GetFullName().Equals("System.RuntimeTypeHandle"))
+                        typeMethod = method;
+                    else if (method.MethodSig.RetType.GetFullName().Equals("System.RuntimeFieldHandle"))
+                        fieldMethod = method;
+                if (typeMethod == null || fieldMethod == null) continue;
+                typeDef = type;
+                goto Continue;
+            }
+
+            Continue:
+            if (typeDef != null)
+                foreach (var type in Context.Module.GetTypes())
+                foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
+                {
+                    var gpContext = GenericParamContext.Create(method);
+                    var blocks = new Blocks(method);
+                    foreach (var block in blocks.MethodBlocks.GetAllBlocks())
+                        for (var i = 0; i < block.Instructions.Count; i++)
+                            try
                             {
-                                if (block.Instructions[i + 1].Operand is not IMethod iMethod ||
+                                if (!block.Instructions[i].OpCode.Code.Equals(Code.Ldc_I4) ||
+                                    block.Instructions[i + 1].OpCode.Code != Code.Call) continue;
+                                if (!(block.Instructions[i + 1].Operand is IMethod iMethod) ||
                                     !default(SigComparer).Equals(typeDef, iMethod.DeclaringType)) continue;
                                 var methodDef = DotNetUtils.GetMethod(Context.Module, iMethod);
                                 if (methodDef == null) continue;
@@ -70,22 +69,22 @@ internal class TokenDeobfuscator : IStage
                                     Context.Module.ResolveToken(token, gpContext) as ITokenOperand));
                                 count++;
                             }
-                        }
-                        catch
-                        {
-                        }
+                            catch
+                            {
+                            }
 
-                blocks.GetCode(out var allInstructions, out var allExceptionHandlers);
-                DotNetUtils.RestoreBody(method, allInstructions, allExceptionHandlers);
+                    blocks.GetCode(out var allInstructions, out var allExceptionHandlers);
+                    DotNetUtils.RestoreBody(method, allInstructions, allExceptionHandlers);
+                }
+
+
+            if (count == 0)
+                Logger.Warn("Couldn't found any obfuscated metadata token.");
+            else
+            {
+                Cleaner.AddTypeToBeRemoved(typeDef);
+                Logger.Done($"{(int)count} Metadata tokens deobfuscated.");
             }
-
-
-        if (count == 0)
-            Logger.Warn("Couldn't found any obfuscated metadata token.");
-        else
-        {
-            Cleaner.AddTypeToBeRemoved(typeDef);
-            Logger.Done($"{(int)count} Metadata tokens deobfuscated.");
         }
     }
 }

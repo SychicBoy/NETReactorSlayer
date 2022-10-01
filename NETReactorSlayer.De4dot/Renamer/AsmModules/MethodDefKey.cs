@@ -6,7 +6,8 @@ public class MethodDefKey
 {
     public MethodDefKey(MMethodDef methodDef) => MethodDef = methodDef;
 
-    public override int GetHashCode() => MethodEqualityComparer.CompareDeclaringTypes.GetHashCode(MethodDef.MethodDef);
+    public override int GetHashCode() =>
+        MethodEqualityComparer.CompareDeclaringTypes.GetHashCode(MethodDef.MethodDef);
 
     public override bool Equals(object obj)
     {

@@ -20,55 +20,56 @@
 using System.IO;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.Core.Helper;
-
-public class AssemblyModule
+namespace NETReactorSlayer.Core.Helper
 {
-    public AssemblyModule(string filename, ModuleContext moduleContext)
+    public class AssemblyModule
     {
-        _filename = Path.GetFullPath(filename);
-        _moduleContext = moduleContext;
+        public AssemblyModule(string filename, ModuleContext moduleContext)
+        {
+            _filename = Path.GetFullPath(filename);
+            _moduleContext = moduleContext;
+        }
+
+        public ModuleDefMD Load()
+        {
+            var options = new ModuleCreationOptions(_moduleContext) { TryToLoadPdbFromDisk = false };
+            return SetModule(ModuleDefMD.Load(_filename, options));
+        }
+
+        public ModuleDefMD Load(byte[] fileData)
+        {
+            var options = new ModuleCreationOptions(_moduleContext) { TryToLoadPdbFromDisk = false };
+            return SetModule(ModuleDefMD.Load(fileData, options));
+        }
+
+        private ModuleDefMD SetModule(ModuleDefMD newModule)
+        {
+            _module = newModule;
+            TheAssemblyResolver.Instance.AddModule(_module);
+            _module.EnableTypeDefFindCache = true;
+            _module.Location = _filename;
+            return _module;
+        }
+
+        public ModuleDefMD Reload(
+            byte[] newModuleData, DumpedMethodsRestorer dumpedMethodsRestorer, IStringDecrypter stringDecrypter)
+        {
+            TheAssemblyResolver.Instance.Remove(_module);
+            var options = new ModuleCreationOptions(_moduleContext) { TryToLoadPdbFromDisk = false };
+            var mod = ModuleDefMD.Load(newModuleData, options);
+            if (dumpedMethodsRestorer != null)
+                dumpedMethodsRestorer.Module = mod;
+            mod.StringDecrypter = stringDecrypter;
+            mod.MethodDecrypter = dumpedMethodsRestorer;
+            mod.TablesStream.ColumnReader = dumpedMethodsRestorer;
+            mod.TablesStream.MethodRowReader = dumpedMethodsRestorer;
+            return SetModule(mod);
+        }
+
+        public override string ToString() => _filename;
+
+        private readonly string _filename;
+        private ModuleDefMD _module;
+        private readonly ModuleContext _moduleContext;
     }
-
-    public ModuleDefMD Load()
-    {
-        var options = new ModuleCreationOptions(_moduleContext) { TryToLoadPdbFromDisk = false };
-        return SetModule(ModuleDefMD.Load(_filename, options));
-    }
-
-    public ModuleDefMD Load(byte[] fileData)
-    {
-        var options = new ModuleCreationOptions(_moduleContext) { TryToLoadPdbFromDisk = false };
-        return SetModule(ModuleDefMD.Load(fileData, options));
-    }
-
-    private ModuleDefMD SetModule(ModuleDefMD newModule)
-    {
-        _module = newModule;
-        TheAssemblyResolver.Instance.AddModule(_module);
-        _module.EnableTypeDefFindCache = true;
-        _module.Location = _filename;
-        return _module;
-    }
-
-    public ModuleDefMD Reload(
-        byte[] newModuleData, DumpedMethodsRestorer dumpedMethodsRestorer, IStringDecrypter stringDecrypter)
-    {
-        TheAssemblyResolver.Instance.Remove(_module);
-        var options = new ModuleCreationOptions(_moduleContext) { TryToLoadPdbFromDisk = false };
-        var mod = ModuleDefMD.Load(newModuleData, options);
-        if (dumpedMethodsRestorer != null)
-            dumpedMethodsRestorer.Module = mod;
-        mod.StringDecrypter = stringDecrypter;
-        mod.MethodDecrypter = dumpedMethodsRestorer;
-        mod.TablesStream.ColumnReader = dumpedMethodsRestorer;
-        mod.TablesStream.MethodRowReader = dumpedMethodsRestorer;
-        return SetModule(mod);
-    }
-
-    public override string ToString() => _filename;
-
-    private readonly string _filename;
-    private readonly ModuleContext _moduleContext;
-    private ModuleDefMD _module;
 }

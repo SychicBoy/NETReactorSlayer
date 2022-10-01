@@ -17,15 +17,15 @@
     along with de4dot.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace NETReactorSlayer.De4dot.Renamer;
+using System.Collections.Generic;
 
-public class OneNameCreator : INameCreator
-{
-    public OneNameCreator(string name) => _name = name;
+namespace de4dot.blocks.cflow {
+	public interface IBlocksDeobfuscator {
+		bool ExecuteIfNotModified { get; }
 
-    public string Create() => _name;
+		void DeobfuscateBegin(Blocks blocks);
 
-    private readonly string _name;
+		// Returns true if something was updated
+		bool Deobfuscate(List<Block> allBlocks);
+	}
 }
-
-// Like NameCreator but don't add the counter the first time

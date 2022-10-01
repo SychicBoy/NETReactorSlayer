@@ -1,11 +1,13 @@
-﻿namespace NETReactorSlayer.GUI.UserControls
+﻿using System.ComponentModel;
+
+namespace NETReactorSlayer.GUI.UserControls
 {
     partial class NrsButton
     {
         /// <summary> 
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary> 
         /// Clean up any resources being used.

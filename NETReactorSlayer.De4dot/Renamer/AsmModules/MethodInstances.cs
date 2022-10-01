@@ -33,5 +33,5 @@ public class MethodInstances
     public IEnumerable<List<MethodInst>> GetMethods() => _methodInstances.Values;
 
     private readonly Dictionary<IMethodDefOrRef, List<MethodInst>> _methodInstances =
-        new(MethodEqualityComparer.DontCompareDeclaringTypes);
+        new Dictionary<IMethodDefOrRef, List<MethodInst>>(MethodEqualityComparer.DontCompareDeclaringTypes);
 }

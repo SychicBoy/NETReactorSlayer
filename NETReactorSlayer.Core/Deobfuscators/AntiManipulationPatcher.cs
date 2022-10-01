@@ -18,59 +18,60 @@ using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
-namespace NETReactorSlayer.Core.Deobfuscators;
-
-internal class AntiManipulationPatcher : IStage
+namespace NETReactorSlayer.Core.Deobfuscators
 {
-    public void Execute()
+    internal class AntiManipulationPatcher : IStage
     {
-        bool antiTamper = false,
-            antiDebugger = false;
-        foreach (var type in Context.Module.GetTypes())
-        foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
+        public void Execute()
         {
-            if (RemoveAntiTamper(method))
-                antiTamper = true;
-            else if (RemoveAntiDebugger(method))
-                antiDebugger = true;
-            else
-                continue;
-            Cleaner.AddCallToBeRemoved(method);
+            bool antiTamper = false,
+                antiDebugger = false;
+            foreach (var type in Context.Module.GetTypes())
+            foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
+            {
+                if (RemoveAntiTamper(method))
+                    antiTamper = true;
+                else if (RemoveAntiDebugger(method))
+                    antiDebugger = true;
+                else
+                    continue;
+                Cleaner.AddCallToBeRemoved(method);
+            }
+
+            if (!antiTamper)
+                Logger.Warn("Couldn't find anti tamper method.");
+            if (!antiDebugger)
+                Logger.Warn("Couldn't find anti debugger method.");
         }
 
-        if (!antiTamper)
-            Logger.Warn("Couldn't find anti tamper method.");
-        if (!antiDebugger)
-            Logger.Warn("Couldn't find anti debugger method.");
+        #region Private Methods
+
+        private bool RemoveAntiTamper(MethodDef method)
+        {
+            if (!method.IsStatic) return false;
+            if (!DotNetUtils.GetCodeStrings(method).Any(x => x.Contains("is tampered"))) return false;
+
+            var ins = Instruction.Create(OpCodes.Ret);
+            var cli = new CilBody();
+            cli.Instructions.Add(ins);
+            method.Body = cli;
+            Logger.Done("Anti tamper removed.");
+            return true;
+        }
+
+        private bool RemoveAntiDebugger(MethodDef method)
+        {
+            if (!method.IsStatic) return false;
+            if (!DotNetUtils.GetCodeStrings(method).Any(x => x.Contains("Debugger Detected"))) return false;
+
+            var ins = Instruction.Create(OpCodes.Ret);
+            var cli = new CilBody();
+            cli.Instructions.Add(ins);
+            method.Body = cli;
+            Logger.Done("Anti debugger removed.");
+            return true;
+        }
+
+        #endregion
     }
-
-    #region Private Methods
-
-    private bool RemoveAntiTamper(MethodDef method)
-    {
-        if (!method.IsStatic) return false;
-        if (!DotNetUtils.GetCodeStrings(method).Any(x => x.Contains("is tampered"))) return false;
-
-        var ins = Instruction.Create(OpCodes.Ret);
-        var cli = new CilBody();
-        cli.Instructions.Add(ins);
-        method.Body = cli;
-        Logger.Done("Anti tamper removed.");
-        return true;
-    }
-
-    private bool RemoveAntiDebugger(MethodDef method)
-    {
-        if (!method.IsStatic) return false;
-        if (!DotNetUtils.GetCodeStrings(method).Any(x => x.Contains("Debugger Detected"))) return false;
-
-        var ins = Instruction.Create(OpCodes.Ret);
-        var cli = new CilBody();
-        cli.Instructions.Add(ins);
-        method.Body = cli;
-        Logger.Done("Anti debugger removed.");
-        return true;
-    }
-
-    #endregion
 }

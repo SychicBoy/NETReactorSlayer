@@ -1,9 +1,10 @@
-﻿namespace NETReactorSlayer.Core.Helper;
-
-public class MethodBodyHeader
+﻿namespace NETReactorSlayer.Core.Helper
 {
-    public uint CodeSize;
-    public ushort Flags;
-    public uint LocalVarSigTok;
-    public ushort MaxStack;
+    public class MethodBodyHeader
+    {
+        public uint CodeSize;
+        public ushort Flags;
+        public uint LocalVarSigTok;
+        public ushort MaxStack;
+    }
 }

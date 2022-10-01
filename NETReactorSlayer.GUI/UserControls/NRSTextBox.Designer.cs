@@ -12,14 +12,17 @@
     You should have received a copy of the GNU General Public License
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+using System.ComponentModel;
+
 namespace NETReactorSlayer.GUI.UserControls
 {
-    partial class NrsTextBox
+    sealed partial class NrsTextBox
     {
         /// <summary> 
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary> 
         /// Clean up any resources being used.

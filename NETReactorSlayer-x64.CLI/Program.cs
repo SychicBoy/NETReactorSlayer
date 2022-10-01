@@ -15,10 +15,11 @@
 
 using System;
 
-namespace NETReactorSlayer_x64;
-
-internal class Program
+namespace NETReactorSlayerr_x64.CLI
 {
-    [STAThread]
-    private static void Main(string[] args) => NETReactorSlayer.Core.Program.Main(args);
+    internal class Program
+    {
+        [STAThread]
+        private static void Main(string[] args) => NETReactorSlayer.Core.Program.Main(args);
+    }
 }

@@ -369,7 +369,8 @@ public static class MethodStack
             Visited = visited;
         }
 
-        public State Clone() => new State(Index, Branch, ValidArgs, SkipPushes, AddPushes, new HashSet<int>(Visited));
+        public State Clone() =>
+            new State(Index, Branch, ValidArgs, SkipPushes, AddPushes, new HashSet<int>(Visited));
 
         public readonly HashSet<int> Visited;
 

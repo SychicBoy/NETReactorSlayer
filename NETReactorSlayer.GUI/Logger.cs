@@ -17,41 +17,42 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace NETReactorSlayer.GUI;
-
-internal class Logger
+namespace NETReactorSlayer.GUI
 {
-    public Logger(RichTextBox richTextBox) => _richTextBox = richTextBox;
-
-    public void Write(string text, Color? color = null)
+    internal class Logger
     {
-        if (_richTextBox.InvokeRequired)
+        public Logger(RichTextBox richTextBox) => _richTextBox = richTextBox;
+
+        public void Write(string text, Color? color = null)
         {
-            _richTextBox.Invoke(new MethodInvoker(() => { Write(text, color); }));
-            return;
+            if (_richTextBox.InvokeRequired)
+            {
+                _richTextBox.Invoke(new MethodInvoker(() => { Write(text, color); }));
+                return;
+            }
+
+            _richTextBox.SelectionStart = _richTextBox.TextLength;
+            _richTextBox.SelectionLength = 0;
+            _richTextBox.SelectionColor = color ?? Color.Gray;
+            _richTextBox.AppendText(text);
+            _richTextBox.SelectionColor = _richTextBox.ForeColor;
+            Application.DoEvents();
         }
 
-        _richTextBox.SelectionStart = _richTextBox.TextLength;
-        _richTextBox.SelectionLength = 0;
-        _richTextBox.SelectionColor = color ?? Color.Gray;
-        _richTextBox.AppendText(text);
-        _richTextBox.SelectionColor = _richTextBox.ForeColor;
-        Application.DoEvents();
-    }
-
-    public void WriteLine(string text, Color? color = null)
-    {
-        Write($"{text}", color);
-        if (_richTextBox.InvokeRequired)
+        public void WriteLine(string text, Color? color = null)
         {
-            _richTextBox.Invoke(new MethodInvoker(() => { _richTextBox.AppendText(Environment.NewLine); }));
-            return;
+            Write($"{text}", color);
+            if (_richTextBox.InvokeRequired)
+            {
+                _richTextBox.Invoke(new MethodInvoker(() => { _richTextBox.AppendText(Environment.NewLine); }));
+                return;
+            }
+
+            _richTextBox.AppendText(Environment.NewLine);
         }
 
-        _richTextBox.AppendText(Environment.NewLine);
+        public void Clear() => _richTextBox.Clear();
+
+        private readonly RichTextBox _richTextBox;
     }
-
-    public void Clear() => _richTextBox.Clear();
-
-    private readonly RichTextBox _richTextBox;
 }

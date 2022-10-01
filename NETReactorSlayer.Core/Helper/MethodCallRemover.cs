@@ -19,78 +19,79 @@ using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
-namespace NETReactorSlayer.Core.Helper;
-
-internal class MethodCallRemover
+namespace NETReactorSlayer.Core.Helper
 {
-    public static long RemoveCalls(MethodDef methodToRem)
+    internal class MethodCallRemover
     {
-        _methodRefInfos = new MethodDefAndDeclaringTypeDict<MethodDefAndDeclaringTypeDict<bool>>();
-        foreach (var type in Context.Module.GetTypes())
-        foreach (var methodDef in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
-            Add(methodDef, methodToRem);
+        public static long RemoveCalls(MethodDef methodToRem)
+        {
+            _methodRefInfos = new MethodDefAndDeclaringTypeDict<MethodDefAndDeclaringTypeDict<bool>>();
+            foreach (var type in Context.Module.GetTypes())
+            foreach (var methodDef in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
+                Add(methodDef, methodToRem);
 
-        return Context.Module.GetTypes()
-            .Sum(type => type.Methods.Where(x => x.HasBody && x.Body.HasInstructions)
-                .Sum(method => RemoveCalls(method, _methodRefInfos.Find(method))));
+            return Context.Module.GetTypes()
+                .Sum(type => type.Methods.Where(x => x.HasBody && x.Body.HasInstructions)
+                    .Sum(method => RemoveCalls(method, _methodRefInfos.Find(method))));
+        }
+
+        public static long RemoveCalls(List<MethodDef> methods)
+        {
+            _methodRefInfos = new MethodDefAndDeclaringTypeDict<MethodDefAndDeclaringTypeDict<bool>>();
+            foreach (var type in Context.Module.GetTypes())
+            foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
+            foreach (var methodToRem in methods)
+                Add(method, methodToRem);
+
+            return Context.Module.GetTypes().Sum(type =>
+                type.Methods.Where(x => x.HasBody && x.Body.HasInstructions)
+                    .Sum(method => RemoveCalls(method, _methodRefInfos.Find(method))));
+        }
+
+        #region Fields
+
+        private static MethodDefAndDeclaringTypeDict<MethodDefAndDeclaringTypeDict<bool>> _methodRefInfos;
+
+        #endregion
+
+        #region Private Methods
+
+        private static long RemoveCalls(MethodDef method, MethodDefDictBase<bool> info)
+        {
+            long count = 0;
+            foreach (var instr in method.Body.Instructions)
+                try
+                {
+                    if (instr.OpCode != OpCodes.Call)
+                        continue;
+                    if (!(instr.Operand is IMethod destMethod))
+                        continue;
+                    if (!info.Find(destMethod))
+                        continue;
+                    instr.OpCode = OpCodes.Nop;
+                    count++;
+                }
+                catch
+                {
+                }
+
+            return count;
+        }
+
+        private static void Add(MethodDef method, MethodDef methodToBeRemoved)
+        {
+            if (method == null || methodToBeRemoved == null || !CheckMethod(methodToBeRemoved)) return;
+            var dict = _methodRefInfos.Find(method);
+            if (dict == null)
+                _methodRefInfos.Add(method, dict = new MethodDefAndDeclaringTypeDict<bool>());
+            dict.Add(methodToBeRemoved, true);
+        }
+
+        private static bool CheckMethod(IMethod methodToBeRemoved) =>
+            methodToBeRemoved.MethodSig.Params.Count == 0 &&
+            methodToBeRemoved.MethodSig.RetType.ElementType ==
+            ElementType.Void;
+
+        #endregion
     }
-
-    public static long RemoveCalls(List<MethodDef> methods)
-    {
-        _methodRefInfos = new MethodDefAndDeclaringTypeDict<MethodDefAndDeclaringTypeDict<bool>>();
-        foreach (var type in Context.Module.GetTypes())
-        foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
-        foreach (var methodToRem in methods)
-            Add(method, methodToRem);
-
-        return Context.Module.GetTypes().Sum(type =>
-            type.Methods.Where(x => x.HasBody && x.Body.HasInstructions)
-                .Sum(method => RemoveCalls(method, _methodRefInfos.Find(method))));
-    }
-
-    #region Fields
-
-    private static MethodDefAndDeclaringTypeDict<MethodDefAndDeclaringTypeDict<bool>> _methodRefInfos;
-
-    #endregion
-
-    #region Private Methods
-
-    private static long RemoveCalls(MethodDef method, MethodDefDictBase<bool> info)
-    {
-        long count = 0;
-        foreach (var instr in method.Body.Instructions)
-            try
-            {
-                if (instr.OpCode != OpCodes.Call)
-                    continue;
-                if (instr.Operand is not IMethod destMethod)
-                    continue;
-                if (!info.Find(destMethod))
-                    continue;
-                instr.OpCode = OpCodes.Nop;
-                count++;
-            }
-            catch
-            {
-            }
-
-        return count;
-    }
-
-    private static void Add(MethodDef method, MethodDef methodToBeRemoved)
-    {
-        if (method == null || methodToBeRemoved == null || !CheckMethod(methodToBeRemoved)) return;
-        var dict = _methodRefInfos.Find(method);
-        if (dict == null)
-            _methodRefInfos.Add(method, dict = new MethodDefAndDeclaringTypeDict<bool>());
-        dict.Add(methodToBeRemoved, true);
-    }
-
-    private static bool CheckMethod(IMethod methodToBeRemoved) =>
-        methodToBeRemoved.MethodSig.Params.Count == 0 &&
-        methodToBeRemoved.MethodSig.RetType.ElementType ==
-        ElementType.Void;
-
-    #endregion
 }

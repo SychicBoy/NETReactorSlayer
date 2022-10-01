@@ -180,5 +180,5 @@ public class TheAssemblyResolver : AssemblyResolver
             paths.Add(path);
     }
 
-    public static readonly TheAssemblyResolver Instance = new();
+    public static readonly TheAssemblyResolver Instance = new TheAssemblyResolver();
 }

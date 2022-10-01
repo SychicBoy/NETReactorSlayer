@@ -18,68 +18,81 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace NETReactorSlayer.GUI.UserControls;
-
-public partial class NrsButton : Button
+namespace NETReactorSlayer.GUI.UserControls
 {
-    public NrsButton() => InitializeComponent();
-
-    [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
-    public static extern IntPtr CreateRoundRectRgn(
-        int nLeftRect, int nTopRect, int nRightRect, int nBottomRect,
-        int nWidthEllipse, int nHeightEllipse);
-
-    private void SizeChange(object sender, EventArgs e) =>
-        Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _borderRadius, 20));
-
-    private int _borderRadius;
-    private string _text;
-    private TextTransformEnum _transform;
-
-    public int BorderRadius
+    public partial class NrsButton : Button
     {
-        get => _borderRadius;
-        set
-        {
-            _borderRadius = value;
+        public NrsButton() => InitializeComponent();
+
+        [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
+        public static extern IntPtr CreateRoundRectRgn(
+            int nLeftRect, int nTopRect, int nRightRect, int nBottomRect,
+            int nWidthEllipse, int nHeightEllipse);
+
+        private void SizeChange(object sender, EventArgs e) =>
             Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _borderRadius, 20));
-        }
-    }
 
-    public new string Text
-    {
-        get => _text;
-        set
+        private int _borderRadius;
+        private string _text;
+        private TextTransformEnum _transform;
+
+        public int BorderRadius
         {
-            _text = value;
-            base.Text = TextTransform switch
+            get => _borderRadius;
+            set
             {
-                TextTransformEnum.Upper => Text.ToUpper(),
-                TextTransformEnum.Lower => Text.ToLower(),
-                _ => Text
-            };
+                _borderRadius = value;
+                Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _borderRadius, 20));
+            }
         }
-    }
 
-    public TextTransformEnum TextTransform
-    {
-        get => _transform;
-        set
+        public new string Text
         {
-            _transform = value;
-            base.Text = value switch
+            get => _text;
+            set
             {
-                TextTransformEnum.Upper => Text.ToUpper(),
-                TextTransformEnum.Lower => Text.ToLower(),
-                _ => Text
-            };
+                _text = value;
+                switch (TextTransform)
+                {
+                    case TextTransformEnum.Upper:
+                        base.Text = Text.ToUpper();
+                        break;
+                    case TextTransformEnum.Lower:
+                        base.Text = Text.ToLower();
+                        break;
+                    default:
+                        base.Text = Text;
+                        break;
+                }
+            }
         }
-    }
 
-    public enum TextTransformEnum
-    {
-        None,
-        Upper,
-        Lower
+        public TextTransformEnum TextTransform
+        {
+            get => _transform;
+            set
+            {
+                _transform = value;
+                switch (value)
+                {
+                    case TextTransformEnum.Upper:
+                        base.Text = Text.ToUpper();
+                        break;
+                    case TextTransformEnum.Lower:
+                        base.Text = Text.ToLower();
+                        break;
+                    default:
+                        base.Text = Text;
+                        break;
+                }
+            }
+        }
+
+        public enum TextTransformEnum
+        {
+            None,
+            Upper,
+            Lower
+        }
     }
 }

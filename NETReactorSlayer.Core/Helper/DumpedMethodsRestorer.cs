@@ -24,60 +24,61 @@ using dnlib.DotNet.Emit;
 using dnlib.DotNet.MD;
 using dnlib.PE;
 
-namespace NETReactorSlayer.Core.Helper;
-
-public class DumpedMethodsRestorer : IRowReader<RawMethodRow>, IColumnReader, IMethodDecrypter
+namespace NETReactorSlayer.Core.Helper
 {
-    public DumpedMethodsRestorer(DumpedMethods dumpedMethods) => _dumpedMethods = dumpedMethods;
-
-    private DumpedMethod GetDumpedMethod(uint rid) => _dumpedMethods.Get(0x06000000 | rid);
-
-    public bool ReadColumn(MDTable table, uint rid, ColumnInfo column, out uint value)
+    public class DumpedMethodsRestorer : IRowReader<RawMethodRow>, IColumnReader, IMethodDecrypter
     {
-        if (table.Table == Table.Method)
-            if (TryReadRow(rid, out var row))
+        public DumpedMethodsRestorer(DumpedMethods dumpedMethods) => _dumpedMethods = dumpedMethods;
+
+        private DumpedMethod GetDumpedMethod(uint rid) => _dumpedMethods.Get(0x06000000 | rid);
+
+        public bool ReadColumn(MDTable table, uint rid, ColumnInfo column, out uint value)
+        {
+            if (table.Table == Table.Method)
+                if (TryReadRow(rid, out var row))
+                {
+                    value = row[column.Index];
+                    return true;
+                }
+
+            value = 0;
+            return false;
+        }
+
+        public bool GetMethodBody(
+            uint rid, RVA rva, IList<Parameter> parameters, GenericParamContext gpContext, out MethodBody methodBody)
+        {
+            var dm = GetDumpedMethod(rid);
+            if (dm == null)
             {
-                value = row[column.Index];
-                return true;
+                methodBody = null;
+                return false;
             }
 
-        value = 0;
-        return false;
-    }
-
-    public bool GetMethodBody(
-        uint rid, RVA rva, IList<Parameter> parameters, GenericParamContext gpContext, out MethodBody methodBody)
-    {
-        var dm = GetDumpedMethod(rid);
-        if (dm == null)
-        {
-            methodBody = null;
-            return false;
+            methodBody = MethodBodyReader.CreateCilBody(_module, dm.code, dm.extraSections, parameters, dm.mhFlags,
+                dm.mhMaxStack, dm.mhCodeSize, dm.mhLocalVarSigTok, gpContext);
+            return true;
         }
 
-        methodBody = MethodBodyReader.CreateCilBody(_module, dm.code, dm.extraSections, parameters, dm.mhFlags,
-            dm.mhMaxStack, dm.mhCodeSize, dm.mhLocalVarSigTok, gpContext);
-        return true;
-    }
-
-    public bool TryReadRow(uint rid, out RawMethodRow row)
-    {
-        var dm = GetDumpedMethod(rid);
-        if (dm == null)
+        public bool TryReadRow(uint rid, out RawMethodRow row)
         {
-            row = default;
-            return false;
+            var dm = GetDumpedMethod(rid);
+            if (dm == null)
+            {
+                row = default;
+                return false;
+            }
+
+            row = new RawMethodRow(dm.mdRVA, dm.mdImplFlags, dm.mdFlags, dm.mdName, dm.mdSignature, dm.mdParamList);
+            return true;
         }
 
-        row = new RawMethodRow(dm.mdRVA, dm.mdImplFlags, dm.mdFlags, dm.mdName, dm.mdSignature, dm.mdParamList);
-        return true;
-    }
+        private readonly DumpedMethods _dumpedMethods;
+        private ModuleDefMD _module;
 
-    private readonly DumpedMethods _dumpedMethods;
-    private ModuleDefMD _module;
-
-    public ModuleDefMD Module
-    {
-        set => _module = value;
+        public ModuleDefMD Module
+        {
+            set => _module = value;
+        }
     }
 }

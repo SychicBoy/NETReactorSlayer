@@ -103,5 +103,5 @@ public class DeobfuscatorContext : IDeobfuscatorContext
         return type.Resolve(mr) as FieldDef;
     }
 
-    private readonly Dictionary<string, object> _dataDict = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, object> _dataDict = new Dictionary<string, object>(StringComparer.Ordinal);
 }

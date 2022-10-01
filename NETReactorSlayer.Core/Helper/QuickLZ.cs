@@ -11,34 +11,35 @@
 
 using System;
 
-namespace NETReactorSlayer.Core.Helper;
-
-public class QuickLz : QuickLzBase
+namespace NETReactorSlayer.Core.Helper
 {
-    public static byte[] Decompress(byte[] inData) => Decompress(inData, DefaultQclzSig);
-
-    public static byte[] Decompress(byte[] inData, int sig)
+    public class QuickLz : QuickLzBase
     {
-        /*int mode =*/
-        BitConverter.ToInt32(inData, 4);
-        var compressedLength = BitConverter.ToInt32(inData, 8);
-        var decompressedLength = BitConverter.ToInt32(inData, 12);
-        var isDataCompressed = BitConverter.ToInt32(inData, 16) == 1;
-        const int headerLength = 32;
-        if (BitConverter.ToInt32(inData, 0) != sig || BitConverter.ToInt32(inData, compressedLength - 4) != sig)
-            throw new ApplicationException("No QCLZ sig");
+        public static byte[] Decompress(byte[] inData) => Decompress(inData, DefaultQclzSig);
 
-        var outData = new byte[decompressedLength];
-
-        if (!isDataCompressed)
+        public static byte[] Decompress(byte[] inData, int sig)
         {
-            Copy(inData, headerLength, outData, 0, decompressedLength);
+            /*int mode =*/
+            BitConverter.ToInt32(inData, 4);
+            var compressedLength = BitConverter.ToInt32(inData, 8);
+            var decompressedLength = BitConverter.ToInt32(inData, 12);
+            var isDataCompressed = BitConverter.ToInt32(inData, 16) == 1;
+            const int headerLength = 32;
+            if (BitConverter.ToInt32(inData, 0) != sig || BitConverter.ToInt32(inData, compressedLength - 4) != sig)
+                throw new ApplicationException("No QCLZ sig");
+
+            var outData = new byte[decompressedLength];
+
+            if (!isDataCompressed)
+            {
+                Copy(inData, headerLength, outData, 0, decompressedLength);
+                return outData;
+            }
+
+            Decompress(inData, headerLength, outData);
             return outData;
         }
 
-        Decompress(inData, headerLength, outData);
-        return outData;
+        private const int DefaultQclzSig = 0x5A4C4351;
     }
-
-    private const int DefaultQclzSig = 0x5A4C4351;
 }

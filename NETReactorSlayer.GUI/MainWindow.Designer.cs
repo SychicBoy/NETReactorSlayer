@@ -12,6 +12,11 @@
     You should have received a copy of the GNU General Public License
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+using System.ComponentModel;
+using System.Windows.Forms;
+using NETReactorSlayer.GUI.UserControls;
+
 namespace NETReactorSlayer.GUI
 {
     partial class MainWindow
@@ -19,7 +24,7 @@ namespace NETReactorSlayer.GUI
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -1338,76 +1343,76 @@ namespace NETReactorSlayer.GUI
         }
 
         #endregion
-        private System.Windows.Forms.PictureBox picHeader;
-        private System.Windows.Forms.Panel pnlHeader;
-        private System.Windows.Forms.Panel pnlBase;
-        private System.Windows.Forms.RichTextBox txtLogs;
-        private UserControls.NrsCheckBox chkRemJunks;
-        private System.Windows.Forms.TableLayoutPanel tabelOptions;
-        private UserControls.NrsCheckBox chkDecryptResources;
-        private UserControls.NrsCheckBox chkRemoveRefProxies;
-        private UserControls.NrsCheckBox chkDeobCFlow;
-        private UserControls.NrsCheckBox chkDumpCosturaAsm;
-        private UserControls.NrsCheckBox chkDecryptTokens;
-        private UserControls.NrsCheckBox chkDecryptMethods;
-        private System.Windows.Forms.Panel pnlOptions;
-        private UserControls.NrsCheckBox chkDumpDNRAsm;
-        private UserControls.NrsCheckBox chkDecryptStrings;
-        private UserControls.NrsCheckBox chkDecryptHiddenCalls;
-        private UserControls.NrsCheckBox chkPatchAntiTD;
-        private UserControls.NrsCheckBox chkPreserveAll;
-        private UserControls.NrsCheckBox chkKeepOldMaxStack;
-        private System.Windows.Forms.Panel pnlInput;
-        private System.Windows.Forms.Panel pnlSeparator;
-        private System.Windows.Forms.PictureBox picExit;
-        private System.Windows.Forms.PictureBox picMinimize;
-        private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.Panel panel3;
-        private System.Windows.Forms.Panel pnlButton;
-        private UserControls.NrsButton btnStart;
-        private UserControls.NrsTextBox txtInput;
-        private System.Windows.Forms.Panel pnlTextBox;
-        private System.Windows.Forms.PictureBox picBrowse;
-        private System.Windows.Forms.Panel panelLogs;
-        private UserControls.NrsScrollBar scrollbarLogs;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Label lblAuthor;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label lblVersion;
-        private System.Windows.Forms.LinkLabel llblWebsite;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.LinkLabel llblGitHub;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.ContextMenuStrip ctxLogs;
-        private System.Windows.Forms.ToolStripMenuItem copyLogsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
-        private UserControls.NrsCheckBox chkDecryptBools;
-        private UserControls.NrsCheckBox chkSelectUnSelectAll;
-        private System.Windows.Forms.PictureBox picMenu;
-        private System.Windows.Forms.Panel panel4;
-        private System.Windows.Forms.ContextMenuStrip ctxMenu;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem3;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem4;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem5;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem6;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem7;
-        private UserControls.NrsCheckBox chkKeepTypes;
-        private UserControls.NrsCheckBox chkRemCalls;
-        private UserControls.NrsCheckBox chkVerbose;
-        private UserControls.NrsCheckBox chkRemSn;
-        private UserControls.NrsCheckBox chkRenameShort;
-        private UserControls.NrsCheckBox chkRename;
-        private System.Windows.Forms.ContextMenuStrip ctxRename;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem8;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem9;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem10;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem13;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem15;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem14;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem16;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem12;
+        private PictureBox picHeader;
+        private Panel pnlHeader;
+        private Panel pnlBase;
+        private RichTextBox txtLogs;
+        private NrsCheckBox chkRemJunks;
+        private TableLayoutPanel tabelOptions;
+        private NrsCheckBox chkDecryptResources;
+        private NrsCheckBox chkRemoveRefProxies;
+        private NrsCheckBox chkDeobCFlow;
+        private NrsCheckBox chkDumpCosturaAsm;
+        private NrsCheckBox chkDecryptTokens;
+        private NrsCheckBox chkDecryptMethods;
+        private Panel pnlOptions;
+        private NrsCheckBox chkDumpDNRAsm;
+        private NrsCheckBox chkDecryptStrings;
+        private NrsCheckBox chkDecryptHiddenCalls;
+        private NrsCheckBox chkPatchAntiTD;
+        private NrsCheckBox chkPreserveAll;
+        private NrsCheckBox chkKeepOldMaxStack;
+        private Panel pnlInput;
+        private Panel pnlSeparator;
+        private PictureBox picExit;
+        private PictureBox picMinimize;
+        private Panel panel2;
+        private Panel panel3;
+        private Panel pnlButton;
+        private NrsButton btnStart;
+        private NrsTextBox txtInput;
+        private Panel pnlTextBox;
+        private PictureBox picBrowse;
+        private Panel panelLogs;
+        private NrsScrollBar scrollbarLogs;
+        private Panel panel1;
+        private Label lblAuthor;
+        private Label label1;
+        private Label label5;
+        private Label lblVersion;
+        private LinkLabel llblWebsite;
+        private Label label4;
+        private LinkLabel llblGitHub;
+        private Label label2;
+        private ContextMenuStrip ctxLogs;
+        private ToolStripMenuItem copyLogsToolStripMenuItem;
+        private ToolStripMenuItem toolStripMenuItem2;
+        private ToolStripMenuItem toolStripMenuItem1;
+        private NrsCheckBox chkDecryptBools;
+        private NrsCheckBox chkSelectUnSelectAll;
+        private PictureBox picMenu;
+        private Panel panel4;
+        private ContextMenuStrip ctxMenu;
+        private ToolStripMenuItem toolStripMenuItem3;
+        private ToolStripMenuItem toolStripMenuItem4;
+        private ToolStripMenuItem toolStripMenuItem5;
+        private ToolStripMenuItem toolStripMenuItem6;
+        private ToolStripMenuItem toolStripMenuItem7;
+        private NrsCheckBox chkKeepTypes;
+        private NrsCheckBox chkRemCalls;
+        private NrsCheckBox chkVerbose;
+        private NrsCheckBox chkRemSn;
+        private NrsCheckBox chkRenameShort;
+        private NrsCheckBox chkRename;
+        private ContextMenuStrip ctxRename;
+        private ToolStripMenuItem toolStripMenuItem8;
+        private ToolStripMenuItem toolStripMenuItem9;
+        private ToolStripMenuItem toolStripMenuItem10;
+        private ToolStripMenuItem toolStripMenuItem13;
+        private ToolStripMenuItem toolStripMenuItem15;
+        private ToolStripMenuItem toolStripMenuItem14;
+        private ToolStripMenuItem toolStripMenuItem16;
+        private ToolStripMenuItem toolStripMenuItem12;
     }
 }
 

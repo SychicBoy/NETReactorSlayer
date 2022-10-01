@@ -73,7 +73,8 @@ public class VariableNameState
 
     public void MergeMethods(VariableNameState other) => _existingMethodNames.Merge(other._existingMethodNames);
 
-    public void MergeProperties(VariableNameState other) => _existingPropertyNames.Merge(other._existingPropertyNames);
+    public void MergeProperties(VariableNameState other) =>
+        _existingPropertyNames.Merge(other._existingPropertyNames);
 
     public void MergeEvents(VariableNameState other) => _existingEventNames.Merge(other._existingEventNames);
 

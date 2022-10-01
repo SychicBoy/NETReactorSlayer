@@ -28,7 +28,7 @@ public class TypeNameCreator : ITypeNameCreator
             _nameInfos.Add(name, CreateNameCreator(name));
     }
 
-    protected virtual NameCreator CreateNameCreator(string prefix) => new NameCreator(prefix);
+    public virtual NameCreator CreateNameCreator(string prefix) => new NameCreator(prefix);
 
     private NameCreator GetNameCreator(TypeDef typeDef, string newBaseTypeName)
     {
@@ -74,5 +74,5 @@ public class TypeNameCreator : ITypeNameCreator
     private readonly NameCreator _createStructName;
     private readonly NameCreator _createUnknownTypeName;
     private readonly ExistingNames _existingNames;
-    private readonly NameInfos _nameInfos = new();
+    private readonly NameInfos _nameInfos = new NameInfos();
 }

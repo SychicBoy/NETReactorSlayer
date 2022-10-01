@@ -202,8 +202,8 @@ public class Module : IResolver
         return typeDef.FindField(fieldRef);
     }
 
-    private readonly List<CustomAttributeRef> _customAttributeFieldRefs = new();
-    private readonly List<CustomAttributeRef> _customAttributePropertyRefs = new();
+    private readonly List<CustomAttributeRef> _customAttributeFieldRefs = new List<CustomAttributeRef>();
+    private readonly List<CustomAttributeRef> _customAttributePropertyRefs = new List<CustomAttributeRef>();
 
     private readonly IList<RefToDef<MemberRef, FieldDef>>
         _fieldRefsToRename = new List<RefToDef<MemberRef, FieldDef>>();
@@ -215,7 +215,7 @@ public class Module : IResolver
 
     private List<MethodDef> _allMethods;
     private MemberRefFinder _memberRefFinder;
-    private TypeDefDict _types = new();
+    private TypeDefDict _types = new TypeDefDict();
     public IEnumerable<CustomAttributeRef> CustomAttributeFieldRefs => _customAttributeFieldRefs;
     public IEnumerable<CustomAttributeRef> CustomAttributePropertyRefs => _customAttributePropertyRefs;
     public IEnumerable<RefToDef<MemberRef, FieldDef>> FieldRefsToRename => _fieldRefsToRename;

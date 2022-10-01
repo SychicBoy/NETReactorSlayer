@@ -1,7 +1,8 @@
-﻿namespace NETReactorSlayer.Core;
-
-public class ObfuscatorInfo
+﻿namespace NETReactorSlayer.Core
 {
-    public bool NativeStub { get; set; }
-    public bool NecroBit { get; set; }
+    public class ObfuscatorInfo
+    {
+        public bool NativeStub { get; set; }
+        public bool NecroBit { get; set; }
+    }
 }

@@ -1,150 +1,45 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{11E508F0-7AA3-46BD-9891-766DEB293830}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NETReactorSlayer.Core</RootNamespace>
-    <AssemblyName>NETReactorSlayer.Core</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <TargetFrameworkProfile />
-    <LangVersion>10.0</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\NETReactorSlayer.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="0Harmony, Version=2.2.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Lib.Harmony.2.2.2\lib\net48\0Harmony.dll</HintPath>
-    </Reference>
-    <Reference Include="de4dot.blocks, Version=3.1.41592.3405, Culture=neutral, PublicKeyToken=d3f3ed1e47f67fc6, processorArchitecture=MSIL">
-      <HintPath>..\packages\de4dot.blocks.3.2.0\lib\de4dot.blocks.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="dnlib, Version=3.5.0.0, Culture=neutral, PublicKeyToken=50e96378b6e77999, processorArchitecture=MSIL">
-      <HintPath>..\packages\dnlib.3.5.0\lib\net45\dnlib.dll</HintPath>
-    </Reference>
-    <Reference Include="ICSharpCode.SharpZipLib, Version=1.4.0.12, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpZipLib.1.4.0\lib\netstandard2.0\ICSharpCode.SharpZipLib.dll</HintPath>
-    </Reference>
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System" />
-    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Core" />
-    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Deobfuscators\BooleanDecrypter.cs" />
-    <Compile Include="Helper\FieldTypes.cs" />
-    <Compile Include="Helper\InvalidMethodBody.cs" />
-    <Compile Include="Helper\MethodBodyHeader.cs" />
-    <Compile Include="Helper\MethodCallRemover.cs" />
-    <Compile Include="Deobfuscators\SymbolRenamer.cs" />
-    <Compile Include="Helper\QuickLZBase.cs" />
-    <Compile Include="Helper\SimpleDeobfuscator.cs" />
-    <Compile Include="Deobfuscators\AntiManipulationPatcher.cs" />
-    <Compile Include="Deobfuscators\ControlFlowDeobfuscator.cs" />
-    <Compile Include="Deobfuscators\CosturaDumper.cs" />
-    <Compile Include="Deobfuscators\AssemblyResolver.cs" />
-    <Compile Include="Deobfuscators\ProxyCallFixer.cs" />
-    <Compile Include="Deobfuscators\StrongNamePatcher.cs" />
-    <Compile Include="Deobfuscators\TokenDeobfuscator.cs" />
-    <Compile Include="Helper\NativeUnpacker.cs" />
-    <Compile Include="Deobfuscators\MethodDecrypter.cs" />
-    <Compile Include="Helper\ArrayFinder.cs" />
-    <Compile Include="Helper\AssemblyModule.cs" />
-    <Compile Include="Helper\DeobUtils.cs" />
-    <Compile Include="Helper\DumpedMethodsRestorer.cs" />
-    <Compile Include="Helper\EncryptedResource.cs" />
-    <Compile Include="Helper\LocalTypes.cs" />
-    <Compile Include="Helper\MethodBodyParser.cs" />
-    <Compile Include="Helper\MyPEImage.cs" />
-    <Compile Include="Helper\QuickLZ.cs" />
-    <Compile Include="Helper\StringCounts.cs" />
-    <Compile Include="Helper\TheAssemblyResolver.cs" />
-    <Compile Include="IStage.cs" />
-    <Compile Include="ObfuscatorInfo.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Deobfuscators\MethodInliner.cs" />
-    <Compile Include="Deobfuscators\Cleaner.cs" />
-    <Compile Include="Deobfuscators\ResourceResolver.cs" />
-    <Compile Include="Deobfuscators\StringDecrypter.cs" />
-    <Compile Include="Context.cs" />
-    <Compile Include="Logger.cs" />
-    <Compile Include="Options.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Libs\de4dot.blocks.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NETReactorSlayer.De4dot\NETReactorSlayer.De4dot.csproj">
-      <Project>{ac8d9e60-5e24-4fe1-8d3c-d100571d5944}</Project>
-      <Name>NETReactorSlayer.De4dot</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\StrongNamer.0.2.5\build\StrongNamer.targets" Condition="Exists('..\packages\StrongNamer.0.2.5\build\StrongNamer.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\StrongNamer.0.2.5\build\StrongNamer.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\StrongNamer.0.2.5\build\StrongNamer.targets'))" />
-  </Target>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>net6.0;netcoreapp3.1;net48</TargetFrameworks>
+		<LangVersion>7.3</LangVersion>
+		<OutputType>Library</OutputType>
+		<OutputPath>..\Debug\</OutputPath>
+		<Description>A deobfuscator and unpacker for Eziriz .NET Reactor.</Description>
+		<Copyright>Copyright © 2021 CodeStrikers.org</Copyright>
+		<Authors>CS-RET</Authors>
+		<FileVersion>5.3.0.0</FileVersion>
+		<AssemblyVersion>5.3.0.0</AssemblyVersion>
+		<VersionPrefix>5.3.0.0</VersionPrefix>
+		<Version>$(VersionPrefix)</Version>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<OutputPath>..\Debug\</OutputPath>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net48|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net48|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\de4dot.blocks\de4dot.blocks.csproj" />
+		<ProjectReference Include="..\NETReactorSlayer.De4dot\NETReactorSlayer.De4dot.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="dnlib" Version="3.5.0" />
+		<PackageReference Include="Lib.Harmony" Version="2.2.2" />
+		<PackageReference Include="SharpZipLib" Version="1.4.0" />
+	</ItemGroup>
 </Project>

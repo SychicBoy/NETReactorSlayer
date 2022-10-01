@@ -510,7 +510,7 @@ public class Renamer
         if (sig == null) return;
         var propType = sig.RetType;
         var propDef = CreateProperty(ownerType, name, propType, propMethod.MethodDef, null);
-        if (propDef is not { GetMethod: null }) return;
+        if (propDef.GetMethod != null) return;
         propDef.PropertyDef.GetMethod = propMethod.MethodDef;
         propDef.GetMethod = propMethod;
         propMethod.Property = propDef;
@@ -599,7 +599,8 @@ public class Renamer
         if (theEvent == null)
             return;
 
-        CreateEvent(theEvent, eventMethod, GetEventMethodType(overriddenMethod), GetOverridePrefix(group, eventMethod));
+        CreateEvent(theEvent, eventMethod, GetEventMethodType(overriddenMethod),
+            GetOverridePrefix(group, eventMethod));
     }
 
     private void RestoreVirtualEvents(MethodNameGroup group)
@@ -754,7 +755,8 @@ public class Renamer
     {
         if (string.IsNullOrEmpty(name) || eventType == null || eventType.ElementType == ElementType.Void)
             return null;
-        var newEvent = ownerType.Module.ModuleDefMd.UpdateRowId(new EventDefUser(name, eventType.ToTypeDefOrRef(), 0));
+        var newEvent =
+            ownerType.Module.ModuleDefMd.UpdateRowId(new EventDefUser(name, eventType.ToTypeDefOrRef(), 0));
         var eventDef = ownerType.FindAny(newEvent);
         if (eventDef != null)
             return eventDef;
@@ -965,7 +967,8 @@ public class Renamer
 
         if (eventInfo.Renamed)
             newEventName = GetRealName(eventInfo.NewName);
-        else if (mustUseOldEventName || eventDef.Owner.Module.ObfuscatedFile.NameChecker.IsValidEventName(oldEventName))
+        else if (mustUseOldEventName ||
+                 eventDef.Owner.Module.ObfuscatedFile.NameChecker.IsValidEventName(oldEventName))
             newEventName = oldEventName;
         else
         {
@@ -1077,7 +1080,8 @@ public class Renamer
 
         if (propInfo.Renamed)
             newPropName = GetRealName(propInfo.NewName);
-        else if (mustUseOldPropName || propDef.Owner.Module.ObfuscatedFile.NameChecker.IsValidPropertyName(oldPropName))
+        else if (mustUseOldPropName ||
+                 propDef.Owner.Module.ObfuscatedFile.NameChecker.IsValidPropertyName(oldPropName))
             newPropName = oldPropName;
         else if (IsItemProperty(group))
             newPropName = "Item";
@@ -1406,7 +1410,7 @@ public class Renamer
     }
 
     private readonly DerivedFrom _isDelegateClass;
-    private readonly MemberInfos _memberInfos = new();
+    private readonly MemberInfos _memberInfos = new MemberInfos();
     private readonly MergeStateHelper _mergeStateHelper;
 
     private readonly Modules _modules;
@@ -1419,7 +1423,7 @@ public class Renamer
         "System.MulticastDelegate"
     };
 
-    private static readonly Regex RemoveGenericsArityRegex = new(@"`[0-9]+");
+    private static readonly Regex RemoveGenericsArityRegex = new Regex(@"`[0-9]+");
 
     public bool DontCreateNewParamDefs
     {
@@ -1647,7 +1651,7 @@ public class Renamer
 
         private readonly IEnumerable<MTypeDef> _allTypes;
         private readonly MemberInfos _memberInfos;
-        private readonly Dictionary<MTypeDef, bool> _prepareMethodCalled = new();
+        private readonly Dictionary<MTypeDef, bool> _prepareMethodCalled = new Dictionary<MTypeDef, bool>();
         private Action<TypeInfo> _function;
     }
 
@@ -1700,9 +1704,9 @@ public class Renamer
         }
 
         private readonly IEnumerable<MTypeDef> _allTypes;
-        private readonly List<MethodNameGroup> _groups = new();
+        private readonly List<MethodNameGroup> _groups = new List<MethodNameGroup>();
         private readonly MemberInfos _memberInfos;
-        private readonly Dictionary<MTypeDef, bool> _visited = new();
+        private readonly Dictionary<MTypeDef, bool> _visited = new Dictionary<MTypeDef, bool>();
         private Action<MethodNameGroup> _function;
         private Dictionary<MMethodDef, MethodNameGroup> _methodToGroup;
     }
@@ -1753,7 +1757,7 @@ public class Renamer
         }
 
         private readonly MemberInfos _memberInfos;
-        private readonly Dictionary<MTypeDef, bool> _visited = new();
+        private readonly Dictionary<MTypeDef, bool> _visited = new Dictionary<MTypeDef, bool>();
 
         private MergeStateFlags _flags;
     }

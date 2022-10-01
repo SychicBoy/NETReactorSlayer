@@ -22,173 +22,176 @@ using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 using NETReactorSlayer.Core.Deobfuscators;
 
-namespace NETReactorSlayer.Core.Helper;
-
-internal class SimpleDeobfuscator
+namespace NETReactorSlayer.Core.Helper
 {
-    public static bool Deobfuscate(MethodDef method)
+    internal class SimpleDeobfuscator
     {
-        const SimpleDeobfuscatorFlags flags = 0;
-        if (method == null || Check(method, SimpleDeobFlags.HasDeobfuscated)) return false;
-        Deobfuscate(method, delegate(Blocks blocks)
+        public static bool Deobfuscate(MethodDef method)
         {
-            const bool disableNewCfCode = (flags & SimpleDeobfuscatorFlags.DisableConstantsFolderExtraInstrs) > 0U;
-            var cflowDeobfuscator =
-                new BlocksCflowDeobfuscator(new List<IBlocksDeobfuscator> { new MyMethodCallInliner(false) },
-                    disableNewCfCode);
-            cflowDeobfuscator.Initialize(blocks);
-            cflowDeobfuscator.Deobfuscate();
-        });
-        return true;
-    }
-
-    public static void DeobfuscateBlocks(MethodDef method)
-    {
-        try
-        {
-            _blocksCflowDeob = new BlocksCflowDeobfuscator();
-            var blocks = new Blocks(method);
-            blocks.MethodBlocks.GetAllBlocks();
-            blocks.RemoveDeadBlocks();
-            blocks.RepartitionBlocks();
-            blocks.UpdateBlocks();
-            blocks.Method.Body.SimplifyBranches();
-            blocks.Method.Body.OptimizeBranches();
-            _blocksCflowDeob.Initialize(blocks);
-            _blocksCflowDeob.Deobfuscate();
-            blocks.RepartitionBlocks();
-            blocks.GetCode(out var instructions, out var exceptionHandlers);
-            DotNetUtils.RestoreBody(method, instructions, exceptionHandlers);
-        }
-        catch
-        {
-        }
-    }
-
-    #region Nested Types
-
-    public class MyMethodCallInliner : MethodCallInliner
-    {
-        public MyMethodCallInliner(bool inlineInstanceMethods) : base(inlineInstanceMethods)
-        {
-        }
-
-        protected override void OnInlinedMethod(MethodDef methodToInline, bool inlinedMethod)
-        {
-            if (!inlinedMethod || methodToInline.IsPublic)
-                return;
-            Cleaner.AddMethodToBeRemoved(methodToInline);
-            MethodInliner.InlinedMethods++;
-        }
-    }
-
-    #endregion
-
-    #region Private Methods
-
-    private static void Deobfuscate(MethodDef method, Action<Blocks> handler)
-    {
-        if (method is not { HasBody: true } || !method.Body.HasInstructions) return;
-        try
-        {
-            if (method.Body.Instructions.Any(instr => instr.OpCode.Equals(OpCodes.Switch)))
-                DeobfuscateEquations(method);
-            var blocks = new Blocks(method);
-            handler(blocks);
-            blocks.GetCode(out var allInstructions, out var allExceptionHandlers);
-            DotNetUtils.RestoreBody(method, allInstructions, allExceptionHandlers);
-            DeobfuscateBlocks(method);
-        }
-        catch
-        {
-            Logger.Warn("Couldn't deobfuscate " + method.FullName);
-        }
-    }
-
-    private static void DeobfuscateEquations(MethodDef method)
-    {
-        for (var i = 0; i < method.Body.Instructions.Count; i++)
-            if (method.Body.Instructions[i].IsBrtrue() &&
-                method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Pop) &&
-                method.Body.Instructions[i - 1].OpCode.Equals(OpCodes.Call))
+            const SimpleDeobfuscatorFlags flags = 0;
+            if (method == null || Check(method, SimpleDeobFlags.HasDeobfuscated)) return false;
+            Deobfuscate(method, delegate(Blocks blocks)
             {
-                if (method.Body.Instructions[i - 1].Operand is not MethodDef methodDef) continue;
-                var methodDefInstr = methodDef.Body.Instructions;
-                if (methodDef.ReturnType.FullName == "System.Boolean")
-                {
-                    if (methodDefInstr[methodDefInstr.Count - 2].OpCode.Equals(OpCodes.Ldc_I4_0))
-                    {
-                        method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
-                        method.Body.Instructions[i].OpCode = OpCodes.Nop;
-                    }
-                    else
-                    {
-                        method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
-                        method.Body.Instructions[i].OpCode = OpCodes.Br_S;
-                    }
-                }
-                else
-                {
-                    method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
-                    method.Body.Instructions[i].OpCode = OpCodes.Nop;
-                }
+                const bool disableNewCfCode = (flags & SimpleDeobfuscatorFlags.DisableConstantsFolderExtraInstrs) > 0U;
+                var cflowDeobfuscator =
+                    new BlocksCflowDeobfuscator(new List<IBlocksDeobfuscator> { new MyMethodCallInliner(false) },
+                        disableNewCfCode);
+                cflowDeobfuscator.Initialize(blocks);
+                cflowDeobfuscator.Deobfuscate();
+            });
+            return true;
+        }
+
+        public static void DeobfuscateBlocks(MethodDef method)
+        {
+            try
+            {
+                _blocksCflowDeob = new BlocksCflowDeobfuscator();
+                var blocks = new Blocks(method);
+                blocks.MethodBlocks.GetAllBlocks();
+                blocks.RemoveDeadBlocks();
+                blocks.RepartitionBlocks();
+                blocks.UpdateBlocks();
+                blocks.Method.Body.SimplifyBranches();
+                blocks.Method.Body.OptimizeBranches();
+                _blocksCflowDeob.Initialize(blocks);
+                _blocksCflowDeob.Deobfuscate();
+                blocks.RepartitionBlocks();
+                blocks.GetCode(out var instructions, out var exceptionHandlers);
+                DotNetUtils.RestoreBody(method, instructions, exceptionHandlers);
             }
-            else
+            catch
             {
-                if (!method.Body.Instructions[i].IsBrfalse() ||
-                    !method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Pop) ||
-                    !method.Body.Instructions[i - 1].OpCode.Equals(OpCodes.Call)) continue;
-                if (method.Body.Instructions[i - 1].Operand is MethodDef methodDef2)
+            }
+        }
+
+        #region Nested Types
+
+        public class MyMethodCallInliner : MethodCallInliner
+        {
+            public MyMethodCallInliner(bool inlineInstanceMethods) : base(inlineInstanceMethods)
+            {
+            }
+
+            protected override void OnInlinedMethod(MethodDef methodToInline, bool inlinedMethod)
+            {
+                if (!inlinedMethod || methodToInline.IsPublic)
+                    return;
+                Cleaner.AddMethodToBeRemoved(methodToInline);
+                MethodInliner.InlinedMethods++;
+            }
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private static void Deobfuscate(MethodDef method, Action<Blocks> handler)
+        {
+            if (!method.HasBody || !method.Body.HasInstructions) return;
+            try
+            {
+                if (method.Body.Instructions.Any(instr => instr.OpCode.Equals(OpCodes.Switch)))
+                    DeobfuscateEquations(method);
+                var blocks = new Blocks(method);
+                handler(blocks);
+                blocks.GetCode(out var allInstructions, out var allExceptionHandlers);
+                DotNetUtils.RestoreBody(method, allInstructions, allExceptionHandlers);
+                DeobfuscateBlocks(method);
+            }
+            catch
+            {
+                Logger.Warn("Couldn't deobfuscate " + method.FullName);
+            }
+        }
+
+        private static void DeobfuscateEquations(MethodDef method)
+        {
+            for (var i = 0; i < method.Body.Instructions.Count; i++)
+                if (method.Body.Instructions[i].IsBrtrue() &&
+                    method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Pop) &&
+                    method.Body.Instructions[i - 1].OpCode.Equals(OpCodes.Call))
                 {
-                    var methodDefInstr2 = methodDef2.Body.Instructions;
-                    if (methodDef2.ReturnType.FullName == "System.Boolean")
+                    if (!(method.Body.Instructions[i - 1].Operand is MethodDef methodDef)) continue;
+                    var methodDefInstr = methodDef.Body.Instructions;
+                    if (methodDef.ReturnType.FullName == "System.Boolean")
                     {
-                        if (methodDefInstr2[methodDefInstr2.Count - 2].OpCode.Equals(OpCodes.Ldc_I4_0))
-                        {
-                            method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
-                            method.Body.Instructions[i].OpCode = OpCodes.Br_S;
-                        }
-                        else
+                        if (methodDefInstr[methodDefInstr.Count - 2].OpCode.Equals(OpCodes.Ldc_I4_0))
                         {
                             method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
                             method.Body.Instructions[i].OpCode = OpCodes.Nop;
                         }
+                        else
+                        {
+                            method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
+                            method.Body.Instructions[i].OpCode = OpCodes.Br_S;
+                        }
                     }
                     else
                     {
                         method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
-                        method.Body.Instructions[i].OpCode = OpCodes.Br_S;
+                        method.Body.Instructions[i].OpCode = OpCodes.Nop;
                     }
                 }
-            }
+                else
+                {
+                    if (!method.Body.Instructions[i].IsBrfalse() ||
+                        !method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Pop) ||
+                        !method.Body.Instructions[i - 1].OpCode.Equals(OpCodes.Call)) continue;
+                    if (method.Body.Instructions[i - 1].Operand is MethodDef methodDef2)
+                    {
+                        var methodDefInstr2 = methodDef2.Body.Instructions;
+                        if (methodDef2.ReturnType.FullName == "System.Boolean")
+                        {
+                            if (methodDefInstr2[methodDefInstr2.Count - 2].OpCode.Equals(OpCodes.Ldc_I4_0))
+                            {
+                                method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
+                                method.Body.Instructions[i].OpCode = OpCodes.Br_S;
+                            }
+                            else
+                            {
+                                method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
+                                method.Body.Instructions[i].OpCode = OpCodes.Nop;
+                            }
+                        }
+                        else
+                        {
+                            method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
+                            method.Body.Instructions[i].OpCode = OpCodes.Br_S;
+                        }
+                    }
+                }
+        }
+
+        private static bool Check(MethodDef method, SimpleDeobFlags flags)
+        {
+            if (method == null) return false;
+            DeobfuscatorFlags.TryGetValue(method, out var oldFlags);
+            DeobfuscatorFlags[method] = oldFlags | flags;
+            return (oldFlags & flags) == flags;
+        }
+
+        #endregion
+
+        #region Fields
+
+        private static BlocksCflowDeobfuscator _blocksCflowDeob = new BlocksCflowDeobfuscator();
+
+        private static readonly Dictionary<MethodDef, SimpleDeobFlags> DeobfuscatorFlags =
+            new Dictionary<MethodDef, SimpleDeobFlags>();
+
+        [Flags]
+        private enum SimpleDeobFlags
+        {
+            HasDeobfuscated = 1
+        }
+
+        [Flags]
+        public enum SimpleDeobfuscatorFlags : uint
+        {
+            DisableConstantsFolderExtraInstrs = 2U
+        }
+
+        #endregion
     }
-
-    private static bool Check(MethodDef method, SimpleDeobFlags flags)
-    {
-        if (method == null) return false;
-        DeobfuscatorFlags.TryGetValue(method, out var oldFlags);
-        DeobfuscatorFlags[method] = oldFlags | flags;
-        return (oldFlags & flags) == flags;
-    }
-
-    #endregion
-
-    #region Fields
-
-    private static BlocksCflowDeobfuscator _blocksCflowDeob = new();
-    private static readonly Dictionary<MethodDef, SimpleDeobFlags> DeobfuscatorFlags = new();
-
-    [Flags]
-    private enum SimpleDeobFlags
-    {
-        HasDeobfuscated = 1
-    }
-
-    [Flags]
-    public enum SimpleDeobfuscatorFlags : uint
-    {
-        DisableConstantsFolderExtraInstrs = 2U
-    }
-
-    #endregion
 }

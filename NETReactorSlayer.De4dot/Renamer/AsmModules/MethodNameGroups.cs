@@ -60,5 +60,6 @@ public class MethodNameGroups
 
     public IEnumerable<MethodNameGroup> GetAllGroups() => Utils.Unique(_methodGroups.Values);
 
-    private readonly Dictionary<MMethodDef, MethodNameGroup> _methodGroups = new();
+    private readonly Dictionary<MMethodDef, MethodNameGroup> _methodGroups =
+        new Dictionary<MMethodDef, MethodNameGroup>();
 }
