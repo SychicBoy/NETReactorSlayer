@@ -8,9 +8,9 @@
 		<Description>A deobfuscator and unpacker for Eziriz .NET Reactor.</Description>
 		<Copyright>Copyright © 2021 CodeStrikers.org</Copyright>
 		<Authors>CS-RET</Authors>
-		<FileVersion>5.3.0.0</FileVersion>
-		<AssemblyVersion>5.3.0.0</AssemblyVersion>
-		<VersionPrefix>5.3.0.0</VersionPrefix>
+		<FileVersion>6.0.0.0</FileVersion>
+		<AssemblyVersion>6.0.0.0</AssemblyVersion>
+		<VersionPrefix>6.0.0.0</VersionPrefix>
 		<Version>$(VersionPrefix)</Version>
 		<OutputPath>..\Debug\</OutputPath>
 	</PropertyGroup>
