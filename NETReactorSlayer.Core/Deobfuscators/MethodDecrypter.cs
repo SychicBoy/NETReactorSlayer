@@ -31,7 +31,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
         {
             try
             {
-                if (!Find())
+                if (!Find() && !Find2())
                 {
                     Logger.Warn("Couldn't find any encrypted method.");
                     return;
@@ -80,6 +80,28 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 if (_encryptedResource.EmbeddedResource != null) return true;
                 _encryptedResource.Dispose();
             }
+
+            return false;
+        }
+
+        private bool Find2()
+        {
+            var cctor = Context.Module.GlobalType.FindStaticConstructor();
+            if (cctor == null || !cctor.HasBody || !cctor.Body.HasInstructions) return false;
+            foreach (var instr in cctor.Body.Instructions)
+                if (instr.OpCode.Equals(OpCodes.Call))
+                    if (instr.Operand is MethodDef methodDef && methodDef.DeclaringType != null && methodDef.HasBody &&
+                        methodDef.Body.HasInstructions)
+                        if (DotNetUtils.GetMethod(methodDef.DeclaringType,
+                                "System.Security.Cryptography.SymmetricAlgorithm", "()") != null)
+                        {
+                            if (!EncryptedResource.IsKnownDecrypter(methodDef, Array.Empty<string>(), true))
+                                continue;
+
+                            _encryptedResource = new EncryptedResource(methodDef);
+                            if (_encryptedResource.EmbeddedResource != null) return true;
+                            _encryptedResource.Dispose();
+                        }
 
             return false;
         }
