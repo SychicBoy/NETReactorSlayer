@@ -1,0 +1,11 @@
+{
+	"solution": {
+		"path": "NETReactorSlayer.sln",
+		"projects": [
+		      "NETReactorSlayer-x64.CLI\\NETReactorSlayer-x64.CLI.csproj",
+		      "NETReactorSlayer.CLI\\NETReactorSlayer.CLI.csproj",
+		      "NETReactorSlayer.Core\\NETReactorSlayer.Core.csproj",
+		      "NETReactorSlayer.De4dot\\NETReactorSlayer.De4dot.csproj"
+		]
+	}
+}
