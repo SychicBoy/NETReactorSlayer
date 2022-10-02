@@ -163,12 +163,12 @@ namespace NETReactorSlayer.Core
 
             if (path == string.Empty)
                 return;
-            SourcePath = path;
+            SourcePath = Path.GetFullPath(path);
             SourceFileName = Path.GetFileNameWithoutExtension(path);
             SourceFileExt = Path.GetExtension(path);
             SourceDir = Path.GetDirectoryName(path);
-            DestPath = SourceDir + "\\" + SourceFileName + "_Slayed" + SourceFileExt;
-            DestFileName = SourceFileName + "_Slayed" + SourceFileExt;
+            DestPath = Path.Combine(SourceDir, $"{SourceFileName}_Slayed{SourceFileExt}");
+            DestFileName = $"{SourceFileName}_Slayed{SourceFileExt}";
         }
 
         private void RemoveStage(Type type) =>

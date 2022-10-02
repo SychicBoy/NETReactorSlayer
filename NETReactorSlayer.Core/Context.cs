@@ -110,7 +110,7 @@ namespace NETReactorSlayer.Core
                     {
                         #region Create A Temporary File
 
-                        Options.SourcePath = $"{Options.SourceDir}\\PEImage.tmp";
+                        Options.SourcePath = Path.Combine(Options.SourceDir, "PEImage.tmp");
                         File.WriteAllBytes(Options.SourcePath, unpacked);
 
                         #endregion

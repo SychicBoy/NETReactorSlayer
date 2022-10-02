@@ -93,14 +93,21 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
                         FindKeyIv(method);
 
-                        _encryptedResource = new EncryptedResource(method, new[] { "System.String" });
-                        if (_encryptedResource.EmbeddedResource != null)
+                        var resource = new EncryptedResource(method, new[] { "System.String" });
+                        if (resource.EmbeddedResource != null)
                         {
-                            _decrypterMethods.Add(_encryptedResource.DecrypterMethod);
+                            if(_decrypterMethods.Any(x=> x.Value == resource.EmbeddedResource.Name))
+                                _decrypterMethods.Add(resource.DecrypterMethod, resource.EmbeddedResource.Name);
+
+                            if (_encryptedResource == null)
+                                _encryptedResource = resource;
+                            else
+                                resource.Dispose();
+
                             continue;
                         }
 
-                        _encryptedResource.Dispose();
+                        resource.Dispose();
                     }
                 }
                 catch
@@ -200,7 +207,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
         {
             bool IsDecrypterMethod(MethodDef method) => method != null &&
                                                         _decrypterMethods.Any(x =>
-                                                            x.Equals(method) || x.MDToken.ToInt32()
+                                                            x.Key.Equals(method) || x.Key.MDToken.ToInt32()
                                                                 .Equals(method.MDToken.ToInt32()));
 
             long count = 0;
@@ -303,7 +310,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
         private byte[] _key, _iv, _decryptedResource;
         private EncryptedResource _encryptedResource;
-        private readonly List<MethodDef> _decrypterMethods = new List<MethodDef>();
+        private readonly Dictionary<MethodDef, string> _decrypterMethods = new Dictionary<MethodDef, string>();
         private StringDecrypterVersion _stringDecrypterVersion;
 
         private enum StringDecrypterVersion
