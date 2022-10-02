@@ -1,32 +1,33 @@
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot;
-
-public class DeobfuscatorInfo : DeobfuscatorInfoBase
+namespace NETReactorSlayer.De4dot
 {
-    public DeobfuscatorInfo(ModuleDefMD moduleDefMd, bool renameShort)
-        : base(DefaultRegex)
+    public class DeobfuscatorInfo : DeobfuscatorInfoBase
     {
-        _module = moduleDefMd;
-        _renameShort = renameShort;
-    }
-
-    public override IDeobfuscator CreateDeobfuscator() =>
-        new Deobfuscator(_module, new Deobfuscator.Options
+        public DeobfuscatorInfo(ModuleDefMD moduleDefMd, bool renameShort)
+            : base(DefaultRegex)
         {
-            ValidNameRegex = ValidNameRegex.Get(),
-            RestoreTypes = true,
-            RemoveNamespaces = true,
-            RenameShort = _renameShort
-        });
+            _module = moduleDefMd;
+            _renameShort = renameShort;
+        }
 
-    private readonly ModuleDefMD _module;
-    private readonly bool _renameShort;
+        public override IDeobfuscator CreateDeobfuscator() =>
+            new Deobfuscator(_module, new Deobfuscator.Options
+            {
+                ValidNameRegex = ValidNameRegex.Get(),
+                RestoreTypes = true,
+                RemoveNamespaces = true,
+                RenameShort = _renameShort
+            });
 
-    private const string DefaultRegex = DeobfuscatorBase.DefaultAsianValidNameRegex;
-    public const string ShortNameRegex = @"!^[A-Za-z0-9]{2,3}$";
+        private readonly ModuleDefMD _module;
+        private readonly bool _renameShort;
 
-    public const string TheName = ".NET Reactor";
+        private const string DefaultRegex = DeobfuscatorBase.DefaultAsianValidNameRegex;
+        public const string ShortNameRegex = @"!^[A-Za-z0-9]{2,3}$";
 
-    public override string Name => TheName;
+        public const string TheName = ".NET Reactor";
+
+        public override string Name => TheName;
+    }
 }

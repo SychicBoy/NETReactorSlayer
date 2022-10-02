@@ -325,11 +325,15 @@ namespace NETReactorSlayer.Core.Deobfuscators
             }
 
             private const string HarmonyId = "_";
+
+            // ReSharper disable once InconsistentNaming
             private static Harmony harmony;
 
             [HarmonyPatch(typeof(StackFrame), "GetMethod")]
             public class PatchStackTraceGetMethod
             {
+                // ReSharper disable once UnusedMember.Global
+                // ReSharper disable once InconsistentNaming
                 public static void Postfix(ref MethodBase __result)
                 {
                     if (__result.DeclaringType != typeof(RuntimeMethodHandle)) return;

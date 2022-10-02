@@ -1,15 +1,16 @@
-namespace NETReactorSlayer.De4dot.Renamer;
-
-public abstract class NameCreatorCounter : INameCreator
+namespace NETReactorSlayer.De4dot.Renamer
 {
-    public NameCreatorCounter Merge(NameCreatorCounter other)
+    public abstract class NameCreatorCounter : INameCreator
     {
-        if (Num < other.Num)
-            Num = other.Num;
-        return this;
+        public NameCreatorCounter Merge(NameCreatorCounter other)
+        {
+            if (Num < other.Num)
+                Num = other.Num;
+            return this;
+        }
+
+        public abstract string Create();
+
+        protected int Num;
     }
-
-    public abstract string Create();
-
-    protected int Num;
 }

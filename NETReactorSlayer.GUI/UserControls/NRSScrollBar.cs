@@ -56,17 +56,7 @@ namespace NETReactorSlayer.GUI.UserControls
             if (!Enabled)
                 upIcon = Resources.scrollbar_disabled;
 
-            switch (_scrollOrientation)
-            {
-                case ScrollOrientation.Vertical:
-                    upIcon.RotateFlip(RotateFlipType.RotateNoneFlipY);
-                    break;
-                case ScrollOrientation.Horizontal:
-                    upIcon.RotateFlip(RotateFlipType.Rotate90FlipNone);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            upIcon.RotateFlip(RotateFlipType.RotateNoneFlipY);
 
             g.DrawImageUnscaled(upIcon,
                 _upArrowArea.Left + _upArrowArea.Width / 2 - upIcon.Width / 2,
@@ -79,9 +69,6 @@ namespace NETReactorSlayer.GUI.UserControls
 
             if (!Enabled)
                 downIcon = Resources.scrollbar_disabled;
-
-            if (_scrollOrientation == ScrollOrientation.Horizontal)
-                downIcon.RotateFlip(RotateFlipType.Rotate270FlipNone);
 
             g.DrawImageUnscaled(downIcon,
                 _downArrowArea.Left + _downArrowArea.Width / 2 - downIcon.Width / 2,
@@ -114,8 +101,6 @@ namespace NETReactorSlayer.GUI.UserControls
 
         #region Field Region
 
-        private ScrollOrientation _scrollOrientation;
-
         private int _value;
         private int _minimum;
         private int _maximum = 100;
@@ -145,19 +130,6 @@ namespace NETReactorSlayer.GUI.UserControls
         #endregion
 
         #region Property Region
-
-        [Category("Behavior")]
-        [Description("The orientation type of the scrollbar.")]
-        [DefaultValue(ScrollOrientation.Vertical)]
-        public ScrollOrientation ScrollOrientation
-        {
-            get => _scrollOrientation;
-            set
-            {
-                _scrollOrientation = value;
-                UpdateScrollBar();
-            }
-        }
 
         [Category("Behavior")]
         [Description("The value that the scroll thumb position represents.")]
@@ -224,18 +196,6 @@ namespace NETReactorSlayer.GUI.UserControls
             }
         }
 
-        public new bool Visible
-        {
-            get => base.Visible;
-            set
-            {
-                if (base.Visible == value)
-                    return;
-
-                base.Visible = value;
-            }
-        }
-
         #endregion
 
         #region Event Handler Region
@@ -256,7 +216,7 @@ namespace NETReactorSlayer.GUI.UserControls
                 _isScrolling = true;
                 _initialContact = e.Location;
 
-                _initialValue = _scrollOrientation == ScrollOrientation.Vertical ? _thumbArea.Top : _thumbArea.Left;
+                _initialValue = _thumbArea.Top;
 
                 Invalidate();
                 return;
@@ -280,53 +240,24 @@ namespace NETReactorSlayer.GUI.UserControls
                 return;
             }
 
-            if (_trackArea.Contains(e.Location) && e.Button == MouseButtons.Left)
-            {
-                switch (_scrollOrientation)
-                {
-                    case ScrollOrientation.Vertical:
-                    {
-                        var modRect = new Rectangle(_thumbArea.Left, _trackArea.Top, _thumbArea.Width,
-                            _trackArea.Height);
-                        if (!modRect.Contains(e.Location))
-                            return;
-                        break;
-                    }
-                    case ScrollOrientation.Horizontal:
-                    {
-                        var modRect = new Rectangle(_trackArea.Left, _thumbArea.Top, _trackArea.Width,
-                            _thumbArea.Height);
-                        if (!modRect.Contains(e.Location))
-                            return;
-                        break;
-                    }
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+            if (!_trackArea.Contains(e.Location) || e.Button != MouseButtons.Left) return;
+            var modRect = new Rectangle(_thumbArea.Left, _trackArea.Top, _thumbArea.Width,
+                _trackArea.Height);
+            if (!modRect.Contains(e.Location))
+                return;
 
-                if (_scrollOrientation == ScrollOrientation.Vertical)
-                {
-                    var loc = e.Location.Y;
-                    loc -= _upArrowArea.Bottom - 1;
-                    loc -= _thumbArea.Height / 2;
-                    ScrollToPhysical(loc);
-                }
-                else
-                {
-                    var loc = e.Location.X;
-                    loc -= _upArrowArea.Right - 1;
-                    loc -= _thumbArea.Width / 2;
-                    ScrollToPhysical(loc);
-                }
+            var loc = e.Location.Y;
+            loc -= _upArrowArea.Bottom - 1;
+            loc -= _thumbArea.Height / 2;
+            ScrollToPhysical(loc);
 
-                _isScrolling = true;
-                _initialContact = e.Location;
-                _thumbHot = true;
+            _isScrolling = true;
+            _initialContact = e.Location;
+            _thumbHot = true;
 
-                _initialValue = _scrollOrientation == ScrollOrientation.Vertical ? _thumbArea.Top : _thumbArea.Left;
+            _initialValue = _thumbArea.Top;
 
-                Invalidate();
-            }
+            Invalidate();
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
@@ -379,29 +310,12 @@ namespace NETReactorSlayer.GUI.UserControls
                 {
                     var difference = new Point(e.Location.X - _initialContact.X, e.Location.Y - _initialContact.Y);
 
-                    switch (_scrollOrientation)
-                    {
-                        case ScrollOrientation.Vertical:
-                        {
-                            var thumbPos = _initialValue - _trackArea.Top;
-                            var newPosition = thumbPos + difference.Y;
+                    var thumbPos = _initialValue - _trackArea.Top;
+                    var newPosition = thumbPos + difference.Y;
 
-                            ScrollToPhysical(newPosition);
-                            break;
-                        }
-                        case ScrollOrientation.Horizontal:
-                        {
-                            var thumbPos = _initialValue - _trackArea.Left;
-                            var newPosition = thumbPos + difference.X;
-
-                            ScrollToPhysical(newPosition);
-                            break;
-                        }
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-
+                    ScrollToPhysical(newPosition);
                     UpdateScrollBar();
+
                     break;
                 }
             }
@@ -445,9 +359,7 @@ namespace NETReactorSlayer.GUI.UserControls
 
         public void ScrollToPhysical(int positionInPixels)
         {
-            var isVert = _scrollOrientation == ScrollOrientation.Vertical;
-
-            var trackAreaSize = isVert ? _trackArea.Height - _thumbArea.Height : _trackArea.Width - _thumbArea.Width;
+            var trackAreaSize = _trackArea.Height - _thumbArea.Height;
 
             var positionRatio = positionInPixels / (float)trackAreaSize;
             var viewScrollSize = Maximum - ViewSize;
@@ -466,36 +378,13 @@ namespace NETReactorSlayer.GUI.UserControls
         {
             var area = ClientRectangle;
 
-            switch (_scrollOrientation)
-            {
-                case ScrollOrientation.Vertical:
-                    _upArrowArea = new Rectangle(area.Left, area.Top, ArrowButtonSize, ArrowButtonSize);
-                    _downArrowArea = new Rectangle(area.Left, area.Bottom - ArrowButtonSize, ArrowButtonSize,
-                        ArrowButtonSize);
-                    break;
-                case ScrollOrientation.Horizontal:
-                    _upArrowArea = new Rectangle(area.Left, area.Top, ArrowButtonSize, ArrowButtonSize);
-                    _downArrowArea =
-                        new Rectangle(area.Right - ArrowButtonSize, area.Top, ArrowButtonSize, ArrowButtonSize);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            switch (_scrollOrientation)
-            {
-                case ScrollOrientation.Vertical:
-                    _trackArea = new Rectangle(area.Left, area.Top + ArrowButtonSize, area.Width,
-                        area.Height - ArrowButtonSize * 2);
-                    break;
-                case ScrollOrientation.Horizontal:
-                    _trackArea = new Rectangle(area.Left + ArrowButtonSize, area.Top, area.Width - ArrowButtonSize * 2,
-                        area.Height);
-                    break;
-            }
+            _upArrowArea = new Rectangle(area.Left, area.Top, ArrowButtonSize, ArrowButtonSize);
+            _downArrowArea = new Rectangle(area.Left, area.Bottom - ArrowButtonSize, ArrowButtonSize,
+                ArrowButtonSize);
+            _trackArea = new Rectangle(area.Left, area.Top + ArrowButtonSize, area.Width,
+                area.Height - ArrowButtonSize * 2);
 
             UpdateThumb();
-
             Invalidate();
         }
 
@@ -512,45 +401,21 @@ namespace NETReactorSlayer.GUI.UserControls
             var viewAreaSize = Maximum - ViewSize;
             var positionRatio = Value / (float)viewAreaSize;
 
-            switch (_scrollOrientation)
-            {
-                case ScrollOrientation.Vertical:
-                {
-                    var thumbSize = (int)(_trackArea.Height * _viewContentRatio);
+            var thumbSize = (int)(_trackArea.Height * _viewContentRatio);
 
-                    if (thumbSize < MinimumThumbSize)
-                        thumbSize = MinimumThumbSize;
+            if (thumbSize < MinimumThumbSize)
+                thumbSize = MinimumThumbSize;
 
-                    var trackAreaSize = _trackArea.Height - thumbSize;
-                    var thumbPosition = (int)(trackAreaSize * positionRatio);
+            var trackAreaSize = _trackArea.Height - thumbSize;
+            var thumbPosition = (int)(trackAreaSize * positionRatio);
 
-                    _thumbArea = new Rectangle(_trackArea.Left + 3, _trackArea.Top + thumbPosition, ScrollBarSize - 6,
-                        thumbSize);
-                    break;
-                }
-                case ScrollOrientation.Horizontal:
-                {
-                    var thumbSize = (int)(_trackArea.Width * _viewContentRatio);
+            _thumbArea = new Rectangle(_trackArea.Left + 3, _trackArea.Top + thumbPosition, ScrollBarSize - 6,
+                thumbSize);
 
-                    if (thumbSize < MinimumThumbSize)
-                        thumbSize = MinimumThumbSize;
+            if (!forceRefresh) return;
 
-                    var trackAreaSize = _trackArea.Width - thumbSize;
-                    var thumbPosition = (int)(trackAreaSize * positionRatio);
-
-                    _thumbArea = new Rectangle(_trackArea.Left + thumbPosition, _trackArea.Top + 3, thumbSize,
-                        ScrollBarSize - 6);
-                    break;
-                }
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            if (forceRefresh)
-            {
-                Invalidate();
-                Update();
-            }
+            Invalidate();
+            Update();
         }
 
         #endregion
@@ -561,11 +426,5 @@ namespace NETReactorSlayer.GUI.UserControls
         public ScrollValueEventArgs(int value) => Value = value;
 
         public int Value { get; }
-    }
-
-    public enum ScrollOrientation
-    {
-        Vertical,
-        Horizontal
     }
 }

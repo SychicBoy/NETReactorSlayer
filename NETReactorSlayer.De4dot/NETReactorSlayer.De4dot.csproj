@@ -5,35 +5,16 @@
 		<OutputType>Library</OutputType>
 		<OutputPath>..\Debug\</OutputPath>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<OutputPath>..\Debug\</OutputPath>
-		<LangVersion>default</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<LangVersion>default</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net48|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net48|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	</PropertyGroup>
-	<ItemGroup>
-		<ProjectReference Include="..\de4dot.blocks\de4dot.blocks.csproj" />
-	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="dnlib" Version="3.5.0" />
+		<Reference Include="de4dot.blocks" Condition="'$(TargetFramework)' == 'net48'">
+			<HintPath>..\Libs\net48\de4dot.blocks.dll</HintPath>
+		</Reference>
+		<Reference Include="de4dot.blocks" Condition="'$(TargetFramework)' == 'net6.0'">
+			<HintPath>..\Libs\net6.0\de4dot.blocks.dll</HintPath>
+		</Reference>
+		<Reference Include="de4dot.blocks" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+			<HintPath>..\Libs\netcoreapp3.1\de4dot.blocks.dll</HintPath>
+		</Reference>
 	</ItemGroup>
 </Project>

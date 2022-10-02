@@ -1,10 +1,11 @@
 using System;
 
-namespace NETReactorSlayer.De4dot;
-
-[Flags]
-public enum RenamingOptions
+namespace NETReactorSlayer.De4dot
 {
-    RemoveNamespaceIfOneType = 1,
-    RenameResourceKeys = 2
+    [Flags]
+    public enum RenamingOptions
+    {
+        RemoveNamespaceIfOneType = 1,
+        RenameResourceKeys = 2
+    }
 }

@@ -4,7 +4,6 @@
 		<LangVersion>7.3</LangVersion>
 		<RootNamespace>NETReactorSlayerr_x64.CLI</RootNamespace>
 		<OutputType>Exe</OutputType>
-		<AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
 		<Title>.NETReactorSlayer command line interface.</Title>
 		<Description>A deobfuscator and unpacker for Eziriz .NET Reactor.</Description>
 		<Copyright>Copyright © 2021 CodeStrikers.org</Copyright>
@@ -13,28 +12,7 @@
 		<AssemblyVersion>5.3.0.0</AssemblyVersion>
 		<VersionPrefix>5.3.0.0</VersionPrefix>
 		<Version>$(VersionPrefix)</Version>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<PlatformTarget>x64</PlatformTarget>
 		<OutputPath>..\Debug\</OutputPath>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net48|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net48|AnyCPU'">
-	  <DebugType>embedded</DebugType>
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\NETReactorSlayer.Core\NETReactorSlayer.Core.csproj" />

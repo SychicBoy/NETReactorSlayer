@@ -2,54 +2,53 @@ using System;
 using System.Collections.Generic;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot.Renamer.AsmModules;
-
-public class InterfaceMethodInfos
+namespace NETReactorSlayer.De4dot.Renamer.AsmModules
 {
-    public void InitializeFrom(InterfaceMethodInfos other, GenericInstSig git)
+    public class InterfaceMethodInfos
     {
-        foreach (var pair in other._interfaceMethods)
+        public void InitializeFrom(InterfaceMethodInfos other, GenericInstSig git)
         {
-            var oldTypeInfo = pair.Value.Face;
-            var newTypeInfo = new TypeInfo(oldTypeInfo, git);
-            var oldKey = oldTypeInfo.TypeRef;
-            var newKey = newTypeInfo.TypeRef;
+            foreach (var pair in other._interfaceMethods)
+            {
+                var oldTypeInfo = pair.Value.Face;
+                var newTypeInfo = new TypeInfo(oldTypeInfo, git);
+                var oldKey = oldTypeInfo.TypeRef;
+                var newKey = newTypeInfo.TypeRef;
 
-            var newMethodsInfo = new InterfaceMethodInfo(newTypeInfo, other._interfaceMethods[oldKey]);
-            if (_interfaceMethods.ContainsKey(newKey))
-                newMethodsInfo.Merge(_interfaceMethods[newKey]);
-            _interfaceMethods[newKey] = newMethodsInfo;
+                var newMethodsInfo = new InterfaceMethodInfo(newTypeInfo, other._interfaceMethods[oldKey]);
+                if (_interfaceMethods.ContainsKey(newKey))
+                    newMethodsInfo.Merge(_interfaceMethods[newKey]);
+                _interfaceMethods[newKey] = newMethodsInfo;
+            }
         }
+
+        public void AddInterface(TypeInfo iface)
+        {
+            var key = iface.TypeRef;
+            if (!_interfaceMethods.ContainsKey(key))
+                _interfaceMethods[key] = new InterfaceMethodInfo(iface);
+        }
+
+        public MMethodDef AddMethod(TypeInfo iface, MMethodDef ifaceMethod, MMethodDef classMethod) =>
+            AddMethod(iface.TypeRef, ifaceMethod, classMethod);
+
+        public MMethodDef AddMethod(ITypeDefOrRef iface, MMethodDef ifaceMethod, MMethodDef classMethod)
+        {
+            if (!_interfaceMethods.TryGetValue(iface, out var info))
+                throw new ApplicationException("Could not find interface");
+            return info.AddMethod(ifaceMethod, classMethod);
+        }
+
+        public void AddMethodIfEmpty(TypeInfo iface, MMethodDef ifaceMethod, MMethodDef classMethod)
+        {
+            if (!_interfaceMethods.TryGetValue(iface.TypeRef, out var info))
+                throw new ApplicationException("Could not find interface");
+            info.AddMethodIfEmpty(ifaceMethod, classMethod);
+        }
+
+        private readonly Dictionary<ITypeDefOrRef, InterfaceMethodInfo> _interfaceMethods =
+            new Dictionary<ITypeDefOrRef, InterfaceMethodInfo>(TypeEqualityComparer.Instance);
+
+        public IEnumerable<InterfaceMethodInfo> AllInfos => _interfaceMethods.Values;
     }
-
-    public void AddInterface(TypeInfo iface)
-    {
-        var key = iface.TypeRef;
-        if (!_interfaceMethods.ContainsKey(key))
-            _interfaceMethods[key] = new InterfaceMethodInfo(iface);
-    }
-
-    // Returns the previous classMethod, or null if none
-    public MMethodDef AddMethod(TypeInfo iface, MMethodDef ifaceMethod, MMethodDef classMethod) =>
-        AddMethod(iface.TypeRef, ifaceMethod, classMethod);
-
-    // Returns the previous classMethod, or null if none
-    public MMethodDef AddMethod(ITypeDefOrRef iface, MMethodDef ifaceMethod, MMethodDef classMethod)
-    {
-        if (!_interfaceMethods.TryGetValue(iface, out var info))
-            throw new ApplicationException("Could not find interface");
-        return info.AddMethod(ifaceMethod, classMethod);
-    }
-
-    public void AddMethodIfEmpty(TypeInfo iface, MMethodDef ifaceMethod, MMethodDef classMethod)
-    {
-        if (!_interfaceMethods.TryGetValue(iface.TypeRef, out var info))
-            throw new ApplicationException("Could not find interface");
-        info.AddMethodIfEmpty(ifaceMethod, classMethod);
-    }
-
-    private readonly Dictionary<ITypeDefOrRef, InterfaceMethodInfo> _interfaceMethods =
-        new Dictionary<ITypeDefOrRef, InterfaceMethodInfo>(TypeEqualityComparer.Instance);
-
-    public IEnumerable<InterfaceMethodInfo> AllInfos => _interfaceMethods.Values;
 }

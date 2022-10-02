@@ -97,62 +97,6 @@ namespace NETReactorSlayer.GUI.Dialogs
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern bool MessageBeep(uint type);
 
-        public static void Show(string message, Form owner)
-        {
-            MessageBeep(0);
-            _msgBox = new MsgBox();
-            _msgBox._lblMessage.Text = message;
-            InitButtons(MsgButtons.Ok);
-            _msgBox._picIcon.Image = Resources.Info;
-            _msgBox._lblTitle.Text = @".NET Reactor Slayer";
-            _msgBox.Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, _msgBox.Width, _msgBox.Height, 20, 20));
-            _msgBox._plBase.Region =
-                Region.FromHrgn(CreateRoundRectRgn(0, 0, _msgBox._plBase.Width, _msgBox._plBase.Height, 20, 20));
-            if (owner != null)
-                _msgBox.ShowDialog(owner);
-            else
-                _msgBox.ShowDialog();
-        }
-
-        public static void Show(string message, string title, Form owner)
-        {
-            MessageBeep(0);
-            _msgBox = new MsgBox();
-            _msgBox._lblTitle.Text = title;
-            _msgBox._lblMessage.Text = message;
-            InitButtons(MsgButtons.Ok);
-            _msgBox._picIcon.Image = Resources.Info;
-            _msgBox.Size = MessageSize(message);
-            _msgBox.Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, _msgBox.Width, _msgBox.Height, 20, 20));
-            _msgBox._plBase.Region =
-                Region.FromHrgn(CreateRoundRectRgn(0, 0, _msgBox._plBase.Width, _msgBox._plBase.Height, 20, 20));
-            if (owner != null)
-                _msgBox.ShowDialog(owner);
-            else
-                _msgBox.ShowDialog();
-        }
-
-        public static DialogResult Show(string message, string title, MsgButtons buttons, Form owner)
-        {
-            MessageBeep(0);
-            _msgBox = new MsgBox();
-            _msgBox._lblMessage.Text = message;
-            _msgBox._lblTitle.Text = title;
-            _msgBox._picIcon.Image = Resources.Info;
-
-            InitButtons(buttons);
-
-            _msgBox.Size = MessageSize(message);
-            _msgBox.Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, _msgBox.Width, _msgBox.Height, 20, 20));
-            _msgBox._plBase.Region =
-                Region.FromHrgn(CreateRoundRectRgn(0, 0, _msgBox._plBase.Width, _msgBox._plBase.Height, 20, 20));
-            if (owner != null)
-                _msgBox.ShowDialog(owner);
-            else
-                _msgBox.ShowDialog();
-            return _buttonResult;
-        }
-
         public static DialogResult Show(string message, string title, MsgButtons buttons, MsgIcon icon, Form owner)
         {
             MessageBeep(0);
@@ -172,113 +116,6 @@ namespace NETReactorSlayer.GUI.Dialogs
             else
                 _msgBox.ShowDialog();
             return _buttonResult;
-        }
-
-        public static DialogResult Show(
-            string message, string title, MsgButtons buttons, MsgIcon icon,
-            AnimateStyle style, Form owner)
-        {
-            MessageBeep(0);
-            _msgBox = new MsgBox();
-            _msgBox._lblMessage.Text = message;
-            _msgBox._lblTitle.Text = title;
-            _msgBox.Height = 0;
-
-            InitButtons(buttons);
-            InitIcon(icon);
-
-            _timer = new Timer();
-            var formSize = MessageSize(message);
-
-            switch (style)
-            {
-                case AnimateStyle.SlideDown:
-                    _msgBox.Size = new Size(formSize.Width, 0);
-                    _timer.Interval = 1;
-                    _timer.Tag = new AnimateMsgBox(formSize, style);
-                    break;
-
-                case AnimateStyle.FadeIn:
-                    _msgBox.Size = formSize;
-                    _msgBox.Opacity = 0;
-                    _timer.Interval = 20;
-                    _timer.Tag = new AnimateMsgBox(formSize, style);
-                    break;
-
-                case AnimateStyle.ZoomIn:
-                    _msgBox.Size = new Size(formSize.Width + 100, formSize.Height + 100);
-                    _timer.Tag = new AnimateMsgBox(formSize, style);
-                    _timer.Interval = 1;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(style), style, null);
-            }
-
-            _timer.Tick += timer_Tick;
-            _timer.Start();
-            _msgBox.Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, _msgBox.Width, _msgBox.Height, 20, 20));
-            _msgBox._plBase.Region =
-                Region.FromHrgn(CreateRoundRectRgn(0, 0, _msgBox._plBase.Width, _msgBox._plBase.Height, 20, 20));
-
-            if (owner != null)
-                _msgBox.ShowDialog(owner);
-            else
-                _msgBox.ShowDialog();
-            return _buttonResult;
-        }
-
-        private static void timer_Tick(object sender, EventArgs e)
-        {
-            var timer = (Timer)sender;
-            var animate = (AnimateMsgBox)timer.Tag;
-
-            switch (animate.Style)
-            {
-                case AnimateStyle.SlideDown:
-                    if (_msgBox.Height < animate.FormSize.Height)
-                    {
-                        _msgBox.Height += 17;
-                        _msgBox.Invalidate();
-                    }
-                    else
-                    {
-                        _timer.Stop();
-                        _timer.Dispose();
-                    }
-
-                    break;
-
-                case AnimateStyle.FadeIn:
-                    if (_msgBox.Opacity < 0.95)
-                    {
-                        _msgBox.Opacity += 0.1;
-                        _msgBox.Invalidate();
-                    }
-                    else
-                    {
-                        _timer.Stop();
-                        _timer.Dispose();
-                    }
-
-                    break;
-
-                case AnimateStyle.ZoomIn:
-                    if (_msgBox.Width > animate.FormSize.Width)
-                    {
-                        _msgBox.Width -= 17;
-                        _msgBox.Invalidate();
-                    }
-
-                    if (_msgBox.Height > animate.FormSize.Height)
-                    {
-                        _msgBox.Height -= 17;
-                        _msgBox.Invalidate();
-                    }
-
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
         }
 
         private static void InitButtons(MsgButtons buttons)
@@ -590,18 +427,9 @@ namespace NETReactorSlayer.GUI.Dialogs
         private readonly Panel _plFooter = new Panel();
         private readonly Panel _plHeader = new Panel();
         private readonly Panel _plIcon = new Panel();
-
         private static DialogResult _buttonResult;
-
         private static MsgBox _msgBox;
-        private static Timer _timer;
 
-        public enum AnimateStyle
-        {
-            SlideDown = 1,
-            FadeIn = 2,
-            ZoomIn = 3
-        }
 
         public enum MsgButtons
         {
@@ -620,17 +448,5 @@ namespace NETReactorSlayer.GUI.Dialogs
             Info = 5,
             Question = 6
         }
-    }
-
-    internal class AnimateMsgBox
-    {
-        public AnimateMsgBox(Size formSize, MsgBox.AnimateStyle style)
-        {
-            FormSize = formSize;
-            Style = style;
-        }
-
-        public Size FormSize;
-        public MsgBox.AnimateStyle Style;
     }
 }

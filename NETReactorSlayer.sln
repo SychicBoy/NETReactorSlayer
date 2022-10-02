@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NETReactorSlayer.GUI", "NET
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NETReactorSlayer.De4dot", "NETReactorSlayer.De4dot\NETReactorSlayer.De4dot.csproj", "{AC8D9E60-5E24-4FE1-8D3C-D100571D5944}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "de4dot.blocks", "de4dot.blocks\de4dot.blocks.csproj", "{7E60BFEA-24AC-4E34-83DD-DE50B4F4DDD2}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Multi-Platform = Debug|Multi-Platform
@@ -41,10 +39,6 @@ Global
 		{AC8D9E60-5E24-4FE1-8D3C-D100571D5944}.Debug|Multi-Platform.Build.0 = Debug|Any CPU
 		{AC8D9E60-5E24-4FE1-8D3C-D100571D5944}.Release|Multi-Platform.ActiveCfg = Release|Any CPU
 		{AC8D9E60-5E24-4FE1-8D3C-D100571D5944}.Release|Multi-Platform.Build.0 = Release|Any CPU
-		{7E60BFEA-24AC-4E34-83DD-DE50B4F4DDD2}.Debug|Multi-Platform.ActiveCfg = Debug|Any CPU
-		{7E60BFEA-24AC-4E34-83DD-DE50B4F4DDD2}.Debug|Multi-Platform.Build.0 = Debug|Any CPU
-		{7E60BFEA-24AC-4E34-83DD-DE50B4F4DDD2}.Release|Multi-Platform.ActiveCfg = Release|Any CPU
-		{7E60BFEA-24AC-4E34-83DD-DE50B4F4DDD2}.Release|Multi-Platform.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

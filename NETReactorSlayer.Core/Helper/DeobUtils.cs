@@ -67,7 +67,13 @@ namespace NETReactorSlayer.Core.Helper
 
         public static byte[] AesDecrypt(byte[] data, byte[] key, byte[] iv)
         {
+            #if !NETFRAMEWORK
+            #pragma warning disable SYSLIB0022
+            #endif
             using (var aes = new RijndaelManaged { Mode = CipherMode.CBC })
+            #if !NETFRAMEWORK
+            #pragma warning restore SYSLIB0022
+            #endif
             using (var transform = aes.CreateDecryptor(key, iv))
             {
                 return transform.TransformFinalBlock(data, 0, data.Length);

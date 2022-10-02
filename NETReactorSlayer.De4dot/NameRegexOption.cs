@@ -1,32 +1,33 @@
 using System;
 
-namespace NETReactorSlayer.De4dot;
-
-public class NameRegexOption : Option
+namespace NETReactorSlayer.De4dot
 {
-    public NameRegexOption(string shortName, string longName, string description, string val)
-        : base(shortName, longName, description) =>
-        Default = _val = new NameRegexes(val);
-
-    public override bool Set(string newVal, out string error)
+    public class NameRegexOption : Option
     {
-        try
+        public NameRegexOption(string shortName, string longName, string description, string val)
+            : base(shortName, longName, description) =>
+            Default = _val = new NameRegexes(val);
+
+        public override bool Set(string newVal, out string error)
         {
-            var regexes = new NameRegexes();
-            regexes.Set(newVal);
-            _val = regexes;
-        }
-        catch (ArgumentException)
-        {
-            error = $"Could not parse regex '{newVal}'";
-            return false;
+            try
+            {
+                var regexes = new NameRegexes();
+                regexes.Set(newVal);
+                _val = regexes;
+            }
+            catch (ArgumentException)
+            {
+                error = $"Could not parse regex '{newVal}'";
+                return false;
+            }
+
+            error = "";
+            return true;
         }
 
-        error = "";
-        return true;
+        public NameRegexes Get() => _val;
+
+        private NameRegexes _val;
     }
-
-    public NameRegexes Get() => _val;
-
-    private NameRegexes _val;
 }

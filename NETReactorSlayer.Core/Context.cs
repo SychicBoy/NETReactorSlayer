@@ -130,18 +130,16 @@ namespace NETReactorSlayer.Core
                         ObfuscatorInfo.NativeStub = true;
                         Process.Start(new ProcessStartInfo(Process.GetCurrentProcess().MainModule?.FileName,
                                 $"--del-temp {Process.GetCurrentProcess().Id} \"{Options.SourcePath}\"")
-                        { WindowStyle = ProcessWindowStyle.Hidden });
+                            { WindowStyle = ProcessWindowStyle.Hidden });
                         Logger.Done("Native stub unpacked.");
                         ModuleBytes = DeobUtils.ReadModule(Module);
                         return true;
                     }
 
                     if (ex is FileLoadException)
-                    {
                         Logger.Error(Environment.Is64BitProcess
                             ? "Failed to load assembly. Try x86 version."
                             : "Failed to load assembly. Try x64 version.");
-                    }
                     else
                         Logger.Error("Failed to load assembly. " + ex.Message);
 

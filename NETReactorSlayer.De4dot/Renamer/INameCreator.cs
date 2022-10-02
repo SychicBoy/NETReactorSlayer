@@ -1,6 +1,7 @@
-namespace NETReactorSlayer.De4dot.Renamer;
-
-public interface INameCreator
+namespace NETReactorSlayer.De4dot.Renamer
 {
-    string Create();
+    public interface INameCreator
+    {
+        string Create();
+    }
 }

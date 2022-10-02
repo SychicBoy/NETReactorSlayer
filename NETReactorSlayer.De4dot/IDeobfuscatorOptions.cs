@@ -1,6 +1,7 @@
-namespace NETReactorSlayer.De4dot;
-
-public interface IDeobfuscatorOptions
+namespace NETReactorSlayer.De4dot
 {
-    bool RenameResourcesInCode { get; }
+    public interface IDeobfuscatorOptions
+    {
+        bool RenameResourcesInCode { get; }
+    }
 }
