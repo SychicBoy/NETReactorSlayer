@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -56,7 +57,13 @@ namespace NETReactorSlayer.Core.Deobfuscators
                     Cleaner.AddResourceToBeRemoved(_encryptedResource.EmbeddedResource);
                 }
                 else
-                    Logger.Warn("Couldn't find any encrypted string.");
+                {
+                    count = InlineStringsDynamically();
+                    if (count > 0)
+                        Logger.Done(count + " Strings decrypted.");
+                    else
+                        Logger.Warn("Couldn't find any encrypted string.");
+                }
             }
             catch
             {
@@ -115,7 +122,12 @@ namespace NETReactorSlayer.Core.Deobfuscators
                         FindKeyIv(method);
 
                         _encryptedResource = new EncryptedResource(method, new[] { "System.String" });
-                        if (_encryptedResource.EmbeddedResource != null) return true;
+                        if (_encryptedResource.EmbeddedResource != null)
+                        {
+                            _decrypterMethods.Add(_encryptedResource.DecrypterMethod);
+                            continue;
+                        }
+
                         _encryptedResource.Dispose();
                     }
                 }
@@ -123,7 +135,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 {
                 }
 
-            return false;
+            return _decrypterMethods.Count > 0;
         }
 
         private void FindKeyIv(MethodDef method)
@@ -214,13 +226,10 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
         private long InlineStringsStatically()
         {
-            bool IsDecrypterMethod(MethodDef method)
-            {
-                if (method == null)
-                    return false;
-                return method.MDToken.ToInt32().Equals(_encryptedResource.DecrypterMethod.MDToken.ToInt32()) ||
-                       method.Equals(_encryptedResource.DecrypterMethod);
-            }
+            bool IsDecrypterMethod(MethodDef method) => method != null &&
+                                                        _decrypterMethods.Any(x =>
+                                                            x.Equals(method) || x.MDToken.ToInt32()
+                                                                .Equals(method.MDToken.ToInt32()));
 
             long count = 0;
             foreach (var type in Context.Module.GetTypes())
@@ -235,7 +244,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                             !method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Call)) continue;
 
                         var methodDef = ((IMethod)method.Body.Instructions[i + 1].Operand).ResolveMethodDef();
-                        if (methodDef.HasReturnType != true)
+                        if (methodDef != null && methodDef.HasReturnType != true)
                             continue;
 
                         if (!methodDef.HasParams() || methodDef.Parameters.Count != 1 ||
@@ -322,6 +331,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
         private byte[] _key, _iv, _decryptedResource;
         private EncryptedResource _encryptedResource;
+        private readonly List<MethodDef> _decrypterMethods = new List<MethodDef>();
         private StringDecrypterVersion _stringDecrypterVersion;
 
         private enum StringDecrypterVersion
