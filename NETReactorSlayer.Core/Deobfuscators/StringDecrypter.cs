@@ -96,7 +96,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                         var resource = new EncryptedResource(method, new[] { "System.String" });
                         if (resource.EmbeddedResource != null)
                         {
-                            if(_decrypterMethods.Any(x=> x.Value == resource.EmbeddedResource.Name))
+                            if(_decrypterMethods.Any(x=> x.Value == resource.EmbeddedResource.Name) || _decrypterMethods.Count == 0)
                                 _decrypterMethods.Add(resource.DecrypterMethod, resource.EmbeddedResource.Name);
 
                             if (_encryptedResource == null)
