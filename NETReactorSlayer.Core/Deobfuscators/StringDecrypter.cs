@@ -73,34 +73,6 @@ namespace NETReactorSlayer.Core.Deobfuscators
             _encryptedResource?.Dispose();
         }
 
-        #region Nested Types
-
-        public class StacktracePatcher
-        {
-            public static void Patch()
-            {
-                harmony = new Harmony(HarmonyId);
-                harmony.PatchAll(Assembly.GetExecutingAssembly());
-            }
-
-            private const string HarmonyId = "_";
-            private static Harmony harmony;
-
-            [HarmonyPatch(typeof(StackFrame), "GetMethod")]
-            public class PatchStackTraceGetMethod
-            {
-                public static void Postfix(ref MethodBase __result)
-                {
-                    if (__result.DeclaringType != typeof(RuntimeMethodHandle)) return;
-                    __result = MethodToReplace ?? MethodBase.GetCurrentMethod();
-                }
-
-                public static MethodInfo MethodToReplace;
-            }
-        }
-
-        #endregion
-
         #region Private Methods
 
         private bool Find()
@@ -338,6 +310,34 @@ namespace NETReactorSlayer.Core.Deobfuscators
         {
             V37,
             V38
+        }
+
+        #endregion
+
+        #region Nested Types
+
+        public class StacktracePatcher
+        {
+            public static void Patch()
+            {
+                harmony = new Harmony(HarmonyId);
+                harmony.PatchAll(Assembly.GetExecutingAssembly());
+            }
+
+            private const string HarmonyId = "_";
+            private static Harmony harmony;
+
+            [HarmonyPatch(typeof(StackFrame), "GetMethod")]
+            public class PatchStackTraceGetMethod
+            {
+                public static void Postfix(ref MethodBase __result)
+                {
+                    if (__result.DeclaringType != typeof(RuntimeMethodHandle)) return;
+                    __result = MethodToReplace ?? MethodBase.GetCurrentMethod();
+                }
+
+                public static MethodInfo MethodToReplace;
+            }
         }
 
         #endregion

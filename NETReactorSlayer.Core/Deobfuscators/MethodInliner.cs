@@ -74,12 +74,6 @@ namespace NETReactorSlayer.Core.Deobfuscators
             InlinedMethods += count;
         }
 
-        #region Fields
-
-        public static long InlinedMethods;
-
-        #endregion
-
         #region Private Methods
 
         private static bool IsInlineMethod(MethodDef method, out List<Instruction> instructions)
@@ -129,6 +123,12 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
         private static bool IsCompatibleType(IType origType, IType newType) =>
             new SigComparer(SigComparerOptions.IgnoreModifiers).Equals(origType, newType);
+
+        #endregion
+
+        #region Fields
+
+        public static long InlinedMethods;
 
         #endregion
     }

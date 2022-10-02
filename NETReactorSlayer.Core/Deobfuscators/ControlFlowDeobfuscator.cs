@@ -45,12 +45,6 @@ namespace NETReactorSlayer.Core.Deobfuscators
                     "Couldn't found any equations, looks like there's no control flow obfuscation applied to methods.");
         }
 
-        #region Fields
-
-        private readonly Dictionary<IField, int> _fields = new Dictionary<IField, int>();
-
-        #endregion
-
         #region Private Methods
 
         private void Initialize()
@@ -209,6 +203,12 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
             return count;
         }
+
+        #endregion
+
+        #region Fields
+
+        private readonly Dictionary<IField, int> _fields = new Dictionary<IField, int>();
 
         #endregion
     }
