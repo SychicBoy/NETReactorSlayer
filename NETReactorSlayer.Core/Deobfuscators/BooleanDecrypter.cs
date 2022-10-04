@@ -55,12 +55,6 @@ namespace NETReactorSlayer.Core.Deobfuscators
             _encryptedResource?.Dispose();
         }
 
-        #region Fields
-
-        private EncryptedResource _encryptedResource;
-
-        #endregion
-
         #region Private Methods
 
         private bool Find()
@@ -119,6 +113,12 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
         private bool Decrypt(int offset, byte[] bytes) =>
             Context.ModuleBytes[BitConverter.ToUInt32(bytes, offset)] == 0x80;
+
+        #endregion
+
+        #region Fields
+
+        private EncryptedResource _encryptedResource;
 
         #endregion
     }

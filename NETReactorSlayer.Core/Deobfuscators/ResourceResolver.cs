@@ -37,8 +37,8 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 DeobUtils.DecryptAndAddResources(Context.Module,
                     () => Decompress(_encryptedResource.Decrypt()));
 
-                foreach (var m in _methodToRemove)
-                    Cleaner.AddCallToBeRemoved(m.ResolveMethodDef());
+                foreach (var methodToRemove in _methodToRemove)
+                    Cleaner.AddCallToBeRemoved(methodToRemove.ResolveMethodDef());
                 Cleaner.AddCallToBeRemoved(_encryptedResource.DecrypterMethod);
                 Cleaner.AddTypeToBeRemoved(_encryptedResource.DecrypterMethod.DeclaringType);
                 Cleaner.AddResourceToBeRemoved(_encryptedResource.EmbeddedResource);

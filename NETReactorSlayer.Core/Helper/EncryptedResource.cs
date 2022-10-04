@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using de4dot.blocks;
 using de4dot.blocks.cflow;
 using dnlib.DotNet;
@@ -89,25 +90,6 @@ namespace NETReactorSlayer.Core.Helper
         }
 
         public byte[] Decrypt() => Decrypter.Decrypt(EmbeddedResource);
-
-        #region Enums
-
-        public enum DecrypterVersion
-        {
-            V69,
-            V6X
-        }
-
-        #endregion
-
-        #region Interfaces
-
-        private interface IDecrypter
-        {
-            byte[] Decrypt(EmbeddedResource resource);
-        }
-
-        #endregion
 
         #region Private Methods
 
@@ -195,6 +177,25 @@ namespace NETReactorSlayer.Core.Helper
 
         #endregion
 
+        #region Enums
+
+        public enum DecrypterVersion
+        {
+            V69,
+            V6X
+        }
+
+        #endregion
+
+        #region Interfaces
+
+        private interface IDecrypter
+        {
+            byte[] Decrypt(EmbeddedResource resource);
+        }
+
+        #endregion
+
         #region Properties
 
         public MethodDef DecrypterMethod { get; }
@@ -237,14 +238,29 @@ namespace NETReactorSlayer.Core.Helper
                         "System.Int32",
                         "System.Byte[]",
                         "System.Boolean"
+                    },
+                    new List<string>
+                    {
+                        "System.Security.Cryptography.ICryptoTransform",
+                        "System.Int32",
+                        "System.Byte[]",
+                        "System.Boolean"
                     }
                 };
                 requiredTypes[0].AddRange(additionalTypes);
-                return (localTypes.All(requiredTypes[0]) || localTypes.All(requiredTypes[1])) &&
-                       (DotNetUtils.GetMethod(method.DeclaringType, "System.Security.Cryptography.SymmetricAlgorithm",
-                           "()") == null || (!localTypes.Exists("System.UInt64") &&
-                                             (!localTypes.Exists("System.UInt32") ||
-                                              localTypes.Exists("System.Reflection.Assembly"))));
+
+                if (!localTypes.All(requiredTypes[1]))
+                    if (!localTypes.All(requiredTypes[0]))
+                        if (localTypes.All(requiredTypes[2]))
+                            if (method.Body.Instructions.Any(x =>
+                                x.OpCode.Equals(OpCodes.Newobj) && x.Operand != null && x.Operand.ToString()
+                                    .Contains("System.Security.Cryptography.CryptoStream::.ctor")))
+                        return DotNetUtils.GetMethod(method.DeclaringType, "System.Security.Cryptography.SymmetricAlgorithm",
+                    "()") == null || (!localTypes.Exists("System.UInt64") &&
+                                      (!localTypes.Exists("System.UInt32") ||
+                                       localTypes.Exists("System.Reflection.Assembly")));
+
+                return false;
             }
 
             public byte[] Decrypt(EmbeddedResource resource) =>
@@ -263,8 +279,8 @@ namespace NETReactorSlayer.Core.Helper
             {
                 _key = GetDecryptionKey(method);
                 _iv = GetDecryptionIV(method);
-                _method = method;
-                _locals = new List<Local>(_method.Body.Variables);
+                _decrypterMethod = method;
+                _locals = new List<Local>(_decrypterMethod.Body.Variables);
                 if (!Initialize()) throw new ApplicationException("Could not initialize decrypter");
             }
 
@@ -306,12 +322,11 @@ namespace NETReactorSlayer.Core.Helper
 
             private bool Initialize()
             {
-                var origInstrs = _method.Body.Instructions;
+                var origInstrs = _decrypterMethod.Body.Instructions;
                 if (!Find(origInstrs, out var emuStartIndex, out var emuEndIndex, out _emuLocal) &&
-                    !FindStartEnd(origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal) &&
-                    !FindStartEnd2(origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal))
+                    !FindStartEnd(origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal))
                 {
-                    if (!FindStartEnd3(ref origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal, out _emuArg,
+                    if (!FindStartEnd2(ref origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal, out _emuArg,
                             ref _emuMethod, ref _locals)) return false;
                     _isNewDecrypter = true;
                 }
@@ -404,8 +419,7 @@ namespace NETReactorSlayer.Core.Helper
                 return false;
             }
 
-            private bool FindStartEnd(IList<Instruction> instrs, out int startIndex, out int endIndex,
-                out Local tmpLocal)
+            private bool FindStartEnd(IList<Instruction> instrs, out int startIndex, out int endIndex, out Local tmpLocal)
             {
                 var i = 0;
                 while (i + 8 < instrs.Count)
@@ -427,79 +441,32 @@ namespace NETReactorSlayer.Core.Helper
                                     continue;
                                 }
 
-                                newStartIndex = x + 1;
                                 break;
                             }
 
-                        if (!_decrypterVersion.Equals(DecrypterVersion.V69))
-                        {
-                            startIndex = 0;
-                            endIndex = 0;
-                            tmpLocal = null;
-                            return false;
-                        }
-
-                        if (newStartIndex >= 0)
-                        {
-                            var checkLocs = new List<Local>();
-                            var ckStartIndex = -1;
-                            for (var y = newEndIndex; y >= newStartIndex; y--)
-                                if (CheckLocal(instrs[y], true) is Local loc)
-                                {
-                                    if (!checkLocs.Contains(loc)) checkLocs.Add(loc);
-                                    if (checkLocs.Count == 10) break;
-
-                                    ckStartIndex = y;
-                                }
-
-                            endIndex = newEndIndex;
-                            startIndex = Math.Max(ckStartIndex, newStartIndex);
-                            tmpLocal = CheckLocal(instrs[startIndex], true);
-                            return true;
-                        }
-                    }
-
-                    i++;
-                }
-
-                endIndex = 0;
-                startIndex = 0;
-                tmpLocal = null;
-                return false;
-            }
-
-            private bool FindStartEnd2(IList<Instruction> instrs, out int startIndex, out int endIndex,
-                out Local tmpLocal)
-            {
-                var i = 0;
-                while (i + 8 < instrs.Count)
-                {
-                    if (instrs[i].OpCode.Code.Equals(Code.Conv_R_Un) &&
-                        instrs[i + 1].OpCode.Code.Equals(Code.Conv_R8) &&
-                        instrs[i + 2].OpCode.Code.Equals(Code.Conv_U4) &&
-                        instrs[i + 3].OpCode.Code.Equals(Code.Add))
-                    {
-                        var newEndIndex = i + 3;
-                        var newStartIndex = -1;
-                        for (var x = newEndIndex; x > 0; x--)
-                            if (instrs[x].OpCode.FlowControl != FlowControl.Next)
+                        var ckStartIndex = -1;
+                        for (var y = newEndIndex; y >= 0; y--)
+                            if (instrs[y].IsBr())
                             {
-                                newStartIndex = x + 1;
+                                var offset =
+                                    int.Parse(
+                                        Regex.Match(instrs[y].Operand.ToString(), "IL_(.*?): .*?").Groups[1].Value,
+                                        System.Globalization.NumberStyles.HexNumber);
+                                var instr = instrs.FirstOrDefault(x => (int)x.Offset == offset);
+                                if (instr == null)
+                                    break;
+                                newStartIndex = instrs.IndexOf(instr);
+                                ckStartIndex = newStartIndex;
                                 break;
                             }
+
 
                         if (newStartIndex >= 0)
                         {
                             var checkLocs = new List<Local>();
-                            var ckStartIndex = -1;
                             for (var y = newEndIndex; y >= newStartIndex; y--)
                                 if (CheckLocal(instrs[y], true) is Local loc)
-                                {
                                     if (!checkLocs.Contains(loc)) checkLocs.Add(loc);
-                                    if (checkLocs.Count == 3) break;
-
-                                    ckStartIndex = y;
-                                }
 
                             endIndex = newEndIndex;
                             startIndex = Math.Max(ckStartIndex, newStartIndex);
@@ -517,7 +484,7 @@ namespace NETReactorSlayer.Core.Helper
                 return false;
             }
 
-            private bool FindStartEnd3(ref IList<Instruction> instrs, out int startIndex, out int endIndex,
+            private bool FindStartEnd2(ref IList<Instruction> instrs, out int startIndex, out int endIndex,
                 out Local tmpLocal, out Parameter tmpArg, ref MethodDef methodDef, ref List<Local> locals)
             {
                 foreach (var instr in instrs)
@@ -578,7 +545,8 @@ namespace NETReactorSlayer.Core.Helper
             {
                 if (_emuArg == null)
                 {
-                    _instrEmulator.Initialize(_method, _method.Parameters, _locals, _method.Body.InitLocals, false);
+                    _instrEmulator.Initialize(_decrypterMethod, _decrypterMethod.Parameters, _locals,
+                        _decrypterMethod.Body.InitLocals, false);
                     _instrEmulator.SetLocal(_emuLocal, new Int32Value((int)input));
                 }
                 else
@@ -631,7 +599,7 @@ namespace NETReactorSlayer.Core.Helper
 
             private readonly InstructionEmulator _instrEmulator = new InstructionEmulator();
             private readonly byte[] _key, _iv;
-            private readonly MethodDef _method;
+            private readonly MethodDef _decrypterMethod;
             private Parameter _emuArg;
             private Local _emuLocal;
             private MethodDef _emuMethod;
@@ -647,8 +615,8 @@ namespace NETReactorSlayer.Core.Helper
         {
             public DecrypterV3(MethodDef method)
             {
-                _method = method;
-                _locals = new List<Local>(_method.Body.Variables);
+                _decrypterMethod = method;
+                _locals = new List<Local>(_decrypterMethod.Body.Variables);
                 if (!Initialize()) throw new ApplicationException("Could not initialize decrypter");
             }
 
@@ -682,10 +650,9 @@ namespace NETReactorSlayer.Core.Helper
 
             private bool Initialize()
             {
-                var origInstrs = _method.Body.Instructions;
+                var origInstrs = _decrypterMethod.Body.Instructions;
                 if (!Find(origInstrs, out var emuStartIndex, out var emuEndIndex, out _emuLocal) &&
-                    !FindStartEnd(origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal) &&
-                    !FindStartEnd2(origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal)) return false;
+                    !FindStartEnd(origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal)) return false;
                 var count = emuEndIndex - emuStartIndex + 1;
                 _instructions = new List<Instruction>(count);
                 for (var i = 0; i < count; i++) _instructions.Add(origInstrs[emuStartIndex + i].Clone());
@@ -694,7 +661,8 @@ namespace NETReactorSlayer.Core.Helper
 
             private uint CalculateMagic(uint input)
             {
-                _instrEmulator.Initialize(_method, _method.Parameters, _locals, _method.Body.InitLocals, false);
+                _instrEmulator.Initialize(_decrypterMethod, _decrypterMethod.Parameters, _locals,
+                    _decrypterMethod.Body.InitLocals, false);
                 _instrEmulator.SetLocal(_emuLocal, new Int32Value((int)input));
 
                 var index = 0;
@@ -776,11 +744,9 @@ namespace NETReactorSlayer.Core.Helper
                 {
                     var instr = instrs[i];
                     if (instr.OpCode.FlowControl != FlowControl.Next) break;
-                    if (instr.IsStloc() && instr.GetLocal(_locals) == _emuLocal)
-                    {
-                        endIndex = i - 1;
-                        return true;
-                    }
+                    if (!instr.IsStloc() || instr.GetLocal(_locals) != _emuLocal) continue;
+                    endIndex = i - 1;
+                    return true;
                 }
 
                 endIndex = 0;
@@ -822,8 +788,7 @@ namespace NETReactorSlayer.Core.Helper
                 return false;
             }
 
-            private bool FindStartEnd(IList<Instruction> instrs, out int startIndex, out int endIndex,
-                out Local tmpLocal)
+            private bool FindStartEnd(IList<Instruction> instrs, out int startIndex, out int endIndex, out Local tmpLocal)
             {
                 var i = 0;
                 while (i + 8 < instrs.Count)
@@ -845,78 +810,32 @@ namespace NETReactorSlayer.Core.Helper
                                     continue;
                                 }
 
-                                newStartIndex = x + 1;
                                 break;
                             }
 
-                        if (!_decrypterVersion.Equals(DecrypterVersion.V69))
-                        {
-                            startIndex = 0;
-                            endIndex = 0;
-                            tmpLocal = null;
-                            return false;
-                        }
-
-                        if (newStartIndex >= 0)
-                        {
-                            var checkLocs = new List<Local>();
-                            var ckStartIndex = -1;
-                            for (var y = newEndIndex; y >= newStartIndex; y--)
-                                if (CheckLocal(instrs[y], true) is Local loc)
-                                {
-                                    if (!checkLocs.Contains(loc)) checkLocs.Add(loc);
-                                    if (checkLocs.Count == 10) break;
-
-                                    ckStartIndex = y;
-                                }
-
-                            endIndex = newEndIndex;
-                            startIndex = Math.Max(ckStartIndex, newStartIndex);
-                            tmpLocal = CheckLocal(instrs[startIndex], true);
-                            return true;
-                        }
-                    }
-
-                    i++;
-                }
-
-                endIndex = 0;
-                startIndex = 0;
-                tmpLocal = null;
-                return false;
-            }
-
-            private bool FindStartEnd2(IList<Instruction> instrs, out int startIndex, out int endIndex,
-                out Local tmpLocal)
-            {
-                var i = 0;
-                while (i + 8 < instrs.Count)
-                {
-                    if (instrs[i].OpCode.Code.Equals(Code.Conv_R_Un) &&
-                        instrs[i + 1].OpCode.Code.Equals(Code.Conv_R8) &&
-                        instrs[i + 2].OpCode.Code.Equals(Code.Conv_U4) && instrs[i + 3].OpCode.Code.Equals(Code.Add))
-                    {
-                        var newEndIndex = i + 3;
-                        var newStartIndex = -1;
-                        for (var x = newEndIndex; x > 0; x--)
-                            if (instrs[x].OpCode.FlowControl != FlowControl.Next)
+                        var ckStartIndex = -1;
+                        for (var y = newEndIndex; y >= 0; y--)
+                            if (instrs[y].IsBr())
                             {
-                                newStartIndex = x + 1;
+                                var offset =
+                                    int.Parse(
+                                        Regex.Match(instrs[y].Operand.ToString(), "IL_(.*?): .*?").Groups[1].Value,
+                                        System.Globalization.NumberStyles.HexNumber);
+                                var instr = instrs.FirstOrDefault(x => (int)x.Offset == offset);
+                                if (instr == null) 
+                                    break;
+                                newStartIndex = instrs.IndexOf(instr);
+                                ckStartIndex = newStartIndex;
                                 break;
                             }
+
 
                         if (newStartIndex >= 0)
                         {
                             var checkLocs = new List<Local>();
-                            var ckStartIndex = -1;
                             for (var y = newEndIndex; y >= newStartIndex; y--)
                                 if (CheckLocal(instrs[y], true) is Local loc)
-                                {
                                     if (!checkLocs.Contains(loc)) checkLocs.Add(loc);
-                                    if (checkLocs.Count == 3) break;
-
-                                    ckStartIndex = y;
-                                }
 
                             endIndex = newEndIndex;
                             startIndex = Math.Max(ckStartIndex, newStartIndex);
@@ -952,7 +871,7 @@ namespace NETReactorSlayer.Core.Helper
 
             private readonly InstructionEmulator _instrEmulator = new InstructionEmulator();
             private readonly List<Local> _locals;
-            private readonly MethodDef _method;
+            private readonly MethodDef _decrypterMethod;
             private Local _emuLocal;
             private List<Instruction> _instructions;
             private DecrypterVersion _decrypterVersion = DecrypterVersion.V6X;
@@ -967,11 +886,11 @@ namespace NETReactorSlayer.Core.Helper
                 if (!FindDecrypterMethod(method))
                     throw new ApplicationException("Could not find decrypter method");
 
-                if (!FindEmulateMethod(_decryptMethod))
+                if (!FindEmulateMethod(_decrypterMethod))
                     throw new ApplicationException("Could not find emulate method");
 
-                _key = GetDecryptionKey(_decryptMethod);
-                _iv = GetDecryptionIV(_decryptMethod);
+                _key = GetDecryptionKey(_decrypterMethod);
+                _iv = GetDecryptionIV(_decrypterMethod);
                 _locals = new List<Local>(_emuMethod.Body.Variables);
                 if (!Initialize())
                     throw new ApplicationException("Could not initialize decrypter");
@@ -1038,7 +957,7 @@ namespace NETReactorSlayer.Core.Helper
                     if (call.OpCode != OpCodes.Call)
                         continue;
 
-                    _decryptMethod = call.Operand as MethodDef;
+                    _decrypterMethod = call.Operand as MethodDef;
                     return true;
                 }
 
@@ -1074,8 +993,7 @@ namespace NETReactorSlayer.Core.Helper
                 var origInstrs = _emuMethod.Body.Instructions;
 
                 if (!Find(origInstrs, out var emuStartIndex, out var emuEndIndex, out _emuLocal))
-                    if (!FindStartEnd(origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal) &&
-                        !FindStartEnd2(origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal))
+                    if (!FindStartEnd(origInstrs, out emuStartIndex, out emuEndIndex, out _emuLocal))
                         return false;
 
                 for (var i = 0; i < _iv.Length; i++)
@@ -1105,8 +1023,7 @@ namespace NETReactorSlayer.Core.Helper
                 return true;
             }
 
-            private bool FindStartEnd(IList<Instruction> instrs, out int startIndex, out int endIndex,
-                out Local tmpLocal)
+            private bool FindStartEnd(IList<Instruction> instrs, out int startIndex, out int endIndex, out Local tmpLocal)
             {
                 var i = 0;
                 while (i + 8 < instrs.Count)
@@ -1128,30 +1045,32 @@ namespace NETReactorSlayer.Core.Helper
                                     continue;
                                 }
 
-                                newStartIndex = x + 1;
                                 break;
                             }
 
-                        if (!_decrypterVersion.Equals(DecrypterVersion.V69))
-                        {
-                            startIndex = 0;
-                            endIndex = 0;
-                            tmpLocal = null;
-                            return false;
-                        }
+                        var ckStartIndex = -1;
+                        for (var y = newEndIndex; y >= 0; y--)
+                            if (instrs[y].IsBr())
+                            {
+                                var offset =
+                                    int.Parse(
+                                        Regex.Match(instrs[y].Operand.ToString(), "IL_(.*?): .*?").Groups[1].Value,
+                                        System.Globalization.NumberStyles.HexNumber);
+                                var instr = instrs.FirstOrDefault(x => (int)x.Offset == offset);
+                                if (instr == null) 
+                                    break;
+                                newStartIndex = instrs.IndexOf(instr);
+                                ckStartIndex = newStartIndex;
+                                break;
+                            }
+
 
                         if (newStartIndex >= 0)
                         {
                             var checkLocs = new List<Local>();
-                            var ckStartIndex = -1;
                             for (var y = newEndIndex; y >= newStartIndex; y--)
                                 if (CheckLocal(instrs[y], true) is Local loc)
-                                {
                                     if (!checkLocs.Contains(loc)) checkLocs.Add(loc);
-                                    if (checkLocs.Count == 10) break;
-
-                                    ckStartIndex = y;
-                                }
 
                             endIndex = newEndIndex;
                             startIndex = Math.Max(ckStartIndex, newStartIndex);
@@ -1161,57 +1080,6 @@ namespace NETReactorSlayer.Core.Helper
                     }
 
                     i++;
-                }
-
-                endIndex = 0;
-                startIndex = 0;
-                tmpLocal = null;
-                return false;
-            }
-
-            private bool FindStartEnd2(IList<Instruction> instrs, out int startIndex, out int endIndex,
-                out Local tmpLocal)
-            {
-                for (var i = 0; i + 8 < instrs.Count; i++)
-                {
-                    if (instrs[i].OpCode.Code != Code.Conv_R_Un)
-                        continue;
-                    if (instrs[i + 1].OpCode.Code != Code.Conv_R8)
-                        continue;
-                    if (instrs[i + 2].OpCode.Code != Code.Conv_U4)
-                        continue;
-                    if (instrs[i + 3].OpCode.Code != Code.Add)
-                        continue;
-                    var newEndIndex = i + 3;
-                    var newStartIndex = -1;
-                    for (var x = newEndIndex; x > 0; x--)
-                        if (instrs[x].OpCode.FlowControl != FlowControl.Next)
-                        {
-                            newStartIndex = x + 1;
-                            break;
-                        }
-
-                    if (newStartIndex < 0)
-                        continue;
-
-                    var checkLocs = new List<Local>();
-                    var ckStartIndex = -1;
-                    for (var y = newEndIndex; y >= newStartIndex; y--)
-                    {
-                        var loc = CheckLocal(instrs[y], true);
-                        if (loc == null)
-                            continue;
-                        if (!checkLocs.Contains(loc))
-                            checkLocs.Add(loc);
-                        if (checkLocs.Count == 3) break;
-
-                        ckStartIndex = y;
-                    }
-
-                    endIndex = newEndIndex;
-                    startIndex = Math.Max(ckStartIndex, newStartIndex);
-                    tmpLocal = CheckLocal(instrs[startIndex], true);
-                    return true;
                 }
 
                 endIndex = 0;
@@ -1368,7 +1236,7 @@ namespace NETReactorSlayer.Core.Helper
             #region Fields
 
             private readonly byte[] _key, _iv;
-            private MethodDef _decryptMethod;
+            private MethodDef _decrypterMethod;
             private MethodDef _emuMethod;
             private List<Instruction> _instructions;
             private readonly List<Local> _locals;
