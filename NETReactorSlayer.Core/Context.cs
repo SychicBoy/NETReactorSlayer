@@ -38,7 +38,7 @@ namespace NETReactorSlayer.Core
 
             Logger.Done($"{Options.Stages.Count}/14 Modules loaded...");
 
-            return LoadAssembly();
+            return LoadModule();
         }
 
         public void Save()
@@ -81,7 +81,7 @@ namespace NETReactorSlayer.Core
 
         #region Private Methods
 
-        private bool LoadAssembly()
+        private bool LoadModule()
         {
             try
             {
@@ -90,67 +90,63 @@ namespace NETReactorSlayer.Core
                 Module = AssemblyModule.Load();
                 ModuleBytes = DeobUtils.ReadModule(Module);
                 PeImage = new MyPeImage(ModuleBytes);
-                try
-                {
-                    Assembly = Assembly.Load(Options.SourcePath);
-                }
-                catch
-                {
-                    Assembly = Assembly.UnsafeLoadFrom(Options.SourcePath);
-                }
-
-                return true;
             }
             catch (Exception ex)
             {
                 try
                 {
                     var unpacked = new NativeUnpacker(new PEImage(Options.SourcePath)).Unpack();
-                    if (unpacked != null)
-                    {
-                        #region Create A Temporary File
+                    if (unpacked == null) throw;
+                    Options.SourcePath = Path.Combine(Options.SourceDir, "PEImage.tmp");
+                    File.WriteAllBytes(Options.SourcePath, unpacked);
 
-                        Options.SourcePath = Path.Combine(Options.SourceDir, "PEImage.tmp");
-                        File.WriteAllBytes(Options.SourcePath, unpacked);
+                    AssemblyModule = new AssemblyModule(Options.SourcePath, ModuleContext);
+                    Module = AssemblyModule.Load(unpacked);
+                    PeImage = new MyPeImage(unpacked);
+                    ObfuscatorInfo.NativeStub = true;
+                    ModuleBytes = DeobUtils.ReadModule(Module);
 
-                        #endregion
+                    Process.Start(new ProcessStartInfo(Process.GetCurrentProcess().MainModule?.FileName,
+                            $"--del-temp {Process.GetCurrentProcess().Id} \"{Options.SourcePath}\"")
+                        { WindowStyle = ProcessWindowStyle.Hidden });
 
-                        AssemblyModule = new AssemblyModule(Options.SourcePath, ModuleContext);
-                        Module = AssemblyModule.Load(unpacked);
-                        try
-                        {
-                            Assembly = Assembly.Load(Options.SourcePath);
-                        }
-                        catch
-                        {
-                            Assembly = Assembly.UnsafeLoadFrom(Options.SourcePath);
-                        }
-
-                        PeImage = new MyPeImage(unpacked);
-                        ObfuscatorInfo.NativeStub = true;
-                        Process.Start(new ProcessStartInfo(Process.GetCurrentProcess().MainModule?.FileName,
-                                $"--del-temp {Process.GetCurrentProcess().Id} \"{Options.SourcePath}\"")
-                            { WindowStyle = ProcessWindowStyle.Hidden });
-                        Logger.Done("Native stub unpacked.");
-                        ModuleBytes = DeobUtils.ReadModule(Module);
-                        return true;
-                    }
-
-                    if (ex is FileLoadException)
-                        Logger.Error(Environment.Is64BitProcess
-                            ? "Failed to load assembly. Try x86 version."
-                            : "Failed to load assembly. Try x64 version.");
-                    else
-                        Logger.Error("Failed to load assembly. " + ex.Message);
-
-                    return false;
+                    Logger.Done("Native stub unpacked.");
                 }
-                catch (Exception ex1)
+                catch
                 {
-                    Logger.Error("Failed to load assembly. " + ex1.Message);
+                    Logger.Error("Failed to load assembly. " + ex.Message);
                     return false;
                 }
             }
+
+            ObfuscatorInfo.UsesReflaction = LoadAssembly();
+            if (!ObfuscatorInfo.UsesReflaction)
+                Logger.Warn("Couldn't load assembly using reflaction.");
+
+            return true;
+        }
+
+        private bool LoadAssembly()
+        {
+            try
+            {
+                Assembly = Assembly.Load(Options.SourcePath);
+                return true;
+            }
+            catch
+            {
+                try
+                {
+                    Assembly = Assembly.UnsafeLoadFrom(Options.SourcePath);
+                    return true;
+                }
+                catch
+                {
+
+                }
+            }
+
+            return false;
         }
 
         private static ModuleContext GetModuleContext()

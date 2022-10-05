@@ -19,8 +19,8 @@ Global
 		Release|Multi-Platform = Release|Multi-Platform
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{91F328FB-CEEC-4869-8DAD-0F9A3EEFAB48}.Debug|Multi-Platform.ActiveCfg = Debug|x86
-		{91F328FB-CEEC-4869-8DAD-0F9A3EEFAB48}.Debug|Multi-Platform.Build.0 = Debug|x86
+		{91F328FB-CEEC-4869-8DAD-0F9A3EEFAB48}.Debug|Multi-Platform.ActiveCfg = Debug|Any CPU
+		{91F328FB-CEEC-4869-8DAD-0F9A3EEFAB48}.Debug|Multi-Platform.Build.0 = Debug|Any CPU
 		{91F328FB-CEEC-4869-8DAD-0F9A3EEFAB48}.Release|Multi-Platform.ActiveCfg = Release|Any CPU
 		{91F328FB-CEEC-4869-8DAD-0F9A3EEFAB48}.Release|Multi-Platform.Build.0 = Release|Any CPU
 		{11E508F0-7AA3-46BD-9891-766DEB293830}.Debug|Multi-Platform.ActiveCfg = Debug|Any CPU

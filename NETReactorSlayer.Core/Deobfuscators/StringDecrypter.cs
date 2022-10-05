@@ -93,21 +93,28 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
                         FindKeyIv(method);
 
-                        var resource = new EncryptedResource(method, new[] { "System.String" });
-                        if (resource.EmbeddedResource != null)
+                        EncryptedResource resource = null;
+
+                        try
                         {
-                            if(_decrypterMethods.Any(x=> x.Value == resource.EmbeddedResource.Name) || _decrypterMethods.Count == 0)
-                                _decrypterMethods.Add(resource.DecrypterMethod, resource.EmbeddedResource.Name);
+                            resource = new EncryptedResource(method, new[] { "System.String" });
+                            if (resource.EmbeddedResource != null)
+                            {
+                                if (_decrypterMethods.Any(x => x.Value == resource.EmbeddedResource.Name) ||
+                                    _decrypterMethods.Count == 0)
+                                    _decrypterMethods.Add(resource.DecrypterMethod, resource.EmbeddedResource.Name);
 
-                            if (_encryptedResource == null)
-                                _encryptedResource = resource;
-                            else
-                                resource.Dispose();
+                                if (_encryptedResource == null)
+                                    _encryptedResource = resource;
+                                else
+                                    resource.Dispose();
 
-                            continue;
+                                continue;
+                            }
                         }
+                        catch { }
 
-                        resource.Dispose();
+                        resource?.Dispose();
                     }
                 }
                 catch
@@ -251,7 +258,8 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
         private long InlineStringsDynamically()
         {
-            if (Context.ObfuscatorInfo.NativeStub && Context.ObfuscatorInfo.NecroBit)
+            if ((Context.ObfuscatorInfo.NativeStub && Context.ObfuscatorInfo.NecroBit)
+                || !Context.ObfuscatorInfo.UsesReflaction)
                 return 0;
 
             bool IsDecrypterMethod(IMethod method) => DotNetUtils.GetCodeStrings(method.ResolveMethodDef())

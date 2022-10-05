@@ -103,12 +103,6 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
         private void FindFieldsDynamically()
         {
-            if (Context.ObfuscatorInfo.NativeStub && Context.ObfuscatorInfo.NecroBit)
-            {
-                Logger.Warn("Couldn't resolve arithmetic fields.");
-                return;
-            }
-
             TypeDef typeDef = null;
             foreach (var type in Context.Module.GetTypes().Where(
                          x => x.IsSealed &&
@@ -116,6 +110,13 @@ namespace NETReactorSlayer.Core.Deobfuscators
                               x.Fields.Count(f =>
                                   f.FieldType.FullName == "System.Int32" && f.IsAssembly && !f.HasConstant) >= 100))
             {
+                if ((Context.ObfuscatorInfo.NativeStub && Context.ObfuscatorInfo.NecroBit) 
+                    || !Context.ObfuscatorInfo.UsesReflaction)
+                {
+                    Logger.Warn("Couldn't resolve arithmetic fields.");
+                    return;
+                }
+
                 _fields.Clear();
 
                 if (type.Fields.Where(x => x.FieldType.FullName == "System.Int32").All(x => x.IsStatic))

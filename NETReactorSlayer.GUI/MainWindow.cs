@@ -498,9 +498,9 @@ namespace NETReactorSlayer.GUI
 
         private void CheckedChanged(object sender, EventArgs e)
         {
-            if (sender as NrsCheckBox == chkPreserveAll)
+            if (sender as NrsCheckBox == chkPreserveAll && chkPreserveAll.Checked)
                 chkKeepTypes.Checked = true;
-            else if (sender as NrsCheckBox == chkKeepTypes)
+            else if (sender as NrsCheckBox == chkKeepTypes && !chkPreserveAll.Checked && chkKeepTypes.Checked)
                 chkPreserveAll.Checked = false;
 
             if ((from x in tabelOptions.Controls.OfType<NrsCheckBox>()
@@ -697,9 +697,11 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
 
         private void ctxRename_Closing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            if (ctxRename.Tag is "open") return;
-            ctxRename.Tag = "close";
-            e.Cancel = true;
+            if (ctxRename.Tag is "open")
+            {
+                ctxRename.Tag = "close";
+                e.Cancel = true;
+            }
         }
 
         private void OpenCtxRename(object sender, MouseEventArgs e)

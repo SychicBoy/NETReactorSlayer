@@ -249,16 +249,16 @@ namespace NETReactorSlayer.Core.Helper
                 };
                 requiredTypes[0].AddRange(additionalTypes);
 
-                if (!localTypes.All(requiredTypes[1]))
-                    if (!localTypes.All(requiredTypes[0]))
-                        if (localTypes.All(requiredTypes[2]))
-                            if (method.Body.Instructions.Any(x =>
-                                x.OpCode.Equals(OpCodes.Newobj) && x.Operand != null && x.Operand.ToString()
-                                    .Contains("System.Security.Cryptography.CryptoStream::.ctor")))
-                        return DotNetUtils.GetMethod(method.DeclaringType, "System.Security.Cryptography.SymmetricAlgorithm",
-                    "()") == null || (!localTypes.Exists("System.UInt64") &&
-                                      (!localTypes.Exists("System.UInt32") ||
-                                       localTypes.Exists("System.Reflection.Assembly")));
+                if (localTypes.All(requiredTypes[0]) ||
+                    localTypes.All(requiredTypes[1]) ||
+                    (localTypes.All(requiredTypes[2]) && method.Body.Instructions.Any(x =>
+                        x.OpCode.Equals(OpCodes.Newobj) && x.Operand != null && x.Operand.ToString()
+                            .Contains("System.Security.Cryptography.CryptoStream::.ctor"))))
+                    return DotNetUtils.GetMethod(method.DeclaringType,
+                        "System.Security.Cryptography.SymmetricAlgorithm",
+                        "()") == null || (!localTypes.Exists("System.UInt64") &&
+                                          (!localTypes.Exists("System.UInt32") ||
+                                           localTypes.Exists("System.Reflection.Assembly")));
 
                 return false;
             }
