@@ -1,6 +1,16 @@
 # CHANGELOG
 All releases are documented in this file.
 
+## [v5.0.0.0](https://github.com/SychicBoy/NETReactorSlayer/compare/v5.0.0.0-rc1..v5.0.0.0)
+> September 28, 2022
+### :wrench: Changed:
+Bug fixes and stability improvements.
+### :sparkles: New:
+- Rename obfuscated symbols name.
+- Restore the type of fields & parameters that have had their type turned into object.
+- Support both static & dynamic control flow deobfuscation.
+- Support both static & dynamic string decryption.
+
 ## [v5.0.0.0-rc1](https://github.com/SychicBoy/NETReactorSlayer/compare/v4.0.0.0...v5.0.0.0-rc1)
 > September 26, 2022
 ### :wrench: Changed:
