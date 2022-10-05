@@ -1,55 +1,108 @@
-# This is a basic workflow to help you get started with Actions
-
-name: CI
-
-# Controls when the workflow will run
+name: GitHub CI
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
     paths-ignore:
-        - '**.md'
-        - '**.yml'
-    branches: [ master ]
+          - '**.md'
+          - '**.yml'
+    branches:
+      - master
   pull_request:
-    branches: [ master ]
-    
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: windows-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+    branches:
+      - master
+  release:
+    types:
+      - released
       
+  workflow_dispatch:
+  
+env:
+  CI_REQ_DOTNET_SDK_VER: 6.0.x
+  
+jobs:
+  build:
+    name: Build NETReactorSlayer
+    runs-on: windows-latest
+    defaults:
+            run:
+              shell: pwsh
+    strategy:
+      matrix:
+        platform: [netframework, net6.0-win32, net6.0-win64, net6.0-linux64, net6.0-osx64, netcoreapp3.1-win32, netcoreapp3.1-win64, netcoreapp3.1-linux64, netcoreapp3.1-osx64]
+        include:
+          - platform: netframework
+            package-name: netframework
+            build-dir: net48
+            
+            
+          - platform: net6.0-win32
+            package-name: net6.0-win32
+            build-dir: net6.0\win-x86\publish
+            
+          - platform: net6.0-win64
+            package-name: net6.0-win64
+            build-dir: net6.0\win-x64\publish
+            
+          - platform: net6.0-linux64
+            package-name: net6.0-linux64
+            build-dir: net6.0\linux-x64\publish
+            
+          - platform: net6.0-osx64
+            package-name: net6.0-osx64
+            build-dir: net6.0\osx-x64\publish
+          
+          
+          - platform: netcoreapp3.1-win32
+            package-name: netcoreapp3.1-win32
+            build-dir: netcoreapp3.1\win-x86\publish
+            
+          - platform: netcoreapp3.1-win64
+            package-name: netcoreapp3.1-win64
+            build-dir: netcoreapp3.1\win-x64\publish
+            
+          - platform: netcoreapp3.1-linux64
+            package-name: netcoreapp3.1-linux64
+            build-dir: netcoreapp3.1\linux-x64\publish
+
+          - platform: netcoreapp3.1-osx64
+            package-name: netcoreapp3.1-osx64
+            build-dir: netcoreapp3.1\osx-x64\publish
+            
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+            submodules: true
+            
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{env.CI_REQ_DOTNET_SDK_VER}}
+        
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.1
         
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1.0.7
+        if: ${{ contains(matrix.platform, 'netframework') }}
         
       - name: Restore NuGet packages
-        run: nuget restore NETReactorSlayer.sln
+        run: nuget restore NETReactorSlayer.GUI\NETReactorSlayer.GUI.csproj -PackagesDirectory .\packages\
+        if: ${{ contains(matrix.platform, 'netframework') }}
         
-      - name: Build the Solution
-        run: msbuild NETReactorSlayer.sln
+      - name: Build ${{matrix.platform}}
+        run: .\build.ps1 ${{matrix.platform}}
         
-      - name: Archive
-        uses: TheDoctor0/zip-release@0.6.2
-        with:
-          type: 'zip'
-          filename: 'NETReactorSlayer.zip'
-          path: 'D:\a\NETReactorSlayer\NETReactorSlayer\Debug\*'
+      - name: Create output directory
+        run: New-Item -ItemType Directory -Path C:\builtfiles\NETReactorSlayer-${{matrix.platform}} -Force > $null
+        continue-on-error: true
         
-      - name: Upload
+      - name: Copy release files for upload
+        run: Copy-Item -Path bin\Release\${{matrix.build-dir}}\* -Destination C:\builtfiles\NETReactorSlayer-${{matrix.platform}} -Recurse
+      
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v3
+        if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
         with:
-          name: NETReactorSlayer
-          path: NETReactorSlayer.zip
+          name: NETReactorSlayer-${{matrix.package-name}}
+          path: C:\builtfiles\NETReactorSlayer-${{matrix.platform}}
           if-no-files-found: error

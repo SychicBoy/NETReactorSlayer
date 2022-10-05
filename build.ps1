@@ -1,4 +1,8 @@
-param(${-no-msbuild})
+param(
+	[ValidateSet("all", "netframework", "net6.0-win32", "net6.0-win64", "net6.0-linux64", "net6.0-osx64", "netcoreapp3.1-win32", "netcoreapp3.1-win64", "netcoreapp3.1-linux64", "netcoreapp3.1-osx64")]
+	[string]$framework = 'all',
+	${-no-msbuild}
+)
 
 $ErrorActionPreference = 'Stop'
 
@@ -17,28 +21,59 @@ function BuildNETFramework {
 }
 
 function BuildNETCore {
-	param([string]$architecture, [string]$targetframework)
+	param([string]$architecture, [string]$tfm)
 
 	Write-Host "Building .NET $architecture binaries"
 
 	$runtimeidentifier = "$architecture"
 
 	if (${-no-msbuild}) {
-		dotnet publish NETReactorSlayer.NETCore.Publish.slnf -v:m -c $configuration -f $targetframework -r $runtimeidentifier --self-contained -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=True -p:PublishSingleFile=true
+		dotnet publish NETReactorSlayer.NETCore.Publish.slnf -v:m -c $configuration -f $tfm -r $runtimeidentifier --self-contained -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=True -p:PublishSingleFile=true
 		if ($LASTEXITCODE) { exit $LASTEXITCODE }
 	}
 	else {
-		msbuild NETReactorSlayer.NETCore.Publish.slnf -v:m -m -restore -t:Publish -p:Configuration=$configuration -p:TargetFramework=$targetframework -p:RuntimeIdentifier=$runtimeidentifier -p:SelfContained=True -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=True -p:PublishSingleFile=true
+		msbuild NETReactorSlayer.NETCore.Publish.slnf -v:m -m -restore -t:Publish -p:Configuration=$configuration -p:TargetFramework=$tfm -p:RuntimeIdentifier=$runtimeidentifier -p:SelfContained=True -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=True -p:PublishSingleFile=true
 		if ($LASTEXITCODE) { exit $LASTEXITCODE }
 	}
 }
 
-BuildNETFramework
-BuildNETCore win-x86 "net6.0"
-BuildNETCore win-x86 "netcoreapp3.1"
-BuildNETCore win-x64 "net6.0"
-BuildNETCore linux-x64 "net6.0"
-BuildNETCore osx-x64 "net6.0"
-BuildNETCore win-x64 "netcoreapp3.1"
-BuildNETCore linux-x64 "netcoreapp3.1"
-BuildNETCore osx-x64 "netcoreapp3.1"
+if($framework -eq 'all') {
+	BuildNETFramework
+	BuildNETCore win-x86 "net6.0"
+	BuildNETCore win-x64 "net6.0"
+	BuildNETCore linux-x64 "net6.0"
+	BuildNETCore osx-x64 "net6.0"
+	BuildNETCore win-x86 "netcoreapp3.1"
+	BuildNETCore win-x64 "netcoreapp3.1"
+	BuildNETCore linux-x64 "netcoreapp3.1"
+	BuildNETCore osx-x64 "netcoreapp3.1"
+}
+else {
+	if($framework -eq 'netframework'){
+		BuildNETFramework
+	}
+	elseif($framework -eq 'net6.0-win32'){
+		BuildNETCore win-x86 'net6.0'
+	}
+	elseif($framework -eq 'net6.0-win64'){
+		BuildNETCore win-x64 'net6.0'
+	}
+	elseif($framework -eq 'net6.0-linux64'){
+		BuildNETCore linux-x64 'net6.0'
+	}
+	elseif($framework -eq 'net6.0-osx64'){
+		BuildNETCore osx-x64 'net6.0'
+	}
+	elseif($framework -eq 'netcoreapp3.1-win32'){
+		BuildNETCore win-x86 'netcoreapp3.1'
+	}
+	elseif($framework -eq 'netcoreapp3.1-win64'){
+		BuildNETCore win-x64 'netcoreapp3.1'
+	}
+	elseif($framework -eq 'netcoreapp3.1-linux64'){
+		BuildNETCore linux-x64 'netcoreapp3.1'
+	}
+	elseif($framework -eq 'netcoreapp3.1-osx64'){
+		BuildNETCore osx-x64 'netcoreapp3.1'
+	}
+}

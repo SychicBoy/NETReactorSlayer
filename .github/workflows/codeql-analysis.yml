@@ -8,7 +8,9 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
-
+    
+  workflow_dispatch:
+  
 jobs:
   analyze:
     name: Analyze
@@ -39,7 +41,7 @@ jobs:
         dotnet-version: ${{ matrix.dotnet-version }}
         
     - name: Build
-      run: dotnet build NETReactorSlayer.slnf
+      run: dotnet build NETReactorSlayer.NETCore.slnf
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
