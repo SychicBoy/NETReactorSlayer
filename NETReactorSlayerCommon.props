@@ -16,6 +16,7 @@
         <Copyright>Copyright (C) 2021-2022 CodeStrikers.org</Copyright>
         <Description>A deobfuscator and unpacker for Eziriz .NET Reactor</Description>
         <Company>CodeStrikers.org</Company>
+        <DebugType>embedded</DebugType>
         
     </PropertyGroup>
     

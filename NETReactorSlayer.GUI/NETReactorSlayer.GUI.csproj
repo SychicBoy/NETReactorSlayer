@@ -147,7 +147,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Icon.ico" />
-    <None Include="Resources\ChangeLogs.txt" />
     <None Include="Resources\MenuOver.png" />
     <None Include="Resources\Menu.png" />
     <None Include="Resources\scrollbar_disabled.png" />

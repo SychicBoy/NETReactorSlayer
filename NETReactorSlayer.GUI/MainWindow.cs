@@ -40,7 +40,7 @@ namespace NETReactorSlayer.GUI
         public MainWindow(string arg = "")
         {
             if (arg == "updated")
-                MsgBox.Show(Resources.ChangeLogs.Replace("\n-", "\n● "), "What's New", MsgBox.MsgButtons.Ok,
+                MsgBox.Show(ChangeLogs.Replace("\n-", "\n● "), "What's New", MsgBox.MsgButtons.Ok,
                     MsgBox.MsgIcon.Info, this);
             InitializeComponent();
             lblVersion.Text = InformationalVersion;
@@ -743,5 +743,11 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
                 return cp;
             }
         }
+
+        private const string ChangeLogs = @"Changes:
+-Bug fixes and stability improvements.
+
+New features:
+-Support .NET Reactor v6.9.0.0";
     }
 }
