@@ -27,44 +27,59 @@ jobs:
               shell: pwsh
     strategy:
       matrix:
-        platform: [netframework, net6.0-win32, net6.0-win64, net6.0-linux64, net6.0-osx64, netcoreapp3.1-win32, netcoreapp3.1-win64, netcoreapp3.1-linux64, netcoreapp3.1-osx64]
+        platform: [netframework, net6.0-win32, net6.0-win64, net6.0-win-arm, net6.0-win-arm64, net6.0-linux64, net6.0-linux-arm, net6.0-linux-arm64, net6.0-osx64, netcoreapp3.1-win32, netcoreapp3.1-win64, netcoreapp3.1-win-arm, netcoreapp3.1-win-arm64, netcoreapp3.1-linux64, netcoreapp3.1-linux-arm, netcoreapp3.1-linux-arm64, netcoreapp3.1-osx64]
         include:
           - platform: netframework
-            package-name: netframework
             build-dir: net48
             
             
           - platform: net6.0-win32
-            package-name: net6.0-win32
             build-dir: net6.0\win-x86\publish
             
           - platform: net6.0-win64
-            package-name: net6.0-win64
             build-dir: net6.0\win-x64\publish
+
+          - platform: net6.0-win-arm
+            build-dir: net6.0\win-arm\publish
+
+          - platform: net6.0-win-arm64
+            build-dir: net6.0\win-arm64\publish
             
           - platform: net6.0-linux64
-            package-name: net6.0-linux64
             build-dir: net6.0\linux-x64\publish
+
+          - platform: net6.0-linux-arm
+            build-dir: net6.0\linux-arm\publish
             
+          - platform: net6.0-linux-arm64
+            build-dir: net6.0\linux-arm64\publish
+
           - platform: net6.0-osx64
-            package-name: net6.0-osx64
             build-dir: net6.0\osx-x64\publish
           
           
           - platform: netcoreapp3.1-win32
-            package-name: netcoreapp3.1-win32
             build-dir: netcoreapp3.1\win-x86\publish
             
           - platform: netcoreapp3.1-win64
-            package-name: netcoreapp3.1-win64
             build-dir: netcoreapp3.1\win-x64\publish
             
+          - platform: netcoreapp3.1-win-arm
+            build-dir: netcoreapp3.1\win-arm\publish
+
+          - platform: netcoreapp3.1-win-arm64
+            build-dir: netcoreapp3.1\win-arm64\publish
+
           - platform: netcoreapp3.1-linux64
-            package-name: netcoreapp3.1-linux64
             build-dir: netcoreapp3.1\linux-x64\publish
 
+          - platform: netcoreapp3.1-linux-arm
+            build-dir: netcoreapp3.1\linux-arm\publish
+
+          - platform: netcoreapp3.1-linux-arm64
+            build-dir: netcoreapp3.1\linux-arm64\publish
+
           - platform: netcoreapp3.1-osx64
-            package-name: netcoreapp3.1-osx64
             build-dir: netcoreapp3.1\osx-x64\publish
             
     steps:
@@ -103,6 +118,6 @@ jobs:
         uses: actions/upload-artifact@v3
         if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
         with:
-          name: NETReactorSlayer-${{matrix.package-name}}
+          name: NETReactorSlayer-${{matrix.platform}}
           path: C:\builtfiles\NETReactorSlayer-${{matrix.platform}}
           if-no-files-found: error
