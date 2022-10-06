@@ -16,7 +16,7 @@ GUI             |  CLI
 <br />
 
 ### Binaries:
-Get the latest stable version from [GitHub releases](https://github.com/SychicBoy/NETReactorSlayer/releases/latest)
+Get the latest stable version from [GitHub releases](https://github.com/SychicBoy/NETReactorSlayer/releases/latest).
 
 ### Documentation:
 Check out the [Wiki](https://github.com/SychicBoy/NETReactorSlayer/wiki) for guides and information on how to use it.
