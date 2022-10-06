@@ -98,9 +98,8 @@ jobs:
         
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1.0.7
-        if: ${{ contains(matrix.platform, 'netframework') }}
         
-      - name: Restore NuGet packages
+      - name: Restore NuGet packages for NETReactorSlayer.GUI
         run: nuget restore NETReactorSlayer.GUI\NETReactorSlayer.GUI.csproj -PackagesDirectory .\packages\
         if: ${{ contains(matrix.platform, 'netframework') }}
         
@@ -114,10 +113,18 @@ jobs:
       - name: Copy release files for upload
         run: Copy-Item -Path bin\Release\${{matrix.build-dir}}\* -Destination C:\builtfiles\NETReactorSlayer-${{matrix.platform}} -Recurse
       
-      - name: Upload Artifacts
+      - name: Upload NETReactorSlayer
         uses: actions/upload-artifact@v3
-        if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
+        if: ${{ contains(matrix.platform, 'netframework') && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')) }}
         with:
           name: NETReactorSlayer-${{matrix.platform}}
+          path: C:\builtfiles\NETReactorSlayer-${{matrix.platform}}
+          if-no-files-found: error
+
+      - name: Upload NETReactorSlayer.CLI
+        uses: actions/upload-artifact@v3
+        if: ${{ !contains(matrix.platform, 'netframework') && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/'))}}
+        with:
+          name: NETReactorSlayer.CLI-${{matrix.platform}}
           path: C:\builtfiles\NETReactorSlayer-${{matrix.platform}}
           if-no-files-found: error
