@@ -48,9 +48,9 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 Cleaner.AddCallToBeRemoved(_encryptedResource.DecrypterMethod);
                 Logger.Done($"{Context.Module.GetTypes().SelectMany(x => x.Methods).Count()} Methods decrypted.");
             }
-            catch
+            catch (Exception ex)
             {
-                Logger.Error("An unexpected error occurred during decrypting methods.");
+                Logger.Error("An unexpected error occurred during decrypting methods.", ex);
             }
 
             _encryptedResource?.Dispose();

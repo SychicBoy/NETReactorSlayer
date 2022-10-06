@@ -99,9 +99,9 @@ namespace NETReactorSlayer.Core.Helper
                 DotNetUtils.RestoreBody(method, allInstructions, allExceptionHandlers);
                 DeobfuscateBlocks(method);
             }
-            catch
+            catch (Exception ex)
             {
-                Logger.Warn("Couldn't deobfuscate " + method.FullName);
+                Logger.Error($"An unexpected error occurred during deobfuscating {method.FullName}.", ex);
             }
         }
 

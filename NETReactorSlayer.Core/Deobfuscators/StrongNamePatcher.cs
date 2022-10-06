@@ -29,7 +29,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             var methodDef = Find();
             if (methodDef == null)
             {
-                Logger.Warn("Couldn't find any strong name removal protection.");
+                Logger.Warn("Couldn't find strong name removal protection.");
                 return;
             }
 
@@ -66,8 +66,8 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 {
                 }
 
-            if (count > 0) Logger.Done($"Strong name removal protection removed from {(int)count} methods.");
-            else Logger.Warn("Couldn't find strong name removal protection.");
+            if (count > 0)
+                Logger.Done($"Strong name removal protection removed from {(int)count} methods.");
         }
 
         #region Private Methods

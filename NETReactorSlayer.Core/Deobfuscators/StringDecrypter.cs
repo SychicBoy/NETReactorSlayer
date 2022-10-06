@@ -65,9 +65,9 @@ namespace NETReactorSlayer.Core.Deobfuscators
                         Logger.Warn("Couldn't find any encrypted string.");
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                Logger.Error("An unexpected error occurred during decrypting strings.");
+                Logger.Error("An unexpected error occurred during decrypting strings.", ex);
             }
 
             _encryptedResource?.Dispose();

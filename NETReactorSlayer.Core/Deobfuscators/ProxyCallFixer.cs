@@ -32,7 +32,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             {
                 if (!Find())
                 {
-                    Logger.Warn("Couldn't find any hidden call.");
+                    Logger.Warn("Couldn't find any proxied call.");
                     return;
                 }
 
@@ -45,16 +45,16 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
                 if (count > 0)
                 {
-                    Logger.Done(count + " Hidden calls restored.");
+                    Logger.Done(count + " Proxied calls fixed.");
                     Cleaner.AddMethodToBeRemoved(_encryptedResource.DecrypterMethod);
                     Cleaner.AddResourceToBeRemoved(_encryptedResource.EmbeddedResource);
                 }
                 else
-                    Logger.Warn("Couldn't find any hidden call.");
+                    Logger.Warn("Couldn't find any proxied call.");
             }
-            catch
+            catch (Exception ex)
             {
-                Logger.Error("An unexpected error occurred during decrypting hidden calls.");
+                Logger.Error("An unexpected error occurred during fixing proxied calls.", ex);
             }
 
             _encryptedResource?.Dispose();

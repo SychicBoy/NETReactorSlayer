@@ -85,8 +85,6 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
             if (count > 0)
                 Logger.Done(count + " Embedded assemblies dumped (Costura.Fody).");
-            else
-                Logger.Warn("Couldn't find any embedded assembly (Costura.Fody).");
         }
 
         #region Private Methods

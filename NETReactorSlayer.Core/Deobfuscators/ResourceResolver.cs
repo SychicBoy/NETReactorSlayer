@@ -44,9 +44,9 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 Cleaner.AddResourceToBeRemoved(_encryptedResource.EmbeddedResource);
                 Logger.Done("Assembly resources decrypted");
             }
-            catch
+            catch (Exception ex)
             {
-                Logger.Error("An unexpected error occurred during decrypting resources.");
+                Logger.Error("An unexpected error occurred during decrypting resources.", ex);
             }
 
             _encryptedResource?.Dispose();

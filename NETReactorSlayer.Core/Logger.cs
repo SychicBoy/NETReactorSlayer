@@ -33,8 +33,6 @@ namespace NETReactorSlayer.Core
 
         public static void Warn(string message)
         {
-            if (!Context.Options.Verbose)
-                return;
             Console.Write("  [");
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.Write("!");
@@ -43,8 +41,10 @@ namespace NETReactorSlayer.Core
             Console.WriteLine(message);
         }
 
-        public static void Error(string message)
+        public static void Error(string message, Exception ex = null)
         {
+            if (Context.Options.Verbose && ex != null && ex.Message != null)
+                message += $" {ex.Message}.";
             Console.Write("  [");
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write("X");

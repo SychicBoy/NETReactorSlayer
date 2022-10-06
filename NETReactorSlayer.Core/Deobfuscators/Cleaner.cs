@@ -266,8 +266,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                         Logger.Done(
                             $"{count} Calls to obfuscator types removed.");
                     else
-                        Logger.Warn(
-                            "Couldn't find any call to the obfuscator types.");
+                        Logger.Warn("Couldn't find any call to the obfuscator types.");
                 }
                 catch
                 {

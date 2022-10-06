@@ -47,9 +47,9 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 else
                     Logger.Warn("Couldn't find any encrypted boolean.");
             }
-            catch
+            catch (Exception ex)
             {
-                Logger.Error("An unexpected error occurred during decrypting booleans.");
+                Logger.Error("An unexpected error occurred during decrypting booleans.", ex);
             }
 
             _encryptedResource?.Dispose();

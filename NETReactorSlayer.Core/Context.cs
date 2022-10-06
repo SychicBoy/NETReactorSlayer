@@ -75,7 +75,7 @@ namespace NETReactorSlayer.Core
             }
             catch (Exception ex)
             {
-                Logger.Error("Failed to save file. " + ex.Message);
+                Logger.Error($"An unexpected error occurred during writing output file. {ex.Message}.");
             }
         }
 
@@ -114,7 +114,7 @@ namespace NETReactorSlayer.Core
                 }
                 catch
                 {
-                    Logger.Error("Failed to load assembly. " + ex.Message);
+                    Logger.Error($"Failed to load assembly. {ex.Message}.");
                     return false;
                 }
             }
