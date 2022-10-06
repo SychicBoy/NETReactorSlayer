@@ -322,7 +322,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                     method.Body.Instructions[1].OpCode.Equals(OpCodes.Ldnull) &&
                     method.Body.Instructions[2].OpCode.Equals(OpCodes.Ceq) &&
                     method.Body.Instructions[3].OpCode.Equals(OpCodes.Ret))
-                    if (method.Body.Instructions[0].Operand is FieldDef field && field.IsPublic &&
+                    if (method.Body.Instructions[0].Operand is FieldDef field && !field.IsPublic &&
                         (field.FieldType.FullName == "System.Object" || (field.DeclaringType != null &&
                                                                          field.FieldType.FullName ==
                                                                          field.DeclaringType.FullName)))
@@ -376,20 +376,20 @@ namespace NETReactorSlayer.Core.Deobfuscators
         {
             if (!Context.Options.RemoveJunks) return;
             foreach (var type in Context.Module.GetTypes())
-            foreach (var method in type.Methods.Where(x => x.HasBody))
-                try
-                {
-                    if (method.DeclaringType == null ||
-                        !DotNetUtils.IsMethod(method, "System.Void", "()") ||
-                        !method.IsStatic ||
-                        !method.IsAssembly ||
-                        !DotNetUtils.IsEmpty(method) ||
-                        method.DeclaringType.Methods.Any(x => DotNetUtils.GetMethodCalls(x).Contains(method))) continue;
-                    AddCallToBeRemoved(method);
-                }
-                catch
-                {
-                }
+                foreach (var method in type.Methods.Where(x => x.HasBody))
+                    try
+                    {
+                        if (method.DeclaringType == null ||
+                            !DotNetUtils.IsMethod(method, "System.Void", "()") ||
+                            !method.IsStatic ||
+                            !method.IsAssembly ||
+                            !DotNetUtils.IsEmpty(method) ||
+                            method.DeclaringType.Methods.Any(x => DotNetUtils.GetMethodCalls(x).Contains(method))) continue;
+                        AddCallToBeRemoved(method);
+                    }
+                    catch
+                    {
+                    }
         }
 
         private bool RemoveMethodIfDnrTrial(MethodDef method)
