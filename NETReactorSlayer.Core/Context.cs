@@ -121,7 +121,7 @@ namespace NETReactorSlayer.Core
 
             ObfuscatorInfo.UsesReflaction = LoadAssembly();
             if (!ObfuscatorInfo.UsesReflaction)
-                Logger.Warn("Couldn't load assembly using reflaction.");
+                Logger.Warn("Couldn't load assembly using reflection.");
 
             return true;
         }
