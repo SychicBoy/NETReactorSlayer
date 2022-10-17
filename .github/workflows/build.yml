@@ -97,7 +97,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
         
       - name: Setup NuGet
-        uses: NuGet/setup-nuget@v1.0.7
+        uses: NuGet/setup-nuget@v1.1.1
         
       - name: Restore NuGet packages for NETReactorSlayer.GUI
         run: nuget restore NETReactorSlayer.GUI\NETReactorSlayer.GUI.csproj -PackagesDirectory .\packages\
