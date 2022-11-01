@@ -162,7 +162,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             var methodsDataReader = ByteArrayDataReaderFactory.CreateReader(bytes);
 
             int tmp;
-            if (FindBinaryReaderMethod(out var popCallsCount))
+            if (FindBinaryReaderMethod(out var popCallsCount) && popCallsCount > 3)
             {
                 for (var i = 0; i < popCallsCount; i++)
                     methodsDataReader.ReadInt32();
