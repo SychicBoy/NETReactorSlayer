@@ -392,7 +392,7 @@ namespace NETReactorSlayer.De4dot.Renamer
             }
         }
 
-        private string GetPinvokeName(MMethodDef methodDef)
+        private static string GetPinvokeName(MMethodDef methodDef)
         {
             var entryPoint = methodDef.MethodDef.ImplMap.Name.String;
             if (Regex.IsMatch(entryPoint, @"^#\d+$"))

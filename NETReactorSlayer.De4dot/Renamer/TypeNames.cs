@@ -44,7 +44,7 @@ namespace NETReactorSlayer.De4dot.Renamer
             return AddTypeName(typeFullName, shortName, prefix).Create();
         }
 
-        private bool IsFnPtrSig(TypeSig sig)
+        private static bool IsFnPtrSig(TypeSig sig)
         {
             while (sig != null)
             {
@@ -56,7 +56,7 @@ namespace NETReactorSlayer.De4dot.Renamer
             return false;
         }
 
-        private bool IsGenericParam(ITypeDefOrRef tdr)
+        private static bool IsGenericParam(ITypeDefOrRef tdr)
         {
             var ts = tdr as TypeSpec;
             if (ts == null)

@@ -111,7 +111,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             return count;
         }
 
-        private bool Decrypt(int offset, byte[] bytes) =>
+        private static bool Decrypt(int offset, byte[] bytes) =>
             Context.ModuleBytes[BitConverter.ToUInt32(bytes, offset)] == 0x80;
 
         #endregion

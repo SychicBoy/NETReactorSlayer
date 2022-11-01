@@ -138,27 +138,25 @@ namespace NETReactorSlayer.Core.Helper
                     if (!method.Body.Instructions[i].IsBrfalse() ||
                         !method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Pop) ||
                         !method.Body.Instructions[i - 1].OpCode.Equals(OpCodes.Call)) continue;
-                    if (method.Body.Instructions[i - 1].Operand is MethodDef methodDef2)
+                    if (method.Body.Instructions[i - 1].Operand is not MethodDef methodDef2) continue;
+                    var methodDefInstr2 = methodDef2.Body.Instructions;
+                    if (methodDef2.ReturnType.FullName == "System.Boolean")
                     {
-                        var methodDefInstr2 = methodDef2.Body.Instructions;
-                        if (methodDef2.ReturnType.FullName == "System.Boolean")
-                        {
-                            if (methodDefInstr2[methodDefInstr2.Count - 2].OpCode.Equals(OpCodes.Ldc_I4_0))
-                            {
-                                method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
-                                method.Body.Instructions[i].OpCode = OpCodes.Br_S;
-                            }
-                            else
-                            {
-                                method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
-                                method.Body.Instructions[i].OpCode = OpCodes.Nop;
-                            }
-                        }
-                        else
+                        if (methodDefInstr2[methodDefInstr2.Count - 2].OpCode.Equals(OpCodes.Ldc_I4_0))
                         {
                             method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
                             method.Body.Instructions[i].OpCode = OpCodes.Br_S;
                         }
+                        else
+                        {
+                            method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
+                            method.Body.Instructions[i].OpCode = OpCodes.Nop;
+                        }
+                    }
+                    else
+                    {
+                        method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
+                        method.Body.Instructions[i].OpCode = OpCodes.Br_S;
                     }
                 }
         }

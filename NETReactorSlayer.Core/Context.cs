@@ -81,7 +81,7 @@ namespace NETReactorSlayer.Core
 
         #region Private Methods
 
-        private bool LoadModule()
+        private static bool LoadModule()
         {
             try
             {
@@ -126,7 +126,7 @@ namespace NETReactorSlayer.Core
             return true;
         }
 
-        private bool LoadAssembly()
+        private static bool LoadAssembly()
         {
             try
             {

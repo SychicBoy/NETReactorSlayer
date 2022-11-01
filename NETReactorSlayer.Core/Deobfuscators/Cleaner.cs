@@ -258,19 +258,21 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
         private static void RemoveCallsToObfuscatorTypes()
         {
-            if (Context.Options.RemoveCallsToObfuscatorTypes && CallsToRemove.Count > 0)
-                try
-                {
-                    var count = MethodCallRemover.RemoveCalls(CallsToRemove.ToList());
-                    if (count > 0)
-                        Logger.Done(
-                            $"{count} Calls to obfuscator types removed.");
-                    else
-                        Logger.Warn("Couldn't find any call to the obfuscator types.");
-                }
-                catch
-                {
-                }
+            if (!Context.Options.RemoveCallsToObfuscatorTypes || CallsToRemove.Count <= 0) 
+                return;
+
+            try
+            {
+                var count = MethodCallRemover.RemoveCalls(CallsToRemove.ToList());
+                if (count > 0)
+                    Logger.Done(
+                        $"{count} Calls to obfuscator types removed.");
+                else
+                    Logger.Warn("Couldn't find any call to the obfuscator types.");
+            }
+            catch
+            {
+            }
         }
 
         private void FindAndRemoveDummyTypes(MethodDef method)
@@ -406,7 +408,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 return false;
 
             MethodCallRemover.RemoveCalls(method);
-            if (!method.DeclaringType.IsGlobalModuleType)
+            if (method.DeclaringType != null && !method.DeclaringType.IsGlobalModuleType)
                 Context.Module.Types.Remove(method.DeclaringType);
             else if (DotNetUtils.IsMethod(method, "System.Void", "()"))
                 method.Body = new CilBody { Instructions = { OpCodes.Ret.ToInstruction() } };

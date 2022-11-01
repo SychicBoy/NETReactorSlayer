@@ -484,31 +484,33 @@ namespace NETReactorSlayer.Core.Helper
                 return false;
             }
 
-            private bool FindStartEnd2(ref IList<Instruction> instrs, out int startIndex, out int endIndex,
+            private static bool FindStartEnd2(ref IList<Instruction> instrs, out int startIndex, out int endIndex,
                 out Local tmpLocal, out Parameter tmpArg, ref MethodDef methodDef, ref List<Local> locals)
             {
                 foreach (var instr in instrs)
                 {
                     MethodDef method;
-                    if (instr.OpCode.Equals(OpCodes.Call) && (method = instr.Operand as MethodDef) != null &&
-                        method.ReturnType.FullName == "System.Byte[]")
-                        using (var enumerator2 = DotNetUtils.GetMethodCalls(method).GetEnumerator())
+                    if (!instr.OpCode.Equals(OpCodes.Call) || (method = instr.Operand as MethodDef) == null ||
+                        method.ReturnType.FullName != "System.Byte[]") 
+                        continue;
+
+                    using (var enumerator2 = DotNetUtils.GetMethodCalls(method).GetEnumerator())
+                    {
+                        while (enumerator2.MoveNext())
                         {
-                            while (enumerator2.MoveNext())
-                            {
-                                MethodDef calledMethod;
-                                if ((calledMethod = enumerator2.Current as MethodDef) == null ||
-                                    calledMethod.Parameters.Count != 2) continue;
-                                instrs = calledMethod.Body.Instructions;
-                                methodDef = calledMethod;
-                                locals = new List<Local>(calledMethod.Body.Variables);
-                                startIndex = 0;
-                                endIndex = instrs.Count - 1;
-                                tmpLocal = null;
-                                tmpArg = calledMethod.Parameters[1];
-                                return true;
-                            }
+                            MethodDef calledMethod;
+                            if ((calledMethod = enumerator2.Current as MethodDef) == null ||
+                                calledMethod.Parameters.Count != 2) continue;
+                            instrs = calledMethod.Body.Instructions;
+                            methodDef = calledMethod;
+                            locals = new List<Local>(calledMethod.Body.Variables);
+                            startIndex = 0;
+                            endIndex = instrs.Count - 1;
+                            tmpLocal = null;
+                            tmpArg = calledMethod.Parameters[1];
+                            return true;
                         }
+                    }
                 }
 
                 endIndex = 0;
@@ -518,7 +520,7 @@ namespace NETReactorSlayer.Core.Helper
                 return false;
             }
 
-            private uint ReadUInt32(byte[] ary, int index)
+            private static uint ReadUInt32(byte[] ary, int index)
             {
                 var sizeLeft = ary.Length - index;
                 if (sizeLeft >= 4)
@@ -532,7 +534,7 @@ namespace NETReactorSlayer.Core.Helper
                 }
             }
 
-            private void WriteUInt32(IList<byte> ary, int index, uint value)
+            private static void WriteUInt32(IList<byte> ary, int index, uint value)
             {
                 var num = ary.Count - index;
                 if (num >= 1) ary[index] = (byte)value;
@@ -702,7 +704,7 @@ namespace NETReactorSlayer.Core.Helper
                 return (uint)tos.Value;
             }
 
-            private uint ReadUInt32(byte[] ary, int index)
+            private static uint ReadUInt32(byte[] ary, int index)
             {
                 var sizeLeft = ary.Length - index;
                 if (sizeLeft >= 4)
@@ -716,7 +718,7 @@ namespace NETReactorSlayer.Core.Helper
                 }
             }
 
-            private void WriteUInt32(IList<byte> ary, int index, uint value)
+            private static void WriteUInt32(IList<byte> ary, int index, uint value)
             {
                 var num = ary.Count - index;
                 if (num >= 1) ary[index] = (byte)value;
@@ -1139,11 +1141,11 @@ namespace NETReactorSlayer.Core.Helper
                     var instr = instrs[i];
                     if (instr.OpCode.FlowControl != FlowControl.Next)
                         break;
-                    if (instr.IsStloc() && instr.GetLocal(_locals) == _emuLocal)
-                    {
-                        endIndex = i - 1;
-                        return true;
-                    }
+                    if (!instr.IsStloc() || instr.GetLocal(_locals) != _emuLocal) 
+                        continue;
+
+                    endIndex = i - 1;
+                    return true;
                 }
 
                 endIndex = 0;
@@ -1204,7 +1206,7 @@ namespace NETReactorSlayer.Core.Helper
                 return (uint)tos.Value;
             }
 
-            private uint ReadUInt32(byte[] ary, int index)
+            private static uint ReadUInt32(byte[] ary, int index)
             {
                 var sizeLeft = ary.Length - index;
                 if (sizeLeft >= 4)
@@ -1218,7 +1220,7 @@ namespace NETReactorSlayer.Core.Helper
                 }
             }
 
-            private void WriteUInt32(byte[] ary, int index, uint value)
+            private static void WriteUInt32(byte[] ary, int index, uint value)
             {
                 var sizeLeft = ary.Length - index;
                 if (sizeLeft >= 1)

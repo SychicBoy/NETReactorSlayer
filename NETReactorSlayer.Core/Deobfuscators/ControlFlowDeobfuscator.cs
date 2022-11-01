@@ -185,18 +185,16 @@ namespace NETReactorSlayer.Core.Deobfuscators
             for (var i = 0; i < method.Body.Instructions.Count; i++)
                 try
                 {
-                    if ((method.Body.Instructions[i].OpCode == OpCodes.Ldsfld ||
-                         method.Body.Instructions[i].OpCode == OpCodes.Ldfld) &&
-                        method.Body.Instructions[i].Operand is IField &&
-                        _fields.TryGetValue((IField)method.Body.Instructions[i].Operand, out var value) &&
-                        method.DeclaringType != _fields.First().Key.DeclaringType)
-                    {
-                        if (method.Body.Instructions[i].OpCode == OpCodes.Ldfld &&
-                            method.Body.Instructions[i - 1].OpCode == OpCodes.Ldsfld)
-                            method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
-                        method.Body.Instructions[i] = Instruction.CreateLdcI4(value);
-                        count++;
-                    }
+                    if ((method.Body.Instructions[i].OpCode != OpCodes.Ldsfld &&
+                         method.Body.Instructions[i].OpCode != OpCodes.Ldfld) ||
+                        method.Body.Instructions[i].Operand is not IField ||
+                        !_fields.TryGetValue((IField)method.Body.Instructions[i].Operand, out var value) ||
+                        method.DeclaringType == _fields.First().Key.DeclaringType) continue;
+                    if (method.Body.Instructions[i].OpCode == OpCodes.Ldfld &&
+                        method.Body.Instructions[i - 1].OpCode == OpCodes.Ldsfld)
+                        method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
+                    method.Body.Instructions[i] = Instruction.CreateLdcI4(value);
+                    count++;
                 }
                 catch
                 {

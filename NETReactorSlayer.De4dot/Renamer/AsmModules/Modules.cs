@@ -216,7 +216,7 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules
             return null;
         }
 
-        private bool IsAutoCreatedType(ITypeDefOrRef typeRef)
+        private static bool IsAutoCreatedType(ITypeDefOrRef typeRef)
         {
             var ts = typeRef as TypeSpec;
             if (ts == null)

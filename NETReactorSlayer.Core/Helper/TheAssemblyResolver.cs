@@ -44,11 +44,9 @@ namespace NETReactorSlayer.Core.Helper
                 AddOtherAssemblySearchPaths(paths, dirPFx86);
 
             var windir = Environment.GetEnvironmentVariable("WINDIR");
-            if (!string.IsNullOrEmpty(windir))
-            {
-                AddIfExists(paths, windir, @"Microsoft.NET\Framework\v1.1.4322");
-                AddIfExists(paths, windir, @"Microsoft.NET\Framework\v1.0.3705");
-            }
+            if (string.IsNullOrEmpty(windir)) return;
+            AddIfExists(paths, windir, @"Microsoft.NET\Framework\v1.1.4322");
+            AddIfExists(paths, windir, @"Microsoft.NET\Framework\v1.0.3705");
         }
 
         private static void AddOtherAssemblySearchPaths(ICollection<string> paths, string path)

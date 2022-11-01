@@ -112,7 +112,9 @@ namespace NETReactorSlayer.Core.Deobfuscators
                                 continue;
                             }
                         }
-                        catch { }
+                        catch
+                        {
+                        }
 
                         resource?.Dispose();
                     }
@@ -233,8 +235,8 @@ namespace NETReactorSlayer.Core.Deobfuscators
                         if (methodDef != null && methodDef.HasReturnType != true)
                             continue;
 
-                        if (!methodDef.HasParams() || methodDef.Parameters.Count != 1 ||
-                            methodDef.Parameters[0].Type.FullName != "System.Int32")
+                        if (methodDef != null && (!methodDef.HasParams() || methodDef.Parameters.Count != 1 ||
+                                                  methodDef.Parameters[0].Type.FullName != "System.Int32"))
                             continue;
 
                         if (!IsDecrypterMethod(methodDef))
@@ -256,7 +258,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             return count;
         }
 
-        private long InlineStringsDynamically()
+        private static long InlineStringsDynamically()
         {
             if ((Context.ObfuscatorInfo.NativeStub && Context.ObfuscatorInfo.NecroBit)
                 || !Context.ObfuscatorInfo.UsesReflaction)

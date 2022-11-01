@@ -159,11 +159,9 @@ namespace NETReactorSlayer.Core.Helper
                 _dnFileInitialized = true;
 
                 var dotNetDir = PeImage.ImageNTHeaders.OptionalHeader.DataDirectories[14];
-                if (dotNetDir.VirtualAddress != 0 && dotNetDir.Size >= 0x48)
-                {
-                    _metadata = MetadataFactory.CreateMetadata(PeImage, false);
-                    _dotNetSection = FindSection(dotNetDir.VirtualAddress);
-                }
+                if (dotNetDir.VirtualAddress == 0 || dotNetDir.Size < 0x48) return _metadata;
+                _metadata = MetadataFactory.CreateMetadata(PeImage, false);
+                _dotNetSection = FindSection(dotNetDir.VirtualAddress);
 
                 return _metadata;
             }

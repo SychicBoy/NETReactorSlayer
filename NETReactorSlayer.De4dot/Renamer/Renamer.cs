@@ -49,7 +49,7 @@ namespace NETReactorSlayer.De4dot.Renamer
             }
         }
 
-        private void RemoveUselessOverrides(MethodNameGroups groups)
+        private static void RemoveUselessOverrides(MethodNameGroups groups)
         {
             foreach (var group in groups.GetAllGroups())
             foreach (var method in group.Methods)
@@ -724,7 +724,7 @@ namespace NETReactorSlayer.De4dot.Renamer
             eventMethod.Event = eventDef;
         }
 
-        private TypeSig GetEventType(IMethod method)
+        private static TypeSig GetEventType(IMethod method)
         {
             if (DotNetUtils.HasReturnValue(method))
                 return null;
@@ -994,7 +994,7 @@ namespace NETReactorSlayer.De4dot.Renamer
             return null;
         }
 
-        private MMethodDef GetEventMethod(MethodNameGroup group)
+        private static MMethodDef GetEventMethod(MethodNameGroup group)
         {
             foreach (var method in group.Methods)
                 if (method.Event != null)
@@ -1094,7 +1094,7 @@ namespace NETReactorSlayer.De4dot.Renamer
             return newPropName;
         }
 
-        private bool IsItemProperty(MethodNameGroup group)
+        private static bool IsItemProperty(MethodNameGroup group)
         {
             foreach (var method in group.Methods)
                 if (method.Property != null && method.Property.IsItemProperty())
@@ -1122,7 +1122,7 @@ namespace NETReactorSlayer.De4dot.Renamer
             return null;
         }
 
-        private MMethodDef GetPropertyMethod(MethodNameGroup group)
+        private static MMethodDef GetPropertyMethod(MethodNameGroup group)
         {
             foreach (var method in group.Methods)
                 if (method.Property != null)
@@ -1170,7 +1170,7 @@ namespace NETReactorSlayer.De4dot.Renamer
             }
         }
 
-        private string GetNewPropertyNamePrefix(MethodNameGroup group)
+        private static string GetNewPropertyNamePrefix(MethodNameGroup group)
         {
             const string defaultVal = "Prop_";
 
@@ -1220,7 +1220,7 @@ namespace NETReactorSlayer.De4dot.Renamer
             return PropertyMethodType.Other;
         }
 
-        private TypeSig GetPropertyType(MethodNameGroup group)
+        private static TypeSig GetPropertyType(MethodNameGroup group)
         {
             var methodType = GetPropertyMethodType(group.Methods[0]);
             if (methodType == PropertyMethodType.Other)
@@ -1239,7 +1239,7 @@ namespace NETReactorSlayer.De4dot.Renamer
             return type;
         }
 
-        private MMethodDef GetOverrideMethod(MethodNameGroup group)
+        private static MMethodDef GetOverrideMethod(MethodNameGroup group)
         {
             foreach (var method in group.Methods)
                 if (method.MethodDef.Overrides.Count > 0)

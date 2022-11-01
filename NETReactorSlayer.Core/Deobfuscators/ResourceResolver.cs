@@ -92,7 +92,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             return false;
         }
 
-        private bool CheckFields(ICollection<FieldDef> fields)
+        private static bool CheckFields(ICollection<FieldDef> fields)
         {
             if (fields.Count != 3 && fields.Count != 4)
                 return false;
@@ -108,7 +108,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             return fieldTypes.Count("System.Reflection.Assembly") == 1 || fieldTypes.Count("System.Object") == 1;
         }
 
-        private MethodDef GetDecrypterMethod(MethodDef method, string[] additionalTypes, bool checkResource)
+        private static MethodDef GetDecrypterMethod(MethodDef method, string[] additionalTypes, bool checkResource)
         {
             if (EncryptedResource.IsKnownDecrypter(method, additionalTypes, checkResource))
                 return method;
@@ -119,7 +119,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                     EncryptedResource.IsKnownDecrypter(calledMethod, additionalTypes, checkResource));
         }
 
-        private byte[] Decompress(byte[] bytes)
+        private static byte[] Decompress(byte[] bytes)
         {
             try
             {

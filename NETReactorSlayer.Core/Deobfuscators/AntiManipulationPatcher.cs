@@ -46,7 +46,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
         #region Private Methods
 
-        private bool RemoveAntiTamper(MethodDef method)
+        private static bool RemoveAntiTamper(MethodDef method)
         {
             if (!method.IsStatic) return false;
             if (!DotNetUtils.GetCodeStrings(method).Any(x => x.Contains("is tampered"))) return false;
@@ -59,7 +59,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             return true;
         }
 
-        private bool RemoveAntiDebugger(MethodDef method)
+        private static bool RemoveAntiDebugger(MethodDef method)
         {
             if (!method.IsStatic) return false;
             if (!DotNetUtils.GetCodeStrings(method).Any(x => x.Contains("Debugger Detected"))) return false;

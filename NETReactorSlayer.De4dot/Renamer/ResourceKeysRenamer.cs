@@ -110,7 +110,7 @@ namespace NETReactorSlayer.De4dot.Renamer
             _module.Resources[resourceIndex] = newResource;
         }
 
-        private void Rename(TypeDef type, List<RenameInfo> renamed)
+        private static void Rename(TypeDef type, List<RenameInfo> renamed)
         {
             var nameToInfo = new Dictionary<string, RenameInfo>(StringComparer.Ordinal);
             foreach (var info in renamed)
