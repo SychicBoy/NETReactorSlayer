@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using NETReactorSlayer.Core.Deobfuscators;
+using NETReactorSlayer.Core.Helper;
 
 namespace NETReactorSlayer.Core
 {
@@ -126,6 +127,9 @@ namespace NETReactorSlayer.Core
                 if (MethodInliner.InlinedMethods > 0)
                     Logger.Done(MethodInliner.InlinedMethods + " Methods inlined.");
                 else Logger.Warn("Couldn't find any outline method.");
+
+            if (CodeVirtualizationUtils.Detect())
+                Logger.Warn("WARNING: CODE VIRTUALIZATION HAS BEEN DETECTED, INCOMPLETE DEOBFUSCATION OF THE ASSEMBLY MAY RESULT.");
 
             Context.Save();
         }
