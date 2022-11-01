@@ -106,17 +106,75 @@ namespace NETReactorSlayer.Core.Deobfuscators
             return false;
         }
 
+        private bool FindBinaryReaderMethod(out int popCallsCount)
+        {
+            popCallsCount = 0;
+            var decrypterMethod = _encryptedResource.DecrypterMethod;
+            var calls = decrypterMethod.Body.Instructions
+                .Where(x => x.OpCode.Equals(OpCodes.Callvirt) && x.Operand is MethodDef).Select(x => x.Operand).Cast<MethodDef>();
+            foreach (var method in calls)
+            {
+                try
+                {
+                    SimpleDeobfuscator.DeobfuscateBlocks(method);
+                    if (method.MethodSig.RetType.FullName != "System.Int32" ||
+                        method.Body.Instructions.Count != 4)
+                        continue;
+
+                    if (!method.Body.Instructions[0].IsLdarg() ||
+                        !method.Body.Instructions[1].OpCode.Equals(OpCodes.Ldfld) ||
+                        (!method.Body.Instructions[2].OpCode.Equals(OpCodes.Callvirt) && 
+                         !method.Body.Instructions[2].OpCode.Equals(OpCodes.Call)) ||
+                        !method.Body.Instructions[3].OpCode.Equals(OpCodes.Ret))
+                        continue;
+
+                    if (!method.Body.Instructions[2].Operand.ToString().Contains("System.Int32"))
+                        continue;
+
+                    for (var i = 0; i < decrypterMethod.Body.Instructions.Count; i++)
+                    {
+                        try
+                        {
+                            if (!decrypterMethod.Body.Instructions[i].IsLdloc() ||
+                                !decrypterMethod.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Callvirt) ||
+                                !(decrypterMethod.Body.Instructions[i + 1].Operand is MethodDef calledMethod) ||
+                                !decrypterMethod.Body.Instructions[i + 2].OpCode.Equals(OpCodes.Pop))
+                                continue;
+
+                            if (MethodEqualityComparer.CompareDeclaringTypes.Equals(calledMethod, method))
+                                popCallsCount++;
+                        }
+                        catch { }
+                    }
+                    return true;
+                }
+                catch { }
+            }
+
+            return false;
+        }
+
         private bool RestoreMethodsBody(byte[] bytes)
         {
             var dumpedMethods = new DumpedMethods();
             XorEncrypt(bytes, GetXorKey(_encryptedResource.DecrypterMethod));
             var isFindDnrMethod = FindDnrCompileMethod(_encryptedResource.DecrypterMethod.DeclaringType) != null;
             var methodsDataReader = ByteArrayDataReaderFactory.CreateReader(bytes);
-            var tmp = methodsDataReader.ReadInt32();
-            if ((tmp & -16777216L) == 100663296L)
-                methodsDataReader.ReadInt32();
+
+            int tmp;
+            if (FindBinaryReaderMethod(out var popCallsCount))
+            {
+                for (var i = 0; i < popCallsCount; i++)
+                    methodsDataReader.ReadInt32();
+            }
             else
-                methodsDataReader.Position -= 4U;
+            {
+                tmp = methodsDataReader.ReadInt32();
+                if ((tmp & -16777216L) == 100663296L)
+                    methodsDataReader.ReadInt32();
+                else
+                    methodsDataReader.Position -= 4U;
+            }
 
             var patchCount = methodsDataReader.ReadInt32();
             if (patchCount > methodsDataReader.BytesLeft / 8)
@@ -354,7 +412,6 @@ namespace NETReactorSlayer.Core.Deobfuscators
         private readonly short[] _nativeLdci4 = { 85, 139, 236, 184, -1, -1, -1, -1, 93, 195 };
         private readonly short[] _nativeLdci40 = { 85, 139, 236, 51, 192, 93, 195 };
         private EncryptedResource _encryptedResource;
-
         private enum CompileMethodType
         {
             Unknown,

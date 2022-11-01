@@ -97,7 +97,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             }
         }
 
-        private void RemoveObfuscatorTypes()
+        private static void RemoveObfuscatorTypes()
         {
             if (Context.Options.KeepObfuscatorTypes) return;
             foreach (var method in MethodsToRemove)
@@ -131,7 +131,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 }
         }
 
-        private void FixEntrypoint()
+        private static void FixEntrypoint()
         {
             try
             {
@@ -157,7 +157,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             }
         }
 
-        private bool GetMethodImplOptions(CustomAttribute cA, ref int value)
+        private static bool GetMethodImplOptions(CustomAttribute cA, ref int value)
         {
             if (cA.IsRawBlob)
                 return false;
@@ -180,7 +180,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             }
         }
 
-        private void RemoveAttributes(IHasCustomAttribute member)
+        private static void RemoveAttributes(IHasCustomAttribute member)
         {
             try
             {
@@ -238,7 +238,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             }
         }
 
-        private void RestoreTypes()
+        private static void RestoreTypes()
         {
             Logger.Done("Restoring the actual type of fields & parameters...");
             try
@@ -250,13 +250,13 @@ namespace NETReactorSlayer.Core.Deobfuscators
             }
         }
 
-        private void FixMdHeaderVersion()
+        private static void FixMdHeaderVersion()
         {
             if (Context.Module.TablesHeaderVersion == 0x0101)
                 Context.Module.TablesHeaderVersion = 0x0200;
         }
 
-        private void RemoveCallsToObfuscatorTypes()
+        private static void RemoveCallsToObfuscatorTypes()
         {
             if (Context.Options.RemoveCallsToObfuscatorTypes && CallsToRemove.Count > 0)
                 try
@@ -312,7 +312,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             }
         }
 
-        private bool RemoveMethodIfDummy(MethodDef method)
+        private static bool RemoveMethodIfDummy(MethodDef method)
         {
             try
             {
@@ -371,7 +371,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             return false;
         }
 
-        private void FindAndRemoveEmptyMethods()
+        private static void FindAndRemoveEmptyMethods()
         {
             if (!Context.Options.RemoveJunks) return;
             foreach (var type in Context.Module.GetTypes())
@@ -391,7 +391,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                     }
         }
 
-        private bool RemoveMethodIfDnrTrial(MethodDef method)
+        private static bool RemoveMethodIfDnrTrial(MethodDef method)
         {
             if (!method.Body.HasInstructions || !method.Body.Instructions.Any(x =>
                     x.OpCode.Equals(OpCodes.Ldstr) && x.Operand != null && (x.Operand.ToString() ==
@@ -399,14 +399,21 @@ namespace NETReactorSlayer.Core.Deobfuscators
                                                                             x.Operand.ToString() ==
                                                                             "This assembly is protected by an unregistered version of Eziriz's \".NET Reactor\"! This assembly won't further work.")))
                 return false;
+
+            if (method.DeclaringType != null &&
+                method.DeclaringType.BaseType != null &&
+                method.DeclaringType.BaseType.FullName == "System.Windows.Forms.Form")
+                return false;
+
             MethodCallRemover.RemoveCalls(method);
             if (!method.DeclaringType.IsGlobalModuleType)
                 Context.Module.Types.Remove(method.DeclaringType);
-
+            else if (DotNetUtils.IsMethod(method, "System.Void", "()"))
+                method.Body = new CilBody { Instructions = { OpCodes.Ret.ToInstruction() } };
             return true;
         }
 
-        private void DeleteEmptyConstructors(TypeDef type)
+        private static void DeleteEmptyConstructors(TypeDef type)
         {
             var cctor = type.FindStaticConstructor();
             if (cctor == null || !DotNetUtils.IsEmpty(cctor)) return;
