@@ -20,7 +20,7 @@
 		<ProjectReference Include="..\NETReactorSlayer.De4dot\NETReactorSlayer.De4dot.csproj" />
 		<PackageReference Include="dnlib" Version="3.5.0" />
 		<PackageReference Include="Lib.Harmony" Version="2.2.2" />
-		<PackageReference Include="SharpZipLib" Version="1.4.0" />
+		<PackageReference Include="SharpZipLib" Version="1.4.1" />
 
 	</ItemGroup>
 
