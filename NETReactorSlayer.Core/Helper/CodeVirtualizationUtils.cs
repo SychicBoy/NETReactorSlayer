@@ -53,8 +53,10 @@ namespace NETReactorSlayer.Core.Helper
                             continue;
                         var operands = method.Body.Instructions
                             .Where(x => x.OpCode.Equals(OpCodes.Ldtoken) && x.Operand != null).Select(x => x.Operand.ToString()).ToList();
-                        if (operands.Except(array).Any())
-                            return true;
+                        if (array.Any(item => !operands.Contains(item)))
+                            continue;
+
+                        return true;
                     }
                     catch { }
                 }
