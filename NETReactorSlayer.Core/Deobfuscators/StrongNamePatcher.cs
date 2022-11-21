@@ -28,10 +28,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             long count = 0;
             var methodDef = Find();
             if (methodDef == null)
-            {
-                Logger.Warn("Couldn't find strong name removal protection.");
                 return;
-            }
 
             foreach (var type in Context.Module.GetTypes())
             foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))

@@ -36,10 +36,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             foreach (var prefix in DotNetUtils.GetCodeStrings(_resolverMethod))
                 assemblies.AddRange(GetAssemblies(prefix));
             if (assemblies.Count < 1)
-            {
-                Logger.Warn("Couldn't find any embedded assembly (DNR).");
                 return;
-            }
 
             Cleaner.AddCallToBeRemoved(_initialMethod);
             foreach (var asm in assemblies)
