@@ -19,15 +19,12 @@ using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
-namespace NETReactorSlayer.Core.Helper
-{
-    internal class MethodCallRemover
-    {
-        public static long RemoveCalls(MethodDef methodToRem)
-        {
+namespace NETReactorSlayer.Core.Helper {
+    internal class MethodCallRemover {
+        public static long RemoveCalls(MethodDef methodToRem) {
             _methodRefInfos = new MethodDefAndDeclaringTypeDict<MethodDefAndDeclaringTypeDict<bool>>();
-            foreach (var type in Context.Module.GetTypes())
-            foreach (var methodDef in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
+            foreach (var methodDef in Context.Module.GetTypes()
+                         .SelectMany(type => type.Methods.Where(x => x.HasBody && x.Body.HasInstructions)))
                 Add(methodDef, methodToRem);
 
             return Context.Module.GetTypes()
@@ -35,8 +32,7 @@ namespace NETReactorSlayer.Core.Helper
                     .Sum(method => RemoveCalls(method, _methodRefInfos.Find(method))));
         }
 
-        public static long RemoveCalls(List<MethodDef> methods)
-        {
+        public static long RemoveCalls(List<MethodDef> methods) {
             _methodRefInfos = new MethodDefAndDeclaringTypeDict<MethodDefAndDeclaringTypeDict<bool>>();
             foreach (var type in Context.Module.GetTypes())
             foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
@@ -56,31 +52,26 @@ namespace NETReactorSlayer.Core.Helper
 
         #region Private Methods
 
-        private static long RemoveCalls(MethodDef method, MethodDefDictBase<bool> info)
-        {
+        private static long RemoveCalls(MethodDef method, MethodDefDictBase<bool> info) {
             long count = 0;
             foreach (var instr in method.Body.Instructions)
-                try
-                {
+                try {
                     if (instr.OpCode != OpCodes.Call)
                         continue;
-                    if (!(instr.Operand is IMethod destMethod))
+                    if (instr.Operand is not IMethod destMethod)
                         continue;
                     if (!info.Find(destMethod))
                         continue;
                     instr.OpCode = OpCodes.Nop;
                     count++;
-                }
-                catch
-                {
-                }
+                } catch { }
 
             return count;
         }
 
-        private static void Add(MethodDef method, MethodDef methodToBeRemoved)
-        {
-            if (method == null || methodToBeRemoved == null || !CheckMethod(methodToBeRemoved)) return;
+        private static void Add(MethodDef method, MethodDef methodToBeRemoved) {
+            if (method == null || methodToBeRemoved == null || !CheckMethod(methodToBeRemoved))
+                return;
             var dict = _methodRefInfos.Find(method);
             if (dict == null)
                 _methodRefInfos.Add(method, dict = new MethodDefAndDeclaringTypeDict<bool>());

@@ -18,17 +18,13 @@ using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
-namespace NETReactorSlayer.Core.Deobfuscators
-{
-    internal class AntiManipulationPatcher : IStage
-    {
-        public void Execute()
-        {
+namespace NETReactorSlayer.Core.Deobfuscators {
+    internal class AntiManipulationPatcher : IStage {
+        public void Execute() {
             bool antiTamper = false,
                 antiDebugger = false;
-            foreach (var type in Context.Module.GetTypes())
-            foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
-            {
+            foreach (var method in Context.Module.GetTypes()
+                         .SelectMany(type => type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))) {
                 if (RemoveAntiTamper(method))
                     antiTamper = true;
                 else if (RemoveAntiDebugger(method))
@@ -46,10 +42,11 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
         #region Private Methods
 
-        private static bool RemoveAntiTamper(MethodDef method)
-        {
-            if (!method.IsStatic) return false;
-            if (!DotNetUtils.GetCodeStrings(method).Any(x => x.Contains("is tampered"))) return false;
+        private static bool RemoveAntiTamper(MethodDef method) {
+            if (!method.IsStatic)
+                return false;
+            if (!DotNetUtils.GetCodeStrings(method).Any(x => x.Contains("is tampered")))
+                return false;
 
             var ins = Instruction.Create(OpCodes.Ret);
             var cli = new CilBody();
@@ -59,10 +56,11 @@ namespace NETReactorSlayer.Core.Deobfuscators
             return true;
         }
 
-        private static bool RemoveAntiDebugger(MethodDef method)
-        {
-            if (!method.IsStatic) return false;
-            if (!DotNetUtils.GetCodeStrings(method).Any(x => x.Contains("Debugger Detected"))) return false;
+        private static bool RemoveAntiDebugger(MethodDef method) {
+            if (!method.IsStatic)
+                return false;
+            if (!DotNetUtils.GetCodeStrings(method).Any(x => x.Contains("Debugger Detected")))
+                return false;
 
             var ins = Instruction.Create(OpCodes.Ret);
             var cli = new CilBody();

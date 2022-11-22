@@ -1,20 +1,36 @@
+/*
+    Copyright (C) 2021 CodeStrikers.org
+    This file is part of NETReactorSlayer.
+    NETReactorSlayer is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    NETReactorSlayer is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 using System;
 using System.Collections.Generic;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot.Renamer
-{
-    public abstract class TypeNames
-    {
-        public string Create(TypeSig typeRef)
-        {
+namespace NETReactorSlayer.De4dot.Renamer {
+    public abstract class TypeNames {
+        public string Create(TypeSig typeRef) {
             typeRef = typeRef.RemovePinnedAndModifiers();
-            if (typeRef == null)
-                return UnknownNameCreator.Create();
-            if (typeRef is GenericInstSig gis)
-                if (gis.FullName == "System.Nullable`1" &&
-                    gis.GenericArguments.Count == 1 && gis.GenericArguments[0] != null)
-                    typeRef = gis.GenericArguments[0];
+            switch (typeRef) {
+                case null:
+                    return UnknownNameCreator.Create();
+                case GenericInstSig gis: {
+                    if (gis.FullName == "System.Nullable`1" &&
+                        gis.GenericArguments.Count == 1 && gis.GenericArguments[0] != null)
+                        typeRef = gis.GenericArguments[0];
+                    break;
+                }
+            }
 
             var prefix = GetPrefix(typeRef);
 
@@ -30,24 +46,21 @@ namespace NETReactorSlayer.De4dot.Renamer
 
             var fullName = elementType == null ? typeRef.FullName : elementType.FullName;
             var dict = prefix == "" ? FullNameToShortName : FullNameToShortNamePrefix;
-            if (!dict.TryGetValue(fullName, out var shortName))
-            {
-                fullName = fullName.Replace('/', '.');
-                var index = fullName.LastIndexOf('.');
-                shortName = index > 0 ? fullName.Substring(index + 1) : fullName;
+            if (dict.TryGetValue(fullName, out var shortName))
+                return AddTypeName(typeFullName, shortName, prefix).Create();
+            fullName = fullName.Replace('/', '.');
+            var index = fullName.LastIndexOf('.');
+            shortName = index > 0 ? fullName.Substring(index + 1) : fullName;
 
-                index = shortName.LastIndexOf('`');
-                if (index > 0)
-                    shortName = shortName.Substring(0, index);
-            }
+            index = shortName.LastIndexOf('`');
+            if (index > 0)
+                shortName = shortName.Substring(0, index);
 
             return AddTypeName(typeFullName, shortName, prefix).Create();
         }
 
-        private static bool IsFnPtrSig(TypeSig sig)
-        {
-            while (sig != null)
-            {
+        private static bool IsFnPtrSig(TypeSig sig) {
+            while (sig != null) {
                 if (sig is FnPtrSig)
                     return true;
                 sig = sig.Next;
@@ -56,20 +69,16 @@ namespace NETReactorSlayer.De4dot.Renamer
             return false;
         }
 
-        private static bool IsGenericParam(ITypeDefOrRef tdr)
-        {
-            var ts = tdr as TypeSpec;
-            if (ts == null)
+        private static bool IsGenericParam(IIsTypeOrMethod isTypeOrMethod) {
+            if (isTypeOrMethod is not TypeSpec ts)
                 return false;
             var sig = ts.TypeSig.RemovePinnedAndModifiers();
             return sig is GenericSig;
         }
 
-        private static string GetPrefix(TypeSig typeRef)
-        {
+        private static string GetPrefix(TypeSig typeRef) {
             var prefix = "";
-            while (typeRef != null)
-            {
+            while (typeRef != null) {
                 if (typeRef.IsPointer)
                     prefix += "p";
                 typeRef = typeRef.Next;
@@ -78,8 +87,7 @@ namespace NETReactorSlayer.De4dot.Renamer
             return prefix;
         }
 
-        protected INameCreator AddTypeName(string fullName, string newName, string prefix)
-        {
+        protected INameCreator AddTypeName(string fullName, string newName, string prefix) {
             newName = FixName(prefix, newName);
 
             var name2 = " " + newName;
@@ -92,8 +100,7 @@ namespace NETReactorSlayer.De4dot.Renamer
 
         protected abstract string FixName(string prefix, string name);
 
-        public virtual TypeNames Merge(TypeNames other)
-        {
+        public virtual TypeNames Merge(TypeNames other) {
             if (this == other)
                 return this;
             foreach (var pair in other.TypeNamesDict)
@@ -107,21 +114,19 @@ namespace NETReactorSlayer.De4dot.Renamer
             return this;
         }
 
-        protected static string UpperFirst(string s)
-        {
+        protected static string UpperFirst(string s) {
             if (string.IsNullOrEmpty(s))
                 return string.Empty;
             return s.Substring(0, 1).ToUpperInvariant() + s.Substring(1);
         }
 
-        protected NameCreator FnPtrNameCreator = new NameCreator("fnptr_");
+        protected NameCreator FnPtrNameCreator = new("fnptr_");
         protected Dictionary<string, string> FullNameToShortName;
         protected Dictionary<string, string> FullNameToShortNamePrefix;
-        protected NameCreator GenericParamNameCreator = new NameCreator("gparam_");
+        protected NameCreator GenericParamNameCreator = new("gparam_");
 
-        protected Dictionary<string, NameCreator> TypeNamesDict =
-            new Dictionary<string, NameCreator>(StringComparer.Ordinal);
+        protected Dictionary<string, NameCreator> TypeNamesDict = new(StringComparer.Ordinal);
 
-        protected NameCreator UnknownNameCreator = new NameCreator("unknown_");
+        protected NameCreator UnknownNameCreator = new("unknown_");
     }
 }

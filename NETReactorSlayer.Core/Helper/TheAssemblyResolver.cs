@@ -1,42 +1,35 @@
 ﻿/*
-    Copyright (C) 2011-2015 de4dot@gmail.com
-
-    This file is part of de4dot.
-
-    de4dot is free software: you can redistribute it and/or modify
+    Copyright (C) 2021 CodeStrikers.org
+    This file is part of NETReactorSlayer.
+    NETReactorSlayer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
-    de4dot is distributed in the hope that it will be useful,
+    NETReactorSlayer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
-    along with de4dot.  If not, see <http://www.gnu.org/licenses/>.
+    along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.Core.Helper
-{
-    public class TheAssemblyResolver : AssemblyResolver
-    {
-        public TheAssemblyResolver()
-        {
+namespace NETReactorSlayer.Core.Helper {
+    public class TheAssemblyResolver : AssemblyResolver {
+        public TheAssemblyResolver() {
             EnableTypeDefCache = true;
             AddOtherSearchPaths(PostSearchPaths);
         }
 
         public void AddModule(ModuleDef module) => AddToCache(module.Assembly);
 
-        private static void AddOtherSearchPaths(ICollection<string> paths)
-        {
+        private static void AddOtherSearchPaths(ICollection<string> paths) {
             var dirPf = Environment.GetEnvironmentVariable("ProgramFiles");
             AddOtherAssemblySearchPaths(paths, dirPf);
             var dirPFx86 = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
@@ -44,13 +37,13 @@ namespace NETReactorSlayer.Core.Helper
                 AddOtherAssemblySearchPaths(paths, dirPFx86);
 
             var windir = Environment.GetEnvironmentVariable("WINDIR");
-            if (string.IsNullOrEmpty(windir)) return;
+            if (string.IsNullOrEmpty(windir))
+                return;
             AddIfExists(paths, windir, @"Microsoft.NET\Framework\v1.1.4322");
             AddIfExists(paths, windir, @"Microsoft.NET\Framework\v1.0.3705");
         }
 
-        private static void AddOtherAssemblySearchPaths(ICollection<string> paths, string path)
-        {
+        private static void AddOtherAssemblySearchPaths(ICollection<string> paths, string path) {
             if (string.IsNullOrEmpty(path))
                 return;
             AddSilverlightDirs(paths, Path.Combine(path, @"Microsoft Silverlight"));
@@ -155,29 +148,22 @@ namespace NETReactorSlayer.Core.Helper
             AddIfExists(paths, path, @"Microsoft SDKs\F#\3.0\Framework\v4.0");
         }
 
-        private static void AddSilverlightDirs(ICollection<string> paths, string basePath)
-        {
+        private static void AddSilverlightDirs(ICollection<string> paths, string basePath) {
             if (!Directory.Exists(basePath))
                 return;
-            try
-            {
+            try {
                 var di = new DirectoryInfo(basePath);
-                foreach (var dir in di.GetDirectories())
-                    if (Regex.IsMatch(dir.Name, @"^\d+(?:\.\d+){3}$"))
-                        AddIfExists(paths, basePath, dir.Name);
-            }
-            catch
-            {
-            }
+                foreach (var dir in di.GetDirectories().Where(dir => Regex.IsMatch(dir.Name, @"^\d+(?:\.\d+){3}$")))
+                    AddIfExists(paths, basePath, dir.Name);
+            } catch { }
         }
 
-        private static void AddIfExists(ICollection<string> paths, string basePath, string extraPath)
-        {
+        private static void AddIfExists(ICollection<string> paths, string basePath, string extraPath) {
             var path = Path.Combine(basePath, extraPath);
             if (Directory.Exists(path))
                 paths.Add(path);
         }
 
-        public static readonly TheAssemblyResolver Instance = new TheAssemblyResolver();
+        public static readonly TheAssemblyResolver Instance = new();
     }
 }

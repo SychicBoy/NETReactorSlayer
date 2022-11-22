@@ -1,49 +1,39 @@
 ﻿/*
-    Copyright (C) 2011-2015 de4dot@gmail.com
-
-    This file is part of de4dot.
-
-    de4dot is free software: you can redistribute it and/or modify
+    Copyright (C) 2021 CodeStrikers.org
+    This file is part of NETReactorSlayer.
+    NETReactorSlayer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
-    de4dot is distributed in the hope that it will be useful,
+    NETReactorSlayer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
-    along with de4dot.  If not, see <http://www.gnu.org/licenses/>.
+    along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 using System.IO;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.Core.Helper
-{
-    public class AssemblyModule
-    {
-        public AssemblyModule(string filename, ModuleContext moduleContext)
-        {
+namespace NETReactorSlayer.Core.Helper {
+    public class AssemblyModule {
+        public AssemblyModule(string filename, ModuleContext moduleContext) {
             _filename = Path.GetFullPath(filename);
             _moduleContext = moduleContext;
         }
 
-        public ModuleDefMD Load()
-        {
+        public ModuleDefMD Load() {
             var options = new ModuleCreationOptions(_moduleContext) { TryToLoadPdbFromDisk = false };
             return SetModule(ModuleDefMD.Load(_filename, options));
         }
 
-        public ModuleDefMD Load(byte[] fileData)
-        {
+        public ModuleDefMD Load(byte[] fileData) {
             var options = new ModuleCreationOptions(_moduleContext) { TryToLoadPdbFromDisk = false };
             return SetModule(ModuleDefMD.Load(fileData, options));
         }
 
-        private ModuleDefMD SetModule(ModuleDefMD newModule)
-        {
+        private ModuleDefMD SetModule(ModuleDefMD newModule) {
             _module = newModule;
             TheAssemblyResolver.Instance.AddModule(_module);
             _module.EnableTypeDefFindCache = true;
@@ -52,8 +42,7 @@ namespace NETReactorSlayer.Core.Helper
         }
 
         public ModuleDefMD Reload(
-            byte[] newModuleData, DumpedMethodsRestorer dumpedMethodsRestorer, IStringDecrypter stringDecrypter)
-        {
+            byte[] newModuleData, DumpedMethodsRestorer dumpedMethodsRestorer, IStringDecrypter stringDecrypter) {
             TheAssemblyResolver.Instance.Remove(_module);
             var options = new ModuleCreationOptions(_moduleContext) { TryToLoadPdbFromDisk = false };
             var mod = ModuleDefMD.Load(newModuleData, options);

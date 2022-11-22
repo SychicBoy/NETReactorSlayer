@@ -22,16 +22,11 @@ using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 using NETReactorSlayer.Core.Helper;
 
-namespace NETReactorSlayer.Core.Deobfuscators
-{
-    internal class ProxyCallFixer : IStage
-    {
-        public void Execute()
-        {
-            try
-            {
-                if (!Find())
-                {
+namespace NETReactorSlayer.Core.Deobfuscators {
+    internal class ProxyCallFixer : IStage {
+        public void Execute() {
+            try {
+                if (!Find()) {
                     Logger.Warn("Couldn't find any proxied call.");
                     return;
                 }
@@ -43,17 +38,13 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
                 var count = RestoreCalls();
 
-                if (count > 0)
-                {
+                if (count > 0) {
                     Logger.Done(count + " Proxied calls fixed.");
                     Cleaner.AddMethodToBeRemoved(_encryptedResource.DecrypterMethod);
                     Cleaner.AddResourceToBeRemoved(_encryptedResource.EmbeddedResource);
-                }
-                else
+                } else
                     Logger.Warn("Couldn't find any proxied call.");
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 Logger.Error("An unexpected error occurred during fixing proxied calls.", ex);
             }
 
@@ -62,85 +53,78 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
         #region Private Methods
 
-        private bool Find()
-        {
+        private bool Find() {
             var callCounter = new CallCounter();
             foreach (var type in from x in Context.Module.GetTypes()
                      where x.Namespace.Equals("") && DotNetUtils.DerivesFromDelegate(x)
                      select x)
-                if (type.FindStaticConstructor() is MethodDef cctor)
-                    foreach (var method in DotNetUtils.GetMethodCalls(cctor))
-                        if (method.MethodSig.GetParamCount() == 1 &&
-                            method.GetParam(0).FullName == "System.RuntimeTypeHandle")
-                            callCounter.Add(method);
+                if (type.FindStaticConstructor() is { } cctor)
+                    foreach (var method in DotNetUtils.GetMethodCalls(cctor).Where(method =>
+                                 method.MethodSig.GetParamCount() == 1 &&
+                                 method.GetParam(0).FullName == "System.RuntimeTypeHandle"))
+                        callCounter.Add(method);
 
-            if (!(callCounter.Most() is IMethod mostCalls)) return false;
+            if (callCounter.Most() is not { } mostCalls)
+                return false;
 
             var methodDef = mostCalls.ResolveMethodDef();
             if (methodDef == null || !EncryptedResource.IsKnownDecrypter(methodDef, Array.Empty<string>(), true))
                 return false;
 
             _encryptedResource = new EncryptedResource(methodDef);
-            if (_encryptedResource.EmbeddedResource == null)
-            {
-                _encryptedResource.Dispose();
-                return false;
-            }
-
-            return true;
+            if (_encryptedResource.EmbeddedResource != null)
+                return true;
+            _encryptedResource.Dispose();
+            return false;
         }
 
-        private bool GetDictionary(byte[] bytes)
-        {
+        private bool GetDictionary(byte[] bytes) {
             var length = bytes.Length / 8;
             _dictionary = new Dictionary<int, int>();
             var reader = new BinaryReader(new MemoryStream(bytes));
-            for (var i = 0; i < length; i++)
-            {
+            for (var i = 0; i < length; i++) {
                 var key = reader.ReadInt32();
                 var value = reader.ReadInt32();
-                if (!_dictionary.ContainsKey(key)) _dictionary.Add(key, value);
+                if (!_dictionary.ContainsKey(key))
+                    _dictionary.Add(key, value);
             }
 
             reader.Close();
             return true;
         }
 
-        private void GetCallInfo(IMDTokenProvider field, out IMethod calledMethod, out OpCode callOpcode)
-        {
+        private void GetCallInfo(IMDTokenProvider field, out IMethod calledMethod, out OpCode callOpcode) {
             callOpcode = OpCodes.Call;
             _dictionary.TryGetValue((int)field.MDToken.Raw, out var token);
-            if ((token & 1073741824) > 0) callOpcode = OpCodes.Callvirt;
+            if ((token & 1073741824) > 0)
+                callOpcode = OpCodes.Callvirt;
             token &= 1073741823;
             calledMethod = Context.Module.ResolveToken(token) as IMethod;
         }
 
-        private long RestoreCalls()
-        {
+        private long RestoreCalls() {
             long count = 0;
-            foreach (var type in Context.Module.GetTypes())
-            foreach (var method in (from x in type.Methods where x.HasBody && x.Body.HasInstructions select x)
-                     .ToArray())
-            {
+            foreach (var method in Context.Module.GetTypes().SelectMany(type =>
+                         (from x in type.Methods where x.HasBody && x.Body.HasInstructions select x)
+                         .ToArray())) {
                 for (var i = 0; i < method.Body.Instructions.Count; i++)
-                    try
-                    {
+                    try {
                         if (!method.Body.Instructions[i].OpCode.Equals(OpCodes.Ldsfld) ||
-                            !method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Call)) continue;
+                            !method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Call))
+                            continue;
                         var field = method.Body.Instructions[i].Operand as IField;
                         GetCallInfo(field, out var iMethod, out var opCpde);
-                        if (iMethod == null) continue;
+                        if (iMethod == null)
+                            continue;
                         iMethod = Context.Module.Import(iMethod);
-                        if (iMethod == null) continue;
+                        if (iMethod == null)
+                            continue;
                         method.Body.Instructions[i].OpCode = OpCodes.Nop;
                         method.Body.Instructions[i + 1] = Instruction.Create(opCpde, iMethod);
                         method.Body.UpdateInstructionOffsets();
                         count++;
                         Cleaner.AddTypeToBeRemoved(field?.DeclaringType);
-                    }
-                    catch
-                    {
-                    }
+                    } catch { }
 
                 SimpleDeobfuscator.DeobfuscateBlocks(method);
             }

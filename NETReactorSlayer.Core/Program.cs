@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -22,12 +23,9 @@ using System.Threading;
 using NETReactorSlayer.Core.Deobfuscators;
 using NETReactorSlayer.Core.Helper;
 
-namespace NETReactorSlayer.Core
-{
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
+namespace NETReactorSlayer.Core {
+    public class Program {
+        public static void Main(string[] args) {
             if (!CheckArguments(args))
                 return;
 
@@ -35,18 +33,13 @@ namespace NETReactorSlayer.Core
             Console.OutputEncoding = Encoding.UTF8;
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
-            try
-            {
+            try {
                 Console.Clear();
                 Logger.PrintLogo();
-            }
-            catch
-            {
-            }
+            } catch { }
 
             Context = new Context();
-            if (Context.Load(new Options(args)))
-            {
+            if (Context.Load(new Options(args))) {
                 DeobfuscateBegin();
                 DeobfuscateEnd();
             }
@@ -60,31 +53,24 @@ namespace NETReactorSlayer.Core
 
         #region Fields
 
-        public static Context Context = new Context();
+        public static Context Context = new();
 
         #endregion
 
         #region Private Methods
 
-        private static bool CheckArguments(string[] args)
-        {
-            if (args.Length != 3 || args[0] != "--del-temp" ||
-                !int.TryParse(args[1], out var id) || !File.Exists(args[2])) return true;
+        private static bool CheckArguments(IReadOnlyList<string> args) {
+            if (args.Count != 3 || args[0] != "--del-temp" ||
+                !int.TryParse(args[1], out var id) || !File.Exists(args[2]))
+                return true;
 
-            try
-            {
-                if (Process.GetProcessById(id) is Process process)
-                {
+            try {
+                if (Process.GetProcessById(id) is { } process) {
                     process.WaitForExit();
-                    while (File.Exists(args[2]))
-                    {
-                        try
-                        {
+                    while (File.Exists(args[2])) {
+                        try {
                             File.Delete(args[2]);
-                        }
-                        catch
-                        {
-                        }
+                        } catch { }
 
                         Thread.Sleep(1000);
                     }
@@ -92,44 +78,36 @@ namespace NETReactorSlayer.Core
                     Process.GetCurrentProcess().Kill();
                     return false;
                 }
-            }
-            catch
-            {
-            }
+            } catch { }
 
             return true;
         }
 
-        private static void DeobfuscateBegin()
-        {
-            foreach (var deobfuscatorStage in Context.Options.Stages)
+        private static void DeobfuscateBegin() {
+            const int maxStackSize = 1024 * 1024 * 64;
+            foreach (var thread in Context.Options.Stages.Select(deobfuscatorStage => new Thread(() =>
             {
-                var thread = new Thread(() =>
-                {
-                    try
-                    {
-                        deobfuscatorStage.Execute();
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error($"{deobfuscatorStage.GetType().Name}: {ex.Message}");
-                    }
-                }, 1024 * 1024 * 64);
+                try {
+                    deobfuscatorStage.Execute();
+                } catch (Exception ex) {
+                    Logger.Error($"{deobfuscatorStage.GetType().Name}: {ex.Message}");
+                }
+            }, maxStackSize))) {
                 thread.Start();
                 thread.Join();
-                while (thread.IsAlive) Thread.Sleep(500);
             }
         }
 
-        private static void DeobfuscateEnd()
-        {
+        private static void DeobfuscateEnd() {
             if (Context.Options.Stages.Any(x => x.GetType().Name.Equals(nameof(MethodInliner))))
                 if (MethodInliner.InlinedMethods > 0)
                     Logger.Done(MethodInliner.InlinedMethods + " Methods inlined.");
-                else Logger.Warn("Couldn't find any outline method.");
+                else
+                    Logger.Warn("Couldn't find any outline method.");
 
             if (CodeVirtualizationUtils.Detect())
-                Logger.Warn("WARNING: CODE VIRTUALIZATION HAS BEEN DETECTED, INCOMPLETE DEOBFUSCATION OF THE ASSEMBLY MAY RESULT.");
+                Logger.Warn(
+                    "WARNING: CODE VIRTUALIZATION HAS BEEN DETECTED, INCOMPLETE DEOBFUSCATION OF THE ASSEMBLY MAY RESULT.");
 
             Context.Save();
         }

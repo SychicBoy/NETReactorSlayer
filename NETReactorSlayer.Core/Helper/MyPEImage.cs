@@ -1,20 +1,16 @@
 ﻿/*
-    Copyright (C) 2011-2015 de4dot@gmail.com
-
-    This file is part of de4dot.
-
-    de4dot is free software: you can redistribute it and/or modify
+    Copyright (C) 2021 CodeStrikers.org
+    This file is part of NETReactorSlayer.
+    NETReactorSlayer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
-    de4dot is distributed in the hope that it will be useful,
+    NETReactorSlayer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
-    along with de4dot.  If not, see <http://www.gnu.org/licenses/>.
+    along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 using System;
@@ -24,21 +20,17 @@ using dnlib.DotNet.MD;
 using dnlib.IO;
 using dnlib.PE;
 
-namespace NETReactorSlayer.Core.Helper
-{
-    public sealed class MyPeImage : IDisposable
-    {
+namespace NETReactorSlayer.Core.Helper {
+    public sealed class MyPeImage : IDisposable {
         public MyPeImage(IPEImage peImage) => Initialize(peImage);
 
-        public MyPeImage(byte[] peImageData)
-        {
+        public MyPeImage(byte[] peImageData) {
             _ownPeImage = true;
             PeImageData = peImageData;
             Initialize(new PEImage(peImageData));
         }
 
-        private void Initialize(IPEImage peImage)
-        {
+        private void Initialize(IPEImage peImage) {
             PeImage = peImage;
             Reader = peImage.CreateReader();
         }
@@ -48,8 +40,7 @@ namespace NETReactorSlayer.Core.Helper
                 section.VirtualAddress <= rva &&
                 rva < section.VirtualAddress + Math.Max(section.VirtualSize, section.SizeOfRawData));
 
-        public void ReadMethodTableRowTo(DumpedMethod dm, uint rid)
-        {
+        public void ReadMethodTableRowTo(DumpedMethod dm, uint rid) {
             dm.token = 0x06000000 + rid;
             if (!Metadata.TablesStream.TryReadMethodRow(rid, out var row))
                 throw new ArgumentException("Invalid Method rid");
@@ -61,8 +52,7 @@ namespace NETReactorSlayer.Core.Helper
             dm.mdParamList = row.ParamList;
         }
 
-        public void UpdateMethodHeaderInfo(DumpedMethod dm, MethodBodyHeader mbHeader)
-        {
+        public void UpdateMethodHeaderInfo(DumpedMethod dm, MethodBodyHeader mbHeader) {
             dm.mhFlags = mbHeader.Flags;
             dm.mhMaxStack = mbHeader.MaxStack;
             dm.mhCodeSize = dm.code == null ? 0 : (uint)dm.code.Length;
@@ -81,20 +71,17 @@ namespace NETReactorSlayer.Core.Helper
 
         public int ReadInt32(uint rva) => (int)OffsetReadUInt32(RvaToOffset(rva));
 
-        public uint OffsetReadUInt32(uint offset)
-        {
+        public uint OffsetReadUInt32(uint offset) {
             Reader.Position = offset;
             return Reader.ReadUInt32();
         }
 
-        public byte OffsetReadByte(uint offset)
-        {
+        public byte OffsetReadByte(uint offset) {
             Reader.Position = offset;
             return Reader.ReadByte();
         }
 
-        public byte[] OffsetReadBytes(uint offset, int size)
-        {
+        public byte[] OffsetReadBytes(uint offset, int size) {
             Reader.Position = offset;
             return Reader.ReadBytes(size);
         }
@@ -107,10 +94,8 @@ namespace NETReactorSlayer.Core.Helper
         private static bool Intersect(uint offset, uint length, IFileSection location) => Intersect(offset, length,
             (uint)location.StartOffset, location.EndOffset - location.StartOffset);
 
-        public bool DotNetSafeWriteOffset(uint offset, byte[] data)
-        {
-            if (Metadata != null)
-            {
+        public bool DotNetSafeWriteOffset(uint offset, byte[] data) {
+            if (Metadata != null) {
                 var length = (uint)data.Length;
 
                 if (!IsInside(_dotNetSection, offset, length))
@@ -128,10 +113,8 @@ namespace NETReactorSlayer.Core.Helper
         public bool DotNetSafeWrite(uint rva, byte[] data) =>
             DotNetSafeWriteOffset((uint)PeImage.ToFileOffset((RVA)rva), data);
 
-        public void Dispose()
-        {
-            if (_ownPeImage)
-            {
+        public void Dispose() {
+            if (_ownPeImage) {
                 _metadata?.Dispose();
                 PeImage?.Dispose();
             }
@@ -150,16 +133,15 @@ namespace NETReactorSlayer.Core.Helper
 
         public DataReader Reader;
 
-        public Metadata Metadata
-        {
-            get
-            {
+        public Metadata Metadata {
+            get {
                 if (_dnFileInitialized)
                     return _metadata;
                 _dnFileInitialized = true;
 
                 var dotNetDir = PeImage.ImageNTHeaders.OptionalHeader.DataDirectories[14];
-                if (dotNetDir.VirtualAddress == 0 || dotNetDir.Size < 0x48) return _metadata;
+                if (dotNetDir.VirtualAddress == 0 || dotNetDir.Size < 0x48)
+                    return _metadata;
                 _metadata = MetadataFactory.CreateMetadata(PeImage, false);
                 _dotNetSection = FindSection(dotNetDir.VirtualAddress);
 

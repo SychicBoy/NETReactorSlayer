@@ -21,12 +21,9 @@ using dnlib.DotNet.Emit;
 using NETReactorSlayer.Core.Helper;
 using NETReactorSlayer.De4dot;
 
-namespace NETReactorSlayer.Core.Deobfuscators
-{
-    internal class Cleaner : IStage
-    {
-        public void Execute()
-        {
+namespace NETReactorSlayer.Core.Deobfuscators {
+    internal class Cleaner : IStage {
+        public void Execute() {
             FindAndRemoveEmptyMethods();
             RestoreTypes();
             FixMdHeaderVersion();
@@ -38,23 +35,20 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
         #region Public Methods
 
-        public static void AddCallToBeRemoved(MethodDef method)
-        {
+        public static void AddCallToBeRemoved(MethodDef method) {
             if (method == null || CallsToRemove.Any(x => x.MDToken.ToInt32() == method.MDToken.ToInt32()))
                 return;
             MethodsToRemove.Add(method);
             CallsToRemove.Add(method);
         }
 
-        public static void AddMethodToBeRemoved(MethodDef method)
-        {
+        public static void AddMethodToBeRemoved(MethodDef method) {
             if (method == null || MethodsToRemove.Any(x => x.MDToken.ToInt32() == method.MDToken.ToInt32()))
                 return;
             MethodsToRemove.Add(method);
         }
 
-        public static void AddResourceToBeRemoved(Resource resource)
-        {
+        public static void AddResourceToBeRemoved(Resource resource) {
             if (resource == null || ResourcesToRemove.Any(x => x.Name == resource.Name))
                 return;
             ResourcesToRemove.Add(resource);
@@ -66,16 +60,14 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
         #region Private Methods
 
-        private void RemoveJunks()
-        {
-            if (!Context.Options.RemoveJunks) return;
+        private void RemoveJunks() {
+            if (!Context.Options.RemoveJunks)
+                return;
 
-            foreach (var type in Context.Module.GetTypes().ToList())
-            {
+            foreach (var type in Context.Module.GetTypes().ToList()) {
                 DeleteEmptyConstructors(type);
 
-                foreach (var method in type.Methods.ToList())
-                {
+                foreach (var method in type.Methods.ToList()) {
                     RemoveAttributes(method);
 
                     if (!method.HasBody)
@@ -97,50 +89,38 @@ namespace NETReactorSlayer.Core.Deobfuscators
             }
         }
 
-        private static void RemoveObfuscatorTypes()
-        {
-            if (Context.Options.KeepObfuscatorTypes) return;
+        private static void RemoveObfuscatorTypes() {
+            if (Context.Options.KeepObfuscatorTypes)
+                return;
             foreach (var method in MethodsToRemove)
-                try
-                {
+                try {
                     method.DeclaringType.Remove(method);
-                }
-                catch
-                {
-                }
+                } catch { }
 
             foreach (var typeDef in TypesToRemove.Select(type => type.ResolveTypeDef()))
-                try
-                {
+                try {
                     if (typeDef.DeclaringType != null)
                         typeDef.DeclaringType.NestedTypes.Remove(typeDef);
                     else
                         Context.Module.Types.Remove(typeDef);
-                }
-                catch
-                {
-                }
+                } catch { }
 
             foreach (var rsrc in ResourcesToRemove)
-                try
-                {
+                try {
                     Context.Module.Resources.Remove(Context.Module.Resources.Find(rsrc.Name));
-                }
-                catch
-                {
-                }
+                } catch { }
         }
 
-        private static void FixEntrypoint()
-        {
-            try
-            {
+        private static void FixEntrypoint() {
+            try {
                 if (!Context.Module.IsEntryPointValid ||
-                    !Context.Module.EntryPoint.DeclaringType.Name.Contains("<PrivateImplementationDetails>")) return;
-                if (!((Context.Module.EntryPoint.Body.Instructions
-                            .Last(x => x.OpCode == OpCodes.Call && x.Operand is IMethod iMethod &&
-                                       iMethod.ResolveMethodDef().IsStatic).Operand as IMethod)
-                        .ResolveMethodDef() is MethodDef entryPoint)) return;
+                    !Context.Module.EntryPoint.DeclaringType.Name.Contains("<PrivateImplementationDetails>"))
+                    return;
+                if ((Context.Module.EntryPoint.Body.Instructions
+                        .Last(x => x.OpCode == OpCodes.Call && x.Operand is IMethod iMethod &&
+                                   iMethod.ResolveMethodDef().IsStatic).Operand as IMethod)
+                    .ResolveMethodDef() is not { } entryPoint)
+                    return;
                 foreach (var attribute in Context.Module.EntryPoint.CustomAttributes)
                     entryPoint.CustomAttributes.Add(attribute);
                 if (Context.Module.EntryPoint.DeclaringType.DeclaringType != null)
@@ -151,14 +131,10 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 Logger.Done(
                     $"Entrypoint fixed: {Context.Module.EntryPoint.MDToken.ToInt32()}->{entryPoint.MDToken.ToInt32()}");
                 Context.Module.EntryPoint = entryPoint;
-            }
-            catch
-            {
-            }
+            } catch { }
         }
 
-        private static bool GetMethodImplOptions(CustomAttribute cA, ref int value)
-        {
+        private static bool GetMethodImplOptions(CustomAttribute cA, ref int value) {
             if (cA.IsRawBlob)
                 return false;
             if (cA.ConstructorArguments.Count != 1)
@@ -167,8 +143,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 cA.ConstructorArguments[0].Type.FullName != "System.Runtime.CompilerServices.MethodImplOptions")
                 return false;
             var arg = cA.ConstructorArguments[0].Value;
-            switch (arg)
-            {
+            switch (arg) {
                 case short @int:
                     value = @int;
                     return true;
@@ -180,31 +155,25 @@ namespace NETReactorSlayer.Core.Deobfuscators
             }
         }
 
-        private static void RemoveAttributes(IHasCustomAttribute member)
-        {
-            try
-            {
-                if (member is MethodDef method)
-                {
+        private static void RemoveAttributes(IHasCustomAttribute member) {
+            try {
+                if (member is MethodDef method) {
                     method.IsNoInlining = false;
                     method.IsSynchronized = false;
                     method.IsNoOptimization = false;
                 }
 
                 for (var i = 0; i < member.CustomAttributes.Count; i++)
-                    try
-                    {
+                    try {
                         var cattr = member.CustomAttributes[i];
                         if (cattr.Constructor.FullName ==
-                            "System.Void System.Diagnostics.DebuggerHiddenAttribute::.ctor()")
-                        {
+                            "System.Void System.Diagnostics.DebuggerHiddenAttribute::.ctor()") {
                             member.CustomAttributes.RemoveAt(i);
                             i--;
                             continue;
                         }
 
-                        switch (cattr.TypeFullName)
-                        {
+                        switch (cattr.TypeFullName) {
                             case "System.Diagnostics.DebuggerStepThroughAttribute":
                                 member.CustomAttributes.RemoveAt(i);
                                 i--;
@@ -228,102 +197,73 @@ namespace NETReactorSlayer.Core.Deobfuscators
                             continue;
                         member.CustomAttributes.RemoveAt(i);
                         i--;
-                    }
-                    catch
-                    {
-                    }
-            }
-            catch
-            {
-            }
+                    } catch { }
+            } catch { }
         }
 
-        private static void RestoreTypes()
-        {
+        private static void RestoreTypes() {
             Logger.Done("Restoring the actual type of fields & parameters...");
-            try
-            {
+            try {
                 new TypesRestorer(Context.Module).Deobfuscate();
-            }
-            catch
-            {
-            }
+            } catch { }
         }
 
-        private static void FixMdHeaderVersion()
-        {
+        private static void FixMdHeaderVersion() {
             if (Context.Module.TablesHeaderVersion == 0x0101)
                 Context.Module.TablesHeaderVersion = 0x0200;
         }
 
-        private static void RemoveCallsToObfuscatorTypes()
-        {
-            if (!Context.Options.RemoveCallsToObfuscatorTypes || CallsToRemove.Count <= 0) 
+        private static void RemoveCallsToObfuscatorTypes() {
+            if (!Context.Options.RemoveCallsToObfuscatorTypes || CallsToRemove.Count <= 0)
                 return;
 
-            try
-            {
+            try {
                 var count = MethodCallRemover.RemoveCalls(CallsToRemove.ToList());
                 if (count > 0)
                     Logger.Done(
                         $"{count} Calls to obfuscator types removed.");
                 else
                     Logger.Warn("Couldn't find any call to the obfuscator types.");
-            }
-            catch
-            {
-            }
+            } catch { }
         }
 
-        private void FindAndRemoveDummyTypes(MethodDef method)
-        {
-            try
-            {
+        private void FindAndRemoveDummyTypes(MethodDef method) {
+            try {
                 if (_methodCallCounter == null ||
                     (!method.IsConstructor && !method.IsStaticConstructor &&
-                     method != Context.Module.EntryPoint)) return;
-                foreach (var calledMethod in DotNetUtils.GetCalledMethods(Context.Module, method))
-                {
-                    if (!calledMethod.IsStatic || calledMethod.Body == null)
-                        continue;
-                    if (!DotNetUtils.IsMethod(calledMethod, "System.Void", "()"))
-                        continue;
-                    if (IsEmptyMethod(calledMethod))
-                        _methodCallCounter?.Add(calledMethod);
-                }
+                     method != Context.Module.EntryPoint))
+                    return;
+                foreach (var calledMethod in from calledMethod in DotNetUtils.GetCalledMethods(Context.Module, method)
+                         where calledMethod.IsStatic && calledMethod.Body != null
+                         where DotNetUtils.IsMethod(calledMethod, "System.Void", "()")
+                         where IsEmptyMethod(calledMethod)
+                         select calledMethod)
+                    _methodCallCounter?.Add(calledMethod);
 
                 var numCalls = 0;
                 var methodDef = (MethodDef)_methodCallCounter?.Most(out numCalls);
-                if (numCalls < 10) return;
+                if (numCalls < 10)
+                    return;
                 MethodCallRemover.RemoveCalls(methodDef);
-                try
-                {
+                try {
                     if (methodDef?.DeclaringType.DeclaringType != null)
                         methodDef.DeclaringType.DeclaringType.NestedTypes.Remove(methodDef.DeclaringType);
                     else
                         Context.Module.Types.Remove(methodDef?.DeclaringType);
-                }
-                catch
-                {
-                }
+                } catch { }
 
                 _methodCallCounter = null;
-            }
-            catch
-            {
-            }
+            } catch { }
         }
 
-        private static bool RemoveMethodIfDummy(MethodDef method)
-        {
-            try
-            {
+        private static bool RemoveMethodIfDummy(MethodDef method) {
+            try {
                 if (method.Body.Instructions.Count == 4 &&
                     method.Body.Instructions[0].OpCode.Equals(OpCodes.Ldsfld) &&
                     method.Body.Instructions[1].OpCode.Equals(OpCodes.Ldnull) &&
                     method.Body.Instructions[2].OpCode.Equals(OpCodes.Ceq) &&
                     method.Body.Instructions[3].OpCode.Equals(OpCodes.Ret))
-                    if (method.Body.Instructions[0].Operand is FieldDef field && !field.IsPublic &&
+                    if (method.Body.Instructions[0].Operand is FieldDef { IsPublic: false } field &&
                         (field.FieldType.FullName == "System.Object" || (field.DeclaringType != null &&
                                                                          field.FieldType.FullName ==
                                                                          field.DeclaringType.FullName)))
@@ -335,66 +275,46 @@ namespace NETReactorSlayer.Core.Deobfuscators
                                                                   method2.ReturnType.FullName ==
                                                                   field.DeclaringType.FullName)))
                                      .Where(method2 => method2.Body.Instructions[0].OpCode.Equals(OpCodes.Ldsfld) &&
-                                                       method2.Body.Instructions[1].OpCode.Equals(OpCodes.Ret)))
-                        {
-                            if (!(method2.Body.Instructions[0].Operand is FieldDef field2) ||
-                                field2.MDToken.ToInt32() != field.MDToken.ToInt32()) continue;
-                            try
-                            {
+                                                       method2.Body.Instructions[1].OpCode.Equals(OpCodes.Ret))) {
+                            if (method2.Body.Instructions[0].Operand is not FieldDef field2 ||
+                                field2.MDToken.ToInt32() != field.MDToken.ToInt32())
+                                continue;
+                            try {
                                 method.DeclaringType.Remove(method);
-                            }
-                            catch
-                            {
-                            }
+                            } catch { }
 
-                            try
-                            {
+                            try {
                                 method2.DeclaringType.Remove(method2);
-                            }
-                            catch
-                            {
-                            }
+                            } catch { }
 
-                            try
-                            {
+                            try {
                                 field.DeclaringType.Fields.Remove(field);
-                            }
-                            catch
-                            {
-                            }
+                            } catch { }
 
                             return true;
                         }
-            }
-            catch
-            {
-            }
+            } catch { }
 
             return false;
         }
 
-        private static void FindAndRemoveEmptyMethods()
-        {
-            if (!Context.Options.RemoveJunks) return;
-            foreach (var type in Context.Module.GetTypes())
-                foreach (var method in type.Methods.Where(x => x.HasBody))
-                    try
-                    {
-                        if (method.DeclaringType == null ||
-                            !DotNetUtils.IsMethod(method, "System.Void", "()") ||
-                            !method.IsStatic ||
-                            !method.IsAssembly ||
-                            !DotNetUtils.IsEmpty(method) ||
-                            method.DeclaringType.Methods.Any(x => DotNetUtils.GetMethodCalls(x).Contains(method))) continue;
-                        AddCallToBeRemoved(method);
-                    }
-                    catch
-                    {
-                    }
+        private static void FindAndRemoveEmptyMethods() {
+            if (!Context.Options.RemoveJunks)
+                return;
+            foreach (var method in Context.Module.GetTypes().SelectMany(type => type.Methods.Where(x => x.HasBody)))
+                try {
+                    if (method.DeclaringType == null ||
+                        !DotNetUtils.IsMethod(method, "System.Void", "()") ||
+                        !method.IsStatic ||
+                        !method.IsAssembly ||
+                        !DotNetUtils.IsEmpty(method) ||
+                        method.DeclaringType.Methods.Any(x => DotNetUtils.GetMethodCalls(x).Contains(method)))
+                        continue;
+                    AddCallToBeRemoved(method);
+                } catch { }
         }
 
-        private static bool RemoveMethodIfDnrTrial(MethodDef method)
-        {
+        private static bool RemoveMethodIfDnrTrial(MethodDef method) {
             if (!method.Body.HasInstructions || !method.Body.Instructions.Any(x =>
                     x.OpCode.Equals(OpCodes.Ldstr) && x.Operand != null && (x.Operand.ToString() ==
                                                                             "This assembly is protected by an unregistered version of Eziriz's \".NET Reactor\"!" ||
@@ -402,34 +322,27 @@ namespace NETReactorSlayer.Core.Deobfuscators
                                                                             "This assembly is protected by an unregistered version of Eziriz's \".NET Reactor\"! This assembly won't further work.")))
                 return false;
 
-            if (method.DeclaringType != null &&
-                method.DeclaringType.BaseType != null &&
-                method.DeclaringType.BaseType.FullName == "System.Windows.Forms.Form")
+            if (method.DeclaringType is { BaseType.FullName: "System.Windows.Forms.Form" })
                 return false;
 
             MethodCallRemover.RemoveCalls(method);
-            if (method.DeclaringType != null && !method.DeclaringType.IsGlobalModuleType)
+            if (method.DeclaringType is { IsGlobalModuleType: false })
                 Context.Module.Types.Remove(method.DeclaringType);
             else if (DotNetUtils.IsMethod(method, "System.Void", "()"))
                 method.Body = new CilBody { Instructions = { OpCodes.Ret.ToInstruction() } };
             return true;
         }
 
-        private static void DeleteEmptyConstructors(TypeDef type)
-        {
+        private static void DeleteEmptyConstructors(TypeDef type) {
             var cctor = type.FindStaticConstructor();
-            if (cctor == null || !DotNetUtils.IsEmpty(cctor)) return;
-            try
-            {
+            if (cctor == null || !DotNetUtils.IsEmpty(cctor))
+                return;
+            try {
                 cctor.DeclaringType.Methods.Remove(cctor);
-            }
-            catch
-            {
-            }
+            } catch { }
         }
 
-        private static bool IsEmptyMethod(MethodDef methodDef)
-        {
+        private static bool IsEmptyMethod(MethodDef methodDef) {
             if (!DotNetUtils.IsEmptyObfuscated(methodDef))
                 return false;
 
@@ -438,8 +351,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 return false;
             if (type.Fields.Count != 1 && type.Fields.Count != 2)
                 return false;
-            switch (type.Fields.Count)
-            {
+            switch (type.Fields.Count) {
                 case 2 when !(type.Fields.Any(x => x.FieldType.FullName == "System.Boolean") &&
                               type.Fields.Any(x => x.FieldType.FullName == "System.Object")):
                     return false;
@@ -451,12 +363,8 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 return false;
 
             var otherMethods = 0;
-            foreach (var method in type.Methods)
-            {
-                if (method.Name == ".ctor" || method.Name == ".cctor")
-                    continue;
-                if (method == methodDef)
-                    continue;
+            foreach (var method in type.Methods.Where(method => method.Name != ".ctor" && method.Name != ".cctor")
+                         .Where(method => method != methodDef)) {
                 otherMethods++;
                 if (method.Body == null)
                     return false;
@@ -471,11 +379,11 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
         #region Fields
 
-        private CallCounter _methodCallCounter = new CallCounter();
-        private static readonly List<MethodDef> CallsToRemove = new List<MethodDef>();
-        private static readonly List<MethodDef> MethodsToRemove = new List<MethodDef>();
-        private static readonly List<Resource> ResourcesToRemove = new List<Resource>();
-        private static readonly List<ITypeDefOrRef> TypesToRemove = new List<ITypeDefOrRef>();
+        private CallCounter _methodCallCounter = new();
+        private static readonly List<MethodDef> CallsToRemove = new();
+        private static readonly List<MethodDef> MethodsToRemove = new();
+        private static readonly List<Resource> ResourcesToRemove = new();
+        private static readonly List<ITypeDefOrRef> TypesToRemove = new();
 
         #endregion
     }

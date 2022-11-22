@@ -1,17 +1,28 @@
+/*
+    Copyright (C) 2021 CodeStrikers.org
+    This file is part of NETReactorSlayer.
+    NETReactorSlayer is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    NETReactorSlayer is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 using System.Collections.Generic;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot.Renamer.AsmModules
-{
-    public class MMethodDef : Ref
-    {
+namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
+    public class MMethodDef : Ref {
         public MMethodDef(MethodDef methodDef, MTypeDef owner, int index)
-            : base(methodDef, owner, index)
-        {
+            : base(methodDef, owner, index) {
             GenericParams = MGenericParamDef.CreateGenericParamDefList(MethodDef.GenericParameters);
-            VisibleParameterBaseIndex = methodDef.MethodSig != null && methodDef.MethodSig.HasThis ? 1 : 0;
-            for (var i = 0; i < methodDef.Parameters.Count; i++)
-            {
+            VisibleParameterBaseIndex = methodDef.MethodSig is { HasThis: true } ? 1 : 0;
+            for (var i = 0; i < methodDef.Parameters.Count; i++) {
                 var param = methodDef.Parameters[i];
                 if (param.IsNormalMethodParameter)
                     VisibleParameterCount++;
@@ -29,10 +40,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules
 
         public bool IsStatic() => MethodDef.IsStatic;
 
-        public IEnumerable<MParamDef> AllParamDefs
-        {
-            get
-            {
+        public IEnumerable<MParamDef> AllParamDefs {
+            get {
                 yield return ReturnParamDef;
                 foreach (var paramDef in ParamDefs)
                     yield return paramDef;

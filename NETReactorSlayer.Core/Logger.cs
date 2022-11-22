@@ -17,12 +17,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace NETReactorSlayer.Core
-{
-    internal class Logger
-    {
-        public static void Done(string message)
-        {
+namespace NETReactorSlayer.Core {
+    internal class Logger {
+        public static void Done(string message) {
             Console.Write("  [");
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Write("✓");
@@ -31,8 +28,7 @@ namespace NETReactorSlayer.Core
             Console.WriteLine(message);
         }
 
-        public static void Warn(string message)
-        {
+        public static void Warn(string message) {
             Console.Write("  [");
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.Write("!");
@@ -41,9 +37,8 @@ namespace NETReactorSlayer.Core
             Console.WriteLine(message);
         }
 
-        public static void Error(string message, Exception ex = null)
-        {
-            if (Context.Options.Verbose && ex != null && ex.Message != null)
+        public static void Error(string message, Exception ex = null) {
+            if (Context.Options.Verbose && ex is { Message: { } })
                 message += $" {ex.Message}.";
             Console.Write("  [");
             Console.ForegroundColor = ConsoleColor.Red;
@@ -53,8 +48,7 @@ namespace NETReactorSlayer.Core
             Console.WriteLine(message);
         }
 
-        private static void PrintSupportedVersions()
-        {
+        private static void PrintSupportedVersions() {
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.Write("(");
             Console.ForegroundColor = ConsoleColor.DarkCyan;
@@ -64,10 +58,8 @@ namespace NETReactorSlayer.Core
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        public static void PrintUsage()
-        {
-            var arguments = new List<string>
-            {
+        public static void PrintUsage() {
+            var arguments = new List<string> {
                 "--dec-methods BOOL", "              Decrypt methods body (True)",
                 "--fix-proxy BOOL", "                Fix proxied calls (True)",
                 "--dec-strings BOOL", "              Decrypt strings (True)",
@@ -103,8 +95,7 @@ namespace NETReactorSlayer.Core
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        public static void PrintLogo()
-        {
+        public static void PrintLogo() {
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(@"

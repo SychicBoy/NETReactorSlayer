@@ -1,13 +1,25 @@
+/*
+    Copyright (C) 2021 CodeStrikers.org
+    This file is part of NETReactorSlayer.
+    NETReactorSlayer is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    NETReactorSlayer is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 using System;
 using System.Linq;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot
-{
-    public abstract class DeobfuscatorBase : IDeobfuscator
-    {
-        protected DeobfuscatorBase(ModuleDefMD module, OptionsBase optionsBase)
-        {
+namespace NETReactorSlayer.De4dot {
+    public abstract class DeobfuscatorBase : IDeobfuscator {
+        protected DeobfuscatorBase(ModuleDefMD module, OptionsBase optionsBase) {
             _optionsBase = optionsBase;
             Module = module;
         }
@@ -16,9 +28,7 @@ namespace NETReactorSlayer.De4dot
 
         public override string ToString() => Name;
 
-        protected virtual void Dispose(bool disposing)
-        {
-        }
+        protected virtual void Dispose(bool disposing) { }
 
         public virtual bool IsValidNamespaceName(string ns) => ns != null && ns.Split('.').All(CheckValidName);
 
@@ -41,8 +51,7 @@ namespace NETReactorSlayer.De4dot
 
         public virtual bool IsValidResourceKeyName(string name) => name != null && CheckValidName(name);
 
-        public void Dispose()
-        {
+        public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
@@ -59,8 +68,7 @@ namespace NETReactorSlayer.De4dot
 
         public IDeobfuscatorOptions TheOptions => _optionsBase;
 
-        public class OptionsBase : IDeobfuscatorOptions
-        {
+        public class OptionsBase : IDeobfuscatorOptions {
             public OptionsBase() => RenameResourcesInCode = true;
 
             public bool RenameResourcesInCode { get; set; }

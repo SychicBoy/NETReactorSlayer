@@ -33,12 +33,9 @@ using NETReactorSlayer.GUI.Dialogs;
 using NETReactorSlayer.GUI.Properties;
 using NETReactorSlayer.GUI.UserControls;
 
-namespace NETReactorSlayer.GUI
-{
-    public partial class MainWindow : Form
-    {
-        public MainWindow(string arg = "")
-        {
+namespace NETReactorSlayer.GUI {
+    public partial class MainWindow : Form {
+        public MainWindow(string arg = "") {
             if (arg == "updated")
                 MsgBox.Show(ChangeLogs.Replace("\n-", "\n● "), "What's New", MsgBox.MsgButtons.Ok,
                     MsgBox.MsgIcon.Info, this);
@@ -60,8 +57,7 @@ namespace NETReactorSlayer.GUI
             };
             txtLogs.KeyDown += (_, e) =>
             {
-                switch (e.KeyData)
-                {
+                switch (e.KeyData) {
                     case Keys.Down:
                         _isLogsScrollLocked = true;
                         scrollbarLogs.Value++;
@@ -90,12 +86,10 @@ namespace NETReactorSlayer.GUI
             ctxRename.Renderer = new ToolStripProfessionalRenderer(new MenuColorTable());
         }
 
-        private async void btnStart_Click(object sender, EventArgs e)
-        {
+        private async void btnStart_Click(object sender, EventArgs e) {
             if (btnStart.Tag != null && btnStart.Tag.ToString() == "Busy")
                 return;
-            if (!CheckInputFile(txtInput.Text))
-            {
+            if (!CheckInputFile(txtInput.Text)) {
                 btnStart.Tag = "Busy";
                 txtInput.Text = File.Exists(txtInput.Text)
                     ? @"Access to file path denied"
@@ -120,32 +114,24 @@ namespace NETReactorSlayer.GUI
             _logger.Write("\r\n  Started deobfuscation: ");
             _logger.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}", Color.SteelBlue);
             bool isX64;
-            try
-            {
-                using (var module = ModuleDefMD.Load(txtInput.Text))
-                {
+            try {
+                using (var module = ModuleDefMD.Load(txtInput.Text)) {
                     _logger.Write("  Assembly: ");
                     _logger.WriteLine(module.Name, Color.SteelBlue);
                     _logger.Write("  Architecture: ");
                     isX64 = !module.Is32BitPreferred && !module.Is32BitRequired;
                     _logger.WriteLine(isX64 ? "X64" : "X86", Color.SteelBlue);
                 }
-            }
-            catch
-            {
-                try
-                {
-                    using (var image = new PEImage(txtInput.Text))
-                    {
+            } catch {
+                try {
+                    using (var image = new PEImage(txtInput.Text)) {
                         isX64 = image.ImageNTHeaders.FileHeader.Machine != Machine.I386;
                         _logger.Write("  Assembly: ");
                         _logger.WriteLine(Path.GetFileName(image.Filename), Color.SteelBlue);
                         _logger.Write("  Architecture: ");
                         _logger.WriteLine(isX64 ? "X64" : "X86", Color.SteelBlue);
                     }
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     _logger.Write("  Error: ");
                     _logger.WriteLine(ex.Message.Replace("\r", "").Replace("\n", ". "), Color.Firebrick);
                     SetButtonStatus(false);
@@ -153,8 +139,7 @@ namespace NETReactorSlayer.GUI
                 }
             }
 
-            var startInfo = new ProcessStartInfo
-            {
+            var startInfo = new ProcessStartInfo {
                 CreateNoWindow = true,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -170,8 +155,7 @@ namespace NETReactorSlayer.GUI
             var process = new Process();
             process.OutputDataReceived += (_, evnt) =>
             {
-                if (!isPidLogged)
-                {
+                if (!isPidLogged) {
                     isPidLogged = true;
                     _logger.Write("  CLI Started, PID: ");
                     _logger.WriteLine(process.Id.ToString());
@@ -187,8 +171,7 @@ namespace NETReactorSlayer.GUI
                     prefix = data.Substring(data.IndexOf("[", StringComparison.Ordinal) + 1,
                         data.IndexOf("]", StringComparison.Ordinal) - 3);
 
-                switch (prefix)
-                {
+                switch (prefix) {
                     case "X":
                         prefixColor = Color.Firebrick;
                         break;
@@ -200,8 +183,7 @@ namespace NETReactorSlayer.GUI
                         break;
                 }
 
-                if (!string.IsNullOrWhiteSpace(prefix) && prefixColor != Color.Empty)
-                {
+                if (!string.IsNullOrWhiteSpace(prefix) && prefixColor != Color.Empty) {
                     _logger.Write("  [");
                     _logger.Write(prefix, prefixColor);
                     _logger.Write("] ");
@@ -235,8 +217,7 @@ namespace NETReactorSlayer.GUI
             ResumeLayout(false);
         }
 
-        private new void Closing(object sender, FormClosingEventArgs e)
-        {
+        private new void Closing(object sender, FormClosingEventArgs e) {
             if (_isClosing)
                 return;
             _isClosing = true;
@@ -258,13 +239,12 @@ namespace NETReactorSlayer.GUI
 
         private void picMinimize_MouseLeave(object sender, EventArgs e) => picMinimize.Image = Resources.Minimize;
 
-        private async void txtInput_DragDrop(object sender, DragEventArgs e)
-        {
-            if (!((string[])e.Data.GetData(DataFormats.FileDrop) is string[] files) || files.Length == 0) return;
+        private async void txtInput_DragDrop(object sender, DragEventArgs e) {
+            if (!((string[])e.Data.GetData(DataFormats.FileDrop) is string[] files) || files.Length == 0)
+                return;
             if (CheckInputFile(files[0]))
                 txtInput.Text = files[0];
-            else
-            {
+            else {
                 txtInput.Text = File.Exists(files[0])
                     ? @"Access to file path denied"
                     : @"Could not find a part of the file path";
@@ -277,54 +257,43 @@ namespace NETReactorSlayer.GUI
 
         private void txtInput_DragEnter(object sender, DragEventArgs e) => e.Effect = DragDropEffects.All;
 
-        private void OnMouseDown(object sender, MouseEventArgs e)
-        {
+        private void OnMouseDown(object sender, MouseEventArgs e) {
             _isMouseDown = true;
             _lastLocation = e.Location;
             Opacity = 0.90;
         }
 
-        private void OnMouseMove(object sender, MouseEventArgs e)
-        {
-            if (_isMouseDown)
-            {
-                Location = new Point(
-                    Location.X - _lastLocation.X + e.X, Location.Y - _lastLocation.Y + e.Y);
+        private void OnMouseMove(object sender, MouseEventArgs e) {
+            if (!_isMouseDown)
+                return;
+            Location = new Point(
+                Location.X - _lastLocation.X + e.X, Location.Y - _lastLocation.Y + e.Y);
 
-                Update();
-            }
+            Update();
         }
 
-        private void OnMouseUp(object sender, MouseEventArgs e)
-        {
+        private void OnMouseUp(object sender, MouseEventArgs e) {
             _isMouseDown = false;
             Opacity = 1.0;
         }
 
-        private void scrollbarLogs_ValueChanged(object sender, ScrollValueEventArgs e)
-        {
-            if (_isLogsScrollLocked)
-            {
+        private void scrollbarLogs_ValueChanged(object sender, ScrollValueEventArgs e) {
+            if (_isLogsScrollLocked) {
                 _isLogsScrollLocked = false;
                 return;
             }
 
-            try
-            {
+            try {
                 BeginControlUpdate(txtLogs);
                 txtLogs.SelectionStart = txtLogs.Find(txtLogs.Lines[scrollbarLogs.Value]) - 1;
                 txtLogs.SelectionLength = 0;
                 txtLogs.ScrollToCaret();
-            }
-            catch
-            {
-            }
+            } catch { }
 
             EndControlUpdate(txtLogs);
         }
 
-        private void txtLogs_TextChanged(object sender, EventArgs e)
-        {
+        private void txtLogs_TextChanged(object sender, EventArgs e) {
             scrollbarLogs.SuspendLayout();
             scrollbarLogs.Maximum = txtLogs.Lines.Length;
             scrollbarLogs.Value = txtLogs.Lines.Length;
@@ -332,8 +301,7 @@ namespace NETReactorSlayer.GUI
             scrollbarLogs.ResumeLayout();
         }
 
-        protected virtual void OnFormWindowStateChanged(EventArgs e)
-        {
+        protected virtual void OnFormWindowStateChanged(EventArgs e) {
             if (WindowState == FormWindowState.Maximized)
                 WindowState = FormWindowState.Normal;
             CenterToScreen();
@@ -345,10 +313,8 @@ namespace NETReactorSlayer.GUI
         private void llblGitHub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) =>
             Process.Start((sender as LinkLabel)?.Tag.ToString() ?? throw new InvalidOperationException());
 
-        private void picBrowse_Click(object sender, EventArgs e)
-        {
-            var openFileDialog = new OpenFileDialog
-            {
+        private void picBrowse_Click(object sender, EventArgs e) {
+            var openFileDialog = new OpenFileDialog {
                 Filter = @"Assembly (*.exe,*.dll)| *.exe;*.dll",
                 Title = @"Select Assembly",
                 Multiselect = false,
@@ -362,91 +328,75 @@ namespace NETReactorSlayer.GUI
 
         private void copyLogsToolStripMenuItem_Click(object sender, EventArgs e) => Clipboard.SetText(txtLogs.Text);
 
-        protected override void WndProc(ref Message m)
-        {
+        protected override void WndProc(ref Message m) {
             var org = WindowState;
             base.WndProc(ref m);
             if (WindowState != org)
                 OnFormWindowStateChanged(EventArgs.Empty);
         }
 
-        private void ShowAnimated()
-        {
-            var timer = new Timer
-            {
+        private void ShowAnimated() {
+            var timer = new Timer {
                 Interval = 10
             };
             timer.Tick += async delegate
             {
-                if (Opacity < 1.0) Opacity += 0.05;
-                if (Opacity >= 1.0)
-                {
-                    timer.Stop();
-                    Show();
-                    Opacity = 1.0;
-                    timer.Dispose();
-                    try
-                    {
-                        if (!await IsLatestVersion())
-                            if (MsgBox.Show(@"New version is available, Do you want to install it?",
-                                    ".NETReactorSlayer",
-                                    MsgBox.MsgButtons.YesNoCancel, MsgBox.MsgIcon.Question, this) == DialogResult.Yes)
-                                InstallLatestVersion();
-                    }
-                    catch
-                    {
-                    }
-                }
+                if (Opacity < 1.0)
+                    Opacity += 0.05;
+                if (!(Opacity >= 1.0))
+                    return;
+                timer.Stop();
+                Show();
+                Opacity = 1.0;
+                timer.Dispose();
+                try {
+                    if (await IsLatestVersion())
+                        return;
+                    if (MsgBox.Show(@"New version is available, Do you want to install it?",
+                            ".NETReactorSlayer",
+                            MsgBox.MsgButtons.YesNoCancel, MsgBox.MsgIcon.Question, this) == DialogResult.Yes)
+                        InstallLatestVersion();
+                } catch { }
             };
             timer.Start();
         }
 
-        private void CloseAnimated()
-        {
-            var timer = new Timer
-            {
+        private void CloseAnimated() {
+            var timer = new Timer {
                 Interval = 10
             };
             timer.Tick += delegate
             {
-                if (Opacity > 0.0) Opacity += -0.1;
-                if (Opacity <= 0.0)
-                {
-                    Opacity = 0.0;
-                    timer.Stop();
-                    timer.Dispose();
-                    Close();
-                }
+                if (Opacity > 0.0)
+                    Opacity += -0.1;
+                if (!(Opacity <= 0.0))
+                    return;
+                Opacity = 0.0;
+                timer.Stop();
+                timer.Dispose();
+                Close();
             };
             timer.Start();
         }
 
-        private static bool CheckInputFile(string filePath)
-        {
-            if (File.Exists(filePath))
-                try
-                {
-                    File.OpenRead(filePath).Close();
-                    using (File.Create(
-                               Path.Combine(Path.GetDirectoryName(filePath) ?? throw new InvalidOperationException(),
-                                   Path.GetRandomFileName()),
-                               1, FileOptions.DeleteOnClose))
-                    {
-                    }
+        private static bool CheckInputFile(string filePath) {
+            if (!File.Exists(filePath))
+                return false;
+            try {
+                File.OpenRead(filePath).Close();
+                using (File.Create(
+                           Path.Combine(Path.GetDirectoryName(filePath) ?? throw new InvalidOperationException(),
+                               Path.GetRandomFileName()),
+                           1, FileOptions.DeleteOnClose)) { }
 
-                    return true;
-                }
-                catch
-                {
-                }
+                return true;
+            } catch { }
 
             return false;
         }
 
-        private void SetButtonStatus(bool isBusy)
-        {
-            if (isBusy)
-            {
+        private void SetButtonStatus(bool isBusy) {
+            if (isBusy) {
                 btnStart.BackColor = Color.FromArgb(32, 32, 32);
                 btnStart.FlatAppearance.MouseOverBackColor = btnStart.BackColor;
                 btnStart.FlatAppearance.MouseDownBackColor = btnStart.BackColor;
@@ -454,9 +404,7 @@ namespace NETReactorSlayer.GUI
                 btnStart.Cursor = Cursors.WaitCursor;
                 btnStart.Text = string.Empty;
                 btnStart.Tag = "Busy";
-            }
-            else
-            {
+            } else {
                 btnStart.BackColor = Color.FromArgb(27, 27, 27);
                 btnStart.FlatAppearance.MouseOverBackColor = Color.FromArgb(32, 32, 32);
                 btnStart.FlatAppearance.MouseDownBackColor = Color.FromArgb(18, 18, 18);
@@ -467,8 +415,7 @@ namespace NETReactorSlayer.GUI
             }
         }
 
-        private static void BeginControlUpdate(IWin32Window control)
-        {
+        private static void BeginControlUpdate(IWin32Window control) {
             var msgSuspendUpdate = Message.Create(control.Handle, WmSetredraw, IntPtr.Zero,
                 IntPtr.Zero);
 
@@ -476,8 +423,7 @@ namespace NETReactorSlayer.GUI
             window.DefWndProc(ref msgSuspendUpdate);
         }
 
-        private static void EndControlUpdate(Control control)
-        {
+        private static void EndControlUpdate(Control control) {
             var wparam = new IntPtr(1);
             var msgResumeUpdate = Message.Create(control.Handle, WmSetredraw, wparam,
                 IntPtr.Zero);
@@ -496,17 +442,17 @@ namespace NETReactorSlayer.GUI
         [DllImport("user32.dll")]
         private static extern int HideCaret(IntPtr hwnd);
 
-        private void CheckedChanged(object sender, EventArgs e)
-        {
-            if (sender as NrsCheckBox == chkPreserveAll && chkPreserveAll.Checked)
+        private void CheckedChanged(object sender, EventArgs e) {
+            if (chkPreserveAll != null && sender as NrsCheckBox == chkPreserveAll && chkPreserveAll.Checked)
                 chkKeepTypes.Checked = true;
-            else if (sender as NrsCheckBox == chkKeepTypes && !chkPreserveAll.Checked && chkKeepTypes.Checked)
+            else if (chkPreserveAll != null && chkKeepTypes != null && sender as NrsCheckBox == chkKeepTypes &&
+                     !chkPreserveAll.Checked &&
+                     chkKeepTypes.Checked)
                 chkPreserveAll.Checked = false;
 
             if ((from x in tabelOptions.Controls.OfType<NrsCheckBox>()
                     where x.Name != "chkSelectUnSelectAll"
-                    select x).Any(control => !control.Checked))
-            {
+                    select x).Any(control => !control.Checked)) {
                 _return = true;
                 chkSelectUnSelectAll.Checked = false;
                 _return = false;
@@ -518,39 +464,32 @@ namespace NETReactorSlayer.GUI
             _return = false;
         }
 
-        private void chkSelectUnSelectAll_CheckedChanged(object sender, EventArgs e)
-        {
+        private void chkSelectUnSelectAll_CheckedChanged(object sender, EventArgs e) {
             chkSelectUnSelectAll.Text = !chkSelectUnSelectAll.Checked ? @"Select All" : @"Unselect All";
-            if (_return)
-            {
+            if (_return) {
                 _return = false;
                 return;
             }
 
             var @checked = chkSelectUnSelectAll.Checked;
-            if (!@checked)
-            {
+            if (!@checked) {
                 chkRename.Tag = "--dont-rename";
                 chkRename.Checked = false;
                 foreach (ToolStripMenuItem control in ctxRename.Items)
                     control.Text = control.Text.Replace("✓", "X");
-            }
-            else
-            {
+            } else {
                 chkRename.Tag = "--rename --rename ntmfpe";
                 chkRename.Checked = true;
                 foreach (ToolStripMenuItem control in ctxRename.Items)
                     control.Text = control.Text.Replace("X", "✓");
             }
 
-            foreach (var control in from x in tabelOptions.Controls.OfType<NrsCheckBox>()
-                     where x.Name != @"chkSelectUnSelectAll"
-                     select x)
-                if (control.Checked != @checked)
-                {
-                    _return = true;
-                    control.Checked = @checked;
-                }
+            foreach (var control in (from x in tabelOptions.Controls.OfType<NrsCheckBox>()
+                         where x.Name != @"chkSelectUnSelectAll"
+                         select x).Where(control => control.Checked != @checked)) {
+                _return = true;
+                control.Checked = @checked;
+            }
         }
 
         private void picMenu_MouseEnter(object sender, EventArgs e) => picMenu.Image = Resources.MenuOver;
@@ -571,29 +510,23 @@ Author: SychicBoy
 Company: CS-RET
 Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, MsgBox.MsgIcon.Info, this);
 
-        private async void toolStripMenuItem6_Click(object sender, EventArgs e)
-        {
-            try
-            {
+        private async void toolStripMenuItem6_Click(object sender, EventArgs e) {
+            try {
                 if (await IsLatestVersion())
                     MsgBox.Show(@"Congratulations, You are using the latest version!", ".NETReactorSlayer",
                         MsgBox.MsgButtons.Ok, MsgBox.MsgIcon.Info, this);
-                else
-                {
+                else {
                     if (MsgBox.Show(@"New version is available, Do you want to install it?",
                             ".NETReactorSlayer",
                             MsgBox.MsgButtons.YesNoCancel, MsgBox.MsgIcon.Question, this) == DialogResult.Yes)
                         InstallLatestVersion();
                 }
-            }
-            catch (Exception exception)
-            {
+            } catch (Exception exception) {
                 MsgBox.Show(exception.Message, ".NETReactorSlayer", MsgBox.MsgButtons.Ok, MsgBox.MsgIcon.Error, this);
             }
         }
 
-        private static async Task<bool> IsLatestVersion()
-        {
+        private static async Task<bool> IsLatestVersion() {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             var client = new HttpClient();
             var response =
@@ -615,8 +548,7 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
             return true;
         }
 
-        private static async void InstallLatestVersion()
-        {
+        private static async void InstallLatestVersion() {
             var tmpPath = Path.GetTempFileName();
             var tmpDir = Path.GetDirectoryName(tmpPath);
             AddTrailing(ref tmpDir);
@@ -630,8 +562,7 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
             var client = new HttpClient();
             var response = await client.GetAsync(downloadUrl);
             File.WriteAllBytes(tmpPath, new byte[] { 0 });
-            using (var fs = new FileStream(tmpPath, FileMode.Open, FileAccess.ReadWrite))
-            {
+            using (var fs = new FileStream(tmpPath, FileMode.Open, FileAccess.ReadWrite)) {
                 await response.Content.CopyToAsync(fs);
             }
 
@@ -647,72 +578,63 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
                           " & " +
                           $"\"{baseDir}\\NETReactorSlayer.exe\" updated";
             Process.Start(new ProcessStartInfo("cmd.exe",
-                    "/C ping 1.1.1.1 -n 1 -w 3000 > Nul & " + command)
-                {
+                    "/C ping 1.1.1.1 -n 1 -w 3000 > Nul & " + command) {
                     WindowStyle = ProcessWindowStyle.Hidden
                 })
                 ?.Dispose();
             Process.GetCurrentProcess().Kill();
         }
 
-        private static void AddTrailing(ref string directory)
-        {
+        private static void AddTrailing(ref string directory) {
             if (!directory.EndsWith("\\"))
                 directory += "\\";
         }
 
-        private static void RemoveTrailing(ref string directory)
-        {
+        private static void RemoveTrailing(ref string directory) {
             if (directory.EndsWith("\\"))
                 directory = directory.Substring(0, directory.Length - 1);
         }
 
-        private void SetRenamingOptions(object sender, EventArgs e)
-        {
-            if (!(sender is ToolStripMenuItem control)) return;
-            if (!(control.Tag is string option) || !(chkRename.Tag is string tag)) return;
+        private void SetRenamingOptions(object sender, EventArgs e) {
+            if (!(sender is ToolStripMenuItem control))
+                return;
+            if (!(control.Tag is string option) || !(chkRename.Tag is string tag))
+                return;
             tag = tag.Replace("--rename ", string.Empty).Replace("--dont-rename", string.Empty);
             var text = control.Text;
-            if (text.Contains("✓"))
-            {
+            if (text.Contains("✓")) {
                 control.Text = text.Replace("✓", "X");
                 chkRename.Tag = "--rename " + tag.Replace(option, string.Empty);
-            }
-            else if (text.Contains("X") && !tag.Contains(option))
-            {
+            } else if (text.Contains("X") && !tag.Contains(option)) {
                 control.Text = text.Replace("X", "✓");
                 chkRename.Tag = $"--rename {tag}{option}";
             }
 
-            if (chkRename.Tag.ToString().Replace("--rename ", string.Empty).Length < 1)
-            {
-                if (!chkRename.Checked) return;
+            if (chkRename.Tag.ToString().Replace("--rename ", string.Empty).Length < 1) {
+                if (!chkRename.Checked)
+                    return;
                 chkRename.Checked = false;
                 chkRename.Tag = "--dont-rename";
-            }
-            else if (!chkRename.Checked) chkRename.Checked = true;
+            } else if (!chkRename.Checked)
+                chkRename.Checked = true;
         }
 
         private void KeepCtxRenameOpen(object sender, MouseEventArgs e) => ctxRename.Tag = "open";
 
-        private void ctxRename_Closing(object sender, ToolStripDropDownClosingEventArgs e)
-        {
-            if (ctxRename.Tag is "open")
-            {
-                ctxRename.Tag = "close";
-                e.Cancel = true;
-            }
+        private void ctxRename_Closing(object sender, ToolStripDropDownClosingEventArgs e) {
+            if (!(ctxRename.Tag is "open"))
+                return;
+            ctxRename.Tag = "close";
+            e.Cancel = true;
         }
 
-        private void OpenCtxRename(object sender, MouseEventArgs e)
-        {
+        private void OpenCtxRename(object sender, MouseEventArgs e) {
             if (chkRename.Tag.ToString() == "--dont-rename" ||
-                chkRename.Tag.ToString().Replace("--rename ", string.Empty).Length < 1)
-            {
+                chkRename.Tag.ToString().Replace("--rename ", string.Empty).Length < 1) {
                 if (chkRename.Checked)
                     chkRename.Checked = false;
-            }
-            else if (!chkRename.Checked) chkRename.Checked = true;
+            } else if (!chkRename.Checked)
+                chkRename.Checked = true;
 
             ctxRename.Show(chkRename, new Point(e.X, e.Y));
         }
@@ -734,10 +656,8 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
 
         private static string _lastVersion;
 
-        protected override CreateParams CreateParams
-        {
-            get
-            {
+        protected override CreateParams CreateParams {
+            get {
                 var cp = base.CreateParams;
                 cp.ClassStyle |= 0x00020000;
                 return cp;

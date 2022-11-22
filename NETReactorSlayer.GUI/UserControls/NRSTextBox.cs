@@ -18,44 +18,37 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace NETReactorSlayer.GUI.UserControls
-{
-    public sealed partial class NrsTextBox : TextBox
-    {
-        public NrsTextBox()
-        {
+namespace NETReactorSlayer.GUI.UserControls {
+    public sealed partial class NrsTextBox : TextBox {
+        public NrsTextBox() {
             InitializeComponent();
             AutoSize = false;
             GotFocus += (_, e) =>
             {
-                if (base.ForeColor == PlaceHolderColor)
-                {
-                    base.ForeColor = ForeColor;
-                    Text = string.Empty;
-                }
+                if (base.ForeColor != PlaceHolderColor)
+                    return;
+                base.ForeColor = ForeColor;
+                Text = string.Empty;
             };
             LostFocus += (_, e) =>
             {
-                if (Text.Length < 1 && PlaceHolderText.Length > 0)
-                {
-                    Text = PlaceHolderText;
-                    base.ForeColor = PlaceHolderColor;
-                }
+                if (Text.Length >= 1 || PlaceHolderText.Length <= 0)
+                    return;
+                Text = PlaceHolderText;
+                base.ForeColor = PlaceHolderColor;
             };
             TextChanged += (_, e) =>
             {
                 if (Text.Length > 0)
                     base.ForeColor = ForeColor;
-                else if (!DesignMode)
-                {
+                else if (!DesignMode) {
                     if (Focused)
                         return;
-                    if (PlaceHolderText.Length > 0)
-                    {
-                        if (Text != PlaceHolderText)
-                            Text = PlaceHolderText;
-                        base.ForeColor = PlaceHolderColor;
-                    }
+                    if (PlaceHolderText.Length <= 0)
+                        return;
+                    if (Text != PlaceHolderText)
+                        Text = PlaceHolderText;
+                    base.ForeColor = PlaceHolderColor;
                 }
             };
         }
@@ -75,21 +68,17 @@ namespace NETReactorSlayer.GUI.UserControls
         private Color _progressColor = Color.MediumSeaGreen;
         private TextTransformEnum _transform;
 
-        public int BorderRadius
-        {
+        public int BorderRadius {
             get => _borderRadius;
-            set
-            {
+            set {
                 _borderRadius = value;
                 Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _borderRadius, 20));
             }
         }
 
-        public new Color ForeColor
-        {
+        public new Color ForeColor {
             get => _foreColor;
-            set
-            {
+            set {
                 _foreColor = value;
                 base.ForeColor = ForeColor;
             }
@@ -97,54 +86,43 @@ namespace NETReactorSlayer.GUI.UserControls
 
         public Color PlaceHolderColor { get; set; } = Color.Gray;
 
-        public string PlaceHolderText
-        {
+        public string PlaceHolderText {
             get => _placeHolderText;
-            set
-            {
+            set {
                 _placeHolderText = value;
-                if (!DesignMode)
-                {
-                    if (Focused)
-                        return;
-                    if (value.Length > 0)
-                    {
-                        if (Text != value)
-                            Text = value;
-                        base.ForeColor = PlaceHolderColor;
-                    }
-                }
+                if (DesignMode)
+                    return;
+                if (Focused)
+                    return;
+                if (value.Length <= 0)
+                    return;
+                if (Text != value)
+                    Text = value;
+                base.ForeColor = PlaceHolderColor;
             }
         }
 
-        public float Progress
-        {
+        public float Progress {
             get => _progress;
-            set
-            {
+            set {
                 _progress = value;
                 Invalidate();
             }
         }
 
-        public Color ProgressColor
-        {
+        public Color ProgressColor {
             get => _progressColor;
-            set
-            {
+            set {
                 _progressColor = value;
                 Invalidate();
             }
         }
 
-        public TextTransformEnum TextTransform
-        {
+        public TextTransformEnum TextTransform {
             get => _transform;
-            set
-            {
+            set {
                 _transform = value;
-                switch (value)
-                {
+                switch (value) {
                     case TextTransformEnum.Upper:
                         Text = Text.ToUpper();
                         break;
@@ -158,8 +136,7 @@ namespace NETReactorSlayer.GUI.UserControls
             }
         }
 
-        public enum TextTransformEnum
-        {
+        public enum TextTransformEnum {
             None,
             Upper,
             Lower

@@ -1,14 +1,26 @@
-﻿using System.Collections.Generic;
+﻿/*
+    Copyright (C) 2021 CodeStrikers.org
+    This file is part of NETReactorSlayer.
+    NETReactorSlayer is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    NETReactorSlayer is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace NETReactorSlayer.De4dot
-{
-    public static class RandomNameChecker
-    {
-        public static bool IsNonRandom(string name)
-        {
+namespace NETReactorSlayer.De4dot {
+    public static class RandomNameChecker {
+        public static bool IsNonRandom(string name) {
             if (name.Length < 5)
                 return true;
             if (NoUpper.IsMatch(name))
@@ -16,8 +28,7 @@ namespace NETReactorSlayer.De4dot
             if (AllUpper.IsMatch(name))
                 return true;
 
-            for (var i = 0; i < name.Length - 1; i++)
-            {
+            for (var i = 0; i < name.Length - 1; i++) {
                 if (IsDigit(name[i]))
                     return false;
                 if (i > 0 && IsUpper(name[i]) && IsUpper(name[i - 1]))
@@ -25,12 +36,8 @@ namespace NETReactorSlayer.De4dot
             }
 
             var words = GetCamelWords(name);
-            var vowels = 0;
-            foreach (var word in words)
-                if (word.Length > 1 && HasVowel(word))
-                    vowels++;
-            switch (words.Count)
-            {
+            var vowels = words.Count(word => word.Length > 1 && HasVowel(word));
+            switch (words.Count) {
                 case 1:
                     return vowels == words.Count;
                 case 2:
@@ -48,11 +55,9 @@ namespace NETReactorSlayer.De4dot
             }
         }
 
-        private static bool HasVowel(string s)
-        {
+        private static bool HasVowel(string s) {
             foreach (var c in s)
-                switch (c)
-                {
+                switch (c) {
                     case 'A':
                     case 'a':
                     case 'E':
@@ -71,15 +76,12 @@ namespace NETReactorSlayer.De4dot
             return false;
         }
 
-        private static List<string> GetCamelWords(string name)
-        {
+        private static List<string> GetCamelWords(string name) {
             var words = new List<string>();
             var sb = new StringBuilder();
 
-            foreach (var c in name)
-            {
-                if (IsUpper(c))
-                {
+            foreach (var c in name) {
+                if (IsUpper(c)) {
                     if (sb.Length > 0)
                         words.Add(sb.ToString());
                     sb.Length = 0;
@@ -94,8 +96,7 @@ namespace NETReactorSlayer.De4dot
             return words;
         }
 
-        public static bool IsRandom(string name)
-        {
+        public static bool IsRandom(string name) {
             var len = name.Length;
             if (len < 5)
                 return false;
@@ -110,9 +111,8 @@ namespace NETReactorSlayer.De4dot
                 return true;
             var hasTwoUpperWords = upper == 2;
 
-            foreach (var word in typeWords)
-                if (word.Length > 1 && IsDigit(word[0]))
-                    return true;
+            if (typeWords.Any(word => word.Length > 1 && IsDigit(word[0])))
+                return true;
 
             for (var i = 2; i < typeWords.Count; i++)
                 if (IsDigit(typeWords[i - 1][0]) && IsLower(typeWords[i - 2][0]) && IsLower(typeWords[i][0]))
@@ -121,52 +121,34 @@ namespace NETReactorSlayer.De4dot
             if (hasTwoUpperWords && HasDigit(name))
                 return true;
 
-            if (IsLower(name[len - 3]) && IsUpper(name[len - 2]) && IsDigit(name[len - 1]))
-                return true;
-
-            return false;
+            return IsLower(name[len - 3]) && IsUpper(name[len - 2]) && IsDigit(name[len - 1]);
         }
 
-        private static bool HasDigit(string s)
-        {
-            foreach (var c in s)
-                if (IsDigit(c))
-                    return true;
-            return false;
-        }
+        private static bool HasDigit(string s) => s.Any(IsDigit);
 
-        private static List<string> GetTypeWords(string s)
-        {
+        private static List<string> GetTypeWords(string s) {
             var words = new List<string>();
             var sb = new StringBuilder();
 
             for (var i = 0; i < s.Length;)
-                if (IsDigit(s[i]))
-                {
+                if (IsDigit(s[i])) {
                     sb.Length = 0;
                     while (i < s.Length && IsDigit(s[i]))
                         sb.Append(s[i++]);
                     words.Add(sb.ToString());
-                }
-                else if (IsUpper(s[i]))
-                {
+                } else if (IsUpper(s[i])) {
                     sb.Length = 0;
                     while (i < s.Length && IsUpper(s[i]))
                         sb.Append(s[i++]);
                     words.Add(sb.ToString());
-                }
-                else if (IsLower(s[i]))
-                {
+                } else if (IsLower(s[i])) {
                     sb.Length = 0;
                     while (i < s.Length && IsLower(s[i]))
                         sb.Append(s[i++]);
                     words.Add(sb.ToString());
-                }
-                else
-                {
+                } else {
                     sb.Length = 0;
-                    while (i < s.Length)
-                    {
+                    while (i < s.Length) {
                         if (IsDigit(s[i]) || IsUpper(s[i]) || IsLower(s[i]))
                             break;
                         sb.Append(s[i++]);
@@ -178,42 +160,27 @@ namespace NETReactorSlayer.De4dot
             return words;
         }
 
-        private static bool CountNumbers(List<string> words, int numbers)
-        {
+        private static bool CountNumbers(IEnumerable<string> words, int numbers) {
             var num = 0;
-            foreach (var word in words)
-            {
-                if (string.IsNullOrEmpty(word))
-                    continue;
-                if (IsDigit(word[0]) && ++num >= numbers)
-                    return true;
-            }
-
-            return false;
+            return words.Where(word => !string.IsNullOrEmpty(word)).Any(word => IsDigit(word[0]) && ++num >= numbers);
         }
 
-        private static void CountTypeWords(List<string> words, out int upper)
-        {
+        private static void CountTypeWords(IEnumerable<string> words, out int upper) {
             upper = 0;
 
             foreach (var c in from word in words where word.Length > 1 select word[0])
-                if (IsDigit(c))
-                {
-                }
-                else if (IsLower(c))
-                {
-                }
-                else if (IsUpper(c)) upper++;
+                if (IsDigit(c)) { } else if (IsLower(c)) { } else if (IsUpper(c))
+                    upper++;
         }
 
-        private static bool IsLower(char c) => 'a' <= c && c <= 'z';
+        private static bool IsLower(char c) => c is >= 'a' and <= 'z';
 
-        private static bool IsUpper(char c) => 'A' <= c && c <= 'Z';
+        private static bool IsUpper(char c) => c is >= 'A' and <= 'Z';
 
-        private static bool IsDigit(char c) => '0' <= c && c <= '9';
+        private static bool IsDigit(char c) => c is >= '0' and <= '9';
 
-        private static readonly Regex AllUpper = new Regex(@"^[A-Z]+$");
+        private static readonly Regex AllUpper = new(@"^[A-Z]+$");
 
-        private static readonly Regex NoUpper = new Regex(@"^[^A-Z]+$");
+        private static readonly Regex NoUpper = new(@"^[^A-Z]+$");
     }
 }

@@ -16,12 +16,9 @@
 using NETReactorSlayer.De4dot;
 using NETReactorSlayer.De4dot.Renamer;
 
-namespace NETReactorSlayer.Core.Deobfuscators
-{
-    internal class SymbolRenamer : IStage
-    {
-        public void Execute()
-        {
+namespace NETReactorSlayer.Core.Deobfuscators {
+    internal class SymbolRenamer : IStage {
+        public void Execute() {
             Logger.Done("Renaming obfuscated symbols...");
             var deobfuscator =
                 new DeobfuscatorInfo(Context.Module, Context.Options.RenameShort).CreateDeobfuscator();

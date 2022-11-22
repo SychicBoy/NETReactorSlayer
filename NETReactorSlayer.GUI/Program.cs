@@ -17,29 +17,21 @@ using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace NETReactorSlayer.GUI
-{
-    internal static class Program
-    {
+namespace NETReactorSlayer.GUI {
+    internal static class Program {
         /// <summary>
         ///     The main entry point for the application.
         /// </summary>
         [STAThread]
-        private static void Main(string[] args)
-        {
-            try
-            {
+        private static void Main(string[] args) {
+            try {
                 SetProcessDPIAware();
-            }
-            catch
-            {
-            }
+            } catch { }
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             if (args.Length > 0)
-                if (args[0] == "updated")
-                {
+                if (args[0] == "updated") {
                     Application.Run(new MainWindow(args[0]));
                     return;
                 }

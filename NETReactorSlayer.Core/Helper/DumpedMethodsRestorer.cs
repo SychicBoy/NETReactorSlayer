@@ -1,20 +1,16 @@
 ﻿/*
-    Copyright (C) 2011-2015 de4dot@gmail.com
-
-    This file is part of de4dot.
-
-    de4dot is free software: you can redistribute it and/or modify
+    Copyright (C) 2021 CodeStrikers.org
+    This file is part of NETReactorSlayer.
+    NETReactorSlayer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
-    de4dot is distributed in the hope that it will be useful,
+    NETReactorSlayer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
-    along with de4dot.  If not, see <http://www.gnu.org/licenses/>.
+    along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 using System.Collections.Generic;
@@ -24,19 +20,15 @@ using dnlib.DotNet.Emit;
 using dnlib.DotNet.MD;
 using dnlib.PE;
 
-namespace NETReactorSlayer.Core.Helper
-{
-    public class DumpedMethodsRestorer : IRowReader<RawMethodRow>, IColumnReader, IMethodDecrypter
-    {
+namespace NETReactorSlayer.Core.Helper {
+    public class DumpedMethodsRestorer : IRowReader<RawMethodRow>, IColumnReader, IMethodDecrypter {
         public DumpedMethodsRestorer(DumpedMethods dumpedMethods) => _dumpedMethods = dumpedMethods;
 
         private DumpedMethod GetDumpedMethod(uint rid) => _dumpedMethods.Get(0x06000000 | rid);
 
-        public bool ReadColumn(MDTable table, uint rid, ColumnInfo column, out uint value)
-        {
+        public bool ReadColumn(MDTable table, uint rid, ColumnInfo column, out uint value) {
             if (table.Table == Table.Method)
-                if (TryReadRow(rid, out var row))
-                {
+                if (TryReadRow(rid, out var row)) {
                     value = row[column.Index];
                     return true;
                 }
@@ -46,11 +38,9 @@ namespace NETReactorSlayer.Core.Helper
         }
 
         public bool GetMethodBody(
-            uint rid, RVA rva, IList<Parameter> parameters, GenericParamContext gpContext, out MethodBody methodBody)
-        {
+            uint rid, RVA rva, IList<Parameter> parameters, GenericParamContext gpContext, out MethodBody methodBody) {
             var dm = GetDumpedMethod(rid);
-            if (dm == null)
-            {
+            if (dm == null) {
                 methodBody = null;
                 return false;
             }
@@ -60,11 +50,9 @@ namespace NETReactorSlayer.Core.Helper
             return true;
         }
 
-        public bool TryReadRow(uint rid, out RawMethodRow row)
-        {
+        public bool TryReadRow(uint rid, out RawMethodRow row) {
             var dm = GetDumpedMethod(rid);
-            if (dm == null)
-            {
+            if (dm == null) {
                 row = default;
                 return false;
             }
@@ -76,8 +64,7 @@ namespace NETReactorSlayer.Core.Helper
         private readonly DumpedMethods _dumpedMethods;
         private ModuleDefMD _module;
 
-        public ModuleDefMD Module
-        {
+        public ModuleDefMD Module {
             set => _module = value;
         }
     }

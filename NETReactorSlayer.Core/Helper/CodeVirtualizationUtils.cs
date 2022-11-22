@@ -16,14 +16,10 @@
 using System.Linq;
 using dnlib.DotNet.Emit;
 
-namespace NETReactorSlayer.Core.Helper
-{
-    internal class CodeVirtualizationUtils
-    {
-        public static bool Detect()
-        {
-            var array = new string[]
-            {
+namespace NETReactorSlayer.Core.Helper {
+    internal class CodeVirtualizationUtils {
+        public static bool Detect() {
+            var array = new[] {
                 "System.String",
                 "System.Byte",
                 "System.SByte",
@@ -41,26 +37,22 @@ namespace NETReactorSlayer.Core.Helper
                 "System.Char"
             };
 
-            foreach (var type in Context.Module.GetTypes())
-            {
-                foreach (var method in type.Methods.Where(x=> x.HasBody && x.Body.HasInstructions))
-                {
-                    try
-                    {
-                        if (method.Body.Instructions.Count(x => x.OpCode.Equals(OpCodes.Switch)) != 2)
-                            continue;
-                        if (method.Body.Instructions.Count(x => x.OpCode.Equals(OpCodes.Ldtoken)) < 15)
-                            continue;
-                        var operands = method.Body.Instructions
-                            .Where(x => x.OpCode.Equals(OpCodes.Ldtoken) && x.Operand != null).Select(x => x.Operand.ToString()).ToList();
-                        if (array.Any(item => !operands.Contains(item)))
-                            continue;
+            foreach (var method in Context.Module.GetTypes()
+                         .SelectMany(type => type.Methods.Where(x => x.HasBody && x.Body.HasInstructions)))
+                try {
+                    if (method.Body.Instructions.Count(x => x.OpCode.Equals(OpCodes.Switch)) != 2)
+                        continue;
+                    if (method.Body.Instructions.Count(x => x.OpCode.Equals(OpCodes.Ldtoken)) < 15)
+                        continue;
+                    var operands = method.Body.Instructions
+                        .Where(x => x.OpCode.Equals(OpCodes.Ldtoken) && x.Operand != null)
+                        .Select(x => x.Operand.ToString()).ToList();
+                    if (array.Any(item => !operands.Contains(item)))
+                        continue;
 
-                        return true;
-                    }
-                    catch { }
-                }
-            }
+                    return true;
+                } catch { }
+
             return false;
         }
     }

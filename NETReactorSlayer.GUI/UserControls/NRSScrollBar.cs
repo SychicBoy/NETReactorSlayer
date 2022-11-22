@@ -19,22 +19,18 @@ using System.Drawing;
 using System.Windows.Forms;
 using NETReactorSlayer.GUI.Properties;
 
-namespace NETReactorSlayer.GUI.UserControls
-{
-    public class NrsScrollBar : Control
-    {
+namespace NETReactorSlayer.GUI.UserControls {
+    public class NrsScrollBar : Control {
         #region Constructor Region
 
-        public NrsScrollBar()
-        {
+        public NrsScrollBar() {
             SetStyle(ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.ResizeRedraw |
                      ControlStyles.UserPaint, true);
 
             SetStyle(ControlStyles.Selectable, false);
 
-            _scrollTimer = new Timer
-            {
+            _scrollTimer = new Timer {
                 Interval = 1
             };
             _scrollTimer.Tick += ScrollTimerTick;
@@ -44,8 +40,7 @@ namespace NETReactorSlayer.GUI.UserControls
 
         #region Paint Region
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
+        protected override void OnPaint(PaintEventArgs e) {
             var g = e.Graphics;
 
             var upIcon = _upArrowHot ? Resources.scrollbar_arrow_hot : Resources.scrollbar_arrow_standard;
@@ -74,14 +69,14 @@ namespace NETReactorSlayer.GUI.UserControls
                 _downArrowArea.Left + _downArrowArea.Width / 2 - downIcon.Width / 2,
                 _downArrowArea.Top + _downArrowArea.Height / 2 - downIcon.Height / 2);
 
-            if (!Enabled) return;
+            if (!Enabled)
+                return;
             var scrollColor = _thumbHot ? Color.FromArgb(122, 128, 132) : Color.FromArgb(92, 92, 92);
 
             if (_isScrolling)
                 scrollColor = Color.FromArgb(159, 178, 196);
 
-            using (var b = new SolidBrush(scrollColor))
-            {
+            using (var b = new SolidBrush(scrollColor)) {
                 g.FillRectangle(b, _thumbArea);
             }
         }
@@ -134,11 +129,9 @@ namespace NETReactorSlayer.GUI.UserControls
         [Category("Behavior")]
         [Description("The value that the scroll thumb position represents.")]
         [DefaultValue(0)]
-        public int Value
-        {
+        public int Value {
             get => _value;
-            set
-            {
+            set {
                 if (value < Minimum)
                     value = Minimum;
 
@@ -160,11 +153,9 @@ namespace NETReactorSlayer.GUI.UserControls
         [Category("Behavior")]
         [Description("The lower limit value of the scrollable range.")]
         [DefaultValue(0)]
-        public int Minimum
-        {
+        public int Minimum {
             get => _minimum;
-            set
-            {
+            set {
                 _minimum = value;
                 UpdateScrollBar();
             }
@@ -173,11 +164,9 @@ namespace NETReactorSlayer.GUI.UserControls
         [Category("Behavior")]
         [Description("The upper limit value of the scrollable range.")]
         [DefaultValue(100)]
-        public int Maximum
-        {
+        public int Maximum {
             get => _maximum;
-            set
-            {
+            set {
                 _maximum = value;
                 UpdateScrollBar();
             }
@@ -186,11 +175,9 @@ namespace NETReactorSlayer.GUI.UserControls
         [Category("Behavior")]
         [Description("The view size for the scrollable area.")]
         [DefaultValue(0)]
-        public int ViewSize
-        {
+        public int ViewSize {
             get => _viewSize;
-            set
-            {
+            set {
                 _viewSize = value;
                 UpdateScrollBar();
             }
@@ -200,19 +187,16 @@ namespace NETReactorSlayer.GUI.UserControls
 
         #region Event Handler Region
 
-        protected override void OnResize(EventArgs e)
-        {
+        protected override void OnResize(EventArgs e) {
             base.OnResize(e);
 
             UpdateScrollBar();
         }
 
-        protected override void OnMouseDown(MouseEventArgs e)
-        {
+        protected override void OnMouseDown(MouseEventArgs e) {
             base.OnMouseDown(e);
 
-            if (_thumbArea.Contains(e.Location) && e.Button == MouseButtons.Left)
-            {
+            if (_thumbArea.Contains(e.Location) && e.Button == MouseButtons.Left) {
                 _isScrolling = true;
                 _initialContact = e.Location;
 
@@ -222,8 +206,7 @@ namespace NETReactorSlayer.GUI.UserControls
                 return;
             }
 
-            if (_upArrowArea.Contains(e.Location) && e.Button == MouseButtons.Left)
-            {
+            if (_upArrowArea.Contains(e.Location) && e.Button == MouseButtons.Left) {
                 _upArrowClicked = true;
                 _scrollTimer.Enabled = true;
 
@@ -231,8 +214,7 @@ namespace NETReactorSlayer.GUI.UserControls
                 return;
             }
 
-            if (_downArrowArea.Contains(e.Location) && e.Button == MouseButtons.Left)
-            {
+            if (_downArrowArea.Contains(e.Location) && e.Button == MouseButtons.Left) {
                 _downArrowClicked = true;
                 _scrollTimer.Enabled = true;
 
@@ -240,7 +222,8 @@ namespace NETReactorSlayer.GUI.UserControls
                 return;
             }
 
-            if (!_trackArea.Contains(e.Location) || e.Button != MouseButtons.Left) return;
+            if (!_trackArea.Contains(e.Location) || e.Button != MouseButtons.Left)
+                return;
             var modRect = new Rectangle(_thumbArea.Left, _trackArea.Top, _thumbArea.Width,
                 _trackArea.Height);
             if (!modRect.Contains(e.Location))
@@ -260,8 +243,7 @@ namespace NETReactorSlayer.GUI.UserControls
             Invalidate();
         }
 
-        protected override void OnMouseUp(MouseEventArgs e)
-        {
+        protected override void OnMouseUp(MouseEventArgs e) {
             base.OnMouseUp(e);
 
             _isScrolling = false;
@@ -272,31 +254,25 @@ namespace NETReactorSlayer.GUI.UserControls
             Invalidate();
         }
 
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
+        protected override void OnMouseMove(MouseEventArgs e) {
             base.OnMouseMove(e);
 
-            switch (_isScrolling)
-            {
-                case false:
-                {
+            switch (_isScrolling) {
+                case false: {
                     var thumbHot = _thumbArea.Contains(e.Location);
-                    if (_thumbHot != thumbHot)
-                    {
+                    if (_thumbHot != thumbHot) {
                         _thumbHot = thumbHot;
                         Invalidate();
                     }
 
                     var upArrowHot = _upArrowArea.Contains(e.Location);
-                    if (_upArrowHot != upArrowHot)
-                    {
+                    if (_upArrowHot != upArrowHot) {
                         _upArrowHot = upArrowHot;
                         Invalidate();
                     }
 
                     var downArrowHot = _downArrowArea.Contains(e.Location);
-                    if (_downArrowHot != downArrowHot)
-                    {
+                    if (_downArrowHot != downArrowHot) {
                         _downArrowHot = downArrowHot;
                         Invalidate();
                     }
@@ -304,10 +280,10 @@ namespace NETReactorSlayer.GUI.UserControls
                     break;
                 }
                 case true when e.Button != MouseButtons.Left:
+                    // ReSharper disable once AssignNullToNotNullAttribute
                     OnMouseUp(null);
                     return;
-                case true:
-                {
+                case true: {
                     var difference = new Point(e.Location.X - _initialContact.X, e.Location.Y - _initialContact.Y);
 
                     var thumbPos = _initialValue - _trackArea.Top;
@@ -321,8 +297,7 @@ namespace NETReactorSlayer.GUI.UserControls
             }
         }
 
-        protected override void OnMouseLeave(EventArgs e)
-        {
+        protected override void OnMouseLeave(EventArgs e) {
             base.OnMouseLeave(e);
 
             _thumbHot = false;
@@ -332,18 +307,15 @@ namespace NETReactorSlayer.GUI.UserControls
             Invalidate();
         }
 
-        private void ScrollTimerTick(object sender, EventArgs e)
-        {
-            switch (_upArrowClicked)
-            {
+        private void ScrollTimerTick(object sender, EventArgs e) {
+            switch (_upArrowClicked) {
                 case false when !_downArrowClicked:
                     _scrollTimer.Enabled = false;
                     return;
                 case true:
                     ScrollBy(-1);
                     break;
-                default:
-                {
+                default: {
                     if (_downArrowClicked)
                         ScrollBy(1);
                     break;
@@ -357,8 +329,7 @@ namespace NETReactorSlayer.GUI.UserControls
 
         public void ScrollTo(int position) => Value = position;
 
-        public void ScrollToPhysical(int positionInPixels)
-        {
+        public void ScrollToPhysical(int positionInPixels) {
             var trackAreaSize = _trackArea.Height - _thumbArea.Height;
 
             var positionRatio = positionInPixels / (float)trackAreaSize;
@@ -368,14 +339,12 @@ namespace NETReactorSlayer.GUI.UserControls
             Value = newValue;
         }
 
-        public void ScrollBy(int offset)
-        {
+        public void ScrollBy(int offset) {
             var newValue = Value + offset;
             ScrollTo(newValue);
         }
 
-        public void UpdateScrollBar()
-        {
+        public void UpdateScrollBar() {
             var area = ClientRectangle;
 
             _upArrowArea = new Rectangle(area.Left, area.Top, ArrowButtonSize, ArrowButtonSize);
@@ -388,8 +357,7 @@ namespace NETReactorSlayer.GUI.UserControls
             Invalidate();
         }
 
-        private void UpdateThumb(bool forceRefresh = false)
-        {
+        private void UpdateThumb(bool forceRefresh = false) {
             if (ViewSize >= Maximum)
                 return;
 
@@ -412,7 +380,8 @@ namespace NETReactorSlayer.GUI.UserControls
             _thumbArea = new Rectangle(_trackArea.Left + 3, _trackArea.Top + thumbPosition, ScrollBarSize - 6,
                 thumbSize);
 
-            if (!forceRefresh) return;
+            if (!forceRefresh)
+                return;
 
             Invalidate();
             Update();
@@ -421,8 +390,7 @@ namespace NETReactorSlayer.GUI.UserControls
         #endregion
     }
 
-    public class ScrollValueEventArgs : EventArgs
-    {
+    public class ScrollValueEventArgs : EventArgs {
         public ScrollValueEventArgs(int value) => Value = value;
 
         public int Value { get; }

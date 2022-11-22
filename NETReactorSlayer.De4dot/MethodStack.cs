@@ -1,45 +1,50 @@
-﻿using System;
+﻿/*
+    Copyright (C) 2021 CodeStrikers.org
+    This file is part of NETReactorSlayer.
+    NETReactorSlayer is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    NETReactorSlayer is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+using System;
 using System.Collections.Generic;
 using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
-namespace NETReactorSlayer.De4dot
-{
-    public static class MethodStack
-    {
-        public static PushedArgs GetPushedArgInstructions(IList<Instruction> instructions, int index)
-        {
-            try
-            {
+namespace NETReactorSlayer.De4dot {
+    public static class MethodStack {
+        public static PushedArgs GetPushedArgInstructions(IList<Instruction> instructions, int index) {
+            try {
                 instructions[index].CalculateStackUsage(false, out _, out var pops);
                 if (pops != -1)
                     return GetPushedArgInstructions(instructions, index, pops);
-            }
-            catch (NullReferenceException)
-            {
-            }
+            } catch (NullReferenceException) { }
 
             return new PushedArgs(0);
         }
 
-        private static PushedArgs GetPushedArgInstructions(IList<Instruction> instructions, int index, int numArgs)
-        {
+        private static PushedArgs GetPushedArgInstructions(IList<Instruction> instructions, int index, int numArgs) {
             var pushedArgs = new PushedArgs(numArgs);
-            if (!pushedArgs.CanAddMore) return pushedArgs;
+            if (!pushedArgs.CanAddMore)
+                return pushedArgs;
 
             Dictionary<int, Branch> branches = null;
             var states = new Stack<State>();
             var state = new State(index, null, 0, 0, 1, new HashSet<int>());
             var isBacktrack = false;
             states.Push(state.Clone());
-            while (true)
-            {
-                while (state.Index >= 0)
-                {
+            while (true) {
+                while (state.Index >= 0) {
                     if (branches != null && branches.TryGetValue(state.Index, out var branch) &&
-                        state.Visited.Add(state.Index))
-                    {
+                        state.Visited.Add(state.Index)) {
                         branch.Current = 0;
                         var brState = state.Clone();
                         brState.Branch = branch;
@@ -67,8 +72,7 @@ namespace NETReactorSlayer.De4dot
 
                 if (branches == null)
                     branches = GetBranches(instructions);
-                else
-                {
+                else {
                     isBacktrack = true;
                     state.Index = state.Branch.Variants[state.Branch.Current++];
                     if (state.Branch.Current < state.Branch.Variants.Count)
@@ -79,8 +83,7 @@ namespace NETReactorSlayer.De4dot
             }
         }
 
-        private static Update UpdateState(IList<Instruction> instructions, State state, PushedArgs pushedArgs)
-        {
+        private static Update UpdateState(IList<Instruction> instructions, State state, PushedArgs pushedArgs) {
             if (state.Index < 0 || state.Index >= instructions.Count)
                 return Update.Fail;
             var instr = instructions[state.Index];
@@ -90,8 +93,7 @@ namespace NETReactorSlayer.De4dot
             if (pops == -1)
                 return Update.Fail;
             var isDup = instr.OpCode.Code == Code.Dup;
-            if (isDup)
-            {
+            if (isDup) {
                 pushes = 1;
                 pops = 0;
             }
@@ -99,23 +101,17 @@ namespace NETReactorSlayer.De4dot
             if (pushes > 1)
                 return Update.Fail;
 
-            if (state.SkipPushes > 0)
-            {
+            if (state.SkipPushes > 0) {
                 state.SkipPushes -= pushes;
                 if (state.SkipPushes < 0)
                     return Update.Fail;
                 state.SkipPushes += pops;
-            }
-            else
-            {
-                if (pushes == 1)
-                {
+            } else {
+                if (pushes == 1) {
                     if (isDup)
                         state.AddPushes++;
-                    else
-                    {
-                        for (; state.AddPushes > 0; state.AddPushes--)
-                        {
+                    else {
+                        for (; state.AddPushes > 0; state.AddPushes--) {
                             pushedArgs.Add(instr);
                             state.ValidArgs++;
                             if (!pushedArgs.CanAddMore)
@@ -132,25 +128,22 @@ namespace NETReactorSlayer.De4dot
             return Update.Ok;
         }
 
-        private static Dictionary<int, Branch> GetBranches(IList<Instruction> instructions)
-        {
-            if (Equals(_cacheInstructions, instructions)) return _cacheBranches;
+        private static Dictionary<int, Branch> GetBranches(IList<Instruction> instructions) {
+            if (Equals(_cacheInstructions, instructions))
+                return _cacheBranches;
             _cacheInstructions = instructions;
             _cacheBranches = new Dictionary<int, Branch>();
-            for (var b = 0; b < instructions.Count; b++)
-            {
+            for (var b = 0; b < instructions.Count; b++) {
                 var br = instructions[b];
-                if (br.Operand is Instruction target)
-                {
-                    var t = instructions.IndexOf(target);
-                    if (!_cacheBranches.TryGetValue(t, out var branch))
-                    {
-                        branch = new Branch();
-                        _cacheBranches.Add(t, branch);
-                    }
-
-                    branch.Variants.Add(b);
+                if (br.Operand is not Instruction target)
+                    continue;
+                var t = instructions.IndexOf(target);
+                if (!_cacheBranches.TryGetValue(t, out var branch)) {
+                    branch = new Branch();
+                    _cacheBranches.Add(t, branch);
                 }
+
+                branch.Variants.Add(b);
             }
 
             return _cacheBranches;
@@ -161,8 +154,7 @@ namespace NETReactorSlayer.De4dot
             GetLoadedType(method, instructions, instrIndex, 0, out wasNewobj);
 
         public static TypeSig GetLoadedType(MethodDef method, IList<Instruction> instructions, int instrIndex,
-            int argIndexFromEnd, out bool wasNewobj)
-        {
+            int argIndexFromEnd, out bool wasNewobj) {
             wasNewobj = false;
             var pushedArgs = GetPushedArgInstructions(instructions, instrIndex);
             var pushInstr = pushedArgs.GetEnd(argIndexFromEnd);
@@ -172,8 +164,7 @@ namespace NETReactorSlayer.De4dot
             TypeSig type;
             Local local;
             var corLibTypes = method.DeclaringType.Module.CorLibTypes;
-            switch (pushInstr.OpCode.Code)
-            {
+            switch (pushInstr.OpCode.Code) {
                 case Code.Ldstr:
                     type = corLibTypes.String;
                     break;
@@ -212,23 +203,20 @@ namespace NETReactorSlayer.De4dot
                 case Code.Call:
                 case Code.Calli:
                 case Code.Callvirt:
-                    var calledMethod = pushInstr.Operand as IMethod;
-                    if (calledMethod == null)
+                    if (pushInstr.Operand is not IMethod calledMethod)
                         return null;
                     type = calledMethod.MethodSig.GetRetType();
                     break;
 
                 case Code.Newarr:
-                    var type2 = pushInstr.Operand as ITypeDefOrRef;
-                    if (type2 == null)
+                    if (pushInstr.Operand is not ITypeDefOrRef type2)
                         return null;
                     type = new SZArraySig(type2.ToTypeSig());
                     wasNewobj = true;
                     break;
 
                 case Code.Newobj:
-                    var ctor = pushInstr.Operand as IMethod;
-                    if (ctor == null)
+                    if (pushInstr.Operand is not IMethod ctor)
                         return null;
                     type = ctor.DeclaringType.ToTypeSig();
                     wasNewobj = true;
@@ -278,16 +266,14 @@ namespace NETReactorSlayer.De4dot
 
                 case Code.Ldfld:
                 case Code.Ldsfld:
-                    var field = pushInstr.Operand as IField;
-                    if (field == null || field.FieldSig == null)
+                    if (pushInstr.Operand is not IField field || field.FieldSig == null)
                         return null;
                     type = field.FieldSig.GetFieldType();
                     break;
 
                 case Code.Ldflda:
                 case Code.Ldsflda:
-                    var field2 = pushInstr.Operand as IField;
-                    if (field2 == null || field2.FieldSig == null)
+                    if (pushInstr.Operand is not IField field2 || field2.FieldSig == null)
                         return null;
                     type = CreateByRefType(field2.FieldSig.GetFieldType());
                     break;
@@ -304,33 +290,23 @@ namespace NETReactorSlayer.De4dot
             return type;
         }
 
-        private static ByRefSig CreateByRefType(ITypeDefOrRef elementType)
-        {
-            if (elementType == null)
-                return null;
-            return new ByRefSig(elementType.ToTypeSig());
-        }
+        private static ByRefSig CreateByRefType(ITypeDefOrRef elementType) =>
+            elementType == null ? null : new ByRefSig(elementType.ToTypeSig());
 
-        private static ByRefSig CreateByRefType(TypeSig elementType)
-        {
-            if (elementType == null)
-                return null;
-            return new ByRefSig(elementType);
-        }
+        private static ByRefSig CreateByRefType(TypeSig elementType) =>
+            elementType == null ? null : new ByRefSig(elementType);
 
         private static Dictionary<int, Branch> _cacheBranches;
 
         private static IList<Instruction> _cacheInstructions;
 
-        private enum Update
-        {
+        private enum Update {
             Ok,
             Fail,
             Finish
         }
 
-        private class Branch
-        {
+        private class Branch {
             public Branch() => Variants = new List<int>();
 
             public int Current;
@@ -338,10 +314,8 @@ namespace NETReactorSlayer.De4dot
             public List<int> Variants { get; }
         }
 
-        private class State
-        {
-            public State(int index, Branch branch, int validArgs, int skipPushes, int addPushes, HashSet<int> visited)
-            {
+        private class State {
+            public State(int index, Branch branch, int validArgs, int skipPushes, int addPushes, HashSet<int> visited) {
                 Index = index;
                 Branch = branch;
                 ValidArgs = validArgs;
@@ -350,8 +324,7 @@ namespace NETReactorSlayer.De4dot
                 Visited = visited;
             }
 
-            public State Clone() =>
-                new State(Index, Branch, ValidArgs, SkipPushes, AddPushes, new HashSet<int>(Visited));
+            public State Clone() => new(Index, Branch, ValidArgs, SkipPushes, AddPushes, new HashSet<int>(Visited));
 
             public readonly HashSet<int> Visited;
 
