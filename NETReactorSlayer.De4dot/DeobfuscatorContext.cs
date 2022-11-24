@@ -15,21 +15,26 @@
 
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot {
-    public class DeobfuscatorContext : IDeobfuscatorContext {
-        private static ITypeDefOrRef GetNonGenericTypeRef(ITypeDefOrRef typeRef) {
+namespace NETReactorSlayer.De4dot
+{
+    public class DeobfuscatorContext : IDeobfuscatorContext
+    {
+        private static ITypeDefOrRef GetNonGenericTypeRef(ITypeDefOrRef typeRef)
+        {
             if (typeRef is not TypeSpec ts)
                 return typeRef;
             var gis = ts.TryGetGenericInstSig();
             return gis?.GenericType == null ? typeRef : gis.GenericType.TypeDefOrRef;
         }
 
-        public TypeDef ResolveType(ITypeDefOrRef type) {
+        public TypeDef ResolveType(ITypeDefOrRef type)
+        {
             if (type == null)
                 return null;
             type = GetNonGenericTypeRef(type);
 
-            return type switch {
+            return type switch
+            {
                 TypeDef typeDef => typeDef,
                 TypeRef tr => tr.Resolve(),
                 _ => null

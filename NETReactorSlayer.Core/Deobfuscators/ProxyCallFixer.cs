@@ -22,11 +22,16 @@ using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 using NETReactorSlayer.Core.Helper;
 
-namespace NETReactorSlayer.Core.Deobfuscators {
-    internal class ProxyCallFixer : IStage {
-        public void Execute() {
-            try {
-                if (!Find()) {
+namespace NETReactorSlayer.Core.Deobfuscators
+{
+    internal class ProxyCallFixer : IStage
+    {
+        public void Execute()
+        {
+            try
+            {
+                if (!Find())
+                {
                     Logger.Warn("Couldn't find any proxied call.");
                     return;
                 }
@@ -38,13 +43,15 @@ namespace NETReactorSlayer.Core.Deobfuscators {
 
                 var count = RestoreCalls();
 
-                if (count > 0) {
+                if (count > 0)
+                {
                     Logger.Done(count + " Proxied calls fixed.");
                     Cleaner.AddMethodToBeRemoved(_encryptedResource.DecrypterMethod);
                     Cleaner.AddResourceToBeRemoved(_encryptedResource.EmbeddedResource);
                 } else
                     Logger.Warn("Couldn't find any proxied call.");
-            } catch (Exception ex) {
+            } catch (Exception ex)
+            {
                 Logger.Error("An unexpected error occurred during fixing proxied calls.", ex);
             }
 
@@ -53,7 +60,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
 
         #region Private Methods
 
-        private bool Find() {
+        private bool Find()
+        {
             var callCounter = new CallCounter();
             foreach (var type in from x in Context.Module.GetTypes()
                      where x.Namespace.Equals("") && DotNetUtils.DerivesFromDelegate(x)
@@ -78,11 +86,13 @@ namespace NETReactorSlayer.Core.Deobfuscators {
             return false;
         }
 
-        private bool GetDictionary(byte[] bytes) {
+        private bool GetDictionary(byte[] bytes)
+        {
             var length = bytes.Length / 8;
             _dictionary = new Dictionary<int, int>();
             var reader = new BinaryReader(new MemoryStream(bytes));
-            for (var i = 0; i < length; i++) {
+            for (var i = 0; i < length; i++)
+            {
                 var key = reader.ReadInt32();
                 var value = reader.ReadInt32();
                 if (!_dictionary.ContainsKey(key))
@@ -93,7 +103,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
             return true;
         }
 
-        private void GetCallInfo(IMDTokenProvider field, out IMethod calledMethod, out OpCode callOpcode) {
+        private void GetCallInfo(IMDTokenProvider field, out IMethod calledMethod, out OpCode callOpcode)
+        {
             callOpcode = OpCodes.Call;
             _dictionary.TryGetValue((int)field.MDToken.Raw, out var token);
             if ((token & 1073741824) > 0)
@@ -102,13 +113,16 @@ namespace NETReactorSlayer.Core.Deobfuscators {
             calledMethod = Context.Module.ResolveToken(token) as IMethod;
         }
 
-        private long RestoreCalls() {
+        private long RestoreCalls()
+        {
             long count = 0;
             foreach (var method in Context.Module.GetTypes().SelectMany(type =>
                          (from x in type.Methods where x.HasBody && x.Body.HasInstructions select x)
-                         .ToArray())) {
+                         .ToArray()))
+            {
                 for (var i = 0; i < method.Body.Instructions.Count; i++)
-                    try {
+                    try
+                    {
                         if (!method.Body.Instructions[i].OpCode.Equals(OpCodes.Ldsfld) ||
                             !method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Call))
                             continue;

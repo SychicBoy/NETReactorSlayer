@@ -13,8 +13,10 @@
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace NETReactorSlayer.Core {
-    public interface IStage {
+namespace NETReactorSlayer.Core
+{
+    public interface IStage
+    {
         void Execute();
     }
 }

@@ -16,21 +16,26 @@
 using de4dot.blocks;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
-    public class TypeInfo {
-        public TypeInfo(ITypeDefOrRef typeRef, MTypeDef typeDef) {
+namespace NETReactorSlayer.De4dot.Renamer.AsmModules
+{
+    public class TypeInfo
+    {
+        public TypeInfo(ITypeDefOrRef typeRef, MTypeDef typeDef)
+        {
             TypeRef = typeRef;
             TypeDef = typeDef;
         }
 
-        public TypeInfo(TypeInfo other, GenericInstSig git) {
+        public TypeInfo(TypeInfo other, GenericInstSig git)
+        {
             TypeRef = GenericArgsSubstitutor.Create(other.TypeRef, git);
             TypeDef = other.TypeDef;
         }
 
         public override int GetHashCode() => TypeDef.GetHashCode() + new SigComparer().GetHashCode(TypeRef);
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             if (obj is not TypeInfo other)
                 return false;
             return TypeDef == other.TypeDef &&

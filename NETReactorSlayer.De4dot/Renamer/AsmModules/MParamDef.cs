@@ -15,9 +15,12 @@
 
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
-    public class MParamDef {
-        public MParamDef(Parameter parameterDef, int index) {
+namespace NETReactorSlayer.De4dot.Renamer.AsmModules
+{
+    public class MParamDef
+    {
+        public MParamDef(Parameter parameterDef, int index)
+        {
             ParameterDef = parameterDef;
             Index = index;
         }

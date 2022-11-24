@@ -18,9 +18,12 @@ using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
-namespace NETReactorSlayer.Core.Deobfuscators {
-    internal class TokenDeobfuscator : IStage {
-        public void Execute() {
+namespace NETReactorSlayer.Core.Deobfuscators
+{
+    internal class TokenDeobfuscator : IStage
+    {
+        public void Execute()
+        {
             TypeDef typeDef = null;
             MethodDef fieldMethod = null;
             MethodDef typeMethod = null;
@@ -28,7 +31,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
             foreach (var type in from type in Context.Module.GetTypes()
                          .Where(x => !x.HasProperties && !x.HasEvents && x.Fields.Count != 0)
                      from _ in type.Fields.Where(x => x.FieldType.FullName.Equals("System.ModuleHandle"))
-                     select type) {
+                     select type)
+            {
                 foreach (var method in type.Methods.Where(x => x.MethodSig != null &&
                                                                x.MethodSig.Params.Count.Equals(1) &&
                                                                x.MethodSig.Params[0].GetElementType() == ElementType.I4)
@@ -46,12 +50,14 @@ namespace NETReactorSlayer.Core.Deobfuscators {
             Continue:
             if (typeDef != null)
                 foreach (var type in Context.Module.GetTypes())
-                foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions)) {
+                foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
+                {
                     var gpContext = GenericParamContext.Create(method);
                     var blocks = new Blocks(method);
                     foreach (var block in blocks.MethodBlocks.GetAllBlocks())
                         for (var i = 0; i < block.Instructions.Count; i++)
-                            try {
+                            try
+                            {
                                 if (!block.Instructions[i].OpCode.Code.Equals(Code.Ldc_I4) ||
                                     block.Instructions[i + 1].OpCode.Code != Code.Call)
                                     continue;
@@ -77,7 +83,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
 
             if (count == 0)
                 Logger.Warn("Couldn't found any obfuscated metadata token.");
-            else {
+            else
+            {
                 Cleaner.AddTypeToBeRemoved(typeDef);
                 Logger.Done($"{(int)count} Metadata tokens deobfuscated.");
             }

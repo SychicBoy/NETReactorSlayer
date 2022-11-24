@@ -13,11 +13,14 @@
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace NETReactorSlayer.De4dot.Renamer {
-    public class NameCreator : NameCreatorCounter {
+namespace NETReactorSlayer.De4dot.Renamer
+{
+    public class NameCreator : NameCreatorCounter
+    {
         public NameCreator(string prefix) : this(prefix, 0) { }
 
-        public NameCreator(string prefix, int num) {
+        public NameCreator(string prefix, int num)
+        {
             _prefix = prefix;
             Num = num;
         }

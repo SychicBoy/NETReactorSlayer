@@ -18,14 +18,19 @@ using System.IO.Compression;
 using System.Linq;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.Core.Deobfuscators {
-    internal class CosturaDumper : IStage {
-        public void Execute() {
+namespace NETReactorSlayer.Core.Deobfuscators
+{
+    internal class CosturaDumper : IStage
+    {
+        public void Execute()
+        {
             long count = 0;
-            foreach (var resource in Context.Module.Resources) {
+            foreach (var resource in Context.Module.Resources)
+            {
                 if (resource is not EmbeddedResource embeddedResource)
                     continue;
-                if (embeddedResource.Name == "costura.metadata") {
+                if (embeddedResource.Name == "costura.metadata")
+                {
                     Cleaner.AddResourceToBeRemoved(embeddedResource);
                     continue;
                 }
@@ -34,17 +39,20 @@ namespace NETReactorSlayer.Core.Deobfuscators {
                     continue;
                 Cleaner.AddResourceToBeRemoved(embeddedResource);
                 count++;
-                try {
+                try
+                {
                     using var resourceStream = embeddedResource.CreateReader().AsStream();
                     using var deflateStream = new DeflateStream(resourceStream, CompressionMode.Decompress);
                     using var memoryStream = new MemoryStream();
                     deflateStream.CopyTo(memoryStream);
-                    try {
+                    try
+                    {
                         memoryStream.Position = 0L;
                         File.WriteAllBytes(
                             $"{Context.Options.SourceDir}\\{GetAssemblyName(memoryStream.ToArray(), false)}.dll",
                             memoryStream.ToArray());
-                    } catch {
+                    } catch
+                    {
                         File.WriteAllBytes(
                             $"{Context.Options.SourceDir}\\{embeddedResource.Name.Replace(".compressed", "").Replace("costura.", "")}",
                             memoryStream.ToArray());
@@ -55,10 +63,12 @@ namespace NETReactorSlayer.Core.Deobfuscators {
                 } catch { }
             }
 
-            try {
+            try
+            {
                 var cctor = Context.Module.GlobalType.FindStaticConstructor();
                 if (cctor.HasBody && cctor.Body.HasInstructions)
-                    for (var i = 0; i < cctor.Body.Instructions.ToList().Count; i++) {
+                    for (var i = 0; i < cctor.Body.Instructions.ToList().Count; i++)
+                    {
                         if (cctor.Body.Instructions[i].Operand == null || !cctor.Body.Instructions[i].Operand
                                 .ToString()!.Contains("Costura.AssemblyLoader::Attach()"))
                             continue;
@@ -73,13 +83,16 @@ namespace NETReactorSlayer.Core.Deobfuscators {
 
         #region Private Methods
 
-        private static string GetAssemblyName(byte[] data, bool fullName) {
-            try {
+        private static string GetAssemblyName(byte[] data, bool fullName)
+        {
+            try
+            {
                 using var module = ModuleDefMD.Load(data);
                 if (fullName)
                     return module.Assembly.FullName;
                 return module.Assembly.Name;
-            } catch {
+            } catch
+            {
                 return null;
             }
         }

@@ -19,10 +19,14 @@ using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
-namespace NETReactorSlayer.De4dot {
-    public static class MethodStack {
-        public static PushedArgs GetPushedArgInstructions(IList<Instruction> instructions, int index) {
-            try {
+namespace NETReactorSlayer.De4dot
+{
+    public static class MethodStack
+    {
+        public static PushedArgs GetPushedArgInstructions(IList<Instruction> instructions, int index)
+        {
+            try
+            {
                 instructions[index].CalculateStackUsage(false, out _, out var pops);
                 if (pops != -1)
                     return GetPushedArgInstructions(instructions, index, pops);
@@ -31,7 +35,8 @@ namespace NETReactorSlayer.De4dot {
             return new PushedArgs(0);
         }
 
-        private static PushedArgs GetPushedArgInstructions(IList<Instruction> instructions, int index, int numArgs) {
+        private static PushedArgs GetPushedArgInstructions(IList<Instruction> instructions, int index, int numArgs)
+        {
             var pushedArgs = new PushedArgs(numArgs);
             if (!pushedArgs.CanAddMore)
                 return pushedArgs;
@@ -41,10 +46,13 @@ namespace NETReactorSlayer.De4dot {
             var state = new State(index, null, 0, 0, 1, new HashSet<int>());
             var isBacktrack = false;
             states.Push(state.Clone());
-            while (true) {
-                while (state.Index >= 0) {
+            while (true)
+            {
+                while (state.Index >= 0)
+                {
                     if (branches != null && branches.TryGetValue(state.Index, out var branch) &&
-                        state.Visited.Add(state.Index)) {
+                        state.Visited.Add(state.Index))
+                    {
                         branch.Current = 0;
                         var brState = state.Clone();
                         brState.Branch = branch;
@@ -72,7 +80,8 @@ namespace NETReactorSlayer.De4dot {
 
                 if (branches == null)
                     branches = GetBranches(instructions);
-                else {
+                else
+                {
                     isBacktrack = true;
                     state.Index = state.Branch.Variants[state.Branch.Current++];
                     if (state.Branch.Current < state.Branch.Variants.Count)
@@ -83,7 +92,8 @@ namespace NETReactorSlayer.De4dot {
             }
         }
 
-        private static Update UpdateState(IList<Instruction> instructions, State state, PushedArgs pushedArgs) {
+        private static Update UpdateState(IList<Instruction> instructions, State state, PushedArgs pushedArgs)
+        {
             if (state.Index < 0 || state.Index >= instructions.Count)
                 return Update.Fail;
             var instr = instructions[state.Index];
@@ -93,7 +103,8 @@ namespace NETReactorSlayer.De4dot {
             if (pops == -1)
                 return Update.Fail;
             var isDup = instr.OpCode.Code == Code.Dup;
-            if (isDup) {
+            if (isDup)
+            {
                 pushes = 1;
                 pops = 0;
             }
@@ -101,17 +112,22 @@ namespace NETReactorSlayer.De4dot {
             if (pushes > 1)
                 return Update.Fail;
 
-            if (state.SkipPushes > 0) {
+            if (state.SkipPushes > 0)
+            {
                 state.SkipPushes -= pushes;
                 if (state.SkipPushes < 0)
                     return Update.Fail;
                 state.SkipPushes += pops;
-            } else {
-                if (pushes == 1) {
+            } else
+            {
+                if (pushes == 1)
+                {
                     if (isDup)
                         state.AddPushes++;
-                    else {
-                        for (; state.AddPushes > 0; state.AddPushes--) {
+                    else
+                    {
+                        for (; state.AddPushes > 0; state.AddPushes--)
+                        {
                             pushedArgs.Add(instr);
                             state.ValidArgs++;
                             if (!pushedArgs.CanAddMore)
@@ -128,17 +144,20 @@ namespace NETReactorSlayer.De4dot {
             return Update.Ok;
         }
 
-        private static Dictionary<int, Branch> GetBranches(IList<Instruction> instructions) {
+        private static Dictionary<int, Branch> GetBranches(IList<Instruction> instructions)
+        {
             if (Equals(_cacheInstructions, instructions))
                 return _cacheBranches;
             _cacheInstructions = instructions;
             _cacheBranches = new Dictionary<int, Branch>();
-            for (var b = 0; b < instructions.Count; b++) {
+            for (var b = 0; b < instructions.Count; b++)
+            {
                 var br = instructions[b];
                 if (br.Operand is not Instruction target)
                     continue;
                 var t = instructions.IndexOf(target);
-                if (!_cacheBranches.TryGetValue(t, out var branch)) {
+                if (!_cacheBranches.TryGetValue(t, out var branch))
+                {
                     branch = new Branch();
                     _cacheBranches.Add(t, branch);
                 }
@@ -154,7 +173,8 @@ namespace NETReactorSlayer.De4dot {
             GetLoadedType(method, instructions, instrIndex, 0, out wasNewobj);
 
         public static TypeSig GetLoadedType(MethodDef method, IList<Instruction> instructions, int instrIndex,
-            int argIndexFromEnd, out bool wasNewobj) {
+            int argIndexFromEnd, out bool wasNewobj)
+        {
             wasNewobj = false;
             var pushedArgs = GetPushedArgInstructions(instructions, instrIndex);
             var pushInstr = pushedArgs.GetEnd(argIndexFromEnd);
@@ -164,7 +184,8 @@ namespace NETReactorSlayer.De4dot {
             TypeSig type;
             Local local;
             var corLibTypes = method.DeclaringType.Module.CorLibTypes;
-            switch (pushInstr.OpCode.Code) {
+            switch (pushInstr.OpCode.Code)
+            {
                 case Code.Ldstr:
                     type = corLibTypes.String;
                     break;
@@ -300,13 +321,15 @@ namespace NETReactorSlayer.De4dot {
 
         private static IList<Instruction> _cacheInstructions;
 
-        private enum Update {
+        private enum Update
+        {
             Ok,
             Fail,
             Finish
         }
 
-        private class Branch {
+        private class Branch
+        {
             public Branch() => Variants = new List<int>();
 
             public int Current;
@@ -314,8 +337,10 @@ namespace NETReactorSlayer.De4dot {
             public List<int> Variants { get; }
         }
 
-        private class State {
-            public State(int index, Branch branch, int validArgs, int skipPushes, int addPushes, HashSet<int> visited) {
+        private class State
+        {
+            public State(int index, Branch branch, int validArgs, int skipPushes, int addPushes, HashSet<int> visited)
+            {
                 Index = index;
                 Branch = branch;
                 ValidArgs = validArgs;

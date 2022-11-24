@@ -18,11 +18,14 @@ using System.Collections.Generic;
 using System.Linq;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
-    public class Modules : IResolver {
+namespace NETReactorSlayer.De4dot.Renamer.AsmModules
+{
+    public class Modules : IResolver
+    {
         public Modules(IDeobfuscatorContext deobfuscatorContext) => _deobfuscatorContext = deobfuscatorContext;
 
-        public void Add(Module module) {
+        public void Add(Module module)
+        {
             if (_initializeCalled)
                 throw new ApplicationException("initialize() has been called");
             if (_modulesDict.TryGetValue(module.ModuleDefMd, out _))
@@ -32,25 +35,29 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             _assemblyHash.Add(module);
         }
 
-        public void Initialize() {
+        public void Initialize()
+        {
             _initializeCalled = true;
             FindAllMemberRefs();
             InitAllTypes();
             ResolveAllRefs();
         }
 
-        private void FindAllMemberRefs() {
+        private void FindAllMemberRefs()
+        {
             var index = 0;
             foreach (var module in _modules)
                 module.FindAllMemberRefs(ref index);
         }
 
-        private void ResolveAllRefs() {
+        private void ResolveAllRefs()
+        {
             foreach (var module in _modules)
                 module.ResolveAllRefs(this);
         }
 
-        private void InitAllTypes() {
+        private void InitAllTypes()
+        {
             foreach (var module in _modules)
                 _allTypes.AddRange(module.GetAllTypes());
 
@@ -61,7 +68,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             foreach (var typeDef in _allTypes.Where(typeDef => typeDef.TypeDef.DeclaringType != null))
                 typeDef.Owner = typeToTypeDef[typeDef.TypeDef.DeclaringType];
 
-            foreach (var typeDef in _allTypes) {
+            foreach (var typeDef in _allTypes)
+            {
                 var baseType = typeDef.TypeDef.BaseType;
                 if (baseType == null)
                     continue;
@@ -73,7 +81,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             }
 
             foreach (var typeDef in _allTypes)
-            foreach (var iface in typeDef.TypeDef.Interfaces) {
+            foreach (var iface in typeDef.TypeDef.Interfaces)
+            {
                 var ifaceTypeDef = ResolveType(iface.Interface) ?? ResolveOther(iface.Interface);
                 if (ifaceTypeDef != null)
                     typeDef.AddInterface(ifaceTypeDef, iface.Interface);
@@ -91,7 +100,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
                 _baseTypes.Add(typeDef);
         }
 
-        public MTypeDef ResolveOther(ITypeDefOrRef type) {
+        public MTypeDef ResolveOther(ITypeDefOrRef type)
+        {
             if (type == null)
                 return null;
             type = type.ScopeType;
@@ -102,13 +112,15 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
                 return typeDef;
 
             var typeDef2 = _deobfuscatorContext.ResolveType(type);
-            if (typeDef2 == null) {
+            if (typeDef2 == null)
+            {
                 _typeToTypeDefDict.TryGetSimilarValue(type, out typeDef);
                 _typeToTypeDefDict[type] = typeDef;
                 return typeDef;
             }
 
-            if (_typeToTypeDefDict.TryGetValue(typeDef2, out typeDef)) {
+            if (_typeToTypeDefDict.TryGetValue(typeDef2, out typeDef))
+            {
                 _typeToTypeDefDict[type] = typeDef;
                 return typeDef;
             }
@@ -118,7 +130,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
 
             typeDef = new MTypeDef(typeDef2, null, 0);
             typeDef.AddMembers();
-            foreach (var iface in typeDef.TypeDef.Interfaces) {
+            foreach (var iface in typeDef.TypeDef.Interfaces)
+            {
                 var ifaceDef = ResolveOther(iface.Interface);
                 if (ifaceDef == null)
                     continue;
@@ -135,43 +148,51 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             return typeDef;
         }
 
-        public MethodNameGroups InitializeVirtualMembers() {
+        public MethodNameGroups InitializeVirtualMembers()
+        {
             var groups = new MethodNameGroups();
             foreach (var typeDef in _allTypes)
                 typeDef.InitializeVirtualMembers(groups, this);
             return groups;
         }
 
-        public void OnTypesRenamed() {
+        public void OnTypesRenamed()
+        {
             foreach (var module in _modules)
                 module.OnTypesRenamed();
         }
 
-        public void CleanUp() {
+        public void CleanUp()
+        {
 #if PORT
 			foreach (var module in DotNetUtils.typeCaches.invalidateAll())
 				AssemblyResolver.Instance.removeModule(module);
 #endif
         }
 
-        private IEnumerable<Module> FindModules(IType type) {
+        private IEnumerable<Module> FindModules(IType type)
+        {
             var scope = type?.Scope;
             if (scope == null)
                 return null;
 
             var scopeType = scope.ScopeType;
-            switch (scopeType) {
+            switch (scopeType)
+            {
                 case ScopeType.AssemblyRef:
                     return FindModules((AssemblyRef)scope);
-                case ScopeType.ModuleDef: {
+                case ScopeType.ModuleDef:
+                {
                     var findModules = FindModules((ModuleDef)scope);
                     if (findModules != null)
                         return findModules;
                     break;
                 }
-                case ScopeType.ModuleRef: {
+                case ScopeType.ModuleRef:
+                {
                     var moduleRef = (ModuleRef)scope;
-                    if (moduleRef.Name == type.Module.Name) {
+                    if (moduleRef.Name == type.Module.Name)
+                    {
                         var findModules = FindModules(type.Module);
                         if (findModules != null)
                             return findModules;
@@ -191,7 +212,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             return module == null ? null : new List<Module> { module };
         }
 
-        private IEnumerable<Module> FindModules(IAssembly assembly) {
+        private IEnumerable<Module> FindModules(IAssembly assembly)
+        {
             var moduleHash = _assemblyHash.Lookup(assembly);
             return moduleHash?.Modules;
         }
@@ -199,7 +221,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
         private IEnumerable<Module> FindModules(ModuleDef moduleDef) =>
             _modulesDict.TryGetValue(moduleDef, out var module) ? new List<Module> { module } : null;
 
-        private static bool IsAutoCreatedType(IIsTypeOrMethod isTypeOrMethod) {
+        private static bool IsAutoCreatedType(IIsTypeOrMethod isTypeOrMethod)
+        {
             if (isTypeOrMethod is not TypeSpec ts)
                 return false;
             var sig = ts.TypeSig;
@@ -208,7 +231,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             return sig.IsSZArray || sig.IsArray || sig.IsPointer;
         }
 
-        public MTypeDef ResolveType(ITypeDefOrRef typeRef) {
+        public MTypeDef ResolveType(ITypeDefOrRef typeRef)
+        {
             var findModules = FindModules(typeRef);
             if (findModules == null)
                 return null;
@@ -220,7 +244,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             return null;
         }
 
-        public MMethodDef ResolveMethod(IMethodDefOrRef methodRef) {
+        public MMethodDef ResolveMethod(IMethodDefOrRef methodRef)
+        {
             if (methodRef.DeclaringType == null)
                 return null;
             var findModules = FindModules(methodRef.DeclaringType);
@@ -234,7 +259,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             return null;
         }
 
-        public MFieldDef ResolveField(MemberRef fieldRef) {
+        public MFieldDef ResolveField(MemberRef fieldRef)
+        {
             if (fieldRef.DeclaringType == null)
                 return null;
             var findModules = FindModules(fieldRef.DeclaringType);
@@ -264,8 +290,10 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
 
         public IList<Module> TheModules => _modules;
 
-        private class AssemblyHash {
-            public void Add(Module module) {
+        private class AssemblyHash
+        {
+            public void Add(Module module)
+            {
                 var key = GetModuleKey(module);
                 if (!_assemblyHash.TryGetValue(key, out var moduleHash))
                     _assemblyHash[key] = moduleHash = new ModuleHash();
@@ -279,7 +307,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             public ModuleHash Lookup(IAssembly asm) =>
                 _assemblyHash.TryGetValue(GetAssemblyName(asm), out var moduleHash) ? moduleHash : null;
 
-            private static string GetAssemblyName(IAssembly asm) {
+            private static string GetAssemblyName(IAssembly asm)
+            {
                 if (asm == null)
                     return string.Empty;
                 if (PublicKeyBase.IsNullOrEmpty2(asm.PublicKeyOrToken))
@@ -291,10 +320,13 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
                 new Dictionary<string, ModuleHash>(StringComparer.Ordinal);
         }
 
-        private class ModuleHash {
-            public void Add(Module module) {
+        private class ModuleHash
+        {
+            public void Add(Module module)
+            {
                 var asm = module.ModuleDefMd.Assembly;
-                if (asm != null && ReferenceEquals(asm.ManifestModule, module.ModuleDefMd)) {
+                if (asm != null && ReferenceEquals(asm.ManifestModule, module.ModuleDefMd))
+                {
                     if (_mainModule != null)
                         throw new Exception(
                             "Two modules in the same assembly are main modules.\n" +
@@ -315,8 +347,10 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             public IEnumerable<Module> Modules => _modulesDict.Modules;
         }
 
-        private class ModulesDict {
-            public void Add(Module module) {
+        private class ModulesDict
+        {
+            public void Add(Module module)
+            {
                 var moduleName = module.ModuleDefMd.Name.String;
                 if (Lookup(moduleName) != null)
                     throw new ApplicationException($"Module \"{moduleName}\" was found twice");
@@ -332,11 +366,14 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             public IEnumerable<Module> Modules => _modulesDict.Values;
         }
 
-        private class AssemblyKeyDictionary<T> where T : class {
+        private class AssemblyKeyDictionary<T> where T : class
+        {
             public bool TryGetValue(ITypeDefOrRef type, out T value) => _dict.TryGetValue(type, out value);
 
-            public void TryGetSimilarValue(ITypeDefOrRef type, out T value) {
-                if (!_refs.TryGetValue(type, out var list)) {
+            public void TryGetSimilarValue(ITypeDefOrRef type, out T value)
+            {
+                if (!_refs.TryGetValue(type, out var list))
+                {
                     value = default;
                     return;
                 }
@@ -344,11 +381,13 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
                 ITypeDefOrRef foundType = null;
                 var typeAsmName = type.DefinitionAssembly;
                 IAssembly foundAsmName = null;
-                foreach (var otherRef in list) {
+                foreach (var otherRef in list)
+                {
                     if (!_dict.TryGetValue(otherRef, out value))
                         continue;
 
-                    if (typeAsmName == null) {
+                    if (typeAsmName == null)
+                    {
                         foundType = otherRef;
                         break;
                     }
@@ -361,7 +400,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
                     if (typeAsmName.Version > otherAsmName.Version)
                         continue;
 
-                    if (foundType == null) {
+                    if (foundType == null)
+                    {
                         foundAsmName = otherAsmName;
                         foundType = otherRef;
                         continue;
@@ -373,7 +413,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
                     foundType = otherRef;
                 }
 
-                if (foundType != null) {
+                if (foundType != null)
+                {
                     value = _dict[foundType];
                     return;
                 }
@@ -386,8 +427,10 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
 
             private readonly Dictionary<ITypeDefOrRef, List<ITypeDefOrRef>> _refs = new(TypeEqualityComparer.Instance);
 
-            public T this[ITypeDefOrRef type] {
-                set {
+            public T this[ITypeDefOrRef type]
+            {
+                set
+                {
                     _dict[type] = value;
 
                     if (value == null)

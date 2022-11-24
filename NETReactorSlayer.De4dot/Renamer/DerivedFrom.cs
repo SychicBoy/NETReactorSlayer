@@ -17,9 +17,12 @@ using System;
 using System.Collections.Generic;
 using NETReactorSlayer.De4dot.Renamer.AsmModules;
 
-namespace NETReactorSlayer.De4dot.Renamer {
-    public class DerivedFrom {
-        public DerivedFrom(IEnumerable<string> classNames) {
+namespace NETReactorSlayer.De4dot.Renamer
+{
+    public class DerivedFrom
+    {
+        public DerivedFrom(IEnumerable<string> classNames)
+        {
             foreach (var className in classNames)
                 AddName(className);
         }
@@ -28,7 +31,8 @@ namespace NETReactorSlayer.De4dot.Renamer {
 
         public bool Check(MTypeDef type) => Check(type, 0);
 
-        public bool Check(MTypeDef type, int recurseCount) {
+        public bool Check(MTypeDef type, int recurseCount)
+        {
             if (recurseCount >= 100)
                 return false;
             if (_results.ContainsKey(type))

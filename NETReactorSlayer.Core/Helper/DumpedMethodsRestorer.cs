@@ -20,15 +20,19 @@ using dnlib.DotNet.Emit;
 using dnlib.DotNet.MD;
 using dnlib.PE;
 
-namespace NETReactorSlayer.Core.Helper {
-    public class DumpedMethodsRestorer : IRowReader<RawMethodRow>, IColumnReader, IMethodDecrypter {
+namespace NETReactorSlayer.Core.Helper
+{
+    public class DumpedMethodsRestorer : IRowReader<RawMethodRow>, IColumnReader, IMethodDecrypter
+    {
         public DumpedMethodsRestorer(DumpedMethods dumpedMethods) => _dumpedMethods = dumpedMethods;
 
         private DumpedMethod GetDumpedMethod(uint rid) => _dumpedMethods.Get(0x06000000 | rid);
 
-        public bool ReadColumn(MDTable table, uint rid, ColumnInfo column, out uint value) {
+        public bool ReadColumn(MDTable table, uint rid, ColumnInfo column, out uint value)
+        {
             if (table.Table == Table.Method)
-                if (TryReadRow(rid, out var row)) {
+                if (TryReadRow(rid, out var row))
+                {
                     value = row[column.Index];
                     return true;
                 }
@@ -38,9 +42,11 @@ namespace NETReactorSlayer.Core.Helper {
         }
 
         public bool GetMethodBody(
-            uint rid, RVA rva, IList<Parameter> parameters, GenericParamContext gpContext, out MethodBody methodBody) {
+            uint rid, RVA rva, IList<Parameter> parameters, GenericParamContext gpContext, out MethodBody methodBody)
+        {
             var dm = GetDumpedMethod(rid);
-            if (dm == null) {
+            if (dm == null)
+            {
                 methodBody = null;
                 return false;
             }
@@ -50,9 +56,11 @@ namespace NETReactorSlayer.Core.Helper {
             return true;
         }
 
-        public bool TryReadRow(uint rid, out RawMethodRow row) {
+        public bool TryReadRow(uint rid, out RawMethodRow row)
+        {
             var dm = GetDumpedMethod(rid);
-            if (dm == null) {
+            if (dm == null)
+            {
                 row = default;
                 return false;
             }
@@ -64,7 +72,8 @@ namespace NETReactorSlayer.Core.Helper {
         private readonly DumpedMethods _dumpedMethods;
         private ModuleDefMD _module;
 
-        public ModuleDefMD Module {
+        public ModuleDefMD Module
+        {
             set => _module = value;
         }
     }

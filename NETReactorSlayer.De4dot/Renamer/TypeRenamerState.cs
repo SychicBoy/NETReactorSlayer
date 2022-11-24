@@ -17,9 +17,12 @@ using System;
 using System.Collections.Generic;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot.Renamer {
-    public class TypeRenamerState {
-        public TypeRenamerState() {
+namespace NETReactorSlayer.De4dot.Renamer
+{
+    public class TypeRenamerState
+    {
+        public TypeRenamerState()
+        {
             _existingNames = new ExistingNames();
             _namespaceToNewName = new Dictionary<string, string>(StringComparer.Ordinal);
             _createNamespaceName = new NameCreator("ns");
@@ -32,7 +35,8 @@ namespace NETReactorSlayer.De4dot.Renamer {
         public string GetTypeName(string oldName, string newName) =>
             _existingNames.GetName(oldName, new NameCreator2(newName));
 
-        public string CreateNamespace(TypeDef type, string ns) {
+        public string CreateNamespace(TypeDef type, string ns)
+        {
             var asmFullName = type.Module.Assembly != null ? type.Module.Assembly.FullName : "<no assembly>";
 
             var key = $" [{type.Module.Location}] [{asmFullName}] [{type.Module.Name}] [{ns}] ";

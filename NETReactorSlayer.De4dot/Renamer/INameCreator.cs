@@ -13,8 +13,10 @@
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace NETReactorSlayer.De4dot.Renamer {
-    public interface INameCreator {
+namespace NETReactorSlayer.De4dot.Renamer
+{
+    public interface INameCreator
+    {
         string Create();
     }
 }

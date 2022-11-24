@@ -19,21 +19,26 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace NETReactorSlayer.De4dot {
-    public static class Utils {
-        public static IEnumerable<T> Unique<T>(IEnumerable<T> values) {
+namespace NETReactorSlayer.De4dot
+{
+    public static class Utils
+    {
+        public static IEnumerable<T> Unique<T>(IEnumerable<T> values)
+        {
             var dict = new Dictionary<T, bool>();
             foreach (var val in values)
                 dict[val] = true;
             return dict.Keys;
         }
 
-        public static string ToCsharpString(string s) {
+        public static string ToCsharpString(string s)
+        {
             var sb = new StringBuilder(s.Length + 2);
             sb.Append('"');
             foreach (var c in s)
                 if (c < 0x20)
-                    switch (c) {
+                    switch (c)
+                    {
                         case '\a':
                             AppendEscape(sb, 'a');
                             break;
@@ -68,12 +73,14 @@ namespace NETReactorSlayer.De4dot {
             return sb.ToString();
         }
 
-        private static void AppendEscape(StringBuilder sb, char c) {
+        private static void AppendEscape(StringBuilder sb, char c)
+        {
             sb.Append('\\');
             sb.Append(c);
         }
 
-        public static string GetBaseName(string name) {
+        public static string GetBaseName(string name)
+        {
             var index = name.LastIndexOf(Path.DirectorySeparatorChar);
             return index < 0 ? name : name.Substring(index + 1);
         }
@@ -81,7 +88,8 @@ namespace NETReactorSlayer.De4dot {
         public static bool StartsWith(string left, string right, StringComparison stringComparison) =>
             left.Length >= right.Length && left.Substring(0, right.Length).Equals(right, stringComparison);
 
-        public static bool Compare(byte[] a, byte[] b) {
+        public static bool Compare(byte[] a, byte[] b)
+        {
             if (a.Length != b.Length)
                 return false;
             return !a.Where((t, i) => t != b[i]).Any();

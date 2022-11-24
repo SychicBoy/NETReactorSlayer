@@ -15,9 +15,12 @@
 
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
-    public class MethodInst {
-        public MethodInst(MMethodDef origMethodDef, IMethodDefOrRef methodRef) {
+namespace NETReactorSlayer.De4dot.Renamer.AsmModules
+{
+    public class MethodInst
+    {
+        public MethodInst(MMethodDef origMethodDef, IMethodDefOrRef methodRef)
+        {
             OrigMethodDef = origMethodDef;
             MethodRef = methodRef;
         }

@@ -16,15 +16,19 @@
 using dnlib.DotNet;
 using NETReactorSlayer.De4dot.Renamer;
 
-namespace NETReactorSlayer.De4dot {
-    public class ObfuscatedFile : IObfuscatedFile {
-        public ObfuscatedFile(ModuleDefMD module, IDeobfuscator deobfuscator) {
+namespace NETReactorSlayer.De4dot
+{
+    public class ObfuscatedFile : IObfuscatedFile
+    {
+        public ObfuscatedFile(ModuleDefMD module, IDeobfuscator deobfuscator)
+        {
             Deobfuscator = deobfuscator;
             ModuleDefMd = module;
             DeobfuscatorOptions = new Options();
         }
 
-        public void Dispose() {
+        public void Dispose()
+        {
             ModuleDefMd?.Dispose();
             Deobfuscator?.Dispose();
             ModuleDefMd = null;
@@ -44,7 +48,8 @@ namespace NETReactorSlayer.De4dot {
         public bool RenameResourceKeys => (Deobfuscator.RenamingOptions & RenamingOptions.RenameResourceKeys) != 0;
         public bool RenameResourcesInCode => Deobfuscator.TheOptions.RenameResourcesInCode;
 
-        public class Options {
+        public class Options
+        {
             public RenamerFlags RenamerFlags =
                 RenamerFlags.RenameNamespaces |
                 RenamerFlags.RenameTypes |

@@ -16,13 +16,16 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace NETReactorSlayer.De4dot {
-    public class NameRegexes {
+namespace NETReactorSlayer.De4dot
+{
+    public class NameRegexes
+    {
         public NameRegexes() : this("") { }
 
         public NameRegexes(string regex) => Set(regex);
 
-        public void Set(string regexesString) {
+        public void Set(string regexesString)
+        {
             Regexes = new List<NameRegex>();
             if (regexesString == "")
                 return;
@@ -30,16 +33,19 @@ namespace NETReactorSlayer.De4dot {
                 Regexes.Add(new NameRegex(regex));
         }
 
-        public bool IsMatch(string s) {
+        public bool IsMatch(string s)
+        {
             foreach (var regex in Regexes.Where(regex => regex.IsMatch(s)))
                 return regex.MatchValue;
 
             return DefaultValue;
         }
 
-        public override string ToString() {
+        public override string ToString()
+        {
             var s = "";
-            for (var i = 0; i < Regexes.Count; i++) {
+            for (var i = 0; i < Regexes.Count; i++)
+            {
                 if (i > 0)
                     s += RegexSeparatorChar;
                 s += Regexes[i].ToString();

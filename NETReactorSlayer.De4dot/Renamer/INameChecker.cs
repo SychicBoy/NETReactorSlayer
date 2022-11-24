@@ -13,8 +13,10 @@
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace NETReactorSlayer.De4dot.Renamer {
-    public interface INameChecker {
+namespace NETReactorSlayer.De4dot.Renamer
+{
+    public interface INameChecker
+    {
         bool IsValidNamespaceName(string ns);
         bool IsValidTypeName(string name);
         bool IsValidMethodName(string name);

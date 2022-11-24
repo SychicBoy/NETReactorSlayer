@@ -13,8 +13,10 @@
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace NETReactorSlayer.De4dot.Renamer {
-    public class GenericParamNameCreator : NameCreatorCounter {
+namespace NETReactorSlayer.De4dot.Renamer
+{
+    public class GenericParamNameCreator : NameCreatorCounter
+    {
         public override string Create() => Num < Names.Length ? Names[Num++] : $"T{Num++}";
 
         private static readonly string[] Names = { "T", "U", "V", "W", "X", "Y", "Z" };

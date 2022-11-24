@@ -16,9 +16,12 @@
 using System;
 using System.Collections.Generic;
 
-namespace NETReactorSlayer.De4dot.Renamer {
-    public class PropertyNameCreator : TypeNames {
-        public PropertyNameCreator() {
+namespace NETReactorSlayer.De4dot.Renamer
+{
+    public class PropertyNameCreator : TypeNames
+    {
+        public PropertyNameCreator()
+        {
             FullNameToShortName = OurFullNameToShortName;
             FullNameToShortNamePrefix = OurFullNameToShortNamePrefix;
         }

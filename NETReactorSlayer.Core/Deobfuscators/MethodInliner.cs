@@ -19,17 +19,22 @@ using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 using NETReactorSlayer.Core.Helper;
 
-namespace NETReactorSlayer.Core.Deobfuscators {
-    internal class MethodInliner : IStage {
-        public void Execute() {
+namespace NETReactorSlayer.Core.Deobfuscators
+{
+    internal class MethodInliner : IStage
+    {
+        public void Execute()
+        {
             long count = 0;
             var proxies = new HashSet<MethodDef>();
             foreach (var method in Context.Module.GetTypes().SelectMany(type =>
                          from x in type.Methods.ToList() where x.HasBody && x.Body.HasInstructions select x))
-                try {
+                try
+                {
                     var length = method.Body.Instructions.Count;
                     var i = 0;
-                    for (; i < length; i++) {
+                    for (; i < length; i++)
+                    {
                         MethodDef methodDef;
                         if (!method.Body.Instructions[i].OpCode.Equals(OpCodes.Call) ||
                             (methodDef = method.Body.Instructions[i].Operand as MethodDef) == null ||
@@ -53,7 +58,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
                      from method in from x in type.Methods.ToArray() where x.HasBody && x.Body.HasInstructions select x
                      from instruction in method.Body.Instructions
                      select instruction)
-                try {
+                try
+                {
                     MethodDef item;
                     if (instruction.OpCode.OperandType == OperandType.InlineMethod &&
                         (item = instruction.Operand as MethodDef) != null && proxies.Contains(item))
@@ -67,7 +73,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
 
         #region Private Methods
 
-        private static bool IsInlineMethod(MethodDef method, out List<Instruction> instructions) {
+        private static bool IsInlineMethod(MethodDef method, out List<Instruction> instructions)
+        {
             instructions = new List<Instruction>();
             if (!method.HasBody || !method.IsStatic)
                 return false;
@@ -77,7 +84,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
                 return false;
             var code = list[index - 1].OpCode.Code;
             int length;
-            if (code != Code.Call && code != Code.Callvirt && code != Code.Newobj) {
+            if (code != Code.Call && code != Code.Callvirt && code != Code.Newobj)
+            {
                 if (code != Code.Ldfld)
                     return false;
                 instructions.Add(new Instruction(list[index - 1].OpCode, list[index - 1].Operand));
@@ -90,8 +98,10 @@ namespace NETReactorSlayer.Core.Deobfuscators {
             instructions.Add(new Instruction(list[index - 1].OpCode, list[index - 1].Operand));
             length = list.Count(i => i.OpCode != OpCodes.Nop) - 2;
             var count = list.Count - 2;
-            if (length != method.Parameters.Count) {
-                if (list[index - 2].IsLdcI4() && --length == method.Parameters.Count) {
+            if (length != method.Parameters.Count)
+            {
+                if (list[index - 2].IsLdcI4() && --length == method.Parameters.Count)
+                {
                     count = list.Count - 3;
                     instructions.Insert(0, new Instruction(list[index - 2].OpCode, list[index - 2].Operand));
                 } else
@@ -100,7 +110,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
 
             var num = 0;
             for (var j = 0; j < count; j++)
-                if (list[j].OpCode != OpCodes.Nop) {
+                if (list[j].OpCode != OpCodes.Nop)
+                {
                     if (!list[j].IsLdarg())
                         return false;
                     if (list[j].GetParameterIndex() != num)

@@ -16,11 +16,14 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
-    public class MethodNameGroup {
+namespace NETReactorSlayer.De4dot.Renamer.AsmModules
+{
+    public class MethodNameGroup
+    {
         public void Add(MMethodDef method) => Methods.Add(method);
 
-        public void Merge(MethodNameGroup other) {
+        public void Merge(MethodNameGroup other)
+        {
             if (this == other)
                 return;
             Methods.AddRange(other.Methods);

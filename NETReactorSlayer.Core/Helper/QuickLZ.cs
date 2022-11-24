@@ -15,11 +15,14 @@
 
 using System;
 
-namespace NETReactorSlayer.Core.Helper {
-    public class QuickLz : QuickLzBase {
+namespace NETReactorSlayer.Core.Helper
+{
+    public class QuickLz : QuickLzBase
+    {
         public static byte[] Decompress(byte[] inData) => Decompress(inData, DefaultQclzSig);
 
-        public static byte[] Decompress(byte[] inData, int sig) {
+        public static byte[] Decompress(byte[] inData, int sig)
+        {
             BitConverter.ToInt32(inData, 4);
             var compressedLength = BitConverter.ToInt32(inData, 8);
             var decompressedLength = BitConverter.ToInt32(inData, 12);
@@ -30,7 +33,8 @@ namespace NETReactorSlayer.Core.Helper {
 
             var outData = new byte[decompressedLength];
 
-            if (!isDataCompressed) {
+            if (!isDataCompressed)
+            {
                 Copy(inData, headerLength, outData, 0, decompressedLength);
                 return outData;
             }

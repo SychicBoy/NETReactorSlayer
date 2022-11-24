@@ -16,13 +16,16 @@
 using System;
 using System.Collections.Generic;
 
-namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
-    public class MethodNameGroups {
+namespace NETReactorSlayer.De4dot.Renamer.AsmModules
+{
+    public class MethodNameGroups
+    {
         public void Same(MMethodDef a, MMethodDef b) => Merge(Get(a), Get(b));
 
         public void Add(MMethodDef methodDef) => Get(methodDef);
 
-        public MethodNameGroup Get(MMethodDef method) {
+        public MethodNameGroup Get(MMethodDef method)
+        {
             if (!method.IsVirtual())
                 throw new ApplicationException("Not a virtual method");
             if (_methodGroups.TryGetValue(method, out var group))
@@ -33,7 +36,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             return group;
         }
 
-        private void Merge(MethodNameGroup a, MethodNameGroup b) {
+        private void Merge(MethodNameGroup a, MethodNameGroup b)
+        {
             if (a == b)
                 return;
 

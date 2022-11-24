@@ -20,16 +20,22 @@ using de4dot.blocks;
 using dnlib.DotNet;
 using NETReactorSlayer.Core.Helper;
 
-namespace NETReactorSlayer.Core.Deobfuscators {
-    internal class ResourceResolver : IStage {
-        public void Execute() {
-            try {
-                if (!Find()) {
+namespace NETReactorSlayer.Core.Deobfuscators
+{
+    internal class ResourceResolver : IStage
+    {
+        public void Execute()
+        {
+            try
+            {
+                if (!Find())
+                {
                     Logger.Warn("Couldn't find any encrypted resource.");
                     return;
                 }
 
-                using (_encryptedResource) {
+                using (_encryptedResource)
+                {
                     DeobUtils.DecryptAndAddResources(Context.Module,
                         () => Decompress(_encryptedResource.Decrypt()));
 
@@ -40,15 +46,18 @@ namespace NETReactorSlayer.Core.Deobfuscators {
                     Cleaner.AddResourceToBeRemoved(_encryptedResource.EmbeddedResource);
                     Logger.Done("Assembly resources decrypted");
                 }
-            } catch (Exception ex) {
+            } catch (Exception ex)
+            {
                 Logger.Error("An unexpected error occurred during decrypting resources.", ex);
             }
         }
 
         #region Private Methods
 
-        private bool Find() {
-            foreach (var type in Context.Module.GetTypes()) {
+        private bool Find()
+        {
+            foreach (var type in Context.Module.GetTypes())
+            {
                 if (type.BaseType != null && type.BaseType.FullName != "System.Object")
                     continue;
                 if (!CheckFields(type.Fields))
@@ -64,9 +73,11 @@ namespace NETReactorSlayer.Core.Deobfuscators {
                                 GetDecrypterMethod(method, Array.Empty<string>(), false)
                          into decrypterMethod
                          where decrypterMethod != null
-                         select decrypterMethod) {
+                         select decrypterMethod)
+                {
                     _encryptedResource = new EncryptedResource(decrypterMethod);
-                    if (_encryptedResource.EmbeddedResource == null) {
+                    if (_encryptedResource.EmbeddedResource == null)
+                    {
                         _encryptedResource.Dispose();
                         continue;
                     }
@@ -79,7 +90,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
             return false;
         }
 
-        private static bool CheckFields(ICollection<FieldDef> fields) {
+        private static bool CheckFields(ICollection<FieldDef> fields)
+        {
             if (fields.Count != 3 && fields.Count != 4)
                 return false;
 
@@ -95,7 +107,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
         }
 
         private static MethodDef
-            GetDecrypterMethod(MethodDef method, IList<string> additionalTypes, bool checkResource) {
+            GetDecrypterMethod(MethodDef method, IList<string> additionalTypes, bool checkResource)
+        {
             if (EncryptedResource.IsKnownDecrypter(method, additionalTypes, checkResource))
                 return method;
 
@@ -105,13 +118,18 @@ namespace NETReactorSlayer.Core.Deobfuscators {
                     EncryptedResource.IsKnownDecrypter(calledMethod, additionalTypes, checkResource));
         }
 
-        private static byte[] Decompress(byte[] bytes) {
-            try {
+        private static byte[] Decompress(byte[] bytes)
+        {
+            try
+            {
                 return QuickLz.Decompress(bytes);
-            } catch {
-                try {
+            } catch
+            {
+                try
+                {
                     return DeobUtils.Inflate(bytes, true);
-                } catch {
+                } catch
+                {
                     return null;
                 }
             }

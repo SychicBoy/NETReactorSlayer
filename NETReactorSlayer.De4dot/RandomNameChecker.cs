@@ -18,9 +18,12 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace NETReactorSlayer.De4dot {
-    public static class RandomNameChecker {
-        public static bool IsNonRandom(string name) {
+namespace NETReactorSlayer.De4dot
+{
+    public static class RandomNameChecker
+    {
+        public static bool IsNonRandom(string name)
+        {
             if (name.Length < 5)
                 return true;
             if (NoUpper.IsMatch(name))
@@ -28,7 +31,8 @@ namespace NETReactorSlayer.De4dot {
             if (AllUpper.IsMatch(name))
                 return true;
 
-            for (var i = 0; i < name.Length - 1; i++) {
+            for (var i = 0; i < name.Length - 1; i++)
+            {
                 if (IsDigit(name[i]))
                     return false;
                 if (i > 0 && IsUpper(name[i]) && IsUpper(name[i - 1]))
@@ -37,7 +41,8 @@ namespace NETReactorSlayer.De4dot {
 
             var words = GetCamelWords(name);
             var vowels = words.Count(word => word.Length > 1 && HasVowel(word));
-            switch (words.Count) {
+            switch (words.Count)
+            {
                 case 1:
                     return vowels == words.Count;
                 case 2:
@@ -55,9 +60,11 @@ namespace NETReactorSlayer.De4dot {
             }
         }
 
-        private static bool HasVowel(string s) {
+        private static bool HasVowel(string s)
+        {
             foreach (var c in s)
-                switch (c) {
+                switch (c)
+                {
                     case 'A':
                     case 'a':
                     case 'E':
@@ -76,12 +83,15 @@ namespace NETReactorSlayer.De4dot {
             return false;
         }
 
-        private static List<string> GetCamelWords(string name) {
+        private static List<string> GetCamelWords(string name)
+        {
             var words = new List<string>();
             var sb = new StringBuilder();
 
-            foreach (var c in name) {
-                if (IsUpper(c)) {
+            foreach (var c in name)
+            {
+                if (IsUpper(c))
+                {
                     if (sb.Length > 0)
                         words.Add(sb.ToString());
                     sb.Length = 0;
@@ -96,7 +106,8 @@ namespace NETReactorSlayer.De4dot {
             return words;
         }
 
-        public static bool IsRandom(string name) {
+        public static bool IsRandom(string name)
+        {
             var len = name.Length;
             if (len < 5)
                 return false;
@@ -126,29 +137,35 @@ namespace NETReactorSlayer.De4dot {
 
         private static bool HasDigit(string s) => s.Any(IsDigit);
 
-        private static List<string> GetTypeWords(string s) {
+        private static List<string> GetTypeWords(string s)
+        {
             var words = new List<string>();
             var sb = new StringBuilder();
 
             for (var i = 0; i < s.Length;)
-                if (IsDigit(s[i])) {
+                if (IsDigit(s[i]))
+                {
                     sb.Length = 0;
                     while (i < s.Length && IsDigit(s[i]))
                         sb.Append(s[i++]);
                     words.Add(sb.ToString());
-                } else if (IsUpper(s[i])) {
+                } else if (IsUpper(s[i]))
+                {
                     sb.Length = 0;
                     while (i < s.Length && IsUpper(s[i]))
                         sb.Append(s[i++]);
                     words.Add(sb.ToString());
-                } else if (IsLower(s[i])) {
+                } else if (IsLower(s[i]))
+                {
                     sb.Length = 0;
                     while (i < s.Length && IsLower(s[i]))
                         sb.Append(s[i++]);
                     words.Add(sb.ToString());
-                } else {
+                } else
+                {
                     sb.Length = 0;
-                    while (i < s.Length) {
+                    while (i < s.Length)
+                    {
                         if (IsDigit(s[i]) || IsUpper(s[i]) || IsLower(s[i]))
                             break;
                         sb.Append(s[i++]);
@@ -160,12 +177,14 @@ namespace NETReactorSlayer.De4dot {
             return words;
         }
 
-        private static bool CountNumbers(IEnumerable<string> words, int numbers) {
+        private static bool CountNumbers(IEnumerable<string> words, int numbers)
+        {
             var num = 0;
             return words.Where(word => !string.IsNullOrEmpty(word)).Any(word => IsDigit(word[0]) && ++num >= numbers);
         }
 
-        private static void CountTypeWords(IEnumerable<string> words, out int upper) {
+        private static void CountTypeWords(IEnumerable<string> words, out int upper)
+        {
             upper = 0;
 
             foreach (var c in from word in words where word.Length > 1 select word[0])

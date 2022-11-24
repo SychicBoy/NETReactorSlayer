@@ -17,8 +17,10 @@ using System;
 using dnlib.DotNet;
 using NETReactorSlayer.De4dot.Renamer;
 
-namespace NETReactorSlayer.De4dot {
-    public interface IObfuscatedFile : IDisposable {
+namespace NETReactorSlayer.De4dot
+{
+    public interface IObfuscatedFile : IDisposable
+    {
         IDeobfuscatorContext DeobfuscatorContext { get; }
         ObfuscatedFile.Options DeobfuscatorOptions { get; }
         ModuleDefMD ModuleDefMd { get; }

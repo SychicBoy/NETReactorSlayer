@@ -17,18 +17,23 @@ using de4dot.blocks.cflow;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
-namespace NETReactorSlayer.Core.Helper {
-    public static class ArrayFinder {
-        public static byte[] GetInitializedByteArray(MethodDef method, int arraySize) {
+namespace NETReactorSlayer.Core.Helper
+{
+    public static class ArrayFinder
+    {
+        public static byte[] GetInitializedByteArray(MethodDef method, int arraySize)
+        {
             var newarrIndex = FindNewarr(method, arraySize);
             return newarrIndex < 0 ? null : GetInitializedByteArray(arraySize, method, ref newarrIndex);
         }
 
-        public static byte[] GetInitializedByteArray(int arraySize, MethodDef method, ref int newarrIndex) {
+        public static byte[] GetInitializedByteArray(int arraySize, MethodDef method, ref int newarrIndex)
+        {
             var resultValueArray = GetInitializedArray(arraySize, method, ref newarrIndex, Code.Stelem_I1);
 
             var resultArray = new byte[resultValueArray.Length];
-            for (var i = 0; i < resultArray.Length; i++) {
+            for (var i = 0; i < resultArray.Length; i++)
+            {
                 if (resultValueArray[i] is not Int32Value intValue || !intValue.AllBitsValid())
                     return null;
                 resultArray[i] = (byte)intValue.Value;
@@ -38,7 +43,8 @@ namespace NETReactorSlayer.Core.Helper {
         }
 
         public static Value[] GetInitializedArray(
-            int arraySize, MethodDef method, ref int newarrIndex, Code stelemOpCode) {
+            int arraySize, MethodDef method, ref int newarrIndex, Code stelemOpCode)
+        {
             var resultValueArray = new Value[arraySize];
 
             var emulator = new InstructionEmulator(method);
@@ -47,13 +53,15 @@ namespace NETReactorSlayer.Core.Helper {
 
             var instructions = method.Body.Instructions;
             int i;
-            for (i = newarrIndex + 1; i < instructions.Count; i++) {
+            for (i = newarrIndex + 1; i < instructions.Count; i++)
+            {
                 var instr = instructions[i];
                 if (instr.OpCode.FlowControl != FlowControl.Next)
                     break;
                 if (instr.OpCode.Code == Code.Newarr)
                     break;
-                switch (instr.OpCode.Code) {
+                switch (instr.OpCode.Code)
+                {
                     case Code.Newarr:
                     case Code.Newobj:
                         goto done;
@@ -73,7 +81,8 @@ namespace NETReactorSlayer.Core.Helper {
                         break;
                 }
 
-                if (instr.OpCode.Code == stelemOpCode) {
+                if (instr.OpCode.Code == stelemOpCode)
+                {
                     var value = emulator.Pop();
                     var index = emulator.Pop() as Int32Value;
                     var array = emulator.Pop();
@@ -93,8 +102,10 @@ namespace NETReactorSlayer.Core.Helper {
             return resultValueArray;
         }
 
-        private static int FindNewarr(MethodDef method, int arraySize) {
-            for (var i = 0;; i++) {
+        private static int FindNewarr(MethodDef method, int arraySize)
+        {
+            for (var i = 0;; i++)
+            {
                 if (!FindNewarr(method, ref i, out var size))
                     return -1;
                 if (size == arraySize)
@@ -102,9 +113,11 @@ namespace NETReactorSlayer.Core.Helper {
             }
         }
 
-        public static bool FindNewarr(MethodDef method, ref int i, out int size) {
+        public static bool FindNewarr(MethodDef method, ref int i, out int size)
+        {
             var instructions = method.Body.Instructions;
-            for (; i < instructions.Count; i++) {
+            for (; i < instructions.Count; i++)
+            {
                 var instr = instructions[i];
                 if (instr.OpCode.Code != Code.Newarr || i < 1)
                     continue;

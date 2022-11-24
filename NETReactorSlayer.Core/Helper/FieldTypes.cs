@@ -17,11 +17,14 @@ using System.Collections.Generic;
 using System.Linq;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.Core.Helper {
-    public class FieldTypes : StringCounts {
+namespace NETReactorSlayer.Core.Helper
+{
+    public class FieldTypes : StringCounts
+    {
         public FieldTypes(IEnumerable<FieldDef> fields) => Initialize(fields);
 
-        private void Initialize(IEnumerable<FieldDef> fields) {
+        private void Initialize(IEnumerable<FieldDef> fields)
+        {
             if (fields == null)
                 return;
             foreach (var type in fields.Select(field => field.FieldSig.GetFieldType()).Where(type => type != null))

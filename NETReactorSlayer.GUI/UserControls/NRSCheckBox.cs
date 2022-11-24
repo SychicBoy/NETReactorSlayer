@@ -17,11 +17,14 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace NETReactorSlayer.GUI.UserControls {
-    public sealed class NrsCheckBox : CheckBox {
+namespace NETReactorSlayer.GUI.UserControls
+{
+    public sealed class NrsCheckBox : CheckBox
+    {
         #region Constructor Region
 
-        public NrsCheckBox() {
+        public NrsCheckBox()
+        {
             SetStyle(ControlStyles.SupportsTransparentBackColor |
                      ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.ResizeRedraw |
@@ -33,7 +36,8 @@ namespace NETReactorSlayer.GUI.UserControls {
 
         #region Method Region
 
-        private void SetControlState(ControlState controlState) {
+        private void SetControlState(ControlState controlState)
+        {
             if (_controlState == controlState)
                 return;
             _controlState = controlState;
@@ -42,7 +46,8 @@ namespace NETReactorSlayer.GUI.UserControls {
 
         #endregion
 
-        public enum ControlState {
+        public enum ControlState
+        {
             Normal,
             Hover,
             Pressed
@@ -58,7 +63,8 @@ namespace NETReactorSlayer.GUI.UserControls {
 
         #region Event Handler Region
 
-        protected override void OnMouseMove(MouseEventArgs e) {
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
             base.OnMouseMove(e);
 
             if (_spacePressed)
@@ -70,7 +76,8 @@ namespace NETReactorSlayer.GUI.UserControls {
                 SetControlState(ControlState.Hover);
         }
 
-        protected override void OnMouseDown(MouseEventArgs e) {
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
             base.OnMouseDown(e);
 
             if (!ClientRectangle.Contains(e.Location))
@@ -79,7 +86,8 @@ namespace NETReactorSlayer.GUI.UserControls {
             SetControlState(ControlState.Pressed);
         }
 
-        protected override void OnMouseUp(MouseEventArgs e) {
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
             base.OnMouseUp(e);
 
             if (_spacePressed)
@@ -88,7 +96,8 @@ namespace NETReactorSlayer.GUI.UserControls {
             SetControlState(ControlState.Normal);
         }
 
-        protected override void OnMouseLeave(EventArgs e) {
+        protected override void OnMouseLeave(EventArgs e)
+        {
             base.OnMouseLeave(e);
 
             if (_spacePressed)
@@ -97,7 +106,8 @@ namespace NETReactorSlayer.GUI.UserControls {
             SetControlState(ControlState.Normal);
         }
 
-        protected override void OnMouseCaptureChanged(EventArgs e) {
+        protected override void OnMouseCaptureChanged(EventArgs e)
+        {
             base.OnMouseCaptureChanged(e);
 
             if (_spacePressed)
@@ -109,13 +119,15 @@ namespace NETReactorSlayer.GUI.UserControls {
                 SetControlState(ControlState.Normal);
         }
 
-        protected override void OnGotFocus(EventArgs e) {
+        protected override void OnGotFocus(EventArgs e)
+        {
             base.OnGotFocus(e);
 
             Invalidate();
         }
 
-        protected override void OnLostFocus(EventArgs e) {
+        protected override void OnLostFocus(EventArgs e)
+        {
             base.OnLostFocus(e);
 
             _spacePressed = false;
@@ -125,7 +137,8 @@ namespace NETReactorSlayer.GUI.UserControls {
             SetControlState(!ClientRectangle.Contains(location) ? ControlState.Normal : ControlState.Hover);
         }
 
-        protected override void OnKeyDown(KeyEventArgs e) {
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
             base.OnKeyDown(e);
 
             if (e.KeyCode != Keys.Space)
@@ -134,7 +147,8 @@ namespace NETReactorSlayer.GUI.UserControls {
             SetControlState(ControlState.Pressed);
         }
 
-        protected override void OnKeyUp(KeyEventArgs e) {
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
             base.OnKeyUp(e);
 
             if (e.KeyCode != Keys.Space)
@@ -154,9 +168,11 @@ namespace NETReactorSlayer.GUI.UserControls {
 
         private Color _borderColor = Color.Silver;
 
-        public Color BorderColor {
+        public Color BorderColor
+        {
             get => _borderColor;
-            set {
+            set
+            {
                 _borderColor = value;
                 Invalidate();
             }
@@ -164,9 +180,11 @@ namespace NETReactorSlayer.GUI.UserControls {
 
         private Color _hoverBorderColor = Color.Gray;
 
-        public Color HoverBorderColor {
+        public Color HoverBorderColor
+        {
             get => _hoverBorderColor;
-            set {
+            set
+            {
                 _hoverBorderColor = value;
                 Invalidate();
             }
@@ -174,9 +192,11 @@ namespace NETReactorSlayer.GUI.UserControls {
 
         private Color _pressBorderColor = Color.Gray;
 
-        public Color PressBorderColor {
+        public Color PressBorderColor
+        {
             get => _pressBorderColor;
-            set {
+            set
+            {
                 _pressBorderColor = value;
                 Invalidate();
             }
@@ -184,9 +204,11 @@ namespace NETReactorSlayer.GUI.UserControls {
 
         private Color _hoverForeColor = Color.Gray;
 
-        public Color HoverForeColor {
+        public Color HoverForeColor
+        {
             get => _hoverForeColor;
-            set {
+            set
+            {
                 _hoverForeColor = value;
                 Invalidate();
             }
@@ -194,9 +216,11 @@ namespace NETReactorSlayer.GUI.UserControls {
 
         private Color _pressForeColor = Color.Gray;
 
-        public Color PressForeColor {
+        public Color PressForeColor
+        {
             get => _pressForeColor;
-            set {
+            set
+            {
                 _pressForeColor = value;
                 Invalidate();
             }
@@ -206,9 +230,11 @@ namespace NETReactorSlayer.GUI.UserControls {
 
         private Color _fillColor = Color.FromArgb(238, 30, 35);
 
-        public Color FillColor {
+        public Color FillColor
+        {
             get => _fillColor;
-            set {
+            set
+            {
                 _fillColor = value;
                 Invalidate();
             }
@@ -216,9 +242,11 @@ namespace NETReactorSlayer.GUI.UserControls {
 
         private Color _hoverFillColor = Color.FromArgb(188, 14, 18);
 
-        public Color HoverFillColor {
+        public Color HoverFillColor
+        {
             get => _hoverFillColor;
-            set {
+            set
+            {
                 _hoverFillColor = value;
                 Invalidate();
             }
@@ -226,15 +254,18 @@ namespace NETReactorSlayer.GUI.UserControls {
 
         private Color _pressFillColor = Color.FromArgb(117, 9, 12);
 
-        public Color PressFillColor {
+        public Color PressFillColor
+        {
             get => _pressFillColor;
-            set {
+            set
+            {
                 _pressFillColor = value;
                 Invalidate();
             }
         }
 
-        protected override void OnPaint(PaintEventArgs e) {
+        protected override void OnPaint(PaintEventArgs e)
+        {
             var g = e.Graphics;
             var rect = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
 
@@ -245,7 +276,8 @@ namespace NETReactorSlayer.GUI.UserControls {
             var fillColor = FillColor;
 
             if (Enabled)
-                switch (_controlState) {
+                switch (_controlState)
+                {
                     case ControlState.Hover:
                         borderColor = HoverBorderColor;
                         textColor = HoverForeColor;
@@ -258,23 +290,28 @@ namespace NETReactorSlayer.GUI.UserControls {
                         break;
                 }
 
-            using (var b = new SolidBrush(BackColor)) {
+            using (var b = new SolidBrush(BackColor))
+            {
                 g.FillRectangle(b, rect);
             }
 
-            using (var p = new Pen(borderColor)) {
+            using (var p = new Pen(borderColor))
+            {
                 var boxRect = new Rectangle(0, rect.Height / 2 - size / 2, size, size);
                 g.DrawRectangle(p, boxRect);
             }
 
             if (Checked)
-                using (var b = new SolidBrush(fillColor)) {
+                using (var b = new SolidBrush(fillColor))
+                {
                     var boxRect = new Rectangle(2, rect.Height / 2 - (size - 4) / 2, size - 3, size - 3);
                     g.FillRectangle(b, boxRect);
                 }
 
-            using (var b = new SolidBrush(textColor)) {
-                var stringFormat = new StringFormat {
+            using (var b = new SolidBrush(textColor))
+            {
+                var stringFormat = new StringFormat
+                {
                     LineAlignment = StringAlignment.Center,
                     Alignment = StringAlignment.Near
                 };

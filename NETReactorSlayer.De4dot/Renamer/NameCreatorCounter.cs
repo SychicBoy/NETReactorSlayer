@@ -13,9 +13,12 @@
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace NETReactorSlayer.De4dot.Renamer {
-    public abstract class NameCreatorCounter : INameCreator {
-        public NameCreatorCounter Merge(NameCreatorCounter other) {
+namespace NETReactorSlayer.De4dot.Renamer
+{
+    public abstract class NameCreatorCounter : INameCreator
+    {
+        public NameCreatorCounter Merge(NameCreatorCounter other)
+        {
             if (Num < other.Num)
                 Num = other.Num;
             return this;

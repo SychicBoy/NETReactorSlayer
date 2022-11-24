@@ -17,14 +17,18 @@ using System.Collections.Generic;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
-namespace NETReactorSlayer.Core.Helper {
-    public class LocalTypes : StringCounts {
-        public LocalTypes(MethodDef method) {
+namespace NETReactorSlayer.Core.Helper
+{
+    public class LocalTypes : StringCounts
+    {
+        public LocalTypes(MethodDef method)
+        {
             if (method.HasBody)
                 Initialize(method.Body.Variables);
         }
 
-        private void Initialize(IEnumerable<Local> locals) {
+        private void Initialize(IEnumerable<Local> locals)
+        {
             if (locals == null)
                 return;
             foreach (var local in locals)

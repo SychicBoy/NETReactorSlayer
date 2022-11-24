@@ -17,12 +17,16 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace NETReactorSlayer.GUI {
-    internal class Logger {
+namespace NETReactorSlayer.GUI
+{
+    internal class Logger
+    {
         public Logger(RichTextBox richTextBox) => _richTextBox = richTextBox;
 
-        public void Write(string text, Color? color = null) {
-            if (_richTextBox.InvokeRequired) {
+        public void Write(string text, Color? color = null)
+        {
+            if (_richTextBox.InvokeRequired)
+            {
                 _richTextBox.Invoke(new MethodInvoker(() => { Write(text, color); }));
                 return;
             }
@@ -35,9 +39,11 @@ namespace NETReactorSlayer.GUI {
             Application.DoEvents();
         }
 
-        public void WriteLine(string text, Color? color = null) {
+        public void WriteLine(string text, Color? color = null)
+        {
             Write($"{text}", color);
-            if (_richTextBox.InvokeRequired) {
+            if (_richTextBox.InvokeRequired)
+            {
                 _richTextBox.Invoke(new MethodInvoker(() => { _richTextBox.AppendText(Environment.NewLine); }));
                 return;
             }

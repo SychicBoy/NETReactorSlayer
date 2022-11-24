@@ -22,11 +22,14 @@ using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 using NETReactorSlayer.De4dot.Renamer.AsmModules;
 
-namespace NETReactorSlayer.De4dot.Renamer {
-    public class ResourceRenamer {
+namespace NETReactorSlayer.De4dot.Renamer
+{
+    public class ResourceRenamer
+    {
         public ResourceRenamer(Module module) => _module = module;
 
-        public void Rename(List<TypeInfo> renamedTypes) {
+        public void Rename(List<TypeInfo> renamedTypes)
+        {
             renamedTypes.Sort((a, b) =>
             {
                 var aesc = EscapeTypeName(a.OldFullName);
@@ -38,7 +41,8 @@ namespace NETReactorSlayer.De4dot.Renamer {
 
             _nameToResource =
                 new Dictionary<string, Resource>(_module.ModuleDefMd.Resources.Count * 3, StringComparer.Ordinal);
-            foreach (var resource in _module.ModuleDefMd.Resources) {
+            foreach (var resource in _module.ModuleDefMd.Resources)
+            {
                 var name = resource.Name.String;
                 _nameToResource[name] = resource;
                 if (name.EndsWith(".g.resources"))
@@ -52,7 +56,8 @@ namespace NETReactorSlayer.De4dot.Renamer {
             RenameResources(renamedTypes);
         }
 
-        private void RenameResourceNamesInCode(List<TypeInfo> renamedTypes) {
+        private void RenameResourceNamesInCode(List<TypeInfo> renamedTypes)
+        {
             var oldNameToTypeInfo = new Dictionary<string, TypeInfo>(StringComparer.Ordinal);
             foreach (var info in renamedTypes)
                 oldNameToTypeInfo[EscapeTypeName(info.OldFullName)] = info;
@@ -60,7 +65,8 @@ namespace NETReactorSlayer.De4dot.Renamer {
             foreach (var instrs in from method in _module.GetAllMethods()
                      where method.HasBody
                      select method.Body.Instructions)
-                for (var i = 0; i < instrs.Count; i++) {
+                for (var i = 0; i < instrs.Count; i++)
+                {
                     var instr = instrs[i];
                     if (instr.OpCode != OpCodes.Ldstr)
                         continue;
@@ -82,8 +88,10 @@ namespace NETReactorSlayer.De4dot.Renamer {
                 }
         }
 
-        private static bool IsCallingResourceManagerCtor(IList<Instruction> instrs, int ldstrIndex, TypeInfo typeInfo) {
-            try {
+        private static bool IsCallingResourceManagerCtor(IList<Instruction> instrs, int ldstrIndex, TypeInfo typeInfo)
+        {
+            try
+            {
                 var index = ldstrIndex + 1;
 
                 var ldtoken = instrs[index++];
@@ -102,22 +110,27 @@ namespace NETReactorSlayer.De4dot.Renamer {
                     return false;
                 return newobj.Operand.ToString() ==
                        "System.Void System.Resources.ResourceManager::.ctor(System.String,System.Reflection.Assembly)";
-            } catch (ArgumentOutOfRangeException) {
+            } catch (ArgumentOutOfRangeException)
+            {
                 return false;
-            } catch (IndexOutOfRangeException) {
+            } catch (IndexOutOfRangeException)
+            {
                 return false;
             }
         }
 
-        private static bool CheckCalledMethod(Instruction instr, string returnType, string parameters) {
+        private static bool CheckCalledMethod(Instruction instr, string returnType, string parameters)
+        {
             if (instr.OpCode.Code != Code.Call && instr.OpCode.Code != Code.Callvirt)
                 return false;
             return DotNetUtils.IsMethod(instr.Operand as IMethod, returnType, parameters);
         }
 
-        private void RenameResources(List<TypeInfo> renamedTypes) {
+        private void RenameResources(List<TypeInfo> renamedTypes)
+        {
             var newNames = new Dictionary<Resource, RenameInfo>();
-            foreach (var info in renamedTypes) {
+            foreach (var info in renamedTypes)
+            {
                 var oldFullName = EscapeTypeName(info.OldFullName);
                 if (!_nameToResource.TryGetValue(oldFullName, out var resource))
                     continue;
@@ -130,8 +143,10 @@ namespace NETReactorSlayer.De4dot.Renamer {
             }
         }
 
-        private static bool IsReservedTypeNameChar(char c) {
-            switch (c) {
+        private static bool IsReservedTypeNameChar(char c)
+        {
+            switch (c)
+            {
                 case ',':
                 case '[':
                 case ']':
@@ -147,11 +162,13 @@ namespace NETReactorSlayer.De4dot.Renamer {
 
         private static bool HasReservedTypeNameChar(string s) => s.Any(IsReservedTypeNameChar);
 
-        private static string EscapeTypeName(string name) {
+        private static string EscapeTypeName(string name)
+        {
             if (!HasReservedTypeNameChar(name))
                 return name;
             var sb = new StringBuilder();
-            foreach (var c in name) {
+            foreach (var c in name)
+            {
                 if (IsReservedTypeNameChar(c))
                     sb.Append('\\');
                 sb.Append(c);
@@ -163,8 +180,10 @@ namespace NETReactorSlayer.De4dot.Renamer {
         private readonly Module _module;
         private Dictionary<string, Resource> _nameToResource;
 
-        private class RenameInfo {
-            public RenameInfo(Resource resource, string newResourceName) {
+        private class RenameInfo
+        {
+            public RenameInfo(Resource resource, string newResourceName)
+            {
                 _resource = resource;
                 _newResourceName = newResourceName;
             }

@@ -15,60 +15,75 @@
 
 using System;
 
-namespace NETReactorSlayer.Core.Helper {
-    public class QuickLzBase {
+namespace NETReactorSlayer.Core.Helper
+{
+    public class QuickLzBase
+    {
         protected static uint Read32(byte[] data, int index) => BitConverter.ToUInt32(data, index);
 
-        protected static void Copy(byte[] src, int srcIndex, byte[] dst, int dstIndex, int size) {
+        protected static void Copy(byte[] src, int srcIndex, byte[] dst, int dstIndex, int size)
+        {
             for (var i = 0; i < size; i++)
                 dst[dstIndex++] = src[srcIndex++];
         }
 
-        public static void Decompress(byte[] inData, int inIndex, byte[] outData) {
+        public static void Decompress(byte[] inData, int inIndex, byte[] outData)
+        {
             var decompressedLength = outData.Length;
             var outIndex = 0;
             uint val1 = 1;
 
-            while (true) {
-                if (val1 == 1) {
+            while (true)
+            {
+                if (val1 == 1)
+                {
                     val1 = Read32(inData, inIndex);
                     inIndex += 4;
                 }
 
                 var val2 = Read32(inData, inIndex);
-                if ((val1 & 1) == 1) {
+                if ((val1 & 1) == 1)
+                {
                     val1 >>= 1;
                     uint count;
-                    if ((val2 & 3) == 0) {
+                    if ((val2 & 3) == 0)
+                    {
                         count = (val2 & 0xFF) >> 2;
                         Copy(outData, (int)(outIndex - count), outData, outIndex, 3);
                         outIndex += 3;
                         inIndex++;
-                    } else if ((val2 & 2) == 0) {
+                    } else if ((val2 & 2) == 0)
+                    {
                         count = (val2 & 0xFFFF) >> 2;
                         Copy(outData, (int)(outIndex - count), outData, outIndex, 3);
                         outIndex += 3;
                         inIndex += 2;
-                    } else {
+                    } else
+                    {
                         int size;
-                        if ((val2 & 1) == 0) {
+                        if ((val2 & 1) == 0)
+                        {
                             size = (int)((val2 >> 2) & 0x0F) + 3;
                             count = (val2 & 0xFFFF) >> 6;
                             Copy(outData, (int)(outIndex - count), outData, outIndex, size);
                             outIndex += size;
                             inIndex += 2;
-                        } else if ((val2 & 4) == 0) {
+                        } else if ((val2 & 4) == 0)
+                        {
                             size = (int)((val2 >> 3) & 0x1F) + 3;
                             count = (val2 & 0xFFFFFF) >> 8;
                             Copy(outData, (int)(outIndex - count), outData, outIndex, size);
                             outIndex += size;
                             inIndex += 3;
-                        } else if ((val2 & 8) == 0) {
+                        } else if ((val2 & 8) == 0)
+                        {
                             count = val2 >> 15;
-                            if (count != 0) {
+                            if (count != 0)
+                            {
                                 size = (int)((val2 >> 4) & 0x07FF) + 3;
                                 inIndex += 4;
-                            } else {
+                            } else
+                            {
                                 size = (int)Read32(inData, inIndex + 4);
                                 count = Read32(inData, inIndex + 8);
                                 inIndex += 12;
@@ -76,10 +91,12 @@ namespace NETReactorSlayer.Core.Helper {
 
                             Copy(outData, (int)(outIndex - count), outData, outIndex, size);
                             outIndex += size;
-                        } else {
+                        } else
+                        {
                             var b = (byte)(val2 >> 16);
                             size = (int)(val2 >> 4) & 0x0FFF;
-                            if (size == 0) {
+                            if (size == 0)
+                            {
                                 size = (int)Read32(inData, inIndex + 3);
                                 inIndex += 7;
                             } else
@@ -89,7 +106,8 @@ namespace NETReactorSlayer.Core.Helper {
                                 outData[outIndex++] = b;
                         }
                     }
-                } else {
+                } else
+                {
                     Copy(inData, inIndex, outData, outIndex, 4);
                     var index = (int)(val1 & 0x0F);
                     outIndex += IndexInc[index];
@@ -100,8 +118,10 @@ namespace NETReactorSlayer.Core.Helper {
                 }
             }
 
-            while (outIndex < decompressedLength) {
-                if (val1 == 1) {
+            while (outIndex < decompressedLength)
+            {
+                if (val1 == 1)
+                {
                     inIndex += 4;
                     val1 = 0x80000000;
                 }

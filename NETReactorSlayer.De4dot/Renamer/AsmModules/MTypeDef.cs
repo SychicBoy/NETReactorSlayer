@@ -19,21 +19,26 @@ using System.Linq;
 using de4dot.blocks;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
-    public class MTypeDef : Ref {
+namespace NETReactorSlayer.De4dot.Renamer.AsmModules
+{
+    public class MTypeDef : Ref
+    {
         public MTypeDef(IMemberRef memberRef, Module module, int index)
-            : base(memberRef, null, index) {
+            : base(memberRef, null, index)
+        {
             Module = module;
             _genericParams = MGenericParamDef.CreateGenericParamDefList(TypeDef.GenericParameters);
         }
 
-        public void AddInterface(MTypeDef ifaceDef, ITypeDefOrRef iface) {
+        public void AddInterface(MTypeDef ifaceDef, ITypeDefOrRef iface)
+        {
             if (ifaceDef == null || iface == null)
                 return;
             Interfaces.Add(new TypeInfo(iface, ifaceDef));
         }
 
-        public void AddBaseType(MTypeDef baseDef, ITypeDefOrRef baseRef) {
+        public void AddBaseType(MTypeDef baseDef, ITypeDefOrRef baseRef)
+        {
             if (baseDef == null || baseRef == null)
                 return;
             BaseType = new TypeInfo(baseRef, baseDef);
@@ -63,7 +68,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
 
         public MEventDef FindAny(EventDef er) => _events.FindAny(er);
 
-        public MPropertyDef Create(PropertyDef newProp) {
+        public MPropertyDef Create(PropertyDef newProp)
+        {
             if (FindAny(newProp) != null)
                 throw new ApplicationException("Can't add a property when it's already been added");
 
@@ -73,7 +79,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             return propDef;
         }
 
-        public MEventDef Create(EventDef newEvent) {
+        public MEventDef Create(EventDef newEvent)
+        {
             if (FindAny(newEvent) != null)
                 throw new ApplicationException("Can't add an event when it's already been added");
 
@@ -83,7 +90,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             return eventDef;
         }
 
-        public void AddMembers() {
+        public void AddMembers()
+        {
             var type = TypeDef;
 
             for (var i = 0; i < type.Events.Count; i++)
@@ -96,7 +104,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
                 Add(new MPropertyDef(type.Properties[i], this, i));
 
             foreach (var propDef in _properties.GetValues())
-            foreach (var method in propDef.MethodDefs()) {
+            foreach (var method in propDef.MethodDefs())
+            {
                 var methodDef = FindMethod(method);
                 if (methodDef == null)
                     throw new ApplicationException("Could not find property method");
@@ -108,7 +117,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             }
 
             foreach (var eventDef in _events.GetValues())
-            foreach (var method in eventDef.MethodDefs()) {
+            foreach (var method in eventDef.MethodDefs())
+            {
                 var methodDef = FindMethod(method);
                 if (methodDef == null)
                     throw new ApplicationException("Could not find event method");
@@ -122,7 +132,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             }
         }
 
-        public void OnTypesRenamed() {
+        public void OnTypesRenamed()
+        {
             _events.OnTypesRenamed();
             _properties.OnTypesRenamed();
             _fields.OnTypesRenamed();
@@ -132,10 +143,12 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
 
         public bool IsNested() => NestingType != null;
 
-        public bool IsGlobalType() {
+        public bool IsGlobalType()
+        {
             if (!IsNested())
                 return TypeDef.IsPublic;
-            switch (TypeDef.Visibility) {
+            switch (TypeDef.Visibility)
+            {
                 case TypeAttributes.NestedPrivate:
                 case TypeAttributes.NestedAssembly:
                 case TypeAttributes.NestedFamANDAssem:
@@ -149,7 +162,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             }
         }
 
-        public void InitializeVirtualMembers(MethodNameGroups groups, IResolver resolver) {
+        public void InitializeVirtualMembers(MethodNameGroups groups, IResolver resolver)
+        {
             if (_initializeVirtualMembersCalled)
                 return;
             _initializeVirtualMembersCalled = true;
@@ -165,18 +179,21 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             InitializeInterfaceMethods(groups);
         }
 
-        private void InitializeAllInterfaces() {
+        private void InitializeAllInterfaces()
+        {
             if (BaseType != null)
                 InitializeInterfaces(BaseType);
 
-            foreach (var iface in Interfaces) {
+            foreach (var iface in Interfaces)
+            {
                 _allImplementedInterfaces[iface] = true;
                 _interfaceMethodInfos.AddInterface(iface);
                 InitializeInterfaces(iface);
             }
         }
 
-        private void InitializeInterfaces(TypeInfo typeInfo) {
+        private void InitializeInterfaces(TypeInfo typeInfo)
+        {
             var git = typeInfo.TypeRef.TryGetGenericInstSig();
             _interfaceMethodInfos.InitializeFrom(typeInfo.TypeDef._interfaceMethodInfos, git);
             foreach (var newTypeInfo in typeInfo.TypeDef._allImplementedInterfaces.Keys.Select(info =>
@@ -184,7 +201,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
                 _allImplementedInterfaces[newTypeInfo] = true;
         }
 
-        private void InitializeInterfaceMethods(MethodNameGroups groups) {
+        private void InitializeInterfaceMethods(MethodNameGroups groups)
+        {
             InitializeAllInterfaces();
 
             if (TypeDef.IsInterface)
@@ -193,14 +211,16 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             var methodsDict =
                 new Dictionary<IMethodDefOrRef, MMethodDef>(MethodEqualityComparer.DontCompareDeclaringTypes);
 
-            if (Interfaces.Count > 0) {
+            if (Interfaces.Count > 0)
+            {
                 methodsDict.Clear();
                 foreach (var method in _methods.GetValues()
                              .Where(method => method.IsPublic() && method.IsVirtual() && method.IsNewSlot()))
                     methodsDict[method.MethodDef] = method;
 
                 foreach (var ifaceInfo in Interfaces)
-                foreach (var methodsList in ifaceInfo.TypeDef._virtualMethodInstances.GetMethods()) {
+                foreach (var methodsList in ifaceInfo.TypeDef._virtualMethodInstances.GetMethods())
+                {
                     if (methodsList.Count < 1)
                         continue;
                     var methodInst = methodsList[0];
@@ -217,7 +237,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
 
             methodsDict.Clear();
             foreach (var methodInstList in _virtualMethodInstances.GetMethods())
-                for (var i = methodInstList.Count - 1; i >= 0; i--) {
+                for (var i = methodInstList.Count - 1; i >= 0; i--)
+                {
                     var classMethod = methodInstList[i];
                     if (!classMethod.OrigMethodDef.IsPublic())
                         continue;
@@ -226,7 +247,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
                 }
 
             foreach (var ifaceInfo in _allImplementedInterfaces.Keys)
-            foreach (var methodsList in ifaceInfo.TypeDef._virtualMethodInstances.GetMethods()) {
+            foreach (var methodsList in ifaceInfo.TypeDef._virtualMethodInstances.GetMethods())
+            {
                 if (methodsList.Count < 1)
                     continue;
                 var ifaceMethod = methodsList[0].OrigMethodDef;
@@ -242,9 +264,11 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             methodsDict.Clear();
             var ifaceMethodsDict =
                 new Dictionary<IMethodDefOrRef, MMethodDef>(MethodEqualityComparer.CompareDeclaringTypes);
-            foreach (var ifaceInfo in _allImplementedInterfaces.Keys) {
+            foreach (var ifaceInfo in _allImplementedInterfaces.Keys)
+            {
                 var git = ifaceInfo.TypeRef.TryGetGenericInstSig();
-                foreach (var ifaceMethod in ifaceInfo.TypeDef._methods.GetValues()) {
+                foreach (var ifaceMethod in ifaceInfo.TypeDef._methods.GetValues())
+                {
                     IMethodDefOrRef ifaceMethodRef = ifaceMethod.MethodDef;
                     if (git != null)
                         ifaceMethodRef = SimpleClone(ifaceMethod.MethodDef, ifaceInfo.TypeRef);
@@ -252,10 +276,12 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
                 }
             }
 
-            foreach (var classMethod in _methods.GetValues()) {
+            foreach (var classMethod in _methods.GetValues())
+            {
                 if (!classMethod.IsVirtual())
                     continue;
-                foreach (var overrideMethod in classMethod.MethodDef.Overrides) {
+                foreach (var overrideMethod in classMethod.MethodDef.Overrides)
+                {
                     if (!ifaceMethodsDict.TryGetValue(overrideMethod.MethodDeclaration, out var ifaceMethod))
                         continue;
 
@@ -276,7 +302,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
                 groups.Same(pair.Key.MethodDef, pair.Value);
         }
 
-        private bool ResolvedAllInterfaces() {
+        private bool ResolvedAllInterfaces()
+        {
             if (_resolvedAllInterfacesResult.HasValue)
                 return _resolvedAllInterfacesResult.Value;
             _resolvedAllInterfacesResult = true;
@@ -289,7 +316,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
                                                         Interfaces.All(ifaceInfo =>
                                                             ifaceInfo.TypeDef.ResolvedAllInterfaces());
 
-        private bool ResolvedBaseClasses() {
+        private bool ResolvedBaseClasses()
+        {
             if (_resolvedBaseClassesResult.HasValue)
                 return _resolvedBaseClassesResult.Value;
             _resolvedBaseClassesResult = true;
@@ -298,26 +326,31 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             return _resolvedBaseClassesResult.Value;
         }
 
-        private bool ResolvedBaseClassesInternal() {
+        private bool ResolvedBaseClassesInternal()
+        {
             if (TypeDef.BaseType == null)
                 return true;
             return BaseType != null && BaseType.TypeDef.ResolvedBaseClasses();
         }
 
-        private MemberRef SimpleClone(IMethod method, IMemberRefParent memberRefParent) {
+        private MemberRef SimpleClone(IMethod method, IMemberRefParent memberRefParent)
+        {
             if (Module == null)
                 return new MemberRefUser(null, method.Name, method.MethodSig, memberRefParent);
             var mr = new MemberRefUser(Module.ModuleDefMd, method.Name, method.MethodSig, memberRefParent);
             return Module.ModuleDefMd.UpdateRowId(mr);
         }
 
-        private void InstantiateVirtualMembers(MethodNameGroups groups) {
-            if (!TypeDef.IsInterface) {
+        private void InstantiateVirtualMembers(MethodNameGroups groups)
+        {
+            if (!TypeDef.IsInterface)
+            {
                 if (BaseType != null)
                     _virtualMethodInstances.InitializeFrom(BaseType.TypeDef._virtualMethodInstances,
                         BaseType.TypeRef.TryGetGenericInstSig());
 
-                foreach (var methodDef in _methods.GetValues()) {
+                foreach (var methodDef in _methods.GetValues())
+                {
                     if (!methodDef.IsVirtual() || methodDef.IsNewSlot())
                         continue;
                     var methodInstList = _virtualMethodInstances.Lookup(methodDef.MethodDef);

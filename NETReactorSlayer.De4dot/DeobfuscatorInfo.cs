@@ -15,16 +15,20 @@
 
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot {
-    public class DeobfuscatorInfo : DeobfuscatorInfoBase {
+namespace NETReactorSlayer.De4dot
+{
+    public class DeobfuscatorInfo : DeobfuscatorInfoBase
+    {
         public DeobfuscatorInfo(ModuleDefMD moduleDefMd, bool renameShort)
-            : base(DefaultRegex) {
+            : base(DefaultRegex)
+        {
             _module = moduleDefMd;
             _renameShort = renameShort;
         }
 
         public virtual IDeobfuscator CreateDeobfuscator() =>
-            new Deobfuscator(_module, new Deobfuscator.Options {
+            new Deobfuscator(_module, new Deobfuscator.Options
+            {
                 ValidNameRegex = ValidNameRegex.Get(),
                 RestoreTypes = true,
                 RemoveNamespaces = true,

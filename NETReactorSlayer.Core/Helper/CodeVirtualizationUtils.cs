@@ -16,10 +16,14 @@
 using System.Linq;
 using dnlib.DotNet.Emit;
 
-namespace NETReactorSlayer.Core.Helper {
-    internal class CodeVirtualizationUtils {
-        public static bool Detect() {
-            var array = new[] {
+namespace NETReactorSlayer.Core.Helper
+{
+    internal class CodeVirtualizationUtils
+    {
+        public static bool Detect()
+        {
+            var array = new[]
+            {
                 "System.String",
                 "System.Byte",
                 "System.SByte",
@@ -39,7 +43,8 @@ namespace NETReactorSlayer.Core.Helper {
 
             foreach (var method in Context.Module.GetTypes()
                          .SelectMany(type => type.Methods.Where(x => x.HasBody && x.Body.HasInstructions)))
-                try {
+                try
+                {
                     if (method.Body.Instructions.Count(x => x.OpCode.Equals(OpCodes.Switch)) != 2)
                         continue;
                     if (method.Body.Instructions.Count(x => x.OpCode.Equals(OpCodes.Ldtoken)) < 15)

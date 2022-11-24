@@ -19,9 +19,12 @@ using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 using NETReactorSlayer.Core.Helper;
 
-namespace NETReactorSlayer.Core.Deobfuscators {
-    internal class StrongNamePatcher : IStage {
-        public void Execute() {
+namespace NETReactorSlayer.Core.Deobfuscators
+{
+    internal class StrongNamePatcher : IStage
+    {
+        public void Execute()
+        {
             long count = 0;
             var methodDef = Find();
             if (methodDef == null)
@@ -29,7 +32,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
 
             foreach (var method in Context.Module.GetTypes()
                          .SelectMany(type => type.Methods.Where(x => x.HasBody && x.Body.HasInstructions)))
-                try {
+                try
+                {
                     var blocks = new Blocks(method);
                     var block = GetBlock(blocks, methodDef);
                     if (block?.FallThrough == null || block.Targets.Count != 1)
@@ -45,7 +49,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
                         block.FallThrough.Sources.Count == 0)
                         if (block.FallThrough.FallThrough.FallThrough == block.FallThrough.FallThrough &&
                             block.FallThrough.FallThrough.Sources.Count == 2 &&
-                            block.FallThrough.FallThrough.Targets == null) {
+                            block.FallThrough.FallThrough.Targets == null)
+                        {
                             block.FallThrough.Parent.RemoveGuaranteedDeadBlock(block.FallThrough);
                             block.FallThrough.FallThrough.Parent.RemoveGuaranteedDeadBlock(
                                 block.FallThrough.FallThrough);
@@ -70,13 +75,15 @@ namespace NETReactorSlayer.Core.Deobfuscators {
                 where sig.RetType.ElementType is ElementType.Object or ElementType.String
                 where sig.Params[0]?.ElementType is ElementType.Object or ElementType.String
                 where sig.Params[1]?.ElementType is ElementType.Object or ElementType.String
-                select method).FirstOrDefault(method => new LocalTypes(method).All(new[] {
+                select method).FirstOrDefault(method => new LocalTypes(method).All(new[]
+            {
                 "System.Byte[]",
                 "System.IO.MemoryStream",
                 "System.Security.Cryptography.CryptoStream",
                 "System.Security.Cryptography.MD5",
                 "System.Security.Cryptography.Rijndael"
-            }) || new LocalTypes(method).All(new[] {
+            }) || new LocalTypes(method).All(new[]
+            {
                 "System.Byte[]",
                 "System.IO.MemoryStream",
                 "System.Security.Cryptography.SymmetricAlgorithm",
@@ -93,27 +100,32 @@ namespace NETReactorSlayer.Core.Deobfuscators {
                 where instructions[i].Operand is ITypeDefOrRef
                 where instructions[i + 1].OpCode.Code == Code.Call ||
                       (instructions[i + 1].OpCode.Code == Code.Callvirt &&
-                       instructions[i + 1].Operand is IMethod {
+                       instructions[i + 1].Operand is IMethod
+                       {
                            FullName: "System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)"
                        })
                 where instructions[i + 2].OpCode.Code == Code.Call ||
                       (instructions[i + 2].OpCode.Code == Code.Callvirt &&
-                       instructions[i + 2].Operand is IMethod {
+                       instructions[i + 2].Operand is IMethod
+                       {
                            FullName: "System.Reflection.Assembly System.Type::get_Assembly()"
                        })
                 where instructions[i + 3].OpCode.Code == Code.Call ||
                       (instructions[i + 3].OpCode.Code == Code.Callvirt &&
-                       instructions[i + 3].Operand is IMethod {
+                       instructions[i + 3].Operand is IMethod
+                       {
                            FullName: "System.Reflection.AssemblyName System.Reflection.Assembly::GetName()"
                        })
                 where instructions[i + 4].OpCode.Code == Code.Call ||
                       (instructions[i + 4].OpCode.Code == Code.Callvirt &&
-                       instructions[i + 4].Operand is IMethod {
+                       instructions[i + 4].Operand is IMethod
+                       {
                            FullName: "System.Byte[] System.Reflection.AssemblyName::GetPublicKeyToken()"
                        })
                 where instructions[i + 5].OpCode.Code == Code.Call ||
                       (instructions[i + 5].OpCode.Code == Code.Callvirt &&
-                       instructions[i + 5].Operand is IMethod {
+                       instructions[i + 5].Operand is IMethod
+                       {
                            FullName: "System.String System.Convert::ToBase64String(System.Byte[])"
                        })
                 where instructions[i + 6].OpCode.Code == Code.Ldstr
@@ -124,7 +136,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
                 where instructions[i + 8].OpCode.Code == Code.Ldstr
                 where instructions[i + 9].OpCode.Code == Code.Call ||
                       (instructions[i + 9].OpCode.Code == Code.Callvirt &&
-                       instructions[i + 9].Operand is IMethod {
+                       instructions[i + 9].Operand is IMethod
+                       {
                            FullName: "System.Boolean System.String::op_Inequality(System.String,System.String)"
                        })
                 select block).FirstOrDefault();

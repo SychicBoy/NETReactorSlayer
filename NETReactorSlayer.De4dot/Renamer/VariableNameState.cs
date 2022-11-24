@@ -15,12 +15,16 @@
 
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot.Renamer {
-    public class VariableNameState {
+namespace NETReactorSlayer.De4dot.Renamer
+{
+    public class VariableNameState
+    {
         private VariableNameState() { }
 
-        public static VariableNameState Create() {
-            var vns = new VariableNameState {
+        public static VariableNameState Create()
+        {
+            var vns = new VariableNameState
+            {
                 _existingVariableNames = new ExistingNames(),
                 _existingMethodNames = new ExistingNames(),
                 _existingPropertyNames = new ExistingNames(),
@@ -35,8 +39,10 @@ namespace NETReactorSlayer.De4dot.Renamer {
             return vns;
         }
 
-        public VariableNameState CloneParamsOnly() {
-            var vns = new VariableNameState {
+        public VariableNameState CloneParamsOnly()
+        {
+            var vns = new VariableNameState
+            {
                 _existingVariableNames = new ExistingNames(),
                 _variableNameCreator = new VariableNameCreator()
             };
@@ -45,7 +51,8 @@ namespace NETReactorSlayer.De4dot.Renamer {
             return vns;
         }
 
-        public VariableNameState Merge(VariableNameState other) {
+        public VariableNameState Merge(VariableNameState other)
+        {
             if (this == other)
                 return this;
             _existingVariableNames.Merge(other._existingVariableNames);
@@ -68,7 +75,8 @@ namespace NETReactorSlayer.De4dot.Renamer {
 
         public void MergeEvents(VariableNameState other) => _existingEventNames.Merge(other._existingEventNames);
 
-        public string GetNewPropertyName(PropertyDef propertyDef) {
+        public string GetNewPropertyName(PropertyDef propertyDef)
+        {
             var propType = propertyDef.PropertySig.GetRetType();
             var newName = IsGeneric(propType)
                 ? _existingPropertyNames.GetName(propertyDef.Name, _genericPropertyNameCreator)
@@ -77,8 +85,10 @@ namespace NETReactorSlayer.De4dot.Renamer {
             return newName;
         }
 
-        private static bool IsGeneric(TypeSig type) {
-            while (type != null) {
+        private static bool IsGeneric(TypeSig type)
+        {
+            while (type != null)
+            {
                 if (type.IsGenericParameter)
                     return true;
                 type = type.Next;
@@ -87,7 +97,8 @@ namespace NETReactorSlayer.De4dot.Renamer {
             return false;
         }
 
-        public string GetNewEventName(EventDef eventDef) {
+        public string GetNewEventName(EventDef eventDef)
+        {
             var newName = _eventNameCreator.Create();
             AddEventName(newName);
             return newName;

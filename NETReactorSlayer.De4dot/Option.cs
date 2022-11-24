@@ -13,9 +13,12 @@
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace NETReactorSlayer.De4dot {
-    public abstract class Option {
-        protected Option(string shortName, string longName, string description) {
+namespace NETReactorSlayer.De4dot
+{
+    public abstract class Option
+    {
+        protected Option(string shortName, string longName, string description)
+        {
             if (shortName != null)
                 ShortName = ShortnamePrefix + shortName;
             if (longName != null)

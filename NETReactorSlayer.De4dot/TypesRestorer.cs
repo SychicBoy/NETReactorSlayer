@@ -16,12 +16,15 @@
 using System;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot {
-    public class TypesRestorer : TypesRestorerBase {
+namespace NETReactorSlayer.De4dot
+{
+    public class TypesRestorer : TypesRestorerBase
+    {
         public TypesRestorer(ModuleDef module)
             : base(module) { }
 
-        protected override bool IsValidType(IGenericParameterProvider gpp, TypeSig type) {
+        protected override bool IsValidType(IGenericParameterProvider gpp, TypeSig type)
+        {
             if (type == null)
                 return false;
             if (type.IsValueType)
@@ -30,7 +33,8 @@ namespace NETReactorSlayer.De4dot {
         }
 
         protected override bool IsUnknownType(object o) =>
-            o switch {
+            o switch
+            {
                 Parameter arg => arg.Type.GetElementType() == ElementType.Object,
                 FieldDef field => field.FieldSig.GetFieldType().GetElementType() == ElementType.Object,
                 TypeSig sig => sig.ElementType == ElementType.Object,

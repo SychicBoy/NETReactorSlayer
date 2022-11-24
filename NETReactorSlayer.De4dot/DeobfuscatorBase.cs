@@ -17,9 +17,12 @@ using System;
 using System.Linq;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot {
-    public abstract class DeobfuscatorBase : IDeobfuscator {
-        protected DeobfuscatorBase(ModuleDefMD module, OptionsBase optionsBase) {
+namespace NETReactorSlayer.De4dot
+{
+    public abstract class DeobfuscatorBase : IDeobfuscator
+    {
+        protected DeobfuscatorBase(ModuleDefMD module, OptionsBase optionsBase)
+        {
             _optionsBase = optionsBase;
             Module = module;
         }
@@ -51,7 +54,8 @@ namespace NETReactorSlayer.De4dot {
 
         public virtual bool IsValidResourceKeyName(string name) => name != null && CheckValidName(name);
 
-        public void Dispose() {
+        public void Dispose()
+        {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
@@ -68,7 +72,8 @@ namespace NETReactorSlayer.De4dot {
 
         public IDeobfuscatorOptions TheOptions => _optionsBase;
 
-        public class OptionsBase : IDeobfuscatorOptions {
+        public class OptionsBase : IDeobfuscatorOptions
+        {
             public OptionsBase() => RenameResourcesInCode = true;
 
             public bool RenameResourcesInCode { get; set; }

@@ -20,9 +20,12 @@ using System.Security.Cryptography;
 using dnlib.DotNet;
 using ICSharpCode.SharpZipLib.Zip.Compression;
 
-namespace NETReactorSlayer.Core.Helper {
-    public static class DeobUtils {
-        public static void DecryptAndAddResources(ModuleDef module, Func<byte[]> decryptResource) {
+namespace NETReactorSlayer.Core.Helper
+{
+    public static class DeobUtils
+    {
+        public static void DecryptAndAddResources(ModuleDef module, Func<byte[]> decryptResource)
+        {
             var decryptedResourceData = decryptResource();
             if (decryptedResourceData == null)
                 throw new ApplicationException("decryptedResourceData is null");
@@ -34,13 +37,15 @@ namespace NETReactorSlayer.Core.Helper {
 
         public static byte[] ReadModule(ModuleDef module) => ReadFile(module.Location);
 
-        public static bool IsCode(short[] nativeCode, byte[] code) {
+        public static bool IsCode(short[] nativeCode, byte[] code)
+        {
             if (nativeCode.Length != code.Length)
                 return false;
             return !nativeCode.Where((t, i) => t != -1 && (byte)t != code[i]).Any();
         }
 
-        public static byte[] ReadFile(string filename) {
+        public static byte[] ReadFile(string filename)
+        {
             const int maxBytesRead = 0x200000;
 
             using var fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -55,7 +60,8 @@ namespace NETReactorSlayer.Core.Helper {
             return fileData;
         }
 
-        public static byte[] AesDecrypt(byte[] data, byte[] key, byte[] iv) {
+        public static byte[] AesDecrypt(byte[] data, byte[] key, byte[] iv)
+        {
             using var aes = Aes.Create();
             aes.Padding = PaddingMode.PKCS7;
             aes.Mode = CipherMode.CBC;
@@ -68,11 +74,13 @@ namespace NETReactorSlayer.Core.Helper {
         public static byte[] Inflate(byte[] data, int start, int len, bool noHeader) =>
             Inflate(data, start, len, new Inflater(noHeader));
 
-        public static byte[] Inflate(byte[] data, int start, int len, Inflater inflater) {
+        public static byte[] Inflate(byte[] data, int start, int len, Inflater inflater)
+        {
             var buffer = new byte[0x1000];
             var memStream = new MemoryStream();
             inflater.SetInput(data, start, len);
-            while (true) {
+            while (true)
+            {
                 var count = inflater.Inflate(buffer, 0, buffer.Length);
                 if (count == 0)
                     break;

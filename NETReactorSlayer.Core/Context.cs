@@ -22,11 +22,15 @@ using dnlib.DotNet.Writer;
 using dnlib.PE;
 using NETReactorSlayer.Core.Helper;
 
-namespace NETReactorSlayer.Core {
-    public class Context {
-        public bool Load(Options options) {
+namespace NETReactorSlayer.Core
+{
+    public class Context
+    {
+        public bool Load(Options options)
+        {
             Options = options;
-            if (string.IsNullOrEmpty(Options.SourcePath)) {
+            if (string.IsNullOrEmpty(Options.SourcePath))
+            {
                 Logger.Error("No input files specified.\r\n");
                 Logger.PrintUsage();
                 return false;
@@ -37,8 +41,10 @@ namespace NETReactorSlayer.Core {
             return LoadModule();
         }
 
-        public void Save() {
-            try {
+        public void Save()
+        {
+            try
+            {
                 ModuleWriterOptionsBase writer;
                 if (Module.IsILOnly)
                     writer = new ModuleWriterOptions(Module);
@@ -56,28 +62,34 @@ namespace NETReactorSlayer.Core {
                 else
                     Module.NativeWrite(Options.DestPath, (NativeModuleWriterOptions)writer);
 
-                try {
+                try
+                {
                     Module?.Dispose();
                     PeImage?.Dispose();
                 } catch { }
 
                 Logger.Done("Saved to: " + Options.DestFileName);
-            } catch (Exception ex) {
+            } catch (Exception ex)
+            {
                 Logger.Error($"An unexpected error occurred during writing output file. {ex.Message}.");
             }
         }
 
         #region Private Methods
 
-        private static bool LoadModule() {
-            try {
+        private static bool LoadModule()
+        {
+            try
+            {
                 ModuleContext = GetModuleContext();
                 AssemblyModule = new AssemblyModule(Options.SourcePath, ModuleContext);
                 Module = AssemblyModule.Load();
                 ModuleBytes = DeobUtils.ReadModule(Module);
                 PeImage = new MyPeImage(ModuleBytes);
-            } catch (Exception ex) {
-                try {
+            } catch (Exception ex)
+            {
+                try
+                {
                     var unpacked = new NativeUnpacker(new PEImage(Options.SourcePath)).Unpack();
                     if (unpacked == null)
                         throw;
@@ -95,7 +107,8 @@ namespace NETReactorSlayer.Core {
                         { WindowStyle = ProcessWindowStyle.Hidden });
 
                     Logger.Done("Native stub unpacked.");
-                } catch {
+                } catch
+                {
                     Logger.Error($"Failed to load assembly. {ex.Message}.");
                     return false;
                 }
@@ -108,12 +121,16 @@ namespace NETReactorSlayer.Core {
             return true;
         }
 
-        private static bool LoadAssembly() {
-            try {
+        private static bool LoadAssembly()
+        {
+            try
+            {
                 Assembly = Assembly.Load(Options.SourcePath);
                 return true;
-            } catch {
-                try {
+            } catch
+            {
+                try
+                {
                     Assembly = Assembly.UnsafeLoadFrom(Options.SourcePath);
                     return true;
                 } catch { }
@@ -122,7 +139,8 @@ namespace NETReactorSlayer.Core {
             return false;
         }
 
-        private static ModuleContext GetModuleContext() {
+        private static ModuleContext GetModuleContext()
+        {
             var moduleContext = new ModuleContext();
             var assemblyResolver = new AssemblyResolver(moduleContext);
             var resolver = new Resolver(assemblyResolver);

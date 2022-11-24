@@ -16,24 +16,30 @@
 using System.IO;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.Core.Helper {
-    public class AssemblyModule {
-        public AssemblyModule(string filename, ModuleContext moduleContext) {
+namespace NETReactorSlayer.Core.Helper
+{
+    public class AssemblyModule
+    {
+        public AssemblyModule(string filename, ModuleContext moduleContext)
+        {
             _filename = Path.GetFullPath(filename);
             _moduleContext = moduleContext;
         }
 
-        public ModuleDefMD Load() {
+        public ModuleDefMD Load()
+        {
             var options = new ModuleCreationOptions(_moduleContext) { TryToLoadPdbFromDisk = false };
             return SetModule(ModuleDefMD.Load(_filename, options));
         }
 
-        public ModuleDefMD Load(byte[] fileData) {
+        public ModuleDefMD Load(byte[] fileData)
+        {
             var options = new ModuleCreationOptions(_moduleContext) { TryToLoadPdbFromDisk = false };
             return SetModule(ModuleDefMD.Load(fileData, options));
         }
 
-        private ModuleDefMD SetModule(ModuleDefMD newModule) {
+        private ModuleDefMD SetModule(ModuleDefMD newModule)
+        {
             _module = newModule;
             TheAssemblyResolver.Instance.AddModule(_module);
             _module.EnableTypeDefFindCache = true;
@@ -42,7 +48,8 @@ namespace NETReactorSlayer.Core.Helper {
         }
 
         public ModuleDefMD Reload(
-            byte[] newModuleData, DumpedMethodsRestorer dumpedMethodsRestorer, IStringDecrypter stringDecrypter) {
+            byte[] newModuleData, DumpedMethodsRestorer dumpedMethodsRestorer, IStringDecrypter stringDecrypter)
+        {
             TheAssemblyResolver.Instance.Remove(_module);
             var options = new ModuleCreationOptions(_moduleContext) { TryToLoadPdbFromDisk = false };
             var mod = ModuleDefMD.Load(newModuleData, options);

@@ -18,21 +18,25 @@ using System.Collections.Generic;
 using System.Linq;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
-    public class Module : IResolver {
+namespace NETReactorSlayer.De4dot.Renamer.AsmModules
+{
+    public class Module : IResolver
+    {
         public Module(IObfuscatedFile obfuscatedFile) => ObfuscatedFile = obfuscatedFile;
 
         public IEnumerable<MTypeDef> GetAllTypes() => _types.GetValues();
 
         public IEnumerable<MethodDef> GetAllMethods() => _allMethods;
 
-        public void FindAllMemberRefs(ref int typeIndex) {
+        public void FindAllMemberRefs(ref int typeIndex)
+        {
             _memberRefFinder = new MemberFinder();
             _memberRefFinder.FindAll(ModuleDefMd);
             _allMethods = new List<MethodDef>(_memberRefFinder.MethodDefs.Keys);
 
             var allTypesList = new List<MTypeDef>();
-            foreach (var type in _memberRefFinder.TypeDefs.Keys) {
+            foreach (var type in _memberRefFinder.TypeDefs.Keys)
+            {
                 var typeDef = new MTypeDef(type, this, typeIndex++);
                 _types.Add(typeDef);
                 allTypesList.Add(typeDef);
@@ -43,10 +47,12 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             var typeToIndex = new Dictionary<TypeDef, int>();
             for (var i = 0; i < allTypesList.Count; i++)
                 typeToIndex[allTypesList[i].TypeDef] = i;
-            foreach (var typeDef in allTypesList) {
+            foreach (var typeDef in allTypesList)
+            {
                 if (typeDef.TypeDef.NestedTypes == null)
                     continue;
-                foreach (var nestedTypeDef2 in typeDef.TypeDef.NestedTypes) {
+                foreach (var nestedTypeDef2 in typeDef.TypeDef.NestedTypes)
+                {
                     var index = typeToIndex[nestedTypeDef2];
                     var nestedTypeDef = allTypesCopy[index];
                     allTypesCopy[index] = null;
@@ -58,40 +64,48 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             }
         }
 
-        public void ResolveAllRefs(IResolver resolver) {
-            foreach (var typeRef in _memberRefFinder.TypeRefs.Keys) {
+        public void ResolveAllRefs(IResolver resolver)
+        {
+            foreach (var typeRef in _memberRefFinder.TypeRefs.Keys)
+            {
                 var typeDef = resolver.ResolveType(typeRef);
                 if (typeDef != null)
                     _typeRefsToRename.Add(new RefToDef<TypeRef, TypeDef>(typeRef, typeDef.TypeDef));
             }
 
             foreach (var memberRef in _memberRefFinder.MemberRefs.Keys)
-                if (memberRef.IsMethodRef) {
+                if (memberRef.IsMethodRef)
+                {
                     var methodDef = resolver.ResolveMethod(memberRef);
                     if (methodDef != null)
                         _methodRefsToRename.Add(new RefToDef<MemberRef, MethodDef>(memberRef, methodDef.MethodDef));
-                } else if (memberRef.IsFieldRef) {
+                } else if (memberRef.IsFieldRef)
+                {
                     var fieldDef = resolver.ResolveField(memberRef);
                     if (fieldDef != null)
                         _fieldRefsToRename.Add(new RefToDef<MemberRef, FieldDef>(memberRef, fieldDef.FieldDef));
                 }
 
-            foreach (var cattr in _memberRefFinder.CustomAttributes.Keys) {
+            foreach (var cattr in _memberRefFinder.CustomAttributes.Keys)
+            {
                 var typeDef = resolver.ResolveType(cattr.AttributeType);
                 if (typeDef == null)
                     continue;
                 if (cattr.NamedArguments == null)
                     continue;
 
-                for (var i = 0; i < cattr.NamedArguments.Count; i++) {
+                for (var i = 0; i < cattr.NamedArguments.Count; i++)
+                {
                     var namedArg = cattr.NamedArguments[i];
-                    if (namedArg.IsField) {
+                    if (namedArg.IsField)
+                    {
                         var fieldDef = FindField(typeDef, namedArg.Name, namedArg.Type);
                         if (fieldDef == null)
                             continue;
 
                         _customAttributeFieldRefs.Add(new CustomAttributeRef(cattr, i, fieldDef.FieldDef));
-                    } else {
+                    } else
+                    {
                         var propDef = FindProperty(typeDef, namedArg.Name, namedArg.Type);
                         if (propDef == null)
                             continue;
@@ -102,8 +116,10 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             }
         }
 
-        private static MFieldDef FindField(MTypeDef typeDef, UTF8String name, TypeSig fieldType) {
-            while (typeDef != null) {
+        private static MFieldDef FindField(MTypeDef typeDef, UTF8String name, TypeSig fieldType)
+        {
+            while (typeDef != null)
+            {
                 foreach (var fieldDef in typeDef.AllFields.Where(fieldDef => fieldDef.FieldDef.Name == name)
                              .Where(fieldDef =>
                                  new SigComparer().Equals(fieldDef.FieldDef.FieldSig.GetFieldType(), fieldType)))
@@ -117,8 +133,10 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             return null;
         }
 
-        private static MPropertyDef FindProperty(MTypeDef typeDef, UTF8String name, TypeSig propType) {
-            while (typeDef != null) {
+        private static MPropertyDef FindProperty(MTypeDef typeDef, UTF8String name, TypeSig propType)
+        {
+            while (typeDef != null)
+            {
                 foreach (var propDef in typeDef.AllProperties.Where(propDef => propDef.PropertyDef.Name == name)
                              .Where(propDef =>
                                  new SigComparer().Equals(propDef.PropertyDef.PropertySig.GetRetType(), propType)))
@@ -132,9 +150,11 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             return null;
         }
 
-        public void OnTypesRenamed() {
+        public void OnTypesRenamed()
+        {
             var newTypes = new TypeDefDict();
-            foreach (var typeDef in _types.GetValues()) {
+            foreach (var typeDef in _types.GetValues())
+            {
                 typeDef.OnTypesRenamed();
                 newTypes.Add(typeDef);
             }
@@ -144,7 +164,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             ModuleDefMd.ResetTypeDefFindCache();
         }
 
-        private static ITypeDefOrRef GetNonGenericTypeRef(ITypeDefOrRef typeRef) {
+        private static ITypeDefOrRef GetNonGenericTypeRef(ITypeDefOrRef typeRef)
+        {
             if (typeRef is not TypeSpec ts)
                 return typeRef;
             var gis = ts.TryGetGenericInstSig();
@@ -153,12 +174,14 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
 
         public MTypeDef ResolveType(ITypeDefOrRef typeRef) => _types.Find(GetNonGenericTypeRef(typeRef));
 
-        public MMethodDef ResolveMethod(IMethodDefOrRef methodRef) {
+        public MMethodDef ResolveMethod(IMethodDefOrRef methodRef)
+        {
             var typeDef = _types.Find(GetNonGenericTypeRef(methodRef.DeclaringType));
             return typeDef?.FindMethod(methodRef);
         }
 
-        public MFieldDef ResolveField(MemberRef fieldRef) {
+        public MFieldDef ResolveField(MemberRef fieldRef)
+        {
             var typeDef = _types.Find(GetNonGenericTypeRef(fieldRef.DeclaringType));
             return typeDef?.FindField(fieldRef);
         }
@@ -187,8 +210,10 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
 
         public IEnumerable<RefToDef<TypeRef, TypeDef>> TypeRefsToRename => _typeRefsToRename;
 
-        public class CustomAttributeRef {
-            public CustomAttributeRef(CustomAttribute cattr, int index, IMemberRef reference) {
+        public class CustomAttributeRef
+        {
+            public CustomAttributeRef(CustomAttribute cattr, int index, IMemberRef reference)
+            {
                 Cattr = cattr;
                 Index = index;
                 Reference = reference;
@@ -199,8 +224,10 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             public IMemberRef Reference;
         }
 
-        public class RefToDef<TR, TD> where TR : ICodedToken where TD : ICodedToken {
-            public RefToDef(TR reference, TD definition) {
+        public class RefToDef<TR, TD> where TR : ICodedToken where TD : ICodedToken
+        {
+            public RefToDef(TR reference, TD definition)
+            {
                 Reference = reference;
                 Definition = definition;
             }

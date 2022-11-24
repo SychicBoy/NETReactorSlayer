@@ -26,14 +26,20 @@ using HarmonyLib;
 using NETReactorSlayer.Core.Helper;
 using Code = dnlib.DotNet.Emit.Code;
 
-namespace NETReactorSlayer.Core.Deobfuscators {
-    internal class StringDecrypter : IStage {
-        public void Execute() {
-            try {
+namespace NETReactorSlayer.Core.Deobfuscators
+{
+    internal class StringDecrypter : IStage
+    {
+        public void Execute()
+        {
+            try
+            {
                 long count;
 
-                try {
-                    if (Find()) {
+                try
+                {
+                    if (Find())
+                    {
                         _decryptedResource = _encryptedResource.Decrypt();
                         count = InlineStringsStatically();
                     } else
@@ -44,7 +50,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
 
                     Cleaner.AddMethodToBeRemoved(_encryptedResource.DecrypterMethod);
                     Cleaner.AddResourceToBeRemoved(_encryptedResource.EmbeddedResource);
-                } catch {
+                } catch
+                {
                     count = InlineStringsDynamically();
                 }
 
@@ -53,7 +60,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
                     Logger.Done(count + " Strings decrypted.");
                 else
                     Logger.Warn("Couldn't find any encrypted string.");
-            } catch (Exception ex) {
+            } catch (Exception ex)
+            {
                 Logger.Error("An unexpected error occurred during decrypting strings.", ex);
             }
 
@@ -62,23 +70,28 @@ namespace NETReactorSlayer.Core.Deobfuscators {
 
         #region Private Methods
 
-        private bool Find() {
+        private bool Find()
+        {
             foreach (var type in Context.Module.GetTypes())
-                try {
+                try
+                {
                     if (type.BaseType != null && type.BaseType.FullName != "System.Object")
                         continue;
                     foreach (var method in from method in type.Methods
                              where method.IsStatic && method.HasBody
                              where DotNetUtils.IsMethod(method, "System.String", "(System.Int32)")
                              where EncryptedResource.IsKnownDecrypter(method, new[] { "System.String" }, true)
-                             select method) {
+                             select method)
+                    {
                         FindKeyIv(method);
 
                         EncryptedResource resource = null;
 
-                        try {
+                        try
+                        {
                             resource = new EncryptedResource(method, new[] { "System.String" });
-                            if (resource.EmbeddedResource != null) {
+                            if (resource.EmbeddedResource != null)
+                            {
                                 if (_decrypterMethods.Any(x => x.Value == resource.EmbeddedResource.Name) ||
                                     _decrypterMethods.Count == 0)
                                     _decrypterMethods.Add(resource.DecrypterMethod, resource.EmbeddedResource.Name);
@@ -99,8 +112,10 @@ namespace NETReactorSlayer.Core.Deobfuscators {
             return _decrypterMethods.Count > 0;
         }
 
-        private void FindKeyIv(MethodDef method) {
-            var requiredTypes = new[] {
+        private void FindKeyIv(MethodDef method)
+        {
+            var requiredTypes = new[]
+            {
                 "System.Byte[]",
                 "System.IO.MemoryStream",
                 "System.Security.Cryptography.CryptoStream"
@@ -110,9 +125,11 @@ namespace NETReactorSlayer.Core.Deobfuscators {
                      where calledMethod.MethodSig.GetRetType().GetFullName() == "System.Byte[]"
                      let localTypes = new LocalTypes(calledMethod)
                      where localTypes.All(requiredTypes)
-                     select calledMethod.Body.Instructions) {
+                     select calledMethod.Body.Instructions)
+            {
                 byte[] newKey = null, newIv = null;
-                for (var i = 0; i < instructions.Count && (newKey == null || newIv == null); i++) {
+                for (var i = 0; i < instructions.Count && (newKey == null || newIv == null); i++)
+                {
                     var instr = instructions[i];
                     if (instr.OpCode.Code != Code.Ldtoken)
                         continue;
@@ -120,7 +137,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
                         continue;
                     if (field.InitialValue == null)
                         continue;
-                    switch (field.InitialValue.Length) {
+                    switch (field.InitialValue.Length)
+                    {
                         case 32:
                             newKey = field.InitialValue;
                             break;
@@ -143,22 +161,27 @@ namespace NETReactorSlayer.Core.Deobfuscators {
             }
         }
 
-        private string Decrypt(int offset) {
-            if (_key == null) {
+        private string Decrypt(int offset)
+        {
+            if (_key == null)
+            {
                 var length = BitConverter.ToInt32(_decryptedResource, offset);
                 return Encoding.Unicode.GetString(_decryptedResource, offset + 4, length);
             }
 
             byte[] encryptedStringData;
-            switch (_stringDecrypterVersion) {
-                case StringDecrypterVersion.V37: {
+            switch (_stringDecrypterVersion)
+            {
+                case StringDecrypterVersion.V37:
+                {
                     var fileOffset = BitConverter.ToInt32(_decryptedResource, offset);
                     var length = BitConverter.ToInt32(Context.ModuleBytes, fileOffset);
                     encryptedStringData = new byte[length];
                     Array.Copy(Context.ModuleBytes, fileOffset + 4, encryptedStringData, 0, length);
                     break;
                 }
-                case StringDecrypterVersion.V38: {
+                case StringDecrypterVersion.V38:
+                {
                     var rva = BitConverter.ToUInt32(_decryptedResource, offset);
                     var length = Context.PeImage.ReadInt32(rva);
                     encryptedStringData = Context.PeImage.ReadBytes(rva + 4, length);
@@ -171,7 +194,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
             return Encoding.Unicode.GetString(DeobUtils.AesDecrypt(encryptedStringData, _key, _iv));
         }
 
-        private long InlineStringsStatically() {
+        private long InlineStringsStatically()
+        {
             bool IsDecrypterMethod(IMDTokenProvider method) => method != null &&
                                                                _decrypterMethods.Any(x =>
                                                                    x.Key.Equals(method) || x.Key.MDToken.ToInt32()
@@ -180,10 +204,12 @@ namespace NETReactorSlayer.Core.Deobfuscators {
             long count = 0;
             foreach (var method in Context.Module.GetTypes().SelectMany(type =>
                          (from x in type.Methods where x.HasBody && x.Body.HasInstructions select x)
-                         .ToArray())) {
+                         .ToArray()))
+            {
                 SimpleDeobfuscator.DeobfuscateBlocks(method);
                 for (var i = 0; i < method.Body.Instructions.Count; i++)
-                    try {
+                    try
+                    {
                         if (!method.Body.Instructions[i].IsLdcI4() ||
                             !method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Call))
                             continue;
@@ -212,7 +238,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
             return count;
         }
 
-        private static long InlineStringsDynamically() {
+        private static long InlineStringsDynamically()
+        {
             if ((Context.ObfuscatorInfo.NativeStub && Context.ObfuscatorInfo.NecroBit) ||
                 !Context.ObfuscatorInfo.UsesReflaction)
                 return 0;
@@ -226,7 +253,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
             foreach (var method in (from x in type.Methods where x.HasBody && x.Body.HasInstructions select x)
                      .ToArray())
                 for (var i = 0; i < method.Body.Instructions.Count; i++)
-                    try {
+                    try
+                    {
                         if (!method.Body.Instructions[i].IsLdcI4() ||
                             !method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Call))
                             continue;
@@ -298,7 +326,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
 
         #region Enums
 
-        private enum StringDecrypterVersion {
+        private enum StringDecrypterVersion
+        {
             V37,
             V38
         }
@@ -307,8 +336,10 @@ namespace NETReactorSlayer.Core.Deobfuscators {
 
         #region Nested Types
 
-        public class StacktracePatcher {
-            public static void Patch() {
+        public class StacktracePatcher
+        {
+            public static void Patch()
+            {
                 harmony = new Harmony(HarmonyId);
                 harmony.PatchAll(Assembly.GetExecutingAssembly());
             }
@@ -319,10 +350,12 @@ namespace NETReactorSlayer.Core.Deobfuscators {
             private static Harmony harmony;
 
             [HarmonyPatch(typeof(StackFrame), "GetMethod")]
-            public class PatchStackTraceGetMethod {
+            public class PatchStackTraceGetMethod
+            {
                 // ReSharper disable once UnusedMember.Global
                 // ReSharper disable once InconsistentNaming
-                public static void Postfix(ref MethodBase __result) {
+                public static void Postfix(ref MethodBase __result)
+                {
                     if (__result.DeclaringType != typeof(RuntimeMethodHandle))
                         return;
                     __result = MethodToReplace ?? MethodBase.GetCurrentMethod();

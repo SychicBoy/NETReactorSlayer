@@ -17,14 +17,19 @@ using System;
 using System.Collections.Generic;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot.Renamer {
-    public abstract class TypeNames {
-        public string Create(TypeSig typeRef) {
+namespace NETReactorSlayer.De4dot.Renamer
+{
+    public abstract class TypeNames
+    {
+        public string Create(TypeSig typeRef)
+        {
             typeRef = typeRef.RemovePinnedAndModifiers();
-            switch (typeRef) {
+            switch (typeRef)
+            {
                 case null:
                     return UnknownNameCreator.Create();
-                case GenericInstSig gis: {
+                case GenericInstSig gis:
+                {
                     if (gis.FullName == "System.Nullable`1" &&
                         gis.GenericArguments.Count == 1 && gis.GenericArguments[0] != null)
                         typeRef = gis.GenericArguments[0];
@@ -59,8 +64,10 @@ namespace NETReactorSlayer.De4dot.Renamer {
             return AddTypeName(typeFullName, shortName, prefix).Create();
         }
 
-        private static bool IsFnPtrSig(TypeSig sig) {
-            while (sig != null) {
+        private static bool IsFnPtrSig(TypeSig sig)
+        {
+            while (sig != null)
+            {
                 if (sig is FnPtrSig)
                     return true;
                 sig = sig.Next;
@@ -69,16 +76,19 @@ namespace NETReactorSlayer.De4dot.Renamer {
             return false;
         }
 
-        private static bool IsGenericParam(IIsTypeOrMethod isTypeOrMethod) {
+        private static bool IsGenericParam(IIsTypeOrMethod isTypeOrMethod)
+        {
             if (isTypeOrMethod is not TypeSpec ts)
                 return false;
             var sig = ts.TypeSig.RemovePinnedAndModifiers();
             return sig is GenericSig;
         }
 
-        private static string GetPrefix(TypeSig typeRef) {
+        private static string GetPrefix(TypeSig typeRef)
+        {
             var prefix = "";
-            while (typeRef != null) {
+            while (typeRef != null)
+            {
                 if (typeRef.IsPointer)
                     prefix += "p";
                 typeRef = typeRef.Next;
@@ -87,7 +97,8 @@ namespace NETReactorSlayer.De4dot.Renamer {
             return prefix;
         }
 
-        protected INameCreator AddTypeName(string fullName, string newName, string prefix) {
+        protected INameCreator AddTypeName(string fullName, string newName, string prefix)
+        {
             newName = FixName(prefix, newName);
 
             var name2 = " " + newName;
@@ -100,7 +111,8 @@ namespace NETReactorSlayer.De4dot.Renamer {
 
         protected abstract string FixName(string prefix, string name);
 
-        public virtual TypeNames Merge(TypeNames other) {
+        public virtual TypeNames Merge(TypeNames other)
+        {
             if (this == other)
                 return this;
             foreach (var pair in other.TypeNamesDict)
@@ -114,7 +126,8 @@ namespace NETReactorSlayer.De4dot.Renamer {
             return this;
         }
 
-        protected static string UpperFirst(string s) {
+        protected static string UpperFirst(string s)
+        {
             if (string.IsNullOrEmpty(s))
                 return string.Empty;
             return s.Substring(0, 1).ToUpperInvariant() + s.Substring(1);

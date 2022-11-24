@@ -17,12 +17,15 @@ using System.Collections.Generic;
 using System.Linq;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
-    public class MEventDef : Ref {
+namespace NETReactorSlayer.De4dot.Renamer.AsmModules
+{
+    public class MEventDef : Ref
+    {
         public MEventDef(IMemberRef memberRef, MTypeDef owner, int index)
             : base(memberRef, owner, index) { }
 
-        public IEnumerable<MethodDef> MethodDefs() {
+        public IEnumerable<MethodDef> MethodDefs()
+        {
             if (EventDef.AddMethod != null)
                 yield return EventDef.AddMethod;
             if (EventDef.RemoveMethod != null)

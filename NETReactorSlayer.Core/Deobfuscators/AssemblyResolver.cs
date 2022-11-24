@@ -21,9 +21,12 @@ using de4dot.blocks;
 using dnlib.DotNet;
 using NETReactorSlayer.Core.Helper;
 
-namespace NETReactorSlayer.Core.Deobfuscators {
-    internal class AssemblyResolver : IStage {
-        public void Execute() {
+namespace NETReactorSlayer.Core.Deobfuscators
+{
+    internal class AssemblyResolver : IStage
+    {
+        public void Execute()
+        {
             long count = 0;
             FindRequirements();
             if (_resolverMethod == null || _initialMethod == null || _resolverType == null)
@@ -36,11 +39,13 @@ namespace NETReactorSlayer.Core.Deobfuscators {
                 return;
 
             Cleaner.AddCallToBeRemoved(_initialMethod);
-            foreach (var asm in assemblies) {
+            foreach (var asm in assemblies)
+            {
                 Cleaner.AddResourceToBeRemoved(asm);
                 count++;
                 var name = GetAssemblyName(asm, false) + ".dll";
-                try {
+                try
+                {
                     File.WriteAllBytes(Context.Options.SourceDir + "\\" + name, asm.CreateReader().ToArray());
                 } catch { }
             }
@@ -50,7 +55,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
 
         #region Private Methods
 
-        private void FindRequirements() {
+        private void FindRequirements()
+        {
             foreach (var type in from x in Context.Module.GetTypes()
                      where x.HasFields && !x.HasNestedTypes && !x.HasEvents && !x.HasProperties
                      select x)
@@ -59,7 +65,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
                            DotNetUtils.IsMethod(x, "System.Void", "()") && x.DeclaringType != null
                      select x)
             foreach (var instr in method.Body.Instructions)
-                try {
+                try
+                {
                     if (instr.Operand == null || !instr.Operand.ToString()!.Contains("add_AssemblyResolve"))
                         continue;
                     if (!CheckFields(method.DeclaringType.Fields))
@@ -76,13 +83,15 @@ namespace NETReactorSlayer.Core.Deobfuscators {
                 } catch { }
         }
 
-        private static bool FindResolverMethod(TypeDef type, out MethodDef method) {
+        private static bool FindResolverMethod(TypeDef type, out MethodDef method)
+        {
             method = null;
             foreach (var methodDef in type.Methods.ToArray().Where(methodDef =>
                          DotNetUtils.IsMethod(methodDef, "System.Reflection.Assembly",
                              "(System.Object,System.Object)") ||
                          DotNetUtils.IsMethod(methodDef, "System.Reflection.Assembly",
-                             "(System.Object,System.ResolveEventArgs)"))) {
+                             "(System.Object,System.ResolveEventArgs)")))
+            {
                 method = methodDef;
                 return true;
             }
@@ -90,7 +99,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
             return false;
         }
 
-        private static bool CheckFields(ICollection<FieldDef> fields) {
+        private static bool CheckFields(ICollection<FieldDef> fields)
+        {
             if (fields.Count != 2 && fields.Count != 3 && fields.Count != 4)
                 return false;
             var fieldTypes = new FieldTypes(fields);
@@ -102,11 +112,13 @@ namespace NETReactorSlayer.Core.Deobfuscators {
                                          fieldTypes.Count("System.Object") == 1);
         }
 
-        private static IEnumerable<EmbeddedResource> GetAssemblies(string prefix) {
+        private static IEnumerable<EmbeddedResource> GetAssemblies(string prefix)
+        {
             var result = new List<EmbeddedResource>();
             if (string.IsNullOrEmpty(prefix))
                 return null;
-            foreach (var rsrc in Context.Module.Resources) {
+            foreach (var rsrc in Context.Module.Resources)
+            {
                 if (rsrc is not EmbeddedResource resource)
                     continue;
                 if (StartsWith(resource.Name.String, prefix, StringComparison.Ordinal))
@@ -116,13 +128,16 @@ namespace NETReactorSlayer.Core.Deobfuscators {
             return result;
         }
 
-        private static string GetAssemblyName(EmbeddedResource resource, bool fullName) {
-            try {
+        private static string GetAssemblyName(EmbeddedResource resource, bool fullName)
+        {
+            try
+            {
                 using var module = ModuleDefMD.Load(resource.CreateReader().ToArray());
                 if (fullName)
                     return module.Assembly.FullName;
                 return module.Assembly.Name;
-            } catch {
+            } catch
+            {
                 return null;
             }
         }
@@ -135,7 +150,8 @@ namespace NETReactorSlayer.Core.Deobfuscators {
 
         #region Fields
 
-        private readonly string[] _locals1 = {
+        private readonly string[] _locals1 =
+        {
             "System.Byte[]", "System.Reflection.Assembly", "System.String", "System.IO.BinaryReader", "System.IO.Stream"
         };
 

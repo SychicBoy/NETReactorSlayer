@@ -18,8 +18,10 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace NETReactorSlayer.GUI.UserControls {
-    public partial class NrsButton : Button {
+namespace NETReactorSlayer.GUI.UserControls
+{
+    public partial class NrsButton : Button
+    {
         public NrsButton() => InitializeComponent();
 
         [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
@@ -34,19 +36,24 @@ namespace NETReactorSlayer.GUI.UserControls {
         private string _text;
         private TextTransformEnum _transform;
 
-        public int BorderRadius {
+        public int BorderRadius
+        {
             get => _borderRadius;
-            set {
+            set
+            {
                 _borderRadius = value;
                 Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, _borderRadius, 20));
             }
         }
 
-        public new string Text {
+        public new string Text
+        {
             get => _text;
-            set {
+            set
+            {
                 _text = value;
-                switch (TextTransform) {
+                switch (TextTransform)
+                {
                     case TextTransformEnum.Upper:
                         base.Text = Text.ToUpper();
                         break;
@@ -60,11 +67,14 @@ namespace NETReactorSlayer.GUI.UserControls {
             }
         }
 
-        public TextTransformEnum TextTransform {
+        public TextTransformEnum TextTransform
+        {
             get => _transform;
-            set {
+            set
+            {
                 _transform = value;
-                switch (value) {
+                switch (value)
+                {
                     case TextTransformEnum.Upper:
                         base.Text = Text.ToUpper();
                         break;
@@ -78,7 +88,8 @@ namespace NETReactorSlayer.GUI.UserControls {
             }
         }
 
-        public enum TextTransformEnum {
+        public enum TextTransformEnum
+        {
             None,
             Upper,
             Lower

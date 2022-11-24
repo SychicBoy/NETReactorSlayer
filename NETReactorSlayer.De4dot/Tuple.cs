@@ -13,14 +13,18 @@
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace NETReactorSlayer.De4dot {
-    public class Tuple<T1, T2> {
-        public Tuple(T1 item1, T2 item2) {
+namespace NETReactorSlayer.De4dot
+{
+    public class Tuple<T1, T2>
+    {
+        public Tuple(T1 item1, T2 item2)
+        {
             Item1 = item1;
             Item2 = item2;
         }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             if (obj is not Tuple<T1, T2> other)
                 return false;
             return Item1.Equals(other.Item1) && Item2.Equals(other.Item2);

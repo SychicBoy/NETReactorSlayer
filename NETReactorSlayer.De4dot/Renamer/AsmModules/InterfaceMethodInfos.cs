@@ -17,10 +17,14 @@ using System;
 using System.Collections.Generic;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
-    public class InterfaceMethodInfos {
-        public void InitializeFrom(InterfaceMethodInfos other, GenericInstSig git) {
-            foreach (var pair in other._interfaceMethods) {
+namespace NETReactorSlayer.De4dot.Renamer.AsmModules
+{
+    public class InterfaceMethodInfos
+    {
+        public void InitializeFrom(InterfaceMethodInfos other, GenericInstSig git)
+        {
+            foreach (var pair in other._interfaceMethods)
+            {
                 var oldTypeInfo = pair.Value.Face;
                 var newTypeInfo = new TypeInfo(oldTypeInfo, git);
                 var oldKey = oldTypeInfo.TypeRef;
@@ -33,7 +37,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
             }
         }
 
-        public void AddInterface(TypeInfo iface) {
+        public void AddInterface(TypeInfo iface)
+        {
             var key = iface.TypeRef;
             if (!_interfaceMethods.ContainsKey(key))
                 _interfaceMethods[key] = new InterfaceMethodInfo(iface);
@@ -42,13 +47,15 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
         public MMethodDef AddMethod(TypeInfo iface, MMethodDef ifaceMethod, MMethodDef classMethod) =>
             AddMethod(iface.TypeRef, ifaceMethod, classMethod);
 
-        public MMethodDef AddMethod(ITypeDefOrRef iface, MMethodDef ifaceMethod, MMethodDef classMethod) {
+        public MMethodDef AddMethod(ITypeDefOrRef iface, MMethodDef ifaceMethod, MMethodDef classMethod)
+        {
             if (!_interfaceMethods.TryGetValue(iface, out var info))
                 throw new ApplicationException("Could not find interface");
             return info.AddMethod(ifaceMethod, classMethod);
         }
 
-        public void AddMethodIfEmpty(TypeInfo iface, MMethodDef ifaceMethod, MMethodDef classMethod) {
+        public void AddMethodIfEmpty(TypeInfo iface, MMethodDef ifaceMethod, MMethodDef classMethod)
+        {
             if (!_interfaceMethods.TryGetValue(iface.TypeRef, out var info))
                 throw new ApplicationException("Could not find interface");
             info.AddMethodIfEmpty(ifaceMethod, classMethod);

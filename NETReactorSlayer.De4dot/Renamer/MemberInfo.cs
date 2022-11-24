@@ -15,16 +15,20 @@
 
 using NETReactorSlayer.De4dot.Renamer.AsmModules;
 
-namespace NETReactorSlayer.De4dot.Renamer {
-    public class MemberInfo {
-        public MemberInfo(Ref memberRef) {
+namespace NETReactorSlayer.De4dot.Renamer
+{
+    public class MemberInfo
+    {
+        public MemberInfo(Ref memberRef)
+        {
             MemberRef = memberRef;
             OldFullName = memberRef.MemberRef.FullName;
             OldName = memberRef.MemberRef.Name.String;
             NewName = memberRef.MemberRef.Name.String;
         }
 
-        public void Rename(string newTypeName) {
+        public void Rename(string newTypeName)
+        {
             Renamed = true;
             NewName = newTypeName;
         }

@@ -16,10 +16,13 @@
 using System.Text.RegularExpressions;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot {
-    internal sealed class Deobfuscator : DeobfuscatorBase {
+namespace NETReactorSlayer.De4dot
+{
+    internal sealed class Deobfuscator : DeobfuscatorBase
+    {
         public Deobfuscator(ModuleDefMD module, Options options)
-            : base(module, options) {
+            : base(module, options)
+        {
             if (options.RemoveNamespaces)
                 RenamingOptions |= RenamingOptions.RemoveNamespaceIfOneType;
             else
@@ -28,7 +31,8 @@ namespace NETReactorSlayer.De4dot {
                 options.ValidNameRegex.Regexes.Insert(0, new NameRegex(DeobfuscatorInfo.ShortNameRegex));
         }
 
-        private bool CheckValidName(string name, Regex regex) {
+        private bool CheckValidName(string name, Regex regex)
+        {
             if (IsRandomName.IsMatch(name))
                 return false;
             if (!regex.IsMatch(name))
@@ -38,7 +42,8 @@ namespace NETReactorSlayer.De4dot {
             return RandomNameChecker.IsNonRandom(name) && CheckValidName(name);
         }
 
-        public override bool IsValidNamespaceName(string ns) {
+        public override bool IsValidNamespaceName(string ns)
+        {
             if (ns == null)
                 return false;
             return ns.Contains(".") ? base.IsValidNamespaceName(ns) : CheckValidName(ns, IsRandomNameTypes);
@@ -74,7 +79,8 @@ namespace NETReactorSlayer.De4dot {
 
         public override string Name => DeobfuscatorInfo.TheName;
 
-        internal class Options : OptionsBase {
+        internal class Options : OptionsBase
+        {
             public bool RemoveNamespaces { get; set; }
             public bool RenameShort { get; set; }
             public bool RestoreTypes { get; set; }

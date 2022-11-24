@@ -20,13 +20,18 @@ using NETReactorSlayer.Core.Deobfuscators;
 using NETReactorSlayer.De4dot.Renamer;
 using MemberInfo = System.Reflection.MemberInfo;
 
-namespace NETReactorSlayer.Core {
-    public class Options {
-        public Options(IReadOnlyList<string> args) {
+namespace NETReactorSlayer.Core
+{
+    public class Options
+    {
+        public Options(IReadOnlyList<string> args)
+        {
             var path = string.Empty;
-            for (var i = 0; i < args.Count; i++) {
+            for (var i = 0; i < args.Count; i++)
+            {
                 var key = args[i];
-                if (File.Exists(key)) {
+                if (File.Exists(key))
+                {
                     path = key;
                     continue;
                 }
@@ -34,10 +39,12 @@ namespace NETReactorSlayer.Core {
                 if (args.Count < i + 2)
                     break;
                 var value = args[i + 1];
-                if (bool.TryParse(value, out var flag)) {
+                if (bool.TryParse(value, out var flag))
+                {
                     i++;
                     if (!flag)
-                        switch (key) {
+                        switch (key)
+                        {
                             case "--dec-methods":
                                 RemoveStage(typeof(MethodDecrypter));
                                 MethodDecrypter = false;
@@ -94,7 +101,8 @@ namespace NETReactorSlayer.Core {
                                 continue;
                         }
 
-                    switch (key) {
+                    switch (key)
+                    {
                         case "--keep-types":
                             KeepObfuscatorTypes = flag;
                             break;
@@ -113,16 +121,19 @@ namespace NETReactorSlayer.Core {
                     }
                 }
 
-                switch (key) {
+                switch (key)
+                {
                     case "--dont-rename":
                         Rename = false;
                         RemoveStage(typeof(SymbolRenamer));
                         break;
-                    case "--rename": {
+                    case "--rename":
+                    {
                         var chars = value.ToCharArray();
                         RenamerFlags = RenamerFlags.RenameMethodArgs | RenamerFlags.RenameGenericParams;
                         foreach (var @char in chars)
-                            switch (@char) {
+                            switch (@char)
+                            {
                                 case 'n':
                                     RenamerFlags |= RenamerFlags.RenameNamespaces;
                                     break;
@@ -201,7 +212,8 @@ namespace NETReactorSlayer.Core {
         public string SourceFileName;
         public string SourcePath;
 
-        public readonly List<IStage> Stages = new() {
+        public readonly List<IStage> Stages = new()
+        {
             new MethodDecrypter(),
             new ControlFlowDeobfuscator(),
             new AntiManipulationPatcher(),

@@ -19,9 +19,12 @@ using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
-namespace NETReactorSlayer.De4dot {
-    public abstract class TypesRestorerBase {
-        public void Deobfuscate() {
+namespace NETReactorSlayer.De4dot
+{
+    public abstract class TypesRestorerBase
+    {
+        public void Deobfuscate()
+        {
             _allMethods = new List<MethodDef>();
 
             AddAllMethods();
@@ -33,14 +36,17 @@ namespace NETReactorSlayer.De4dot {
 
         protected TypesRestorerBase(ModuleDef module) => _module = module;
 
-        protected virtual bool IsValidType(IGenericParameterProvider provider, TypeSig type) {
+        protected virtual bool IsValidType(IGenericParameterProvider provider, TypeSig type)
+        {
             if (type == null)
                 return false;
             if (type.ElementType == ElementType.Void)
                 return false;
 
-            while (type != null) {
-                switch (type.ElementType) {
+            while (type != null)
+            {
+                switch (type.ElementType)
+                {
                     case ElementType.GenericInst:
                         if (((GenericInstSig)type).GenericArguments.Any(ga => !IsValidType(provider, ga)))
                             return false;
@@ -104,25 +110,30 @@ namespace NETReactorSlayer.De4dot {
 
         #region Private Methods
 
-        private UpdatedMethod GetUpdatedMethod(IMethod method) {
+        private UpdatedMethod GetUpdatedMethod(IMethod method)
+        {
             var token = method.MDToken.ToInt32();
             if (_updatedMethods.TryGetValue(token, out var updatedMethod))
                 return updatedMethod;
             return _updatedMethods[token] = new UpdatedMethod(method);
         }
 
-        private void AddAllMethods() {
+        private void AddAllMethods()
+        {
             foreach (var type in _module.GetTypes())
                 AddMethods(type.Methods);
         }
 
-        private void AddAllFields() {
+        private void AddAllFields()
+        {
             foreach (var field in _module.GetTypes().SelectMany(type => type.Fields.Where(IsUnknownType)))
                 _fieldWrites[field] = new TypeInfo<FieldDef>(field);
         }
 
-        private void DeobfuscateLoop() {
-            for (var i = 0; i < 10; i++) {
+        private void DeobfuscateLoop()
+        {
+            for (var i = 0; i < 10; i++)
+            {
                 var modified = false;
                 modified |= DeobfuscateFields();
                 modified |= DeobfuscateMethods();
@@ -131,11 +142,13 @@ namespace NETReactorSlayer.De4dot {
             }
         }
 
-        private bool DeobfuscateMethods() {
+        private bool DeobfuscateMethods()
+        {
             var modified = false;
             var methods = new List<MethodDef>();
 
-            foreach (var method in _allMethods) {
+            foreach (var method in _allMethods)
+            {
                 _methodReturnInfo = new TypeInfo<Parameter>(method.Parameters.ReturnParameter);
                 DeobfuscateMethod(method);
                 if (!_methodReturnInfo.CanUpdateType(_module) &&
@@ -147,7 +160,8 @@ namespace NETReactorSlayer.De4dot {
 
             foreach (var instr in _allMethods.Where(x => x.HasBody && x.Body.HasInstructions)
                          .SelectMany(method => method.Body.Instructions.Where(x => x.Operand != null)))
-                try {
+                try
+                {
                     if (instr.Operand is not IMethod calledMethod)
                         continue;
                     var methodDef = methods
@@ -158,13 +172,15 @@ namespace NETReactorSlayer.De4dot {
                     instr.Operand = methodDef;
                 } catch { }
 
-            foreach (var method in methods) {
+            foreach (var method in methods)
+            {
                 _methodReturnInfo = new TypeInfo<Parameter>(method.Parameters.ReturnParameter);
                 DeobfuscateMethod(method);
                 if (_methodReturnInfo.UpdateNewType(_module))
                     method.MethodSig.RetType = _methodReturnInfo.NewType;
 
-                foreach (var info in _argInfos.Values.Where(x => x.UpdateNewType(_module))) {
+                foreach (var info in _argInfos.Values.Where(x => x.UpdateNewType(_module)))
+                {
                     GetUpdatedMethod(method).NewArgTypes[info.Arg.Index] = info.NewType;
                     info.Arg.Type = info.NewType;
                 }
@@ -173,20 +189,24 @@ namespace NETReactorSlayer.De4dot {
             return modified;
         }
 
-        private bool DeobfuscateFields() {
+        private bool DeobfuscateFields()
+        {
             foreach (var info in _fieldWrites.Values)
                 info.Clear();
 
-            foreach (var method in _allMethods) {
+            foreach (var method in _allMethods)
+            {
                 if (method.Body == null)
                     continue;
                 var instructions = method.Body.Instructions;
-                for (var i = 0; i < instructions.Count; i++) {
+                for (var i = 0; i < instructions.Count; i++)
+                {
                     var instr = instructions[i];
                     TypeSig fieldType;
                     TypeInfo<FieldDef> info;
                     IField field;
-                    switch (instr.OpCode.Code) {
+                    switch (instr.OpCode.Code)
+                    {
                         case Code.Stfld:
                         case Code.Stsfld:
                             field = instr.Operand as IField;
@@ -219,7 +239,8 @@ namespace NETReactorSlayer.De4dot {
                             calledMethodArgs = DotNetUtils.ReplaceGenericParameters(
                                 calledMethodDefOrRef.DeclaringType.TryGetGenericInstSig(), calledMethodSpec,
                                 calledMethodArgs);
-                            for (var j = 0; j < pushedArgs.NumValidArgs; j++) {
+                            for (var j = 0; j < pushedArgs.NumValidArgs; j++)
+                            {
                                 var pushInstr = pushedArgs.GetEnd(j);
                                 if (pushInstr.OpCode.Code != Code.Ldfld && pushInstr.OpCode.Code != Code.Ldsfld)
                                     continue;
@@ -245,7 +266,8 @@ namespace NETReactorSlayer.De4dot {
 
             var modified = false;
             var removeThese = new List<FieldDef>();
-            foreach (var info in _fieldWrites.Values.Where(info => info.UpdateNewType(_module))) {
+            foreach (var info in _fieldWrites.Values.Where(info => info.UpdateNewType(_module)))
+            {
                 removeThese.Add(info.Arg);
                 info.Arg.FieldSig.Type = info.NewType;
                 modified = true;
@@ -256,7 +278,8 @@ namespace NETReactorSlayer.De4dot {
             return modified;
         }
 
-        private void DeobfuscateMethod(MethodDef method) {
+        private void DeobfuscateMethod(MethodDef method)
+        {
             if (!method.IsStatic || method.Body == null)
                 return;
 
@@ -271,10 +294,12 @@ namespace NETReactorSlayer.De4dot {
 
             var methodParams = method.Parameters;
             var instructions = method.Body.Instructions;
-            for (var i = 0; i < instructions.Count; i++) {
+            for (var i = 0; i < instructions.Count; i++)
+            {
                 var instr = instructions[i];
                 PushedArgs pushedArgs;
-                switch (instr.OpCode.Code) {
+                switch (instr.OpCode.Code)
+                {
                     case Code.Ret:
                         if (!fixReturnType)
                             break;
@@ -292,10 +317,12 @@ namespace NETReactorSlayer.De4dot {
                         if (instr.Operand is not IMethod calledMethod)
                             break;
                         var calledMethodParams = DotNetUtils.GetArgs(calledMethod);
-                        for (var j = 0; j < pushedArgs.NumValidArgs; j++) {
+                        for (var j = 0; j < pushedArgs.NumValidArgs; j++)
+                        {
                             var calledMethodParamIndex = calledMethodParams.Count - j - 1;
                             var ldInstr = pushedArgs.GetEnd(j);
-                            switch (ldInstr.OpCode.Code) {
+                            switch (ldInstr.OpCode.Code)
+                            {
                                 case Code.Ldarg:
                                 case Code.Ldarg_S:
                                 case Code.Ldarg_0:
@@ -341,7 +368,8 @@ namespace NETReactorSlayer.De4dot {
 
                     case Code.Stfld:
                         pushedArgs = MethodStack.GetPushedArgInstructions(instructions, i);
-                        if (pushedArgs.NumValidArgs >= 1) {
+                        if (pushedArgs.NumValidArgs >= 1)
+                        {
                             var field = instr.Operand as IField;
                             AddMethodArgType(method, GetParameter(methodParams, pushedArgs.GetEnd(0)), field);
                             if (pushedArgs.NumValidArgs >= 2 && field != null)
@@ -419,13 +447,15 @@ namespace NETReactorSlayer.De4dot {
 
         private void AddMethods(IEnumerable<MethodDef> methods) => _allMethods.AddRange(methods);
 
-        private void AddMethodArgType(IGenericParameterProvider provider, Parameter methodParam, IField field) {
+        private void AddMethodArgType(IGenericParameterProvider provider, Parameter methodParam, IField field)
+        {
             if (field == null)
                 return;
             AddMethodArgType(provider, methodParam, field.FieldSig.GetFieldType());
         }
 
-        private void AddMethodArgType(IGenericParameterProvider provider, Parameter methodParam, IVariable variable) {
+        private void AddMethodArgType(IGenericParameterProvider provider, Parameter methodParam, IVariable variable)
+        {
             if (variable == null)
                 return;
             AddMethodArgType(provider, methodParam, variable.Type);
@@ -434,7 +464,8 @@ namespace NETReactorSlayer.De4dot {
         private void AddMethodArgType(IGenericParameterProvider provider, Parameter methodParam, ITypeDefOrRef type) =>
             AddMethodArgType(provider, methodParam, type.ToTypeSig());
 
-        private void AddMethodArgType(IGenericParameterProvider provider, Parameter methodParam, TypeSig type) {
+        private void AddMethodArgType(IGenericParameterProvider provider, Parameter methodParam, TypeSig type)
+        {
             if (methodParam == null || type == null)
                 return;
 
@@ -449,8 +480,10 @@ namespace NETReactorSlayer.De4dot {
             info.Add(type);
         }
 
-        private static Parameter GetParameter(IList<Parameter> parameters, Instruction instr) {
-            switch (instr.OpCode.Code) {
+        private static Parameter GetParameter(IList<Parameter> parameters, Instruction instr)
+        {
+            switch (instr.OpCode.Code)
+            {
                 case Code.Ldarg:
                 case Code.Ldarg_S:
                 case Code.Ldarg_0:
@@ -466,14 +499,16 @@ namespace NETReactorSlayer.De4dot {
 
         private TypeSig GetLoadedType(IGenericParameterProvider provider, MethodDef method,
             IList<Instruction> instructions,
-            int instrIndex, out bool wasNewobj) {
+            int instrIndex, out bool wasNewobj)
+        {
             var fieldType = MethodStack.GetLoadedType(method, instructions, instrIndex, out wasNewobj);
             if (fieldType == null || !IsValidType(provider, fieldType))
                 return null;
             return fieldType;
         }
 
-        private static TypeSig GetCommonBaseClass(ModuleDef module, TypeSig typeSig1, TypeSig typeSig2) {
+        private static TypeSig GetCommonBaseClass(ModuleDef module, TypeSig typeSig1, TypeSig typeSig2)
+        {
             if (DotNetUtils.IsDelegate(typeSig1) &&
                 DotNetUtils.DerivesFromDelegate(module.Find(typeSig2.ToTypeDefOrRef())))
                 return typeSig2;
@@ -501,19 +536,23 @@ namespace NETReactorSlayer.De4dot {
 
         #region Nested Types
 
-        private class UpdatedMethod {
+        private class UpdatedMethod
+        {
             public UpdatedMethod(IMethod method) => NewArgTypes = new TypeSig[DotNetUtils.GetArgsCount(method)];
 
             public readonly TypeSig[] NewArgTypes;
         }
 
-        private class TypeInfo<T> {
+        private class TypeInfo<T>
+        {
             public TypeInfo(T arg) => Arg = arg;
 
             public void Add(TypeSig type) => Add(type, false);
 
-            public void Add(TypeSig type, bool wasNewobj) {
-                if (wasNewobj) {
+            public void Add(TypeSig type, bool wasNewobj)
+            {
+                if (wasNewobj)
+                {
                     if (!_newobjTypes)
                         Clear();
                     _newobjTypes = true;
@@ -525,13 +564,16 @@ namespace NETReactorSlayer.De4dot {
 
             public void Clear() => Types.Clear();
 
-            public bool CanUpdateType(ModuleDef module) {
+            public bool CanUpdateType(ModuleDef module)
+            {
                 if (Types.Count == 0)
                     return false;
 
                 TypeSig theNewType = null;
-                foreach (var key in Types.Keys) {
-                    if (theNewType == null) {
+                foreach (var key in Types.Keys)
+                {
+                    if (theNewType == null)
+                    {
                         theNewType = key;
                         continue;
                     }
@@ -546,13 +588,16 @@ namespace NETReactorSlayer.De4dot {
                 return !new SigComparer().Equals(theNewType, NewType);
             }
 
-            public bool UpdateNewType(ModuleDef module) {
+            public bool UpdateNewType(ModuleDef module)
+            {
                 if (Types.Count == 0)
                     return false;
 
                 TypeSig theNewType = null;
-                foreach (var key in Types.Keys) {
-                    if (theNewType == null) {
+                foreach (var key in Types.Keys)
+                {
+                    if (theNewType == null)
+                    {
                         theNewType = key;
                         continue;
                     }

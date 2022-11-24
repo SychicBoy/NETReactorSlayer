@@ -15,8 +15,10 @@
 
 using System;
 
-namespace NETReactorSlayer.CLI {
-    internal class Program {
+namespace NETReactorSlayer.CLI
+{
+    internal class Program
+    {
         [STAThread]
         private static void Main(string[] args) => Core.Program.Main(args);
     }

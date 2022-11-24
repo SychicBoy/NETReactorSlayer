@@ -16,8 +16,10 @@
 using System.Collections.Generic;
 using NETReactorSlayer.De4dot.Renamer.AsmModules;
 
-namespace NETReactorSlayer.De4dot.Renamer {
-    public class MemberInfos {
+namespace NETReactorSlayer.De4dot.Renamer
+{
+    public class MemberInfos
+    {
         public MemberInfos() => _checkWinFormsClass = new DerivedFrom(WinformsClasses);
 
         public bool IsWinFormsClass(MTypeDef type) => _checkWinFormsClass.Check(type);
@@ -46,8 +48,10 @@ namespace NETReactorSlayer.De4dot.Renamer {
 
         public void Add(MEventDef evt) => _allEventInfos[evt] = new EventInfo(evt);
 
-        public void Initialize(Modules modules) {
-            foreach (var type in modules.AllTypes) {
+        public void Initialize(Modules modules)
+        {
+            foreach (var type in modules.AllTypes)
+            {
                 _allTypeInfos[type] = new TypeInfo(type, this);
 
                 foreach (var gp in type.GenericParams)
@@ -62,7 +66,8 @@ namespace NETReactorSlayer.De4dot.Renamer {
                 foreach (var prop in type.AllProperties)
                     Add(prop);
 
-                foreach (var method in type.AllMethods) {
+                foreach (var method in type.AllMethods)
+                {
                     _allMethodInfos[method] = new MethodInfo(method);
                     foreach (var gp in method.GenericParams)
                         _allGenericParamInfos[gp] = new GenericParamInfo(gp);
@@ -85,7 +90,8 @@ namespace NETReactorSlayer.De4dot.Renamer {
         private readonly Dictionary<MTypeDef, TypeInfo> _allTypeInfos = new();
         private readonly DerivedFrom _checkWinFormsClass;
 
-        private static readonly string[] WinformsClasses = {
+        private static readonly string[] WinformsClasses =
+        {
             #region Win Forms class names
 
             "System.Windows.Forms.Control",

@@ -20,17 +20,21 @@ using dnlib.DotNet.MD;
 using dnlib.IO;
 using dnlib.PE;
 
-namespace NETReactorSlayer.Core.Helper {
-    public sealed class MyPeImage : IDisposable {
+namespace NETReactorSlayer.Core.Helper
+{
+    public sealed class MyPeImage : IDisposable
+    {
         public MyPeImage(IPEImage peImage) => Initialize(peImage);
 
-        public MyPeImage(byte[] peImageData) {
+        public MyPeImage(byte[] peImageData)
+        {
             _ownPeImage = true;
             PeImageData = peImageData;
             Initialize(new PEImage(peImageData));
         }
 
-        private void Initialize(IPEImage peImage) {
+        private void Initialize(IPEImage peImage)
+        {
             PeImage = peImage;
             Reader = peImage.CreateReader();
         }
@@ -40,7 +44,8 @@ namespace NETReactorSlayer.Core.Helper {
                 section.VirtualAddress <= rva &&
                 rva < section.VirtualAddress + Math.Max(section.VirtualSize, section.SizeOfRawData));
 
-        public void ReadMethodTableRowTo(DumpedMethod dm, uint rid) {
+        public void ReadMethodTableRowTo(DumpedMethod dm, uint rid)
+        {
             dm.token = 0x06000000 + rid;
             if (!Metadata.TablesStream.TryReadMethodRow(rid, out var row))
                 throw new ArgumentException("Invalid Method rid");
@@ -52,7 +57,8 @@ namespace NETReactorSlayer.Core.Helper {
             dm.mdParamList = row.ParamList;
         }
 
-        public void UpdateMethodHeaderInfo(DumpedMethod dm, MethodBodyHeader mbHeader) {
+        public void UpdateMethodHeaderInfo(DumpedMethod dm, MethodBodyHeader mbHeader)
+        {
             dm.mhFlags = mbHeader.Flags;
             dm.mhMaxStack = mbHeader.MaxStack;
             dm.mhCodeSize = dm.code == null ? 0 : (uint)dm.code.Length;
@@ -71,17 +77,20 @@ namespace NETReactorSlayer.Core.Helper {
 
         public int ReadInt32(uint rva) => (int)OffsetReadUInt32(RvaToOffset(rva));
 
-        public uint OffsetReadUInt32(uint offset) {
+        public uint OffsetReadUInt32(uint offset)
+        {
             Reader.Position = offset;
             return Reader.ReadUInt32();
         }
 
-        public byte OffsetReadByte(uint offset) {
+        public byte OffsetReadByte(uint offset)
+        {
             Reader.Position = offset;
             return Reader.ReadByte();
         }
 
-        public byte[] OffsetReadBytes(uint offset, int size) {
+        public byte[] OffsetReadBytes(uint offset, int size)
+        {
             Reader.Position = offset;
             return Reader.ReadBytes(size);
         }
@@ -94,8 +103,10 @@ namespace NETReactorSlayer.Core.Helper {
         private static bool Intersect(uint offset, uint length, IFileSection location) => Intersect(offset, length,
             (uint)location.StartOffset, location.EndOffset - location.StartOffset);
 
-        public bool DotNetSafeWriteOffset(uint offset, byte[] data) {
-            if (Metadata != null) {
+        public bool DotNetSafeWriteOffset(uint offset, byte[] data)
+        {
+            if (Metadata != null)
+            {
                 var length = (uint)data.Length;
 
                 if (!IsInside(_dotNetSection, offset, length))
@@ -113,8 +124,10 @@ namespace NETReactorSlayer.Core.Helper {
         public bool DotNetSafeWrite(uint rva, byte[] data) =>
             DotNetSafeWriteOffset((uint)PeImage.ToFileOffset((RVA)rva), data);
 
-        public void Dispose() {
-            if (_ownPeImage) {
+        public void Dispose()
+        {
+            if (_ownPeImage)
+            {
                 _metadata?.Dispose();
                 PeImage?.Dispose();
             }
@@ -133,8 +146,10 @@ namespace NETReactorSlayer.Core.Helper {
 
         public DataReader Reader;
 
-        public Metadata Metadata {
-            get {
+        public Metadata Metadata
+        {
+            get
+            {
                 if (_dnFileInitialized)
                     return _metadata;
                 _dnFileInitialized = true;

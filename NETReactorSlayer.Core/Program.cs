@@ -23,9 +23,12 @@ using System.Threading;
 using NETReactorSlayer.Core.Deobfuscators;
 using NETReactorSlayer.Core.Helper;
 
-namespace NETReactorSlayer.Core {
-    public class Program {
-        public static void Main(string[] args) {
+namespace NETReactorSlayer.Core
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
             if (!CheckArguments(args))
                 return;
 
@@ -33,13 +36,15 @@ namespace NETReactorSlayer.Core {
             Console.OutputEncoding = Encoding.UTF8;
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
-            try {
+            try
+            {
                 Console.Clear();
                 Logger.PrintLogo();
             } catch { }
 
             Context = new Context();
-            if (Context.Load(new Options(args))) {
+            if (Context.Load(new Options(args)))
+            {
                 DeobfuscateBegin();
                 DeobfuscateEnd();
             }
@@ -51,24 +56,23 @@ namespace NETReactorSlayer.Core {
             Console.ReadKey();
         }
 
-        #region Fields
-
-        public static Context Context = new();
-
-        #endregion
-
         #region Private Methods
 
-        private static bool CheckArguments(IReadOnlyList<string> args) {
+        private static bool CheckArguments(IReadOnlyList<string> args)
+        {
             if (args.Count != 3 || args[0] != "--del-temp" ||
                 !int.TryParse(args[1], out var id) || !File.Exists(args[2]))
                 return true;
 
-            try {
-                if (Process.GetProcessById(id) is { } process) {
+            try
+            {
+                if (Process.GetProcessById(id) is { } process)
+                {
                     process.WaitForExit();
-                    while (File.Exists(args[2])) {
-                        try {
+                    while (File.Exists(args[2]))
+                    {
+                        try
+                        {
                             File.Delete(args[2]);
                         } catch { }
 
@@ -83,22 +87,27 @@ namespace NETReactorSlayer.Core {
             return true;
         }
 
-        private static void DeobfuscateBegin() {
+        private static void DeobfuscateBegin()
+        {
             const int maxStackSize = 1024 * 1024 * 64;
             foreach (var thread in Context.Options.Stages.Select(deobfuscatorStage => new Thread(() =>
+                     {
+                         try
+                         {
+                             deobfuscatorStage.Execute();
+                         } catch (Exception ex)
+                         {
+                             Logger.Error($"{deobfuscatorStage.GetType().Name}: {ex.Message}");
+                         }
+                     }, maxStackSize)))
             {
-                try {
-                    deobfuscatorStage.Execute();
-                } catch (Exception ex) {
-                    Logger.Error($"{deobfuscatorStage.GetType().Name}: {ex.Message}");
-                }
-            }, maxStackSize))) {
                 thread.Start();
                 thread.Join();
             }
         }
 
-        private static void DeobfuscateEnd() {
+        private static void DeobfuscateEnd()
+        {
             if (Context.Options.Stages.Any(x => x.GetType().Name.Equals(nameof(MethodInliner))))
                 if (MethodInliner.InlinedMethods > 0)
                     Logger.Done(MethodInliner.InlinedMethods + " Methods inlined.");
@@ -111,6 +120,12 @@ namespace NETReactorSlayer.Core {
 
             Context.Save();
         }
+
+        #endregion
+
+        #region Fields
+
+        public static Context Context = new();
 
         #endregion
     }

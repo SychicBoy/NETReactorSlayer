@@ -17,30 +17,38 @@ using System;
 using System.IO;
 using dnlib.IO;
 
-namespace NETReactorSlayer.Core.Helper {
-    public static class MethodBodyParser {
+namespace NETReactorSlayer.Core.Helper
+{
+    public static class MethodBodyParser
+    {
         public static MethodBodyHeader
-            ParseMethodBody(ref DataReader reader, out byte[] code, out byte[] extraSections) {
-            try {
+            ParseMethodBody(ref DataReader reader, out byte[] code, out byte[] extraSections)
+        {
+            try
+            {
                 return ParseMethodBody2(ref reader, out code, out extraSections);
-            } catch (Exception ex) when (ex is IOException or ArgumentException) {
+            } catch (Exception ex) when (ex is IOException or ArgumentException)
+            {
                 throw new InvalidMethodBody();
             }
         }
 
         private static MethodBodyHeader ParseMethodBody2(
-            ref DataReader reader, out byte[] code, out byte[] extraSections) {
+            ref DataReader reader, out byte[] code, out byte[] extraSections)
+        {
             var mbHeader = new MethodBodyHeader();
 
             uint codeOffset;
             var b = Peek(ref reader);
-            if ((b & 3) == 2) {
+            if ((b & 3) == 2)
+            {
                 mbHeader.Flags = 2;
                 mbHeader.MaxStack = 8;
                 mbHeader.CodeSize = (uint)(reader.ReadByte() >> 2);
                 mbHeader.LocalVarSigTok = 0;
                 codeOffset = 1;
-            } else if ((b & 7) == 3) {
+            } else if ((b & 7) == 3)
+            {
                 mbHeader.Flags = reader.ReadUInt16();
                 codeOffset = (uint)(4 * (mbHeader.Flags >> 12));
                 if (codeOffset != 12)
@@ -67,7 +75,8 @@ namespace NETReactorSlayer.Core.Helper {
         private static void Align(ref DataReader reader, int alignment) =>
             reader.Position = (reader.Position + (uint)alignment - 1) & ~((uint)alignment - 1);
 
-        private static byte[] ReadExtraSections2(ref DataReader reader) {
+        private static byte[] ReadExtraSections2(ref DataReader reader)
+        {
             Align(ref reader, 4);
             var startPos = (int)reader.Position;
             ParseSection(ref reader);
@@ -76,9 +85,11 @@ namespace NETReactorSlayer.Core.Helper {
             return reader.ReadBytes(size);
         }
 
-        private static void ParseSection(ref DataReader reader) {
+        private static void ParseSection(ref DataReader reader)
+        {
             byte flags;
-            do {
+            do
+            {
                 Align(ref reader, 4);
 
                 flags = reader.ReadByte();
@@ -87,18 +98,21 @@ namespace NETReactorSlayer.Core.Helper {
                 if ((flags & 0x3E) != 0)
                     throw new InvalidMethodBody("Invalid bits set");
 
-                if ((flags & 0x40) != 0) {
+                if ((flags & 0x40) != 0)
+                {
                     reader.Position--;
                     var num = (int)(reader.ReadUInt32() >> 8) / 24;
                     reader.Position += (uint)num * 24;
-                } else {
+                } else
+                {
                     var num = reader.ReadByte() / 12;
                     reader.Position += 2 + (uint)num * 12;
                 }
             } while ((flags & 0x80) != 0);
         }
 
-        private static byte Peek(ref DataReader reader) {
+        private static byte Peek(ref DataReader reader)
+        {
             var b = reader.ReadByte();
             reader.Position--;
             return b;

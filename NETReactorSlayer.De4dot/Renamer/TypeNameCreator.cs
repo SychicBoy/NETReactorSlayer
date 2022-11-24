@@ -15,10 +15,13 @@
 
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot.Renamer {
-    public class TypeNameCreator : ITypeNameCreator {
+namespace NETReactorSlayer.De4dot.Renamer
+{
+    public class TypeNameCreator : ITypeNameCreator
+    {
         // ReSharper disable VirtualMemberCallInConstructor
-        public TypeNameCreator(ExistingNames existingNames) {
+        public TypeNameCreator(ExistingNames existingNames)
+        {
             _existingNames = existingNames;
             _createUnknownTypeName = CreateNameCreator("Type");
             _createEnumName = CreateNameCreator("Enum");
@@ -27,7 +30,8 @@ namespace NETReactorSlayer.De4dot.Renamer {
             _createClassName = CreateNameCreator("Class");
             _createInterfaceName = CreateNameCreator("Interface");
 
-            var names = new[] {
+            var names = new[]
+            {
                 "Exception",
                 "EventArgs",
                 "Attribute",
@@ -42,16 +46,20 @@ namespace NETReactorSlayer.De4dot.Renamer {
 
         public virtual NameCreator CreateNameCreator(string prefix) => new(prefix);
 
-        private NameCreator GetNameCreator(TypeDef typeDef, string newBaseTypeName) {
+        private NameCreator GetNameCreator(TypeDef typeDef, string newBaseTypeName)
+        {
             var nameCreator = _createUnknownTypeName;
             if (typeDef.IsEnum)
                 nameCreator = _createEnumName;
             else if (typeDef.IsValueType)
                 nameCreator = _createStructName;
-            else if (typeDef.IsClass) {
-                if (typeDef.BaseType != null) {
+            else if (typeDef.IsClass)
+            {
+                if (typeDef.BaseType != null)
+                {
                     var fullName = typeDef.BaseType.FullName;
-                    switch (fullName) {
+                    switch (fullName)
+                    {
                         case "System.Delegate":
                         case "System.MulticastDelegate":
                             nameCreator = _createDelegateName;
@@ -69,7 +77,8 @@ namespace NETReactorSlayer.De4dot.Renamer {
             return nameCreator;
         }
 
-        public string Create(TypeDef typeDef, string newBaseTypeName) {
+        public string Create(TypeDef typeDef, string newBaseTypeName)
+        {
             var nameCreator = GetNameCreator(typeDef, newBaseTypeName);
             return _existingNames.GetName(typeDef.Name.String, nameCreator);
         }

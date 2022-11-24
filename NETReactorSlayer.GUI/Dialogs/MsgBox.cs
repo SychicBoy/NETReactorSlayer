@@ -23,16 +23,20 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using NETReactorSlayer.GUI.Properties;
 
-namespace NETReactorSlayer.GUI.Dialogs {
-    internal sealed class MsgBox : Form {
-        private MsgBox() {
+namespace NETReactorSlayer.GUI.Dialogs
+{
+    internal sealed class MsgBox : Form
+    {
+        private MsgBox()
+        {
             FormBorderStyle = FormBorderStyle.None;
             BackColor = Color.Black;
             StartPosition = FormStartPosition.CenterParent;
             Padding = new Padding(2);
             Width = 400;
             AutoSize = false;
-            _lblTitle = new Label {
+            _lblTitle = new Label
+            {
                 ForeColor = Color.Silver,
                 Font = new Font("Consolas", 14, FontStyle.Bold, GraphicsUnit.Point, 0),
                 Dock = DockStyle.Top,
@@ -40,7 +44,8 @@ namespace NETReactorSlayer.GUI.Dialogs {
                 UseCompatibleTextRendering = false
             };
 
-            _lblMessage = new Label {
+            _lblMessage = new Label
+            {
                 ForeColor = Color.Silver,
                 Font = new Font("Consolas", 10),
                 Dock = DockStyle.Fill,
@@ -92,7 +97,8 @@ namespace NETReactorSlayer.GUI.Dialogs {
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern bool MessageBeep(uint type);
 
-        public static DialogResult Show(string message, string title, MsgButtons buttons, MsgIcon icon, Form owner) {
+        public static DialogResult Show(string message, string title, MsgButtons buttons, MsgIcon icon, Form owner)
+        {
             MessageBeep(0);
             _msgBox = new MsgBox();
             _msgBox._lblMessage.Text = message;
@@ -112,8 +118,10 @@ namespace NETReactorSlayer.GUI.Dialogs {
             return _buttonResult;
         }
 
-        private static void InitButtons(MsgButtons buttons) {
-            switch (buttons) {
+        private static void InitButtons(MsgButtons buttons)
+        {
+            switch (buttons)
+            {
                 case MsgButtons.AbortRetryIgnore:
                     _msgBox.InitAbortRetryIgnoreButtons();
                     break;
@@ -141,7 +149,8 @@ namespace NETReactorSlayer.GUI.Dialogs {
                     throw new ArgumentOutOfRangeException(nameof(buttons), buttons, null);
             }
 
-            foreach (var btn in _msgBox._buttonCollection) {
+            foreach (var btn in _msgBox._buttonCollection)
+            {
                 btn.ForeColor = Color.Silver;
                 btn.Font = new Font("Consolas", 8, FontStyle.Bold, GraphicsUnit.Point, 0);
                 btn.Padding = new Padding(3);
@@ -162,13 +171,16 @@ namespace NETReactorSlayer.GUI.Dialogs {
             _msgBox._flpButtons.Controls[0].Focus();
         }
 
-        protected override void OnLostFocus(EventArgs e) {
+        protected override void OnLostFocus(EventArgs e)
+        {
             base.OnLostFocus(e);
             Focus();
         }
 
-        private static void InitIcon(MsgIcon icon) {
-            switch (icon) {
+        private static void InitIcon(MsgIcon icon)
+        {
+            switch (icon)
+            {
                 case MsgIcon.Error:
                     _msgBox._picIcon.Image = Resources.Error;
                     break;
@@ -187,18 +199,22 @@ namespace NETReactorSlayer.GUI.Dialogs {
             }
         }
 
-        private void InitAbortRetryIgnoreButtons() {
-            var btnAbort = new Button {
+        private void InitAbortRetryIgnoreButtons()
+        {
+            var btnAbort = new Button
+            {
                 Text = @"Abort"
             };
             btnAbort.Click += ButtonClick;
 
-            var btnRetry = new Button {
+            var btnRetry = new Button
+            {
                 Text = @"Retry"
             };
             btnRetry.Click += ButtonClick;
 
-            var btnIgnore = new Button {
+            var btnIgnore = new Button
+            {
                 Text = @"Ignore"
             };
             btnIgnore.Click += ButtonClick;
@@ -208,8 +224,10 @@ namespace NETReactorSlayer.GUI.Dialogs {
             _buttonCollection.Add(btnAbort);
         }
 
-        private void InitOkButton() {
-            var btnOk = new Button {
+        private void InitOkButton()
+        {
+            var btnOk = new Button
+            {
                 Text = @"OK"
             };
             btnOk.Click += ButtonClick;
@@ -217,13 +235,16 @@ namespace NETReactorSlayer.GUI.Dialogs {
             _buttonCollection.Add(btnOk);
         }
 
-        private void InitOkCancelButtons() {
-            var btnOk = new Button {
+        private void InitOkCancelButtons()
+        {
+            var btnOk = new Button
+            {
                 Text = @"OK"
             };
             btnOk.Click += ButtonClick;
 
-            var btnCancel = new Button {
+            var btnCancel = new Button
+            {
                 Text = @"Cancel"
             };
             btnCancel.Click += ButtonClick;
@@ -233,13 +254,16 @@ namespace NETReactorSlayer.GUI.Dialogs {
             _buttonCollection.Add(btnOk);
         }
 
-        private void InitRetryCancelButtons() {
-            var btnRetry = new Button {
+        private void InitRetryCancelButtons()
+        {
+            var btnRetry = new Button
+            {
                 Text = @"Retry"
             };
             btnRetry.Click += ButtonClick;
 
-            var btnCancel = new Button {
+            var btnCancel = new Button
+            {
                 Text = @"Cancel"
             };
             btnCancel.Click += ButtonClick;
@@ -249,13 +273,16 @@ namespace NETReactorSlayer.GUI.Dialogs {
             _buttonCollection.Add(btnRetry);
         }
 
-        private void InitYesNoButtons() {
-            var btnYes = new Button {
+        private void InitYesNoButtons()
+        {
+            var btnYes = new Button
+            {
                 Text = @"Yes"
             };
             btnYes.Click += ButtonClick;
 
-            var btnNo = new Button {
+            var btnNo = new Button
+            {
                 Text = @"No"
             };
             btnNo.Click += ButtonClick;
@@ -264,18 +291,22 @@ namespace NETReactorSlayer.GUI.Dialogs {
             _buttonCollection.Add(btnYes);
         }
 
-        private void InitYesNoCancelButtons() {
-            var btnYes = new Button {
+        private void InitYesNoCancelButtons()
+        {
+            var btnYes = new Button
+            {
                 Text = @"Yes"
             };
             btnYes.Click += ButtonClick;
 
-            var btnNo = new Button {
+            var btnNo = new Button
+            {
                 Text = @"No"
             };
             btnNo.Click += ButtonClick;
 
-            var btnCancel = new Button {
+            var btnCancel = new Button
+            {
                 Text = @"Cancel"
             };
             btnCancel.Click += ButtonClick;
@@ -285,10 +316,12 @@ namespace NETReactorSlayer.GUI.Dialogs {
             _buttonCollection.Add(btnYes);
         }
 
-        private void ButtonClick(object sender, EventArgs e) {
+        private void ButtonClick(object sender, EventArgs e)
+        {
             var btn = (Button)sender;
 
-            switch (btn.Text) {
+            switch (btn.Text)
+            {
                 case @"Abort":
                     _buttonResult = DialogResult.Abort;
                     break;
@@ -315,17 +348,20 @@ namespace NETReactorSlayer.GUI.Dialogs {
             CloseAnimated();
         }
 
-        private static Size MessageSize(string message) {
+        private static Size MessageSize(string message)
+        {
             var g = _msgBox.CreateGraphics();
             var width = 400;
             var height = 230;
 
             var size = g.MeasureString(message, new Font("Consolas", 10));
 
-            if (message.Length < 150) {
+            if (message.Length < 150)
+            {
                 if ((int)size.Width > 350)
                     width = (int)size.Width;
-            } else {
+            } else
+            {
                 var groups = (from Match m in Regex.Matches(message, ".{1,180}") select m.Value).ToArray();
                 var lines = groups.Length;
                 width = 800;
@@ -337,8 +373,10 @@ namespace NETReactorSlayer.GUI.Dialogs {
             return new Size(width, height);
         }
 
-        private void ShowAnimated() {
-            var timer = new Timer {
+        private void ShowAnimated()
+        {
+            var timer = new Timer
+            {
                 Interval = 10
             };
             timer.Tick += delegate
@@ -355,8 +393,10 @@ namespace NETReactorSlayer.GUI.Dialogs {
             timer.Start();
         }
 
-        private void CloseAnimated() {
-            var timer = new Timer {
+        private void CloseAnimated()
+        {
+            var timer = new Timer
+            {
                 Interval = 10
             };
             timer.Tick += delegate
@@ -392,7 +432,8 @@ namespace NETReactorSlayer.GUI.Dialogs {
         private static MsgBox _msgBox;
 
 
-        public enum MsgButtons {
+        public enum MsgButtons
+        {
             AbortRetryIgnore = 1,
             Ok = 2,
             OkCancel = 3,
@@ -401,7 +442,8 @@ namespace NETReactorSlayer.GUI.Dialogs {
             YesNoCancel = 6
         }
 
-        public enum MsgIcon {
+        public enum MsgIcon
+        {
             Error = 3,
             Warning = 4,
             Info = 5,

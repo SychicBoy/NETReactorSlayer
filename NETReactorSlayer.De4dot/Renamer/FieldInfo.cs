@@ -15,8 +15,10 @@
 
 using NETReactorSlayer.De4dot.Renamer.AsmModules;
 
-namespace NETReactorSlayer.De4dot.Renamer {
-    public class FieldInfo : MemberInfo {
+namespace NETReactorSlayer.De4dot.Renamer
+{
+    public class FieldInfo : MemberInfo
+    {
         public FieldInfo(Ref @ref) : base(@ref) { }
     }
 }

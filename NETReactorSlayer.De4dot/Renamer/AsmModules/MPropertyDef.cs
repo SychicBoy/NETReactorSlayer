@@ -17,12 +17,15 @@ using System.Collections.Generic;
 using System.Linq;
 using dnlib.DotNet;
 
-namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
-    public class MPropertyDef : Ref {
+namespace NETReactorSlayer.De4dot.Renamer.AsmModules
+{
+    public class MPropertyDef : Ref
+    {
         public MPropertyDef(IMemberRef memberRef, MTypeDef owner, int index)
             : base(memberRef, owner, index) { }
 
-        public IEnumerable<MethodDef> MethodDefs() {
+        public IEnumerable<MethodDef> MethodDefs()
+        {
             if (PropertyDef.GetMethod != null)
                 yield return PropertyDef.GetMethod;
             if (PropertyDef.SetMethod != null)
@@ -35,7 +38,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules {
 
         public bool IsVirtual() => MethodDefs().Any(method => method.IsVirtual);
 
-        public bool IsItemProperty() {
+        public bool IsItemProperty()
+        {
             if (GetMethod is { VisibleParameterCount: >= 1 })
                 return true;
             return SetMethod is { VisibleParameterCount: >= 2 };
