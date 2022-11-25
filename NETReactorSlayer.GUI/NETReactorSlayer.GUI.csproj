@@ -14,8 +14,9 @@
     <UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>    
-    
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <Prefer32Bit>True</Prefer32Bit>
+
   </PropertyGroup>
 
   <ItemGroup>
