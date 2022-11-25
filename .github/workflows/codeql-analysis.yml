@@ -41,7 +41,7 @@ jobs:
         dotnet-version: ${{ matrix.dotnet-version }}
         
     - name: Build
-      run: dotnet build NETReactorSlayer.NETCore.slnf
+      run: dotnet build NETReactorSlayer.sln
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
