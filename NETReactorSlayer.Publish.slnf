@@ -1,8 +1,0 @@
-{
-	"solution": {
-		"path": "NETReactorSlayer.sln",
-		"projects": [
-		      "NETReactorSlayer.CLI\\NETReactorSlayer.CLI.csproj"
-		]
-	}
-}
