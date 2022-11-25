@@ -38,7 +38,7 @@ function BuildNETCore {
 	$runtimeidentifier = "$architecture"
 
 	if (${-no-msbuild}) {
-		dotnet publish NETReactorSlayer.NETCore.Publish.slnf -v:m -c $configuration -f $tfm -r $runtimeidentifier --self-contained -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=True -p:PublishSingleFile=true
+		dotnet publish NETReactorSlayer.Publish.slnf -v:m -c $configuration -f $tfm -r $runtimeidentifier --self-contained -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=True -p:PublishSingleFile=true
 		if ($LASTEXITCODE) { 
 			Write-Host
 			Write-Host ==========================
@@ -47,7 +47,7 @@ function BuildNETCore {
 		}
 	}
 	else {
-		msbuild NETReactorSlayer.NETCore.Publish.slnf -v:m -m -restore -t:Publish -p:Configuration=$configuration -p:TargetFramework=$tfm -p:RuntimeIdentifier=$runtimeidentifier -p:SelfContained=True -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=True -p:PublishSingleFile=true
+		msbuild NETReactorSlayer.Publish.slnf -v:m -m -restore -t:Publish -p:Configuration=$configuration -p:TargetFramework=$tfm -p:RuntimeIdentifier=$runtimeidentifier -p:SelfContained=True -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=True -p:PublishSingleFile=true
 		if ($LASTEXITCODE) { 
 			Write-Host
 			Write-Host ==========================
