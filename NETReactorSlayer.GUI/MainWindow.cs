@@ -17,7 +17,6 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -37,11 +36,8 @@ namespace NETReactorSlayer.GUI
 {
     public partial class MainWindow : Form
     {
-        public MainWindow(string arg = "")
+        public MainWindow()
         {
-            if (arg == "updated")
-                MsgBox.Show(ChangeLogs.Replace("\n-", "\n● "), "What's New", MsgBox.MsgButtons.Ok,
-                    MsgBox.MsgIcon.Info, this);
             InitializeComponent();
             lblVersion.Text = InformationalVersion;
             txtLogs.Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, txtLogs.Width, txtLogs.Height, 25, 20));
@@ -98,8 +94,8 @@ namespace NETReactorSlayer.GUI
             {
                 btnStart.Tag = "Busy";
                 txtInput.Text = File.Exists(txtInput.Text)
-                    ? @"Access to file path denied"
-                    : @"Could not find a part of the file path";
+                    ? "Access to file path denied"
+                    : "Could not find a part of the file path";
                 txtInput.ForeColor = Color.Firebrick;
                 await Task.Delay(2000);
                 txtInput.ForeColor = Color.Silver;
@@ -258,8 +254,8 @@ namespace NETReactorSlayer.GUI
             else
             {
                 txtInput.Text = File.Exists(files[0])
-                    ? @"Access to file path denied"
-                    : @"Could not find a part of the file path";
+                    ? "Access to file path denied"
+                    : "Could not find a part of the file path";
                 txtInput.ForeColor = Color.Firebrick;
                 await Task.Delay(2000);
                 txtInput.ForeColor = Color.Silver;
@@ -338,8 +334,8 @@ namespace NETReactorSlayer.GUI
         {
             var openFileDialog = new OpenFileDialog
             {
-                Filter = @"Assembly (*.exe,*.dll)| *.exe;*.dll",
-                Title = @"Select Assembly",
+                Filter = "Assembly (*.exe,*.dll)| *.exe;*.dll",
+                Title = "Select Assembly",
                 Multiselect = false,
                 CheckFileExists = true,
                 CheckPathExists = true,
@@ -379,10 +375,10 @@ namespace NETReactorSlayer.GUI
                 {
                     if (await IsLatestVersion())
                         return;
-                    if (MsgBox.Show(@"New version is available, Do you want to install it?",
+                    if (MsgBox.Show("A new version is available. Would you like to download it?",
                             ".NETReactorSlayer",
                             MsgBox.MsgButtons.YesNoCancel, MsgBox.MsgIcon.Question, this) == DialogResult.Yes)
-                        InstallLatestVersion();
+                        Process.Start("https://github.com/SychicBoy/NETReactorSlayer/releases/latest");
                 }
                 catch { }
             };
@@ -506,7 +502,7 @@ namespace NETReactorSlayer.GUI
 
         private void chkSelectUnSelectAll_CheckedChanged(object sender, EventArgs e)
         {
-            chkSelectUnSelectAll.Text = !chkSelectUnSelectAll.Checked ? @"Select All" : @"Unselect All";
+            chkSelectUnSelectAll.Text = !chkSelectUnSelectAll.Checked ? "Select All" : "Unselect All";
             if (_return)
             {
                 _return = false;
@@ -530,7 +526,7 @@ namespace NETReactorSlayer.GUI
             }
 
             foreach (var control in (from x in tabelOptions.Controls.OfType<NrsCheckBox>()
-                         where x.Name != @"chkSelectUnSelectAll"
+                         where x.Name != "chkSelectUnSelectAll"
                          select x).Where(control => control.Checked != @checked))
             {
                 _return = true;
@@ -551,7 +547,7 @@ namespace NETReactorSlayer.GUI
             MsgBox.Show(
                 $@"Product Name: .NETReactorSlayer
 Version: {lblVersion.Text}
-Description: An open source (GPLv3) deobfuscator for Eziriz .NET Reactor
+Description: An open source (GPLv3) deobfuscator and unpacker for Eziriz .NET Reactor
 Author: SychicBoy
 Company: CS-RET
 Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, MsgBox.MsgIcon.Info, this);
@@ -561,14 +557,14 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
             try
             {
                 if (await IsLatestVersion())
-                    MsgBox.Show(@"Congratulations, You are using the latest version!", ".NETReactorSlayer",
+                    MsgBox.Show("Congratulations, You are using the latest version!", ".NETReactorSlayer",
                         MsgBox.MsgButtons.Ok, MsgBox.MsgIcon.Info, this);
                 else
                 {
-                    if (MsgBox.Show(@"New version is available, Do you want to install it?",
+                    if (MsgBox.Show("A new version is available. Would you like to download it?",
                             ".NETReactorSlayer",
                             MsgBox.MsgButtons.YesNoCancel, MsgBox.MsgIcon.Question, this) == DialogResult.Yes)
-                        InstallLatestVersion();
+                        Process.Start("https://github.com/SychicBoy/NETReactorSlayer/releases/latest");
                 }
             }
             catch (Exception exception)
@@ -587,7 +583,7 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
             var responseUri = response.RequestMessage.RequestUri.ToString();
             response.Dispose();
             client.Dispose();
-            var latestVersionStr = _lastVersion = responseUri.Substring(responseUri.LastIndexOf('/') + 1);
+            var latestVersionStr = responseUri.Substring(responseUri.LastIndexOf('/') + 1);
             var currentVersionStr =
                 FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
 
@@ -598,58 +594,6 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
                 return latestVersion <= currentVersion;
 
             return true;
-        }
-
-        private static async void InstallLatestVersion()
-        {
-            var tmpPath = Path.GetTempFileName();
-            var tmpDir = Path.GetDirectoryName(tmpPath);
-            AddTrailing(ref tmpDir);
-            var tmpDestDir = Path.Combine(tmpDir,
-                $".NETReactorSlayer_v{_lastVersion}_{DateTime.Now:yyyy-MM-dd-HH-mmmm-ss}\\");
-            AddTrailing(ref tmpDestDir);
-            var baseDir = Environment.CurrentDirectory;
-            RemoveTrailing(ref baseDir);
-            var downloadUrl =
-                $"https://github.com/SychicBoy/NETReactorSlayer/releases/download/{_lastVersion}/NETReactorSlayer.zip";
-            var client = new HttpClient();
-            var response = await client.GetAsync(downloadUrl);
-            File.WriteAllBytes(tmpPath, new byte[] { 0 });
-            using (var fs = new FileStream(tmpPath, FileMode.Open, FileAccess.ReadWrite))
-            {
-                await response.Content.CopyToAsync(fs);
-            }
-
-            if (!Directory.Exists(tmpDestDir))
-                Directory.CreateDirectory(tmpDestDir);
-            ZipFile.ExtractToDirectory(tmpPath, tmpDestDir);
-            RemoveTrailing(ref tmpDestDir);
-            var command = $"DEL /Q \"{baseDir}\\*\"" +
-                          " & " +
-                          $"XCOPY /S /Q \"{tmpDestDir}\" \"{baseDir}\"" +
-                          " &" +
-                          $"RMDIR /S /Q \"{tmpDestDir}\"" +
-                          " & " +
-                          $"\"{baseDir}\\NETReactorSlayer.exe\" updated";
-            Process.Start(new ProcessStartInfo("cmd.exe",
-                    "/C ping 1.1.1.1 -n 1 -w 3000 > Nul & " + command)
-                {
-                    WindowStyle = ProcessWindowStyle.Hidden
-                })
-                ?.Dispose();
-            Process.GetCurrentProcess().Kill();
-        }
-
-        private static void AddTrailing(ref string directory)
-        {
-            if (!directory.EndsWith("\\"))
-                directory += "\\";
-        }
-
-        private static void RemoveTrailing(ref string directory)
-        {
-            if (directory.EndsWith("\\"))
-                directory = directory.Substring(0, directory.Length - 1);
         }
 
         private void SetRenamingOptions(object sender, EventArgs e)
@@ -721,8 +665,6 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
                 typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute)
             ?.InformationalVersion;
 
-        private static string _lastVersion;
-
         protected override CreateParams CreateParams
         {
             get
@@ -732,11 +674,5 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
                 return cp;
             }
         }
-
-        private const string ChangeLogs = @"Changes:
--Bug fixes and stability improvements.
-
-New features:
--Support .NET Reactor v6.9.0.0";
     }
 }

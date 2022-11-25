@@ -31,13 +31,6 @@ namespace NETReactorSlayer.GUI
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            if (args.Length > 0)
-                if (args[0] == "updated")
-                {
-                    Application.Run(new MainWindow(args[0]));
-                    return;
-                }
-
             Application.Run(new MainWindow());
         }
 
