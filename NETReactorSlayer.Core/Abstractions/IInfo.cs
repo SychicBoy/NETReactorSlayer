@@ -1,4 +1,4 @@
-/*
+﻿/*
     Copyright (C) 2021 CodeStrikers.org
     This file is part of NETReactorSlayer.
     NETReactorSlayer is free software: you can redistribute it and/or modify
@@ -13,9 +13,12 @@
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-using System;
-
-namespace NETReactorSlayer.De4dot
+namespace NETReactorSlayer.Core.Abstractions
 {
-    [Flags] public enum RenamingOptions { RemoveNamespaceIfOneType = 1, RenameResourceKeys = 2 }
+    public interface IInfo
+    {
+        bool NativeStub { get; set; }
+        bool NecroBit { get; set; }
+        bool UsesReflection { get; set; }
+    }
 }

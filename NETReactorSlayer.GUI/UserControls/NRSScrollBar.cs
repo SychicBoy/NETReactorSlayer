@@ -23,8 +23,6 @@ namespace NETReactorSlayer.GUI.UserControls
 {
     public class NrsScrollBar : Control
     {
-        #region Constructor Region
-
         public NrsScrollBar()
         {
             SetStyle(ControlStyles.OptimizedDoubleBuffer |
@@ -39,167 +37,6 @@ namespace NETReactorSlayer.GUI.UserControls
             };
             _scrollTimer.Tick += ScrollTimerTick;
         }
-
-        #endregion
-
-        #region Paint Region
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            var g = e.Graphics;
-
-            var upIcon = _upArrowHot ? Resources.scrollbar_arrow_hot : Resources.scrollbar_arrow_standard;
-
-            if (_upArrowClicked)
-                upIcon = Resources.scrollbar_arrow_clicked;
-
-            if (!Enabled)
-                upIcon = Resources.scrollbar_disabled;
-
-            upIcon.RotateFlip(RotateFlipType.RotateNoneFlipY);
-
-            g.DrawImageUnscaled(upIcon,
-                _upArrowArea.Left + _upArrowArea.Width / 2 - upIcon.Width / 2,
-                _upArrowArea.Top + _upArrowArea.Height / 2 - upIcon.Height / 2);
-
-            var downIcon = _downArrowHot ? Resources.scrollbar_arrow_hot : Resources.scrollbar_arrow_standard;
-
-            if (_downArrowClicked)
-                downIcon = Resources.scrollbar_arrow_clicked;
-
-            if (!Enabled)
-                downIcon = Resources.scrollbar_disabled;
-
-            g.DrawImageUnscaled(downIcon,
-                _downArrowArea.Left + _downArrowArea.Width / 2 - downIcon.Width / 2,
-                _downArrowArea.Top + _downArrowArea.Height / 2 - downIcon.Height / 2);
-
-            if (!Enabled)
-                return;
-            var scrollColor = _thumbHot ? Color.FromArgb(122, 128, 132) : Color.FromArgb(92, 92, 92);
-
-            if (_isScrolling)
-                scrollColor = Color.FromArgb(159, 178, 196);
-
-            using (var b = new SolidBrush(scrollColor))
-            {
-                g.FillRectangle(b, _thumbArea);
-            }
-        }
-
-        #endregion
-
-        public static int ArrowButtonSize = 15;
-        public static int MinimumThumbSize = 11;
-
-        public static int ScrollBarSize = 16;
-
-        #region Event Region
-
-        public event EventHandler<ScrollValueEventArgs> ValueChanged;
-
-        #endregion
-
-        #region Field Region
-
-        private int _value;
-        private int _minimum;
-        private int _maximum = 100;
-
-        private int _viewSize;
-
-        private Rectangle _trackArea;
-        private float _viewContentRatio;
-
-        private Rectangle _thumbArea;
-        private Rectangle _upArrowArea;
-        private Rectangle _downArrowArea;
-
-        private bool _thumbHot;
-        private bool _upArrowHot;
-        private bool _downArrowHot;
-
-        private bool _upArrowClicked;
-        private bool _downArrowClicked;
-
-        private bool _isScrolling;
-        private int _initialValue;
-        private Point _initialContact;
-
-        private readonly Timer _scrollTimer;
-
-        #endregion
-
-        #region Property Region
-
-        [Category("Behavior")]
-        [Description("The value that the scroll thumb position represents.")]
-        [DefaultValue(0)]
-        public int Value
-        {
-            get => _value;
-            set
-            {
-                if (value < Minimum)
-                    value = Minimum;
-
-                var maximumValue = Maximum - ViewSize;
-                if (value > maximumValue)
-                    value = maximumValue;
-
-                if (_value == value)
-                    return;
-
-                _value = value;
-
-                UpdateThumb(true);
-
-                ValueChanged?.Invoke(this, new ScrollValueEventArgs(Value));
-            }
-        }
-
-        [Category("Behavior")]
-        [Description("The lower limit value of the scrollable range.")]
-        [DefaultValue(0)]
-        public int Minimum
-        {
-            get => _minimum;
-            set
-            {
-                _minimum = value;
-                UpdateScrollBar();
-            }
-        }
-
-        [Category("Behavior")]
-        [Description("The upper limit value of the scrollable range.")]
-        [DefaultValue(100)]
-        public int Maximum
-        {
-            get => _maximum;
-            set
-            {
-                _maximum = value;
-                UpdateScrollBar();
-            }
-        }
-
-        [Category("Behavior")]
-        [Description("The view size for the scrollable area.")]
-        [DefaultValue(0)]
-        public int ViewSize
-        {
-            get => _viewSize;
-            set
-            {
-                _viewSize = value;
-                UpdateScrollBar();
-            }
-        }
-
-        #endregion
-
-        #region Event Handler Region
 
         protected override void OnResize(EventArgs e)
         {
@@ -354,10 +191,6 @@ namespace NETReactorSlayer.GUI.UserControls
             }
         }
 
-        #endregion
-
-        #region Method Region
-
         public void ScrollTo(int position) => Value = position;
 
         public void ScrollToPhysical(int positionInPixels)
@@ -422,7 +255,133 @@ namespace NETReactorSlayer.GUI.UserControls
             Update();
         }
 
-        #endregion
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            var g = e.Graphics;
+
+            var upIcon = _upArrowHot ? Resources.scrollbar_arrow_hot : Resources.scrollbar_arrow_standard;
+
+            if (_upArrowClicked)
+                upIcon = Resources.scrollbar_arrow_clicked;
+
+            if (!Enabled)
+                upIcon = Resources.scrollbar_disabled;
+
+            upIcon.RotateFlip(RotateFlipType.RotateNoneFlipY);
+
+            g.DrawImageUnscaled(upIcon,
+                _upArrowArea.Left + _upArrowArea.Width / 2 - upIcon.Width / 2,
+                _upArrowArea.Top + _upArrowArea.Height / 2 - upIcon.Height / 2);
+
+            var downIcon = _downArrowHot ? Resources.scrollbar_arrow_hot : Resources.scrollbar_arrow_standard;
+
+            if (_downArrowClicked)
+                downIcon = Resources.scrollbar_arrow_clicked;
+
+            if (!Enabled)
+                downIcon = Resources.scrollbar_disabled;
+
+            g.DrawImageUnscaled(downIcon,
+                _downArrowArea.Left + _downArrowArea.Width / 2 - downIcon.Width / 2,
+                _downArrowArea.Top + _downArrowArea.Height / 2 - downIcon.Height / 2);
+
+            if (!Enabled)
+                return;
+            var scrollColor = _thumbHot ? Color.FromArgb(122, 128, 132) : Color.FromArgb(92, 92, 92);
+
+            if (_isScrolling)
+                scrollColor = Color.FromArgb(159, 178, 196);
+
+            using (var b = new SolidBrush(scrollColor)) { g.FillRectangle(b, _thumbArea); }
+        }
+
+        [Category("Behavior")]
+        [Description("The value that the scroll thumb position represents.")]
+        [DefaultValue(0)]
+        public int Value
+        {
+            get => _value;
+            set
+            {
+                if (value < Minimum)
+                    value = Minimum;
+
+                var maximumValue = Maximum - ViewSize;
+                if (value > maximumValue)
+                    value = maximumValue;
+
+                if (_value == value)
+                    return;
+
+                _value = value;
+
+                UpdateThumb(true);
+
+                ValueChanged?.Invoke(this, new ScrollValueEventArgs(Value));
+            }
+        }
+
+        [Category("Behavior")]
+        [Description("The lower limit value of the scrollable range.")]
+        [DefaultValue(0)]
+        public int Minimum
+        {
+            get => _minimum;
+            set
+            {
+                _minimum = value;
+                UpdateScrollBar();
+            }
+        }
+
+        [Category("Behavior")]
+        [Description("The upper limit value of the scrollable range.")]
+        [DefaultValue(100)]
+        public int Maximum
+        {
+            get => _maximum;
+            set
+            {
+                _maximum = value;
+                UpdateScrollBar();
+            }
+        }
+
+        [Category("Behavior")]
+        [Description("The view size for the scrollable area.")]
+        [DefaultValue(0)]
+        public int ViewSize
+        {
+            get => _viewSize;
+            set
+            {
+                _viewSize = value;
+                UpdateScrollBar();
+            }
+        }
+
+        public static int ArrowButtonSize = 15;
+        public static int MinimumThumbSize = 11;
+        public static int ScrollBarSize = 16;
+        private int _value;
+        private int _minimum;
+        private int _maximum = 100;
+        private int _viewSize;
+        private float _viewContentRatio;
+        private Rectangle _trackArea;
+        private Rectangle _thumbArea;
+        private Rectangle _upArrowArea;
+        private Rectangle _downArrowArea;
+        private bool _thumbHot;
+        private bool _upArrowHot;
+        private bool _downArrowHot;
+        private bool _upArrowClicked;
+        private bool _downArrowClicked;
+        private bool _isScrolling;
+        private int _initialValue;
+        private Point _initialContact;
+        private readonly Timer _scrollTimer;
+        public event EventHandler<ScrollValueEventArgs> ValueChanged;
     }
 
     public class ScrollValueEventArgs : EventArgs

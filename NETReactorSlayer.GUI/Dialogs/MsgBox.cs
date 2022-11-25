@@ -360,7 +360,8 @@ namespace NETReactorSlayer.GUI.Dialogs
             {
                 if ((int)size.Width > 350)
                     width = (int)size.Width;
-            } else
+            }
+            else
             {
                 var groups = (from Match m in Regex.Matches(message, ".{1,180}") select m.Value).ToArray();
                 var lines = groups.Length;

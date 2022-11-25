@@ -92,8 +92,6 @@ namespace NETReactorSlayer.De4dot.Renamer
 
         private static readonly string[] WinformsClasses =
         {
-            #region Win Forms class names
-
             "System.Windows.Forms.Control",
             "System.Windows.Forms.AxHost",
             "System.Windows.Forms.ButtonBase",
@@ -184,9 +182,7 @@ namespace NETReactorSlayer.De4dot.Renamer
             "System.Windows.Forms.TreeView",
             "System.ComponentModel.Design.ObjectSelectorEditor.Selector",
             "System.Windows.Forms.WebBrowserBase",
-            "System.Windows.Forms.WebBrowser",
-
-            #endregion
+            "System.Windows.Forms.WebBrowser"
         };
     }
 }

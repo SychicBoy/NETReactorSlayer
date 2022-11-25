@@ -72,9 +72,6 @@ namespace NETReactorSlayer.Core.Helper
         private readonly DumpedMethods _dumpedMethods;
         private ModuleDefMD _module;
 
-        public ModuleDefMD Module
-        {
-            set => _module = value;
-        }
+        public ModuleDefMD Module { set => _module = value; }
     }
 }

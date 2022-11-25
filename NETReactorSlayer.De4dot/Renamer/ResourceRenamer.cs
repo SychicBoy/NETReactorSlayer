@@ -110,13 +110,9 @@ namespace NETReactorSlayer.De4dot.Renamer
                     return false;
                 return newobj.Operand.ToString() ==
                        "System.Void System.Resources.ResourceManager::.ctor(System.String,System.Reflection.Assembly)";
-            } catch (ArgumentOutOfRangeException)
-            {
-                return false;
-            } catch (IndexOutOfRangeException)
-            {
-                return false;
             }
+            catch (ArgumentOutOfRangeException) { return false; }
+            catch (IndexOutOfRangeException) { return false; }
         }
 
         private static bool CheckCalledMethod(Instruction instr, string returnType, string parameters)

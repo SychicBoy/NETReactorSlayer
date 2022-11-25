@@ -15,12 +15,13 @@
 
 using System.Linq;
 using dnlib.DotNet.Emit;
+using NETReactorSlayer.Core.Abstractions;
 
 namespace NETReactorSlayer.Core.Helper
 {
     internal class CodeVirtualizationUtils
     {
-        public static bool Detect()
+        public static bool Detect(IContext context)
         {
             var array = new[]
             {
@@ -41,7 +42,7 @@ namespace NETReactorSlayer.Core.Helper
                 "System.Char"
             };
 
-            foreach (var method in Context.Module.GetTypes()
+            foreach (var method in context.Module.GetTypes()
                          .SelectMany(type => type.Methods.Where(x => x.HasBody && x.Body.HasInstructions)))
                 try
                 {
@@ -56,7 +57,8 @@ namespace NETReactorSlayer.Core.Helper
                         continue;
 
                     return true;
-                } catch { }
+                }
+                catch { }
 
             return false;
         }

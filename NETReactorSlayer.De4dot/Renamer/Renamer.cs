@@ -410,7 +410,8 @@ namespace NETReactorSlayer.De4dot.Renamer
                 {
                     missingProps ??= new List<MMethodDef>();
                     missingProps.Add(method);
-                } else if (prop == null || !method.Owner.HasModule)
+                }
+                else if (prop == null || !method.Owner.HasModule)
                     prop = method.Property;
 
             if (prop == null)
@@ -452,7 +453,8 @@ namespace NETReactorSlayer.De4dot.Renamer
                                                                          _memberInfos.Type(method.Owner).NameChecker
                                                                              .IsValidPropertyName(propName)))
                         CreatePropertyGetter(propName, method);
-                } else if (Utils.StartsWith(methodName, "set_", StringComparison.Ordinal))
+                }
+                else if (Utils.StartsWith(methodName, "set_", StringComparison.Ordinal))
                 {
                     var propName = methodName.Substring(4);
                     foreach (var method in group.Methods.Where(method => !onlyRenamableMethods ||
@@ -603,7 +605,8 @@ namespace NETReactorSlayer.De4dot.Renamer
                 {
                     missingEvents ??= new List<MMethodDef>();
                     missingEvents.Add(method);
-                } else if (evt == null || !method.Owner.HasModule)
+                }
+                else if (evt == null || !method.Owner.HasModule)
                 {
                     evt = method.Event;
                     methodType = GetEventMethodType(method);
@@ -666,7 +669,8 @@ namespace NETReactorSlayer.De4dot.Renamer
                                  !onlyRenamableMethods ||
                                  _memberInfos.Type(method.Owner).NameChecker.IsValidEventName(eventName)))
                         CreateEventAdder(eventName, method);
-                } else if (Utils.StartsWith(methodName, "remove_", StringComparison.Ordinal))
+                }
+                else if (Utils.StartsWith(methodName, "remove_", StringComparison.Ordinal))
                 {
                     var eventName = methodName.Substring(7);
                     foreach (var method in group.Methods.Where(method =>
@@ -763,9 +767,10 @@ namespace NETReactorSlayer.De4dot.Renamer
             var propMethods = new GroupHelper(_memberInfos, _modules.AllTypes);
             var eventMethods = new GroupHelper(_memberInfos, _modules.AllTypes);
             foreach (var group in GetSorted(groups))
-                if (group.HasNonRenamableMethod()) { } else if (group.HasGetterOrSetterPropertyMethod() &&
-                                                                GetPropertyMethodType(group.Methods[0]) !=
-                                                                PropertyMethodType.Other)
+                if (group.HasNonRenamableMethod()) { }
+                else if (group.HasGetterOrSetterPropertyMethod() &&
+                         GetPropertyMethodType(group.Methods[0]) !=
+                         PropertyMethodType.Other)
                     propMethods.Add(group);
                 else if (group.HasAddRemoveOrRaiseEventMethod())
                     eventMethods.Add(group);
@@ -1239,7 +1244,8 @@ namespace NETReactorSlayer.De4dot.Renamer
                 newMethodName = GetRealName(overriddenMethod == null
                     ? overrideMethod.MethodDef.Overrides[0].MethodDeclaration.Name.String
                     : _memberInfos.Method(overriddenMethod).NewName);
-            } else
+            }
+            else
             {
                 newMethodName = GetSuggestedMethodName(group);
                 if (newMethodName == null)
@@ -1517,12 +1523,7 @@ namespace NETReactorSlayer.De4dot.Renamer
             Events = 0x4
         }
 
-        private enum PropertyMethodType
-        {
-            Other,
-            Getter,
-            Setter
-        }
+        private enum PropertyMethodType { Other, Getter, Setter }
 
         private class PrepareHelper
         {

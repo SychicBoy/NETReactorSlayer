@@ -60,8 +60,6 @@ namespace NETReactorSlayer.Core.Helper
                 : null;
         }
 
-        #region Private Methods
-
         private static byte[] UnpackLoader(byte[] loaderData)
         {
             var loaderBytes = new byte[loaderData.Length - LoaderHeaderSizeV45];
@@ -72,10 +70,8 @@ namespace NETReactorSlayer.Core.Helper
                 return asmLoader.Resources.Count == 0
                     ? null
                     : (asmLoader.Resources[0] as EmbeddedResource)?.CreateReader().ToArray();
-            } catch
-            {
-                return null;
             }
+            catch { return null; }
         }
 
         private byte[] GetKeyData()
@@ -162,7 +158,8 @@ namespace NETReactorSlayer.Core.Helper
                 {
                     counter++;
                     i1 = 1 + (key[(i + 37 + counter) % key.Length] + counter + kb) % 255;
-                } while (transformTemp[0, i1] != 0x400);
+                }
+                while (transformTemp[0, i1] != 0x400);
 
                 for (var i0 = 0; i0 < 256; i0++)
                     transformTemp[i0, i1] = transformTemp[(i0 + ki) % 256, 0];
@@ -192,9 +189,6 @@ namespace NETReactorSlayer.Core.Helper
             }
         }
 
-        #endregion
-
-        #region Fields
 
         private readonly uint[] _baseOffsets = { 0x1C00, 0x1900, 0x1B60, 0x700 };
 
@@ -214,7 +208,5 @@ namespace NETReactorSlayer.Core.Helper
 
         private bool _isNet1X;
         private const int LoaderHeaderSizeV45 = 14;
-
-        #endregion
     }
 }

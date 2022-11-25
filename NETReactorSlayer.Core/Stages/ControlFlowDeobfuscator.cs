@@ -18,14 +18,16 @@ using System.Linq;
 using System.Reflection;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
+using NETReactorSlayer.Core.Abstractions;
 using NETReactorSlayer.Core.Helper;
 
-namespace NETReactorSlayer.Core.Deobfuscators
+namespace NETReactorSlayer.Core.Stages
 {
     internal class ControlFlowDeobfuscator : IStage
     {
-        public void Execute()
+        public void Run(IContext context)
         {
+            Context = context;
             if (_fields.Count == 0)
                 Initialize();
             long count = 0;
@@ -33,20 +35,17 @@ namespace NETReactorSlayer.Core.Deobfuscators
                          (from x in type.Methods where x.HasBody && x.Body.HasInstructions select x)
                          .ToArray()))
             {
-                if (SimpleDeobfuscator.Deobfuscate(method))
-                    count++;
+                SimpleDeobfuscator.Deobfuscate(method);
                 count += Arithmetic(method);
                 SimpleDeobfuscator.DeobfuscateBlocks(method);
             }
 
             if (count > 0)
-                Logger.Done(count + " Equations resolved.");
+                Context.Logger.Info(count + " Equations resolved.");
             else
-                Logger.Warn(
+                Context.Logger.Warn(
                     "Couldn't found any equations, looks like there's no control flow obfuscation applied to methods.");
         }
-
-        #region Private Methods
 
         private void Initialize()
         {
@@ -112,10 +111,10 @@ namespace NETReactorSlayer.Core.Deobfuscators
                               x.Fields.Count(f =>
                                   f.FieldType.FullName == "System.Int32" && f.IsAssembly && !f.HasConstant) >= 100))
             {
-                if ((Context.ObfuscatorInfo.NativeStub && Context.ObfuscatorInfo.NecroBit)
-                    || !Context.ObfuscatorInfo.UsesReflaction)
+                if ((Context.Info.NativeStub && Context.Info.NecroBit)
+                    || !Context.Info.UsesReflection)
                 {
-                    Logger.Warn("Couldn't resolve arithmetic fields.");
+                    Context.Logger.Warn("Couldn't resolve arithmetic fields.");
                     return;
                 }
 
@@ -133,7 +132,8 @@ namespace NETReactorSlayer.Core.Deobfuscators
                                 _fields.Add(field, value);
                             else
                                 _fields[field] = value;
-                        } catch { }
+                        }
+                        catch { }
                 else if (type.Fields.Where(x => x.FieldType.FullName == "System.Int32").All(x => !x.IsStatic))
                     foreach (var instances in type.Fields.Where(x => x.FieldType.ToTypeDefOrRef().Equals(type)))
                         try
@@ -162,7 +162,8 @@ namespace NETReactorSlayer.Core.Deobfuscators
                             }
 
                             break;
-                        } catch { }
+                        }
+                        catch { }
 
                 if (_fields.Count < 100)
                     continue;
@@ -197,17 +198,14 @@ namespace NETReactorSlayer.Core.Deobfuscators
                         method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
                     method.Body.Instructions[i] = Instruction.CreateLdcI4(value);
                     count++;
-                } catch { }
+                }
+                catch { }
 
             return count;
         }
 
-        #endregion
 
-        #region Fields
-
+        private IContext Context { get; set; }
         private readonly Dictionary<IField, int> _fields = new();
-
-        #endregion
     }
 }

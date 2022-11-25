@@ -21,8 +21,6 @@ namespace NETReactorSlayer.GUI.UserControls
 {
     public sealed class NrsCheckBox : CheckBox
     {
-        #region Constructor Region
-
         public NrsCheckBox()
         {
             SetStyle(ControlStyles.SupportsTransparentBackColor |
@@ -32,10 +30,6 @@ namespace NETReactorSlayer.GUI.UserControls
             Cursor = Cursors.Hand;
         }
 
-        #endregion
-
-        #region Method Region
-
         private void SetControlState(ControlState controlState)
         {
             if (_controlState == controlState)
@@ -43,25 +37,6 @@ namespace NETReactorSlayer.GUI.UserControls
             _controlState = controlState;
             Invalidate();
         }
-
-        #endregion
-
-        public enum ControlState
-        {
-            Normal,
-            Hover,
-            Pressed
-        }
-
-        #region Field Region
-
-        private ControlState _controlState = ControlState.Normal;
-
-        private bool _spacePressed;
-
-        #endregion
-
-        #region Event Handler Region
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
@@ -160,13 +135,61 @@ namespace NETReactorSlayer.GUI.UserControls
             SetControlState(!ClientRectangle.Contains(location) ? ControlState.Normal : ControlState.Hover);
         }
 
-        #endregion
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            var g = e.Graphics;
+            var rect = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
 
-        #region Paint Region
+            const int size = 12;
 
-        #region OhHover
+            var textColor = ForeColor;
+            var borderColor = BorderColor;
+            var fillColor = FillColor;
 
-        private Color _borderColor = Color.Silver;
+            if (Enabled)
+                switch (_controlState)
+                {
+                    case ControlState.Hover:
+                        borderColor = HoverBorderColor;
+                        textColor = HoverForeColor;
+                        fillColor = HoverFillColor;
+                        break;
+                    case ControlState.Pressed:
+                        borderColor = PressBorderColor;
+                        textColor = PressForeColor;
+                        fillColor = PressFillColor;
+                        break;
+                }
+
+            using (var b = new SolidBrush(BackColor)) { g.FillRectangle(b, rect); }
+
+            using (var p = new Pen(borderColor))
+            {
+                var boxRect = new Rectangle(0, rect.Height / 2 - size / 2, size, size);
+                g.DrawRectangle(p, boxRect);
+            }
+
+            if (Checked)
+                using (var b = new SolidBrush(fillColor))
+                {
+                    var boxRect = new Rectangle(2, rect.Height / 2 - (size - 4) / 2, size - 3, size - 3);
+                    g.FillRectangle(b, boxRect);
+                }
+
+            using (var b = new SolidBrush(textColor))
+            {
+                var stringFormat = new StringFormat
+                {
+                    LineAlignment = StringAlignment.Center,
+                    Alignment = StringAlignment.Near
+                };
+
+                var modRect = new Rectangle(size + 4, 0, rect.Width - size, rect.Height);
+                g.DrawString(Text, Font, b, modRect, stringFormat);
+            }
+        }
+
+        public enum ControlState { Normal, Hover, Pressed }
 
         public Color BorderColor
         {
@@ -226,8 +249,6 @@ namespace NETReactorSlayer.GUI.UserControls
             }
         }
 
-        #endregion
-
         private Color _fillColor = Color.FromArgb(238, 30, 35);
 
         public Color FillColor
@@ -264,63 +285,10 @@ namespace NETReactorSlayer.GUI.UserControls
             }
         }
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            var g = e.Graphics;
-            var rect = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
+        private ControlState _controlState = ControlState.Normal;
 
-            const int size = 12;
+        private Color _borderColor = Color.Silver;
 
-            var textColor = ForeColor;
-            var borderColor = BorderColor;
-            var fillColor = FillColor;
-
-            if (Enabled)
-                switch (_controlState)
-                {
-                    case ControlState.Hover:
-                        borderColor = HoverBorderColor;
-                        textColor = HoverForeColor;
-                        fillColor = HoverFillColor;
-                        break;
-                    case ControlState.Pressed:
-                        borderColor = PressBorderColor;
-                        textColor = PressForeColor;
-                        fillColor = PressFillColor;
-                        break;
-                }
-
-            using (var b = new SolidBrush(BackColor))
-            {
-                g.FillRectangle(b, rect);
-            }
-
-            using (var p = new Pen(borderColor))
-            {
-                var boxRect = new Rectangle(0, rect.Height / 2 - size / 2, size, size);
-                g.DrawRectangle(p, boxRect);
-            }
-
-            if (Checked)
-                using (var b = new SolidBrush(fillColor))
-                {
-                    var boxRect = new Rectangle(2, rect.Height / 2 - (size - 4) / 2, size - 3, size - 3);
-                    g.FillRectangle(b, boxRect);
-                }
-
-            using (var b = new SolidBrush(textColor))
-            {
-                var stringFormat = new StringFormat
-                {
-                    LineAlignment = StringAlignment.Center,
-                    Alignment = StringAlignment.Near
-                };
-
-                var modRect = new Rectangle(size + 4, 0, rect.Width - size, rect.Height);
-                g.DrawString(Text, Font, b, modRect, stringFormat);
-            }
-        }
-
-        #endregion
+        private bool _spacePressed;
     }
 }

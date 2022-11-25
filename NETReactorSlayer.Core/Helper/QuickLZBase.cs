@@ -52,13 +52,15 @@ namespace NETReactorSlayer.Core.Helper
                         Copy(outData, (int)(outIndex - count), outData, outIndex, 3);
                         outIndex += 3;
                         inIndex++;
-                    } else if ((val2 & 2) == 0)
+                    }
+                    else if ((val2 & 2) == 0)
                     {
                         count = (val2 & 0xFFFF) >> 2;
                         Copy(outData, (int)(outIndex - count), outData, outIndex, 3);
                         outIndex += 3;
                         inIndex += 2;
-                    } else
+                    }
+                    else
                     {
                         int size;
                         if ((val2 & 1) == 0)
@@ -68,21 +70,24 @@ namespace NETReactorSlayer.Core.Helper
                             Copy(outData, (int)(outIndex - count), outData, outIndex, size);
                             outIndex += size;
                             inIndex += 2;
-                        } else if ((val2 & 4) == 0)
+                        }
+                        else if ((val2 & 4) == 0)
                         {
                             size = (int)((val2 >> 3) & 0x1F) + 3;
                             count = (val2 & 0xFFFFFF) >> 8;
                             Copy(outData, (int)(outIndex - count), outData, outIndex, size);
                             outIndex += size;
                             inIndex += 3;
-                        } else if ((val2 & 8) == 0)
+                        }
+                        else if ((val2 & 8) == 0)
                         {
                             count = val2 >> 15;
                             if (count != 0)
                             {
                                 size = (int)((val2 >> 4) & 0x07FF) + 3;
                                 inIndex += 4;
-                            } else
+                            }
+                            else
                             {
                                 size = (int)Read32(inData, inIndex + 4);
                                 count = Read32(inData, inIndex + 8);
@@ -91,7 +96,8 @@ namespace NETReactorSlayer.Core.Helper
 
                             Copy(outData, (int)(outIndex - count), outData, outIndex, size);
                             outIndex += size;
-                        } else
+                        }
+                        else
                         {
                             var b = (byte)(val2 >> 16);
                             size = (int)(val2 >> 4) & 0x0FFF;
@@ -99,14 +105,16 @@ namespace NETReactorSlayer.Core.Helper
                             {
                                 size = (int)Read32(inData, inIndex + 3);
                                 inIndex += 7;
-                            } else
+                            }
+                            else
                                 inIndex += 3;
 
                             for (var i = 0; i < size; i++)
                                 outData[outIndex++] = b;
                         }
                     }
-                } else
+                }
+                else
                 {
                     Copy(inData, inIndex, outData, outIndex, 4);
                     var index = (int)(val1 & 0x0F);

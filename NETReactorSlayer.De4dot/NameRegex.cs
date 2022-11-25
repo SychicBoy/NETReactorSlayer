@@ -25,7 +25,8 @@ namespace NETReactorSlayer.De4dot
             {
                 regex = regex.Substring(1);
                 MatchValue = false;
-            } else
+            }
+            else
                 MatchValue = true;
 
             _regex = new Regex(regex);

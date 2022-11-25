@@ -16,13 +16,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using NETReactorSlayer.Core.Deobfuscators;
+using NETReactorSlayer.Core.Abstractions;
+using NETReactorSlayer.Core.Stages;
 using NETReactorSlayer.De4dot.Renamer;
 using MemberInfo = System.Reflection.MemberInfo;
 
 namespace NETReactorSlayer.Core
 {
-    public class Options
+    public class Options : IOptions
     {
         public Options(IReadOnlyList<string> args)
         {
@@ -51,31 +52,31 @@ namespace NETReactorSlayer.Core
                                 continue;
                             case "--fix-proxy":
                                 RemoveStage(typeof(ProxyCallFixer));
-                                CallDecrypter = false;
+                                ProxyCallFixer = false;
                                 continue;
                             case "--dec-strings":
                                 RemoveStage(typeof(StringDecrypter));
-                                StrDecrypter = false;
+                                StringDecrypter = false;
                                 continue;
                             case "--dec-rsrc":
                                 RemoveStage(typeof(ResourceResolver));
-                                RsrcDecrypter = false;
+                                ResourceResolver = false;
                                 continue;
                             case "--dec-bools":
                                 RemoveStage(typeof(BooleanDecrypter));
-                                BoolDecrypter = false;
+                                BooleanDecrypter = false;
                                 continue;
                             case "--deob-cflow":
                                 RemoveStage(typeof(ControlFlowDeobfuscator));
-                                CFlowDeob = false;
+                                ControlFlowDeobfuscator = false;
                                 continue;
                             case "--deob-tokens":
                                 RemoveStage(typeof(TokenDeobfuscator));
-                                TokenDecrypter = false;
+                                TokenDeobfuscator = false;
                                 continue;
                             case "--dump-asm":
                                 RemoveStage(typeof(AssemblyResolver));
-                                AsmDumper = false;
+                                AssemblyResolver = false;
                                 continue;
                             case "--dump-costura":
                                 RemoveStage(typeof(CosturaDumper));
@@ -87,11 +88,11 @@ namespace NETReactorSlayer.Core
                                 continue;
                             case "--rem-antis":
                                 RemoveStage(typeof(AntiManipulationPatcher));
-                                AntiTd = false;
+                                AntiManipulationPatcher = false;
                                 continue;
                             case "--rem-sn":
                                 RemoveStage(typeof(StrongNamePatcher));
-                                StrongName = false;
+                                StrongNamePatcher = false;
                                 continue;
                             case "--rem-calls":
                                 RemoveCallsToObfuscatorTypes = false;
@@ -115,16 +116,13 @@ namespace NETReactorSlayer.Core
                         case "--no-pause":
                             NoPause = flag;
                             break;
-                        case "--verbose":
-                            Verbose = flag;
-                            break;
                     }
                 }
 
                 switch (key)
                 {
                     case "--dont-rename":
-                        Rename = false;
+                        SymbolRenamer = false;
                         RemoveStage(typeof(SymbolRenamer));
                         break;
                     case "--rename":
@@ -176,25 +174,34 @@ namespace NETReactorSlayer.Core
                 Stages.FirstOrDefault(x =>
                     x.GetType().Name == memberInfo.Name));
 
-        public readonly bool AntiTd = true;
-        public readonly bool AsmDumper = true;
-        public readonly bool BoolDecrypter = true;
-        public readonly bool CallDecrypter = true;
-        public readonly bool CFlowDeob = true;
-        public readonly bool CosturaDumper = true;
-        public string DestFileName;
-        public string DestPath;
-        public readonly bool KeepObfuscatorTypes;
-        public readonly bool KeepOldMaxStackValue;
-        public readonly bool MethodDecrypter = true;
-        public readonly bool MethodInliner = true;
-        public readonly bool NoPause;
-        public readonly bool PreserveAllMdTokens;
-        public readonly bool RemoveCallsToObfuscatorTypes = true;
-        public readonly bool RemoveJunks = true;
-        public readonly bool Rename = true;
+        public string SourceDir { get; set; }
+        public string SourceFileExt { get; set; }
+        public string SourceFileName { get; set; }
+        public string SourcePath { get; set; }
+        public string DestFileName { get; set; }
+        public string DestPath { get; set; }
+        public bool AntiManipulationPatcher { get; set; } = true;
+        public bool AssemblyResolver { get; set; } = true;
+        public bool BooleanDecrypter { get; set; } = true;
+        public bool ProxyCallFixer { get; set; } = true;
+        public bool ControlFlowDeobfuscator { get; set; } = true;
+        public bool CosturaDumper { get; set; } = true;
+        public bool MethodDecrypter { get; set; } = true;
+        public bool MethodInliner { get; set; } = true;
+        public bool RemoveCallsToObfuscatorTypes { get; set; } = true;
+        public bool SymbolRenamer { get; set; } = true;
+        public bool ResourceResolver { get; set; } = true;
+        public bool StringDecrypter { get; set; } = true;
+        public bool StrongNamePatcher { get; set; } = true;
+        public bool TokenDeobfuscator { get; set; } = true;
+        public bool RemoveJunks { get; set; } = true;
+        public bool KeepObfuscatorTypes { get; set; }
+        public bool KeepOldMaxStackValue { get; set; }
+        public bool NoPause { get; set; }
+        public bool PreserveAllMdTokens { get; set; }
+        public bool RenameShort { get; set; }
 
-        public readonly RenamerFlags RenamerFlags =
+        public RenamerFlags RenamerFlags { get; set; } =
             RenamerFlags.RenameNamespaces |
             RenamerFlags.RenameTypes |
             RenamerFlags.RenameEvents |
@@ -205,14 +212,7 @@ namespace NETReactorSlayer.Core
             RenamerFlags.RestoreEventsFromNames |
             RenamerFlags.RestoreEvents;
 
-        public readonly bool RenameShort = false;
-        public readonly bool RsrcDecrypter = true;
-        public string SourceDir;
-        public string SourceFileExt;
-        public string SourceFileName;
-        public string SourcePath;
-
-        public readonly List<IStage> Stages = new()
+        public List<IStage> Stages { get; set; } = new()
         {
             new MethodDecrypter(),
             new ControlFlowDeobfuscator(),
@@ -226,13 +226,9 @@ namespace NETReactorSlayer.Core
             new TokenDeobfuscator(),
             new BooleanDecrypter(),
             new StrongNamePatcher(),
+            new TypeRestorer(),
             new Cleaner(),
             new SymbolRenamer()
         };
-
-        public readonly bool StrDecrypter = true;
-        public readonly bool StrongName = true;
-        public readonly bool TokenDecrypter = true;
-        public readonly bool Verbose;
     }
 }

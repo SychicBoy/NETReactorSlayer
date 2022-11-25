@@ -153,11 +153,6 @@ namespace NETReactorSlayer.GUI.UserControls
             }
         }
 
-        public enum TextTransformEnum
-        {
-            None,
-            Upper,
-            Lower
-        }
+        public enum TextTransformEnum { None, Upper, Lower }
     }
 }

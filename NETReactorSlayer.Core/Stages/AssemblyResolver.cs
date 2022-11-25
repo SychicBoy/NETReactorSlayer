@@ -19,14 +19,16 @@ using System.IO;
 using System.Linq;
 using de4dot.blocks;
 using dnlib.DotNet;
+using NETReactorSlayer.Core.Abstractions;
 using NETReactorSlayer.Core.Helper;
 
-namespace NETReactorSlayer.Core.Deobfuscators
+namespace NETReactorSlayer.Core.Stages
 {
     internal class AssemblyResolver : IStage
     {
-        public void Execute()
+        public void Run(IContext context)
         {
+            Context = context;
             long count = 0;
             FindRequirements();
             if (_resolverMethod == null || _initialMethod == null || _resolverType == null)
@@ -44,16 +46,12 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 Cleaner.AddResourceToBeRemoved(asm);
                 count++;
                 var name = GetAssemblyName(asm, false) + ".dll";
-                try
-                {
-                    File.WriteAllBytes(Context.Options.SourceDir + "\\" + name, asm.CreateReader().ToArray());
-                } catch { }
+                try { File.WriteAllBytes(Context.Options.SourceDir + "\\" + name, asm.CreateReader().ToArray()); }
+                catch { }
             }
 
-            Logger.Done(count + " Embedded assemblies dumped (DNR).");
+            Context.Logger.Info(count + " Embedded assemblies dumped (DNR).");
         }
-
-        #region Private Methods
 
         private void FindRequirements()
         {
@@ -80,7 +78,8 @@ namespace NETReactorSlayer.Core.Deobfuscators
                     _resolverType = type;
                     _initialMethod = method;
                     return;
-                } catch { }
+                }
+                catch { }
         }
 
         private static bool FindResolverMethod(TypeDef type, out MethodDef method)
@@ -112,7 +111,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                                          fieldTypes.Count("System.Object") == 1);
         }
 
-        private static IEnumerable<EmbeddedResource> GetAssemblies(string prefix)
+        private IEnumerable<EmbeddedResource> GetAssemblies(string prefix)
         {
             var result = new List<EmbeddedResource>();
             if (string.IsNullOrEmpty(prefix))
@@ -136,19 +135,14 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 if (fullName)
                     return module.Assembly.FullName;
                 return module.Assembly.Name;
-            } catch
-            {
-                return null;
             }
+            catch { return null; }
         }
 
         private static bool StartsWith(string left, string right, StringComparison stringComparison)
             // ReSharper disable once SuspiciousTypeConversion.Global
             => left.Length > right.Length && Equals(right, stringComparison);
 
-        #endregion
-
-        #region Fields
 
         private readonly string[] _locals1 =
         {
@@ -161,10 +155,9 @@ namespace NETReactorSlayer.Core.Deobfuscators
         private readonly string[] _locals3 =
             { "System.Reflection.Assembly", "System.Reflection.Assembly[]", "System.IO.Stream" };
 
+        private IContext Context { get; set; }
         private MethodDef _initialMethod;
         private MethodDef _resolverMethod;
         private TypeDef _resolverType;
-
-        #endregion
     }
 }

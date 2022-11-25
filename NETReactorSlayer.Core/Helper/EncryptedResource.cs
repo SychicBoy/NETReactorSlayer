@@ -22,27 +22,28 @@ using de4dot.blocks;
 using de4dot.blocks.cflow;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
+using NETReactorSlayer.Core.Abstractions;
 
 namespace NETReactorSlayer.Core.Helper
 {
     internal class EncryptedResource : IDisposable
     {
-        public EncryptedResource(MethodDef method, IList<string> additionalTypes)
+        public EncryptedResource(IContext context, MethodDef method, IList<string> additionalTypes)
         {
             SimpleDeobfuscator.Deobfuscate(method);
             DecrypterMethod = method;
             AdditionalTypes = additionalTypes;
             Decrypter = GetDecrypter();
-            EmbeddedResource = GetEncryptedResource();
+            EmbeddedResource = GetEncryptedResource(context);
         }
 
-        public EncryptedResource(MethodDef method)
+        public EncryptedResource(IContext context, MethodDef method)
         {
             SimpleDeobfuscator.Deobfuscate(method);
             DecrypterMethod = method;
             AdditionalTypes = Array.Empty<string>();
             Decrypter = GetDecrypter();
-            EmbeddedResource = GetEncryptedResource();
+            EmbeddedResource = GetEncryptedResource(context);
         }
 
         public void Dispose()
@@ -59,44 +60,15 @@ namespace NETReactorSlayer.Core.Helper
             Decrypter = null;
         }
 
-        public static bool IsKnownDecrypter(MethodDef method, IList<string> additionalTypes, bool checkResource)
-        {
-            SimpleDeobfuscator.Deobfuscate(method);
-            if (checkResource)
-            {
-                if (!method.HasBody || !method.Body.HasInstructions)
-                    return false;
-
-                if (!DotNetUtils.GetCodeStrings(method)
-                        .Any(x => DotNetUtils.GetResource(Context.Module, x) is EmbeddedResource))
-                    return false;
-            }
-
-            if (!method.IsStatic || !method.HasBody)
-                return false;
-
-            var localTypes = new LocalTypes(method);
-            if (DecrypterV1.CouldBeResourceDecrypter(method, localTypes, additionalTypes))
-                return true;
-
-            if (DecrypterV3.CouldBeResourceDecrypter(localTypes, additionalTypes))
-                return true;
-
-            return DecrypterV4.CouldBeResourceDecrypter(method, localTypes, additionalTypes) ||
-                   DecrypterV2.CouldBeResourceDecrypter(localTypes, additionalTypes);
-        }
-
         public byte[] Decrypt() => Decrypter.Decrypt(EmbeddedResource);
 
-        #region Private Methods
-
-        private EmbeddedResource GetEncryptedResource()
+        private EmbeddedResource GetEncryptedResource(IContext context)
         {
             if (!DecrypterMethod.HasBody || !DecrypterMethod.Body.HasInstructions)
                 return null;
 
             foreach (var s in DotNetUtils.GetCodeStrings(DecrypterMethod))
-                if (DotNetUtils.GetResource(Context.Module, s) is EmbeddedResource resource)
+                if (DotNetUtils.GetResource(context.Module, s) is EmbeddedResource resource)
                     return resource;
 
             return null;
@@ -123,6 +95,33 @@ namespace NETReactorSlayer.Core.Helper
                 : null;
         }
 
+        public static bool IsKnownDecrypter(MethodDef method, IList<string> additionalTypes, bool checkResource)
+        {
+            SimpleDeobfuscator.Deobfuscate(method);
+            if (checkResource)
+            {
+                if (!method.HasBody || !method.Body.HasInstructions)
+                    return false;
+
+                if (!DotNetUtils.GetCodeStrings(method)
+                        .Any(x => DotNetUtils.GetResource(method.Module, x) is EmbeddedResource))
+                    return false;
+            }
+
+            if (!method.IsStatic || !method.HasBody)
+                return false;
+
+            var localTypes = new LocalTypes(method);
+            if (DecrypterV1.CouldBeResourceDecrypter(method, localTypes, additionalTypes))
+                return true;
+
+            if (DecrypterV3.CouldBeResourceDecrypter(localTypes, additionalTypes))
+                return true;
+
+            return DecrypterV4.CouldBeResourceDecrypter(method, localTypes, additionalTypes) ||
+                   DecrypterV2.CouldBeResourceDecrypter(localTypes, additionalTypes);
+        }
+
         private static byte[] GetDecryptionKey(MethodDef method) => ArrayFinder.GetInitializedByteArray(method, 32);
 
         private static byte[] GetDecryptionIV(MethodDef method)
@@ -135,7 +134,7 @@ namespace NETReactorSlayer.Core.Helper
             if (!UsesPublicKeyToken(method))
                 return bytes;
 
-            if (Context.Module.Assembly.PublicKeyToken is not { } publicKeyToken ||
+            if (method.Module.Assembly.PublicKeyToken is not { } publicKeyToken ||
                 publicKeyToken.Data.Length == 0)
                 return bytes;
 
@@ -174,38 +173,17 @@ namespace NETReactorSlayer.Core.Helper
                 .Any(calledMethod => calledMethod.FullName.Contains(fullName));
         }
 
-        #endregion
+        public MethodDef DecrypterMethod { get; }
+        public EmbeddedResource EmbeddedResource { get; private set; }
+        private IList<string> AdditionalTypes { get; }
+        private IDecrypter Decrypter { get; set; }
 
-        #region Enums
-
-        public enum DecrypterVersion
-        {
-            V69,
-            V6X
-        }
-
-        #endregion
-
-        #region Interfaces
+        public enum DecrypterVersion { V69, V6X }
 
         private interface IDecrypter
         {
             byte[] Decrypt(EmbeddedResource resource);
         }
-
-        #endregion
-
-        #region Properties
-
-        public MethodDef DecrypterMethod { get; }
-
-        public EmbeddedResource EmbeddedResource { get; private set; }
-
-        private IList<string> AdditionalTypes { get; }
-
-        private IDecrypter Decrypter { get; set; }
-
-        #endregion
 
         #region Nested Types
 
@@ -265,11 +243,8 @@ namespace NETReactorSlayer.Core.Helper
             public byte[] Decrypt(EmbeddedResource resource) =>
                 DeobUtils.AesDecrypt(resource.CreateReader().ToArray(), _key, _iv);
 
-            #region Fields
 
             private readonly byte[] _key, _iv;
-
-            #endregion
         }
 
         private class DecrypterV2 : IDecrypter
@@ -318,8 +293,6 @@ namespace NETReactorSlayer.Core.Helper
 
                 return decrypted;
             }
-
-            #region Private Methods
 
             private bool Initialize()
             {
@@ -564,7 +537,8 @@ namespace NETReactorSlayer.Core.Helper
                     _instrEmulator.Initialize(_decrypterMethod, _decrypterMethod.Parameters, _locals,
                         _decrypterMethod.Body.InitLocals, false);
                     _instrEmulator.SetLocal(_emuLocal, new Int32Value((int)input));
-                } else
+                }
+                else
                 {
                     _instrEmulator.Initialize(_emuMethod, _emuMethod.Parameters, _locals, _emuMethod.Body.InitLocals,
                         false);
@@ -598,7 +572,8 @@ namespace NETReactorSlayer.Core.Helper
                         if (_instrEmulator.GetLocal(CheckLocal(_instructions[index + 6], false)
                                 .Index) is Int32Value local && local.Value != Int32Value.Zero.Value)
                             index += 7;
-                    } catch { }
+                    }
+                    catch { }
 
                     Emulate:
                     _instrEmulator.Emulate(_instructions[index]);
@@ -610,9 +585,6 @@ namespace NETReactorSlayer.Core.Helper
                 return (uint)tos.Value;
             }
 
-            #endregion
-
-            #region Fields
 
             private readonly InstructionEmulator _instrEmulator = new();
             private readonly byte[] _key, _iv;
@@ -624,8 +596,6 @@ namespace NETReactorSlayer.Core.Helper
             private bool _isNewDecrypter;
             private List<Local> _locals;
             private DecrypterVersion _decrypterVersion = DecrypterVersion.V6X;
-
-            #endregion
         }
 
         private class DecrypterV3 : IDecrypter
@@ -664,8 +634,6 @@ namespace NETReactorSlayer.Core.Helper
 
                 return decrypted;
             }
-
-            #region Private Methods
 
             private bool Initialize()
             {
@@ -713,7 +681,8 @@ namespace NETReactorSlayer.Core.Helper
                         if (_instrEmulator.GetLocal(CheckLocal(_instructions[index + 6], false)
                                 .Index) is Int32Value local && local.Value != Int32Value.Zero.Value)
                             index += 7;
-                    } catch { }
+                    }
+                    catch { }
 
                     Emulate:
                     _instrEmulator.Emulate(_instructions[index]);
@@ -900,9 +869,6 @@ namespace NETReactorSlayer.Core.Helper
                 }
             }
 
-            #endregion
-
-            #region Fields
 
             private readonly InstructionEmulator _instrEmulator = new();
             private readonly List<Local> _locals;
@@ -910,8 +876,6 @@ namespace NETReactorSlayer.Core.Helper
             private Local _emuLocal;
             private List<Instruction> _instructions;
             private DecrypterVersion _decrypterVersion = DecrypterVersion.V6X;
-
-            #endregion
         }
 
         private class DecrypterV4 : IDecrypter
@@ -965,8 +929,6 @@ namespace NETReactorSlayer.Core.Helper
 
                 return decrypted;
             }
-
-            #region Private Methods
 
             private bool FindDecrypterMethod(MethodDef method)
             {
@@ -1227,7 +1189,8 @@ namespace NETReactorSlayer.Core.Helper
                         if (_instrEmulator.GetLocal(CheckLocal(_instructions[index + 6], false)
                                 .Index) is Int32Value local && local.Value != Int32Value.Zero.Value)
                             index += 7;
-                    } catch { }
+                    }
+                    catch { }
 
                     Emulate:
                     _instrEmulator.Emulate(_instructions[index]);
@@ -1266,9 +1229,6 @@ namespace NETReactorSlayer.Core.Helper
                     ary[index + 3] = (byte)(value >> 24);
             }
 
-            #endregion
-
-            #region Fields
 
             private readonly byte[] _key, _iv;
             private MethodDef _decrypterMethod;
@@ -1278,8 +1238,6 @@ namespace NETReactorSlayer.Core.Helper
             private readonly InstructionEmulator _instrEmulator = new();
             private Local _emuLocal;
             private DecrypterVersion _decrypterVersion = DecrypterVersion.V6X;
-
-            #endregion
         }
 
         #endregion

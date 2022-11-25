@@ -13,12 +13,15 @@
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace NETReactorSlayer.Core
+namespace NETReactorSlayer.Core.Abstractions
 {
-    public class ObfuscatorInfo
+    public interface ILogger
     {
-        public bool NativeStub { get; set; }
-        public bool NecroBit { get; set; }
-        public bool UsesReflaction { get; set; }
+        void Info(string message);
+        void Warn(string message);
+        void Error(string message);
+        void Debug(string message);
+        void PrintUsage();
+        void PrintLogo();
     }
 }

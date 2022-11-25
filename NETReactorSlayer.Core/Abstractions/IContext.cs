@@ -13,21 +13,24 @@
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-using NETReactorSlayer.De4dot;
-using NETReactorSlayer.De4dot.Renamer;
+using System.Reflection;
+using dnlib.DotNet;
+using NETReactorSlayer.Core.Helper;
 
-namespace NETReactorSlayer.Core.Deobfuscators
+namespace NETReactorSlayer.Core.Abstractions
 {
-    internal class SymbolRenamer : IStage
+    public interface IContext
     {
-        public void Execute()
-        {
-            Logger.Done("Renaming obfuscated symbols...");
-            var deobfuscator =
-                new DeobfuscatorInfo(Context.Module, Context.Options.RenameShort).CreateDeobfuscator();
-            var obfuscatedFile = new ObfuscatedFile(Context.Module, deobfuscator);
-            obfuscatedFile.DeobfuscatorOptions.RenamerFlags = Context.Options.RenamerFlags;
-            new Renamer(obfuscatedFile).Rename();
-        }
+        bool Load();
+        void Save();
+        IOptions Options { get; }
+        ILogger Logger { get; }
+        IInfo Info { get; }
+        Assembly Assembly { get; set; }
+        AssemblyModule AssemblyModule { get; set; }
+        ModuleDefMD Module { get; set; }
+        ModuleContext ModuleContext { get; set; }
+        MyPeImage PeImage { get; set; }
+        byte[] ModuleBytes { get; set; }
     }
 }

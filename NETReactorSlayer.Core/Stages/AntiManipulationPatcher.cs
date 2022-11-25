@@ -17,13 +17,15 @@ using System.Linq;
 using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
+using NETReactorSlayer.Core.Abstractions;
 
-namespace NETReactorSlayer.Core.Deobfuscators
+namespace NETReactorSlayer.Core.Stages
 {
     internal class AntiManipulationPatcher : IStage
     {
-        public void Execute()
+        public void Run(IContext context)
         {
+            Context = context;
             bool antiTamper = false,
                 antiDebugger = false;
             foreach (var method in Context.Module.GetTypes()
@@ -39,14 +41,12 @@ namespace NETReactorSlayer.Core.Deobfuscators
             }
 
             if (!antiTamper)
-                Logger.Warn("Couldn't find anti tamper method.");
+                Context.Logger.Warn("Couldn't find anti tamper method.");
             if (!antiDebugger)
-                Logger.Warn("Couldn't find anti debugger method.");
+                Context.Logger.Warn("Couldn't find anti debugger method.");
         }
 
-        #region Private Methods
-
-        private static bool RemoveAntiTamper(MethodDef method)
+        private bool RemoveAntiTamper(MethodDef method)
         {
             if (!method.IsStatic)
                 return false;
@@ -57,11 +57,11 @@ namespace NETReactorSlayer.Core.Deobfuscators
             var cli = new CilBody();
             cli.Instructions.Add(ins);
             method.Body = cli;
-            Logger.Done("Anti tamper removed.");
+            Context.Logger.Info("Anti tamper removed.");
             return true;
         }
 
-        private static bool RemoveAntiDebugger(MethodDef method)
+        private bool RemoveAntiDebugger(MethodDef method)
         {
             if (!method.IsStatic)
                 return false;
@@ -72,10 +72,11 @@ namespace NETReactorSlayer.Core.Deobfuscators
             var cli = new CilBody();
             cli.Instructions.Add(ins);
             method.Body = cli;
-            Logger.Done("Anti debugger removed.");
+            Context.Logger.Info("Anti debugger removed.");
             return true;
         }
 
-        #endregion
+
+        private IContext Context { get; set; }
     }
 }

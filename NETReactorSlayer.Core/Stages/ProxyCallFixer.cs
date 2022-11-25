@@ -20,19 +20,21 @@ using System.Linq;
 using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
+using NETReactorSlayer.Core.Abstractions;
 using NETReactorSlayer.Core.Helper;
 
-namespace NETReactorSlayer.Core.Deobfuscators
+namespace NETReactorSlayer.Core.Stages
 {
     internal class ProxyCallFixer : IStage
     {
-        public void Execute()
+        public void Run(IContext context)
         {
+            Context = context;
             try
             {
                 if (!Find())
                 {
-                    Logger.Warn("Couldn't find any proxied call.");
+                    Context.Logger.Warn("Couldn't find any proxied call.");
                     return;
                 }
 
@@ -45,20 +47,20 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
                 if (count > 0)
                 {
-                    Logger.Done(count + " Proxied calls fixed.");
+                    Context.Logger.Info(count + " Proxied calls fixed.");
                     Cleaner.AddMethodToBeRemoved(_encryptedResource.DecrypterMethod);
                     Cleaner.AddResourceToBeRemoved(_encryptedResource.EmbeddedResource);
-                } else
-                    Logger.Warn("Couldn't find any proxied call.");
-            } catch (Exception ex)
+                }
+                else
+                    Context.Logger.Warn("Couldn't find any proxied call.");
+            }
+            catch (Exception ex)
             {
-                Logger.Error("An unexpected error occurred during fixing proxied calls.", ex);
+                Context.Logger.Error($"An unexpected error occurred during fixing proxied calls. {ex.Message}.");
             }
 
             _encryptedResource?.Dispose();
         }
-
-        #region Private Methods
 
         private bool Find()
         {
@@ -79,7 +81,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
             if (methodDef == null || !EncryptedResource.IsKnownDecrypter(methodDef, Array.Empty<string>(), true))
                 return false;
 
-            _encryptedResource = new EncryptedResource(methodDef);
+            _encryptedResource = new EncryptedResource(Context, methodDef);
             if (_encryptedResource.EmbeddedResource != null)
                 return true;
             _encryptedResource.Dispose();
@@ -138,7 +140,8 @@ namespace NETReactorSlayer.Core.Deobfuscators
                         method.Body.UpdateInstructionOffsets();
                         count++;
                         Cleaner.AddTypeToBeRemoved(field?.DeclaringType);
-                    } catch { }
+                    }
+                    catch { }
 
                 SimpleDeobfuscator.DeobfuscateBlocks(method);
             }
@@ -146,13 +149,9 @@ namespace NETReactorSlayer.Core.Deobfuscators
             return count;
         }
 
-        #endregion
 
-        #region Fields
-
+        private IContext Context { get; set; }
         private Dictionary<int, int> _dictionary;
         private EncryptedResource _encryptedResource;
-
-        #endregion
     }
 }

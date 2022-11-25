@@ -16,55 +16,53 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using NETReactorSlayer.Core.Abstractions;
 
 namespace NETReactorSlayer.Core
 {
-    internal class Logger
+    public class Logger : ILogger
     {
-        public static void Done(string message)
+        public void Info(string message)
         {
             Console.Write("  [");
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("✓");
+            Console.Write("INFO");
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write("] ");
             Console.WriteLine(message);
         }
 
-        public static void Warn(string message)
+        public void Warn(string message)
         {
             Console.Write("  [");
             Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.Write("!");
+            Console.Write("WARN");
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write("] ");
             Console.WriteLine(message);
         }
 
-        public static void Error(string message, Exception ex = null)
+        public void Error(string message)
         {
-            if (Context.Options.Verbose && ex is { Message: { } })
-                message += $" {ex.Message}.";
             Console.Write("  [");
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("X");
+            Console.Write("ERROR");
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write("] ");
             Console.WriteLine(message);
         }
 
-        private static void PrintSupportedVersions()
+        public void Debug(string message)
         {
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write("(");
-            Console.ForegroundColor = ConsoleColor.DarkCyan;
-            Console.Write("From 6.0 To 6.9");
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write(") ");
+            Console.Write("  [");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write("DEBUG");
             Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("] ");
+            Console.WriteLine(message);
         }
 
-        public static void PrintUsage()
+        public void PrintUsage()
         {
             var arguments = new List<string>
             {
@@ -89,8 +87,7 @@ namespace NETReactorSlayer.Core
                 "--keep-types BOOL", "               Keep obfuscator types, methods, fields, etc... (False)",
                 "--preserve-all BOOL", "             Preserve all metadata tokens (False)",
                 "--keep-max-stack BOOL", "           Keep old max stack value (False)",
-                "--no-pause BOOL", "                 Close cli immediately after deobfuscation (False)",
-                "--verbose BOOL", "                  Verbose mode (False)"
+                "--no-pause BOOL", "                 Close cli immediately after deobfuscation (False)"
             };
             Console.Write("  Usage: ");
             Console.ForegroundColor = ConsoleColor.Gray;
@@ -103,7 +100,7 @@ namespace NETReactorSlayer.Core
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        public static void PrintLogo()
+        public void PrintLogo()
         {
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Red;
@@ -139,8 +136,12 @@ namespace NETReactorSlayer.Core
                 ?.InformationalVersion);
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write("  Supported .NET Reactor versions: ");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.Write("(");
             Console.ForegroundColor = ConsoleColor.DarkCyan;
-            PrintSupportedVersions();
+            Console.Write("From 6.0 To 6.9");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.Write(") ");
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(Environment.NewLine + "  ==========================================================\r\n");
         }

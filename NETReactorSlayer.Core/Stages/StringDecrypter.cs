@@ -23,15 +23,17 @@ using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 using HarmonyLib;
+using NETReactorSlayer.Core.Abstractions;
 using NETReactorSlayer.Core.Helper;
 using Code = dnlib.DotNet.Emit.Code;
 
-namespace NETReactorSlayer.Core.Deobfuscators
+namespace NETReactorSlayer.Core.Stages
 {
     internal class StringDecrypter : IStage
     {
-        public void Execute()
+        public void Run(IContext context)
         {
+            Context = context;
             try
             {
                 long count;
@@ -42,7 +44,8 @@ namespace NETReactorSlayer.Core.Deobfuscators
                     {
                         _decryptedResource = _encryptedResource.Decrypt();
                         count = InlineStringsStatically();
-                    } else
+                    }
+                    else
                         throw new Exception();
 
                     if (count == 0)
@@ -50,25 +53,22 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
                     Cleaner.AddMethodToBeRemoved(_encryptedResource.DecrypterMethod);
                     Cleaner.AddResourceToBeRemoved(_encryptedResource.EmbeddedResource);
-                } catch
-                {
-                    count = InlineStringsDynamically();
                 }
+                catch { count = InlineStringsDynamically(); }
 
 
                 if (count > 0)
-                    Logger.Done(count + " Strings decrypted.");
+                    Context.Logger.Info(count + " Strings decrypted.");
                 else
-                    Logger.Warn("Couldn't find any encrypted string.");
-            } catch (Exception ex)
+                    Context.Logger.Warn("Couldn't find any encrypted string.");
+            }
+            catch (Exception ex)
             {
-                Logger.Error("An unexpected error occurred during decrypting strings.", ex);
+                Context.Logger.Error($"An unexpected error occurred during decrypting strings. {ex.Message}.");
             }
 
             _encryptedResource?.Dispose();
         }
-
-        #region Private Methods
 
         private bool Find()
         {
@@ -89,7 +89,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
                         try
                         {
-                            resource = new EncryptedResource(method, new[] { "System.String" });
+                            resource = new EncryptedResource(Context, method, new[] { "System.String" });
                             if (resource.EmbeddedResource != null)
                             {
                                 if (_decrypterMethods.Any(x => x.Value == resource.EmbeddedResource.Name) ||
@@ -103,11 +103,13 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
                                 continue;
                             }
-                        } catch { }
+                        }
+                        catch { }
 
                         resource?.Dispose();
                     }
-                } catch { }
+                }
+                catch { }
 
             return _decrypterMethods.Count > 0;
         }
@@ -230,7 +232,8 @@ namespace NETReactorSlayer.Core.Deobfuscators
                         method.Body.Instructions[i + 1].OpCode = OpCodes.Ldstr;
                         method.Body.Instructions[i + 1].Operand = decrypt;
                         count++;
-                    } catch { }
+                    }
+                    catch { }
 
                 SimpleDeobfuscator.DeobfuscateBlocks(method);
             }
@@ -238,10 +241,10 @@ namespace NETReactorSlayer.Core.Deobfuscators
             return count;
         }
 
-        private static long InlineStringsDynamically()
+        private long InlineStringsDynamically()
         {
-            if ((Context.ObfuscatorInfo.NativeStub && Context.ObfuscatorInfo.NecroBit) ||
-                !Context.ObfuscatorInfo.UsesReflaction)
+            if ((Context.Info.NativeStub && Context.Info.NecroBit) ||
+                !Context.Info.UsesReflection)
                 return 0;
 
             long count = 0;
@@ -303,7 +306,8 @@ namespace NETReactorSlayer.Core.Deobfuscators
                         method.Body.Instructions[i + 1].OpCode = OpCodes.Ldstr;
                         method.Body.Instructions[i + 1].Operand = operand;
                         count += 1L;
-                    } catch { }
+                    }
+                    catch { }
 
             if (decrypterMethod == null || encryptedResource == null)
                 return count;
@@ -313,26 +317,14 @@ namespace NETReactorSlayer.Core.Deobfuscators
             return count;
         }
 
-        #endregion
 
-        #region Fields
-
+        private IContext Context { get; set; }
         private byte[] _key, _iv, _decryptedResource;
         private EncryptedResource _encryptedResource;
         private readonly Dictionary<MethodDef, string> _decrypterMethods = new();
         private StringDecrypterVersion _stringDecrypterVersion;
 
-        #endregion
-
-        #region Enums
-
-        private enum StringDecrypterVersion
-        {
-            V37,
-            V38
-        }
-
-        #endregion
+        private enum StringDecrypterVersion { V37, V38 }
 
         #region Nested Types
 

@@ -30,7 +30,8 @@ namespace NETReactorSlayer.De4dot
                 var regexes = new NameRegexes();
                 regexes.Set(newVal);
                 _val = regexes;
-            } catch (ArgumentException)
+            }
+            catch (ArgumentException)
             {
                 error = $"Could not parse regex '{newVal}'";
                 return false;

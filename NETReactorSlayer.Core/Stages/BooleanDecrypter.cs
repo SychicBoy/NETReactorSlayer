@@ -18,14 +18,16 @@ using System.Linq;
 using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
+using NETReactorSlayer.Core.Abstractions;
 using NETReactorSlayer.Core.Helper;
 
-namespace NETReactorSlayer.Core.Deobfuscators
+namespace NETReactorSlayer.Core.Stages
 {
     internal class BooleanDecrypter : IStage
     {
-        public void Execute()
+        public void Run(IContext context)
         {
+            Context = context;
             try
             {
                 if (!Find())
@@ -37,19 +39,18 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
                 if (count > 0)
                 {
-                    Logger.Done(count + " Booleans decrypted.");
+                    Context.Logger.Info(count + " Booleans decrypted.");
                     Cleaner.AddResourceToBeRemoved(_encryptedResource.EmbeddedResource);
                     Cleaner.AddMethodToBeRemoved(_encryptedResource.DecrypterMethod);
                 }
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
-                Logger.Error("An unexpected error occurred during decrypting booleans.", ex);
+                Context.Logger.Error($"An unexpected error occurred during decrypting booleans. {ex.Message}.");
             }
 
             _encryptedResource?.Dispose();
         }
-
-        #region Private Methods
 
         private bool Find()
         {
@@ -58,7 +59,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 if (DotNetUtils.GetMethod(type, "System.Boolean", "(System.Int32)") is { } methodDef &&
                     EncryptedResource.IsKnownDecrypter(methodDef, Array.Empty<string>(), true))
                 {
-                    _encryptedResource = new EncryptedResource(methodDef);
+                    _encryptedResource = new EncryptedResource(Context, methodDef);
                     if (_encryptedResource.EmbeddedResource != null)
                         return true;
                     _encryptedResource.Dispose();
@@ -91,7 +92,8 @@ namespace NETReactorSlayer.Core.Deobfuscators
                             method.Body.Instructions[i] = Instruction.CreateLdcI4(0);
                         method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
                         count++;
-                    } catch { }
+                    }
+                    catch { }
 
                 SimpleDeobfuscator.DeobfuscateBlocks(method);
             }
@@ -99,15 +101,10 @@ namespace NETReactorSlayer.Core.Deobfuscators
             return count;
         }
 
-        private static bool Decrypt(int offset, byte[] bytes) =>
+        private bool Decrypt(int offset, byte[] bytes) =>
             Context.ModuleBytes[BitConverter.ToUInt32(bytes, offset)] == 0x80;
 
-        #endregion
-
-        #region Fields
-
+        private IContext Context { get; set; }
         private EncryptedResource _encryptedResource;
-
-        #endregion
     }
 }

@@ -20,15 +20,22 @@ using System.Reflection;
 using dnlib.DotNet;
 using dnlib.DotNet.Writer;
 using dnlib.PE;
+using NETReactorSlayer.Core.Abstractions;
 using NETReactorSlayer.Core.Helper;
+using ILogger = NETReactorSlayer.Core.Abstractions.ILogger;
 
 namespace NETReactorSlayer.Core
 {
-    public class Context
+    public class Context : IContext
     {
-        public bool Load(Options options)
+        public Context(IOptions options, ILogger logger)
         {
             Options = options;
+            Logger = logger;
+        }
+
+        public bool Load()
+        {
             if (string.IsNullOrEmpty(Options.SourcePath))
             {
                 Logger.Error("No input files specified.\r\n");
@@ -36,9 +43,50 @@ namespace NETReactorSlayer.Core
                 return false;
             }
 
-            Logger.Done($"{Options.Stages.Count}/14 Modules loaded...");
+            Logger.Info($"{Options.Stages.Count}/14 Modules loaded...");
 
-            return LoadModule();
+            try
+            {
+                ModuleContext = GetModuleContext();
+                AssemblyModule = new AssemblyModule(Options.SourcePath, ModuleContext);
+                Module = AssemblyModule.Load();
+                ModuleBytes = DeobUtils.ReadModule(Module);
+                PeImage = new MyPeImage(ModuleBytes);
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    var unpacked = new NativeUnpacker(new PEImage(Options.SourcePath)).Unpack();
+                    if (unpacked == null)
+                        throw;
+                    Options.SourcePath = Path.Combine(Options.SourceDir, "PEImage.tmp");
+                    File.WriteAllBytes(Options.SourcePath, unpacked);
+
+                    AssemblyModule = new AssemblyModule(Options.SourcePath, ModuleContext);
+                    Module = AssemblyModule.Load(unpacked);
+                    PeImage = new MyPeImage(unpacked);
+                    Info.NativeStub = true;
+                    ModuleBytes = DeobUtils.ReadModule(Module);
+
+                    Process.Start(new ProcessStartInfo(Process.GetCurrentProcess().MainModule?.FileName,
+                            $"--del-temp {Process.GetCurrentProcess().Id} \"{Options.SourcePath}\"")
+                        { WindowStyle = ProcessWindowStyle.Hidden });
+
+                    Logger.Info("Native stub unpacked.");
+                }
+                catch
+                {
+                    Logger.Error($"Failed to load assembly. {ex.Message}.");
+                    return false;
+                }
+            }
+
+            Info.UsesReflection = LoadAssembly();
+            if (!Info.UsesReflection)
+                Logger.Warn("Couldn't load assembly using reflection.");
+
+            return true;
         }
 
         public void Save()
@@ -66,74 +114,32 @@ namespace NETReactorSlayer.Core
                 {
                     Module?.Dispose();
                     PeImage?.Dispose();
-                } catch { }
+                }
+                catch { }
 
-                Logger.Done("Saved to: " + Options.DestFileName);
-            } catch (Exception ex)
+                Logger.Info("Saved to: " + Options.DestFileName);
+            }
+            catch (Exception ex)
             {
                 Logger.Error($"An unexpected error occurred during writing output file. {ex.Message}.");
             }
         }
 
-        #region Private Methods
-
-        private static bool LoadModule()
-        {
-            try
-            {
-                ModuleContext = GetModuleContext();
-                AssemblyModule = new AssemblyModule(Options.SourcePath, ModuleContext);
-                Module = AssemblyModule.Load();
-                ModuleBytes = DeobUtils.ReadModule(Module);
-                PeImage = new MyPeImage(ModuleBytes);
-            } catch (Exception ex)
-            {
-                try
-                {
-                    var unpacked = new NativeUnpacker(new PEImage(Options.SourcePath)).Unpack();
-                    if (unpacked == null)
-                        throw;
-                    Options.SourcePath = Path.Combine(Options.SourceDir, "PEImage.tmp");
-                    File.WriteAllBytes(Options.SourcePath, unpacked);
-
-                    AssemblyModule = new AssemblyModule(Options.SourcePath, ModuleContext);
-                    Module = AssemblyModule.Load(unpacked);
-                    PeImage = new MyPeImage(unpacked);
-                    ObfuscatorInfo.NativeStub = true;
-                    ModuleBytes = DeobUtils.ReadModule(Module);
-
-                    Process.Start(new ProcessStartInfo(Process.GetCurrentProcess().MainModule?.FileName,
-                            $"--del-temp {Process.GetCurrentProcess().Id} \"{Options.SourcePath}\"")
-                        { WindowStyle = ProcessWindowStyle.Hidden });
-
-                    Logger.Done("Native stub unpacked.");
-                } catch
-                {
-                    Logger.Error($"Failed to load assembly. {ex.Message}.");
-                    return false;
-                }
-            }
-
-            ObfuscatorInfo.UsesReflaction = LoadAssembly();
-            if (!ObfuscatorInfo.UsesReflaction)
-                Logger.Warn("Couldn't load assembly using reflection.");
-
-            return true;
-        }
-
-        private static bool LoadAssembly()
+        private bool LoadAssembly()
         {
             try
             {
                 Assembly = Assembly.Load(Options.SourcePath);
                 return true;
-            } catch
+            }
+            catch
             {
                 try
                 {
                     Assembly = Assembly.UnsafeLoadFrom(Options.SourcePath);
                     return true;
-                } catch { }
+                }
+                catch { }
             }
 
             return false;
@@ -150,24 +156,14 @@ namespace NETReactorSlayer.Core
             return moduleContext;
         }
 
-        #endregion
-
-        #region Fields
-
-        public static ObfuscatorInfo ObfuscatorInfo = new();
-
-        #endregion
-
-        #region Properties
-
-        public static Assembly Assembly { get; set; }
-        public static AssemblyModule AssemblyModule { get; set; }
-        public static ModuleDefMD Module { get; set; }
-        public static byte[] ModuleBytes { get; set; }
-        public static ModuleContext ModuleContext { get; set; }
-        public static Options Options { get; private set; }
-        public static MyPeImage PeImage { get; set; }
-
-        #endregion
+        public IOptions Options { get; }
+        public IInfo Info { get; } = new Info();
+        public ILogger Logger { get; }
+        public Assembly Assembly { get; set; }
+        public AssemblyModule AssemblyModule { get; set; }
+        public ModuleDefMD Module { get; set; }
+        public ModuleContext ModuleContext { get; set; }
+        public MyPeImage PeImage { get; set; }
+        public byte[] ModuleBytes { get; set; }
     }
 }

@@ -103,7 +103,6 @@ namespace NETReactorSlayer.GUI
             this.chkRemCalls = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
             this.chkPreserveAll = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
             this.chkKeepOldMaxStack = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
-            this.chkVerbose = new NETReactorSlayer.GUI.UserControls.NrsCheckBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.llblGitHub = new System.Windows.Forms.LinkLabel();
             this.label2 = new System.Windows.Forms.Label();
@@ -471,7 +470,6 @@ namespace NETReactorSlayer.GUI
             this.tabelOptions.Controls.Add(this.chkRemCalls, 1, 6);
             this.tabelOptions.Controls.Add(this.chkPreserveAll, 2, 6);
             this.tabelOptions.Controls.Add(this.chkKeepOldMaxStack, 0, 7);
-            this.tabelOptions.Controls.Add(this.chkVerbose, 1, 7);
             this.tabelOptions.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabelOptions.Location = new System.Drawing.Point(3, 0);
             this.tabelOptions.Name = "tabelOptions";
@@ -1087,29 +1085,6 @@ namespace NETReactorSlayer.GUI
             this.chkKeepOldMaxStack.UseVisualStyleBackColor = true;
             this.chkKeepOldMaxStack.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
-            // chkVerbose
-            // 
-            this.chkVerbose.AutoSize = true;
-            this.chkVerbose.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(9)))), ((int)(((byte)(12)))));
-            this.chkVerbose.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.chkVerbose.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkVerbose.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkVerbose.ForeColor = System.Drawing.Color.Silver;
-            this.chkVerbose.HoverBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkVerbose.HoverFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkVerbose.HoverForeColor = System.Drawing.Color.White;
-            this.chkVerbose.Location = new System.Drawing.Point(314, 157);
-            this.chkVerbose.Name = "chkVerbose";
-            this.chkVerbose.PressBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.chkVerbose.PressFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(188)))), ((int)(((byte)(14)))), ((int)(((byte)(18)))));
-            this.chkVerbose.PressForeColor = System.Drawing.Color.Gray;
-            this.chkVerbose.Size = new System.Drawing.Size(305, 19);
-            this.chkVerbose.TabIndex = 18;
-            this.chkVerbose.Tag = "--verbose";
-            this.chkVerbose.Text = "Verbose";
-            this.chkVerbose.UseVisualStyleBackColor = true;
-            this.chkVerbose.CheckedChanged += new System.EventHandler(this.CheckedChanged);
-            // 
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(27)))), ((int)(((byte)(27)))));
@@ -1343,6 +1318,7 @@ namespace NETReactorSlayer.GUI
         }
 
         #endregion
+
         private PictureBox picHeader;
         private Panel pnlHeader;
         private Panel pnlBase;
@@ -1400,7 +1376,6 @@ namespace NETReactorSlayer.GUI
         private ToolStripMenuItem toolStripMenuItem7;
         private NrsCheckBox chkKeepTypes;
         private NrsCheckBox chkRemCalls;
-        private NrsCheckBox chkVerbose;
         private NrsCheckBox chkRemSn;
         private NrsCheckBox chkRenameShort;
         private NrsCheckBox chkRename;

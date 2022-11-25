@@ -79,7 +79,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules
                     var methodDef = resolver.ResolveMethod(memberRef);
                     if (methodDef != null)
                         _methodRefsToRename.Add(new RefToDef<MemberRef, MethodDef>(memberRef, methodDef.MethodDef));
-                } else if (memberRef.IsFieldRef)
+                }
+                else if (memberRef.IsFieldRef)
                 {
                     var fieldDef = resolver.ResolveField(memberRef);
                     if (fieldDef != null)
@@ -104,7 +105,8 @@ namespace NETReactorSlayer.De4dot.Renamer.AsmModules
                             continue;
 
                         _customAttributeFieldRefs.Add(new CustomAttributeRef(cattr, i, fieldDef.FieldDef));
-                    } else
+                    }
+                    else
                     {
                         var propDef = FindProperty(typeDef, namedArg.Name, namedArg.Type);
                         if (propDef == null)

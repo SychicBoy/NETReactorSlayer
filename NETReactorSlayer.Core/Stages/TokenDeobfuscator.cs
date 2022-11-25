@@ -17,18 +17,19 @@ using System.Linq;
 using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
+using NETReactorSlayer.Core.Abstractions;
 
-namespace NETReactorSlayer.Core.Deobfuscators
+namespace NETReactorSlayer.Core.Stages
 {
     internal class TokenDeobfuscator : IStage
     {
-        public void Execute()
+        public void Run(IContext context)
         {
             TypeDef typeDef = null;
             MethodDef fieldMethod = null;
             MethodDef typeMethod = null;
             long count = 0;
-            foreach (var type in from type in Context.Module.GetTypes()
+            foreach (var type in from type in context.Module.GetTypes()
                          .Where(x => !x.HasProperties && !x.HasEvents && x.Fields.Count != 0)
                      from _ in type.Fields.Where(x => x.FieldType.FullName.Equals("System.ModuleHandle"))
                      select type)
@@ -49,7 +50,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
             Continue:
             if (typeDef != null)
-                foreach (var type in Context.Module.GetTypes())
+                foreach (var type in context.Module.GetTypes())
                 foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
                 {
                     var gpContext = GenericParamContext.Create(method);
@@ -64,7 +65,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                                 if (block.Instructions[i + 1].Operand is not IMethod iMethod ||
                                     !default(SigComparer).Equals(typeDef, iMethod.DeclaringType))
                                     continue;
-                                var methodDef = DotNetUtils.GetMethod(Context.Module, iMethod);
+                                var methodDef = DotNetUtils.GetMethod(context.Module, iMethod);
                                 if (methodDef == null)
                                     continue;
                                 if (methodDef != typeMethod && methodDef != fieldMethod)
@@ -72,9 +73,10 @@ namespace NETReactorSlayer.Core.Deobfuscators
                                 var token = (uint)(int)block.Instructions[i].Operand;
                                 block.Instructions[i] = new Instr(OpCodes.Nop.ToInstruction());
                                 block.Instructions[i + 1] = new Instr(new Instruction(OpCodes.Ldtoken,
-                                    Context.Module.ResolveToken(token, gpContext) as ITokenOperand));
+                                    context.Module.ResolveToken(token, gpContext) as ITokenOperand));
                                 count++;
-                            } catch { }
+                            }
+                            catch { }
 
                     blocks.GetCode(out var allInstructions, out var allExceptionHandlers);
                     DotNetUtils.RestoreBody(method, allInstructions, allExceptionHandlers);
@@ -82,11 +84,11 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
 
             if (count == 0)
-                Logger.Warn("Couldn't found any obfuscated metadata token.");
+                context.Logger.Warn("Couldn't found any obfuscated metadata token.");
             else
             {
                 Cleaner.AddTypeToBeRemoved(typeDef);
-                Logger.Done($"{(int)count} Metadata tokens deobfuscated.");
+                context.Logger.Info($"{(int)count} Metadata tokens deobfuscated.");
             }
         }
     }

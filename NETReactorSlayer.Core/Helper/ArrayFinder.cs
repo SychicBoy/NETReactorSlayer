@@ -90,7 +90,8 @@ namespace NETReactorSlayer.Core.Helper
                         continue;
                     if (0 <= index.Value && index.Value < resultValueArray.Length)
                         resultValueArray[index.Value] = value;
-                } else
+                }
+                else
                     emulator.Emulate(instr);
             }
 

@@ -1,4 +1,4 @@
-/*
+﻿/*
     Copyright (C) 2021 CodeStrikers.org
     This file is part of NETReactorSlayer.
     NETReactorSlayer is free software: you can redistribute it and/or modify
@@ -13,9 +13,22 @@
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-using System;
+using NETReactorSlayer.Core.Abstractions;
+using NETReactorSlayer.De4dot;
+using NETReactorSlayer.De4dot.Renamer;
 
-namespace NETReactorSlayer.De4dot
+namespace NETReactorSlayer.Core.Stages
 {
-    [Flags] public enum RenamingOptions { RemoveNamespaceIfOneType = 1, RenameResourceKeys = 2 }
+    internal class SymbolRenamer : IStage
+    {
+        public void Run(IContext context)
+        {
+            context.Logger.Info("Renaming obfuscated symbols...");
+            var deobfuscator =
+                new DeobfuscatorInfo(context.Module, context.Options.RenameShort).CreateDeobfuscator();
+            var obfuscatedFile = new ObfuscatedFile(context.Module, deobfuscator);
+            obfuscatedFile.DeobfuscatorOptions.RenamerFlags = context.Options.RenamerFlags;
+            new Renamer(obfuscatedFile).Rename();
+        }
+    }
 }

@@ -20,17 +20,17 @@ using de4dot.blocks;
 using de4dot.blocks.cflow;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
-using NETReactorSlayer.Core.Deobfuscators;
+using NETReactorSlayer.Core.Stages;
 
 namespace NETReactorSlayer.Core.Helper
 {
     internal class SimpleDeobfuscator
     {
-        public static bool Deobfuscate(MethodDef method)
+        public static void Deobfuscate(MethodDef method)
         {
             const SimpleDeobfuscatorFlags flags = 0;
             if (method == null || Check(method, SimpleDeobFlags.HasDeobfuscated))
-                return false;
+                return;
             Deobfuscate(method, delegate(Blocks blocks)
             {
                 const bool disableNewCfCode = (flags & SimpleDeobfuscatorFlags.DisableConstantsFolderExtraInstrs) > 0U;
@@ -40,7 +40,6 @@ namespace NETReactorSlayer.Core.Helper
                 cflowDeobfuscator.Initialize(blocks);
                 cflowDeobfuscator.Deobfuscate();
             });
-            return true;
         }
 
         public static void DeobfuscateBlocks(MethodDef method)
@@ -60,27 +59,9 @@ namespace NETReactorSlayer.Core.Helper
                 blocks.RepartitionBlocks();
                 blocks.GetCode(out var instructions, out var exceptionHandlers);
                 DotNetUtils.RestoreBody(method, instructions, exceptionHandlers);
-            } catch { }
-        }
-
-        #region Nested Types
-
-        public class MyMethodCallInliner : MethodCallInliner
-        {
-            public MyMethodCallInliner(bool inlineInstanceMethods) : base(inlineInstanceMethods) { }
-
-            protected override void OnInlinedMethod(MethodDef methodToInline, bool inlinedMethod)
-            {
-                if (!inlinedMethod || methodToInline.IsPublic)
-                    return;
-                Cleaner.AddMethodToBeRemoved(methodToInline);
-                MethodInliner.InlinedMethods++;
             }
+            catch { }
         }
-
-        #endregion
-
-        #region Private Methods
 
         private static void Deobfuscate(MethodDef method, Action<Blocks> handler)
         {
@@ -95,10 +76,8 @@ namespace NETReactorSlayer.Core.Helper
                 blocks.GetCode(out var allInstructions, out var allExceptionHandlers);
                 DotNetUtils.RestoreBody(method, allInstructions, allExceptionHandlers);
                 DeobfuscateBlocks(method);
-            } catch (Exception ex)
-            {
-                Logger.Error($"An unexpected error occurred during deobfuscating {method.FullName}.", ex);
             }
+            catch { }
         }
 
         private static void DeobfuscateEquations(MethodDef method)
@@ -117,17 +96,20 @@ namespace NETReactorSlayer.Core.Helper
                         {
                             method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
                             method.Body.Instructions[i].OpCode = OpCodes.Nop;
-                        } else
+                        }
+                        else
                         {
                             method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
                             method.Body.Instructions[i].OpCode = OpCodes.Br_S;
                         }
-                    } else
+                    }
+                    else
                     {
                         method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
                         method.Body.Instructions[i].OpCode = OpCodes.Nop;
                     }
-                } else
+                }
+                else
                 {
                     if (!method.Body.Instructions[i].IsBrfalse() ||
                         !method.Body.Instructions[i + 1].OpCode.Equals(OpCodes.Pop) ||
@@ -142,12 +124,14 @@ namespace NETReactorSlayer.Core.Helper
                         {
                             method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
                             method.Body.Instructions[i].OpCode = OpCodes.Br_S;
-                        } else
+                        }
+                        else
                         {
                             method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
                             method.Body.Instructions[i].OpCode = OpCodes.Nop;
                         }
-                    } else
+                    }
+                    else
                     {
                         method.Body.Instructions[i - 1].OpCode = OpCodes.Nop;
                         method.Body.Instructions[i].OpCode = OpCodes.Br_S;
@@ -164,26 +148,26 @@ namespace NETReactorSlayer.Core.Helper
             return (oldFlags & flags) == flags;
         }
 
-        #endregion
-
-        #region Fields
 
         private static BlocksCflowDeobfuscator _blocksCflowDeob = new();
 
         private static readonly Dictionary<MethodDef, SimpleDeobFlags> DeobfuscatorFlags = new();
 
-        [Flags]
-        private enum SimpleDeobFlags
-        {
-            HasDeobfuscated = 1
-        }
+        [Flags] private enum SimpleDeobFlags { HasDeobfuscated = 1 }
 
-        [Flags]
-        public enum SimpleDeobfuscatorFlags : uint
-        {
-            DisableConstantsFolderExtraInstrs = 2U
-        }
+        [Flags] public enum SimpleDeobfuscatorFlags : uint { DisableConstantsFolderExtraInstrs = 2U }
 
-        #endregion
+        public class MyMethodCallInliner : MethodCallInliner
+        {
+            public MyMethodCallInliner(bool inlineInstanceMethods) : base(inlineInstanceMethods) { }
+
+            protected override void OnInlinedMethod(MethodDef methodToInline, bool inlinedMethod)
+            {
+                if (!inlinedMethod || methodToInline.IsPublic)
+                    return;
+                Cleaner.AddMethodToBeRemoved(methodToInline);
+                MethodInliner.InlinedMethods++;
+            }
+        }
     }
 }

@@ -20,8 +20,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using NETReactorSlayer.Core.Deobfuscators;
+using NETReactorSlayer.Core.Abstractions;
 using NETReactorSlayer.Core.Helper;
+using NETReactorSlayer.Core.Stages;
 
 namespace NETReactorSlayer.Core
 {
@@ -36,27 +37,29 @@ namespace NETReactorSlayer.Core
             Console.OutputEncoding = Encoding.UTF8;
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
+
+            IOptions options = new Options(args);
+            IContext context = new Context(options, new Logger());
+
             try
             {
                 Console.Clear();
-                Logger.PrintLogo();
-            } catch { }
+                context.Logger.PrintLogo();
+            }
+            catch { }
 
-            Context = new Context();
-            if (Context.Load(new Options(args)))
+            if (context.Load())
             {
-                DeobfuscateBegin();
-                DeobfuscateEnd();
+                DeobfuscateBegin(context);
+                DeobfuscateEnd(context);
             }
 
-            if (Context.Options.NoPause)
+            if (context.Options.NoPause)
                 return;
 
             Console.WriteLine("\r\n  Press any key to exit . . .");
             Console.ReadKey();
         }
-
-        #region Private Methods
 
         private static bool CheckArguments(IReadOnlyList<string> args)
         {
@@ -71,10 +74,8 @@ namespace NETReactorSlayer.Core
                     process.WaitForExit();
                     while (File.Exists(args[2]))
                     {
-                        try
-                        {
-                            File.Delete(args[2]);
-                        } catch { }
+                        try { File.Delete(args[2]); }
+                        catch { }
 
                         Thread.Sleep(1000);
                     }
@@ -82,22 +83,21 @@ namespace NETReactorSlayer.Core
                     Process.GetCurrentProcess().Kill();
                     return false;
                 }
-            } catch { }
+            }
+            catch { }
 
             return true;
         }
 
-        private static void DeobfuscateBegin()
+        private static void DeobfuscateBegin(IContext context)
         {
             const int maxStackSize = 1024 * 1024 * 64;
-            foreach (var thread in Context.Options.Stages.Select(deobfuscatorStage => new Thread(() =>
+            foreach (var thread in context.Options.Stages.Select(deobfuscatorStage => new Thread(() =>
                      {
-                         try
+                         try { deobfuscatorStage.Run(context); }
+                         catch (Exception ex)
                          {
-                             deobfuscatorStage.Execute();
-                         } catch (Exception ex)
-                         {
-                             Logger.Error($"{deobfuscatorStage.GetType().Name}: {ex.Message}");
+                             context.Logger.Error($"{deobfuscatorStage.GetType().Name}: {ex.Message}");
                          }
                      }, maxStackSize)))
             {
@@ -106,27 +106,19 @@ namespace NETReactorSlayer.Core
             }
         }
 
-        private static void DeobfuscateEnd()
+        private static void DeobfuscateEnd(IContext context)
         {
-            if (Context.Options.Stages.Any(x => x.GetType().Name.Equals(nameof(MethodInliner))))
+            if (context.Options.Stages.Any(x => x.GetType().Name.Equals(nameof(MethodInliner))))
                 if (MethodInliner.InlinedMethods > 0)
-                    Logger.Done(MethodInliner.InlinedMethods + " Methods inlined.");
+                    context.Logger.Info(MethodInliner.InlinedMethods + " Methods inlined.");
                 else
-                    Logger.Warn("Couldn't find any outline method.");
+                    context.Logger.Warn("Couldn't find any outline method.");
 
-            if (CodeVirtualizationUtils.Detect())
-                Logger.Warn(
+            if (CodeVirtualizationUtils.Detect(context))
+                context.Logger.Warn(
                     "WARNING: CODE VIRTUALIZATION HAS BEEN DETECTED, INCOMPLETE DEOBFUSCATION OF THE ASSEMBLY MAY RESULT.");
 
-            Context.Save();
+            context.Save();
         }
-
-        #endregion
-
-        #region Fields
-
-        public static Context Context = new();
-
-        #endregion
     }
 }

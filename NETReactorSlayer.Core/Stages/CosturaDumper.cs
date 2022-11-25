@@ -17,15 +17,16 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using dnlib.DotNet;
+using NETReactorSlayer.Core.Abstractions;
 
-namespace NETReactorSlayer.Core.Deobfuscators
+namespace NETReactorSlayer.Core.Stages
 {
     internal class CosturaDumper : IStage
     {
-        public void Execute()
+        public void Run(IContext context)
         {
             long count = 0;
-            foreach (var resource in Context.Module.Resources)
+            foreach (var resource in context.Module.Resources)
             {
                 if (resource is not EmbeddedResource embeddedResource)
                     continue;
@@ -49,23 +50,25 @@ namespace NETReactorSlayer.Core.Deobfuscators
                     {
                         memoryStream.Position = 0L;
                         File.WriteAllBytes(
-                            $"{Context.Options.SourceDir}\\{GetAssemblyName(memoryStream.ToArray(), false)}.dll",
+                            $"{context.Options.SourceDir}\\{GetAssemblyName(memoryStream.ToArray(), false)}.dll",
                             memoryStream.ToArray());
-                    } catch
+                    }
+                    catch
                     {
                         File.WriteAllBytes(
-                            $"{Context.Options.SourceDir}\\{embeddedResource.Name.Replace(".compressed", "").Replace("costura.", "")}",
+                            $"{context.Options.SourceDir}\\{embeddedResource.Name.Replace(".compressed", "").Replace("costura.", "")}",
                             memoryStream.ToArray());
                     }
 
                     memoryStream.Close();
                     deflateStream.Close();
-                } catch { }
+                }
+                catch { }
             }
 
             try
             {
-                var cctor = Context.Module.GlobalType.FindStaticConstructor();
+                var cctor = context.Module.GlobalType.FindStaticConstructor();
                 if (cctor.HasBody && cctor.Body.HasInstructions)
                     for (var i = 0; i < cctor.Body.Instructions.ToList().Count; i++)
                     {
@@ -75,13 +78,12 @@ namespace NETReactorSlayer.Core.Deobfuscators
                         cctor.Body.Instructions.RemoveAt(i);
                         break;
                     }
-            } catch { }
+            }
+            catch { }
 
             if (count > 0)
-                Logger.Done(count + " Embedded assemblies dumped (Costura.Fody).");
+                context.Logger.Info(count + " Embedded assemblies dumped (Costura.Fody).");
         }
-
-        #region Private Methods
 
         private static string GetAssemblyName(byte[] data, bool fullName)
         {
@@ -91,12 +93,8 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 if (fullName)
                     return module.Assembly.FullName;
                 return module.Assembly.Name;
-            } catch
-            {
-                return null;
             }
+            catch { return null; }
         }
-
-        #endregion
     }
 }

@@ -130,7 +130,8 @@ namespace NETReactorSlayer.GUI
                     isX64 = !module.Is32BitPreferred && !module.Is32BitRequired;
                     _logger.WriteLine(isX64 ? "X64" : "X86", Color.SteelBlue);
                 }
-            } catch
+            }
+            catch
             {
                 try
                 {
@@ -142,7 +143,8 @@ namespace NETReactorSlayer.GUI
                         _logger.Write("  Architecture: ");
                         _logger.WriteLine(isX64 ? "X64" : "X86", Color.SteelBlue);
                     }
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     _logger.Write("  Error: ");
                     _logger.WriteLine(ex.Message.Replace("\r", "").Replace("\n", ". "), Color.Firebrick);
@@ -187,13 +189,13 @@ namespace NETReactorSlayer.GUI
 
                 switch (prefix)
                 {
-                    case "X":
+                    case "ERROR":
                         prefixColor = Color.Firebrick;
                         break;
-                    case "!":
-                        prefixColor = Color.Gold;
+                    case "WARN":
+                        prefixColor = Color.DarkGoldenrod;
                         break;
-                    case "✓":
+                    case "INFO":
                         prefixColor = Color.MediumSeaGreen;
                         break;
                 }
@@ -203,7 +205,7 @@ namespace NETReactorSlayer.GUI
                     _logger.Write("  [");
                     _logger.Write(prefix, prefixColor);
                     _logger.Write("] ");
-                    data = data.Substring(6);
+                    data = data.Substring(prefix.Length + 4);
                     while (data.Length > 0 && data[0] == ' ')
                         data = data.Substring(1);
                 }
@@ -313,7 +315,8 @@ namespace NETReactorSlayer.GUI
                 txtLogs.SelectionStart = txtLogs.Find(txtLogs.Lines[scrollbarLogs.Value]) - 1;
                 txtLogs.SelectionLength = 0;
                 txtLogs.ScrollToCaret();
-            } catch { }
+            }
+            catch { }
 
             EndControlUpdate(txtLogs);
         }
@@ -389,7 +392,8 @@ namespace NETReactorSlayer.GUI
                             ".NETReactorSlayer",
                             MsgBox.MsgButtons.YesNoCancel, MsgBox.MsgIcon.Question, this) == DialogResult.Yes)
                         InstallLatestVersion();
-                } catch { }
+                }
+                catch { }
             };
             timer.Start();
         }
@@ -427,7 +431,8 @@ namespace NETReactorSlayer.GUI
                            1, FileOptions.DeleteOnClose)) { }
 
                 return true;
-            } catch { }
+            }
+            catch { }
 
             return false;
         }
@@ -443,7 +448,8 @@ namespace NETReactorSlayer.GUI
                 btnStart.Cursor = Cursors.WaitCursor;
                 btnStart.Text = string.Empty;
                 btnStart.Tag = "Busy";
-            } else
+            }
+            else
             {
                 btnStart.BackColor = Color.FromArgb(27, 27, 27);
                 btnStart.FlatAppearance.MouseOverBackColor = Color.FromArgb(32, 32, 32);
@@ -481,8 +487,7 @@ namespace NETReactorSlayer.GUI
             int nLeftRect, int nTopRect, int nRightRect, int nBottomRect,
             int nWidthEllipse, int nHeightEllipse);
 
-        [DllImport("user32.dll")]
-        private static extern int HideCaret(IntPtr hwnd);
+        [DllImport("user32.dll")] private static extern int HideCaret(IntPtr hwnd);
 
         private void CheckedChanged(object sender, EventArgs e)
         {
@@ -524,7 +529,8 @@ namespace NETReactorSlayer.GUI
                 chkRename.Checked = false;
                 foreach (ToolStripMenuItem control in ctxRename.Items)
                     control.Text = control.Text.Replace("✓", "X");
-            } else
+            }
+            else
             {
                 chkRename.Tag = "--rename --rename ntmfpe";
                 chkRename.Checked = true;
@@ -573,7 +579,8 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
                             MsgBox.MsgButtons.YesNoCancel, MsgBox.MsgIcon.Question, this) == DialogResult.Yes)
                         InstallLatestVersion();
                 }
-            } catch (Exception exception)
+            }
+            catch (Exception exception)
             {
                 MsgBox.Show(exception.Message, ".NETReactorSlayer", MsgBox.MsgButtons.Ok, MsgBox.MsgIcon.Error, this);
             }
@@ -666,7 +673,8 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
             {
                 control.Text = text.Replace("✓", "X");
                 chkRename.Tag = "--rename " + tag.Replace(option, string.Empty);
-            } else if (text.Contains("X") && !tag.Contains(option))
+            }
+            else if (text.Contains("X") && !tag.Contains(option))
             {
                 control.Text = text.Replace("X", "✓");
                 chkRename.Tag = $"--rename {tag}{option}";
@@ -678,7 +686,8 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
                     return;
                 chkRename.Checked = false;
                 chkRename.Tag = "--dont-rename";
-            } else if (!chkRename.Checked)
+            }
+            else if (!chkRename.Checked)
                 chkRename.Checked = true;
         }
 
@@ -699,7 +708,8 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
             {
                 if (chkRename.Checked)
                     chkRename.Checked = false;
-            } else if (!chkRename.Checked)
+            }
+            else if (!chkRename.Checked)
                 chkRename.Checked = true;
 
             ctxRename.Show(chkRename, new Point(e.X, e.Y));

@@ -17,14 +17,16 @@ using System.Linq;
 using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
+using NETReactorSlayer.Core.Abstractions;
 using NETReactorSlayer.Core.Helper;
 
-namespace NETReactorSlayer.Core.Deobfuscators
+namespace NETReactorSlayer.Core.Stages
 {
     internal class StrongNamePatcher : IStage
     {
-        public void Execute()
+        public void Run(IContext context)
         {
+            Context = context;
             long count = 0;
             var methodDef = Find();
             if (methodDef == null)
@@ -58,15 +60,14 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
                     blocks.GetCode(out var allInstructions, out var allExceptionHandlers);
                     DotNetUtils.RestoreBody(method, allInstructions, allExceptionHandlers);
-                } catch { }
+                }
+                catch { }
 
             if (count > 0)
-                Logger.Done($"Strong name removal protection removed from {(int)count} methods.");
+                Context.Logger.Info($"Strong name removal protection removed from {(int)count} methods.");
         }
 
-        #region Private Methods
-
-        private static MethodDef Find() =>
+        private MethodDef Find() =>
             (from type in Context.Module.GetTypes()
                 from method in type.Methods
                 where method.IsStatic && method.Body != null
@@ -142,6 +143,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                        })
                 select block).FirstOrDefault();
 
-        #endregion
+
+        private IContext Context { get; set; }
     }
 }

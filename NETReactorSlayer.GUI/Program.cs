@@ -27,10 +27,8 @@ namespace NETReactorSlayer.GUI
         [STAThread]
         private static void Main(string[] args)
         {
-            try
-            {
-                SetProcessDPIAware();
-            } catch { }
+            try { SetProcessDPIAware(); }
+            catch { }
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -44,7 +42,6 @@ namespace NETReactorSlayer.GUI
             Application.Run(new MainWindow());
         }
 
-        [DllImport("user32.dll")]
-        private static extern void SetProcessDPIAware();
+        [DllImport("user32.dll")] private static extern void SetProcessDPIAware();
     }
 }

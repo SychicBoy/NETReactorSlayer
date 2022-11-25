@@ -162,7 +162,8 @@ namespace NETReactorSlayer.Core.Helper
                 var di = new DirectoryInfo(basePath);
                 foreach (var dir in di.GetDirectories().Where(dir => Regex.IsMatch(dir.Name, @"^\d+(?:\.\d+){3}$")))
                     AddIfExists(paths, basePath, dir.Name);
-            } catch { }
+            }
+            catch { }
         }
 
         private static void AddIfExists(ICollection<string> paths, string basePath, string extraPath)

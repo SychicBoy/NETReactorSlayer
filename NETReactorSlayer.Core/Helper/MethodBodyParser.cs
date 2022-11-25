@@ -24,13 +24,8 @@ namespace NETReactorSlayer.Core.Helper
         public static MethodBodyHeader
             ParseMethodBody(ref DataReader reader, out byte[] code, out byte[] extraSections)
         {
-            try
-            {
-                return ParseMethodBody2(ref reader, out code, out extraSections);
-            } catch (Exception ex) when (ex is IOException or ArgumentException)
-            {
-                throw new InvalidMethodBody();
-            }
+            try { return ParseMethodBody2(ref reader, out code, out extraSections); }
+            catch (Exception ex) when (ex is IOException or ArgumentException) { throw new InvalidMethodBody(); }
         }
 
         private static MethodBodyHeader ParseMethodBody2(
@@ -47,7 +42,8 @@ namespace NETReactorSlayer.Core.Helper
                 mbHeader.CodeSize = (uint)(reader.ReadByte() >> 2);
                 mbHeader.LocalVarSigTok = 0;
                 codeOffset = 1;
-            } else if ((b & 7) == 3)
+            }
+            else if ((b & 7) == 3)
             {
                 mbHeader.Flags = reader.ReadUInt16();
                 codeOffset = (uint)(4 * (mbHeader.Flags >> 12));
@@ -60,7 +56,8 @@ namespace NETReactorSlayer.Core.Helper
                 mbHeader.LocalVarSigTok = reader.ReadUInt32();
                 if (mbHeader.LocalVarSigTok != 0 && mbHeader.LocalVarSigTok >> 24 != 0x11)
                     throw new InvalidMethodBody();
-            } else
+            }
+            else
                 throw new InvalidMethodBody();
 
             if (mbHeader.CodeSize + codeOffset > reader.Length)
@@ -103,12 +100,14 @@ namespace NETReactorSlayer.Core.Helper
                     reader.Position--;
                     var num = (int)(reader.ReadUInt32() >> 8) / 24;
                     reader.Position += (uint)num * 24;
-                } else
+                }
+                else
                 {
                     var num = reader.ReadByte() / 12;
                     reader.Position += 2 + (uint)num * 12;
                 }
-            } while ((flags & 0x80) != 0);
+            }
+            while ((flags & 0x80) != 0);
         }
 
         private static byte Peek(ref DataReader reader)

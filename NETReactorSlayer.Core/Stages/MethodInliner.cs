@@ -17,17 +17,18 @@ using System.Collections.Generic;
 using System.Linq;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
+using NETReactorSlayer.Core.Abstractions;
 using NETReactorSlayer.Core.Helper;
 
-namespace NETReactorSlayer.Core.Deobfuscators
+namespace NETReactorSlayer.Core.Stages
 {
     internal class MethodInliner : IStage
     {
-        public void Execute()
+        public void Run(IContext context)
         {
             long count = 0;
             var proxies = new HashSet<MethodDef>();
-            foreach (var method in Context.Module.GetTypes().SelectMany(type =>
+            foreach (var method in context.Module.GetTypes().SelectMany(type =>
                          from x in type.Methods.ToList() where x.HasBody && x.Body.HasInstructions select x))
                 try
                 {
@@ -52,9 +53,10 @@ namespace NETReactorSlayer.Core.Deobfuscators
                     }
 
                     SimpleDeobfuscator.DeobfuscateBlocks(method);
-                } catch { }
+                }
+                catch { }
 
-            foreach (var instruction in from type in Context.Module.GetTypes()
+            foreach (var instruction in from type in context.Module.GetTypes()
                      from method in from x in type.Methods.ToArray() where x.HasBody && x.Body.HasInstructions select x
                      from instruction in method.Body.Instructions
                      select instruction)
@@ -64,14 +66,13 @@ namespace NETReactorSlayer.Core.Deobfuscators
                     if (instruction.OpCode.OperandType == OperandType.InlineMethod &&
                         (item = instruction.Operand as MethodDef) != null && proxies.Contains(item))
                         proxies.Remove(item);
-                } catch { }
+                }
+                catch { }
 
             foreach (var method in proxies)
                 method.DeclaringType.Remove(method);
             InlinedMethods += count;
         }
-
-        #region Private Methods
 
         private static bool IsInlineMethod(MethodDef method, out List<Instruction> instructions)
         {
@@ -104,7 +105,8 @@ namespace NETReactorSlayer.Core.Deobfuscators
                 {
                     count = list.Count - 3;
                     instructions.Insert(0, new Instruction(list[index - 2].OpCode, list[index - 2].Operand));
-                } else
+                }
+                else
                     return false;
             }
 
@@ -125,12 +127,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
         private static bool IsCompatibleType(IType origType, IType newType) =>
             new SigComparer(SigComparerOptions.IgnoreModifiers).Equals(origType, newType);
 
-        #endregion
-
-        #region Fields
 
         public static long InlinedMethods;
-
-        #endregion
     }
 }

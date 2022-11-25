@@ -149,19 +149,22 @@ namespace NETReactorSlayer.De4dot
                     while (i < s.Length && IsDigit(s[i]))
                         sb.Append(s[i++]);
                     words.Add(sb.ToString());
-                } else if (IsUpper(s[i]))
+                }
+                else if (IsUpper(s[i]))
                 {
                     sb.Length = 0;
                     while (i < s.Length && IsUpper(s[i]))
                         sb.Append(s[i++]);
                     words.Add(sb.ToString());
-                } else if (IsLower(s[i]))
+                }
+                else if (IsLower(s[i]))
                 {
                     sb.Length = 0;
                     while (i < s.Length && IsLower(s[i]))
                         sb.Append(s[i++]);
                     words.Add(sb.ToString());
-                } else
+                }
+                else
                 {
                     sb.Length = 0;
                     while (i < s.Length)
@@ -188,7 +191,9 @@ namespace NETReactorSlayer.De4dot
             upper = 0;
 
             foreach (var c in from word in words where word.Length > 1 select word[0])
-                if (IsDigit(c)) { } else if (IsLower(c)) { } else if (IsUpper(c))
+                if (IsDigit(c)) { }
+                else if (IsLower(c)) { }
+                else if (IsUpper(c))
                     upper++;
         }
 

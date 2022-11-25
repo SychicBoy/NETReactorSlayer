@@ -32,8 +32,6 @@ namespace NETReactorSlayer.De4dot
             DeobfuscateLoop();
         }
 
-        #region Protected Methods
-
         protected TypesRestorerBase(ModuleDef module) => _module = module;
 
         protected virtual bool IsValidType(IGenericParameterProvider provider, TypeSig type)
@@ -106,10 +104,6 @@ namespace NETReactorSlayer.De4dot
 
         protected abstract bool IsUnknownType(object o);
 
-        #endregion
-
-        #region Private Methods
-
         private UpdatedMethod GetUpdatedMethod(IMethod method)
         {
             var token = method.MDToken.ToInt32();
@@ -170,7 +164,8 @@ namespace NETReactorSlayer.De4dot
                     if (methodDef == null)
                         continue;
                     instr.Operand = methodDef;
-                } catch { }
+                }
+                catch { }
 
             foreach (var method in methods)
             {
@@ -518,9 +513,6 @@ namespace NETReactorSlayer.De4dot
             return null;
         }
 
-        #endregion
-
-        #region Fields
 
         private readonly Dictionary<Parameter, TypeInfo<Parameter>> _argInfos = new();
 
@@ -531,8 +523,6 @@ namespace NETReactorSlayer.De4dot
         private readonly Dictionary<int, UpdatedMethod> _updatedMethods = new();
         private List<MethodDef> _allMethods;
         private TypeInfo<Parameter> _methodReturnInfo;
-
-        #endregion
 
         #region Nested Types
 
@@ -556,7 +546,8 @@ namespace NETReactorSlayer.De4dot
                     if (!_newobjTypes)
                         Clear();
                     _newobjTypes = true;
-                } else if (_newobjTypes)
+                }
+                else if (_newobjTypes)
                     return;
 
                 Types[type] = true;

@@ -18,43 +18,36 @@ using System.Linq;
 using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
+using NETReactorSlayer.Core.Abstractions;
 
 namespace NETReactorSlayer.Core.Helper
 {
     internal class MethodCallRemover
     {
-        public static long RemoveCalls(MethodDef methodToRem)
+        public static long RemoveCalls(IContext context, MethodDef methodToRem)
         {
             _methodRefInfos = new MethodDefAndDeclaringTypeDict<MethodDefAndDeclaringTypeDict<bool>>();
-            foreach (var methodDef in Context.Module.GetTypes()
+            foreach (var methodDef in context.Module.GetTypes()
                          .SelectMany(type => type.Methods.Where(x => x.HasBody && x.Body.HasInstructions)))
                 Add(methodDef, methodToRem);
 
-            return Context.Module.GetTypes()
+            return context.Module.GetTypes()
                 .Sum(type => type.Methods.Where(x => x.HasBody && x.Body.HasInstructions)
                     .Sum(method => RemoveCalls(method, _methodRefInfos.Find(method))));
         }
 
-        public static long RemoveCalls(List<MethodDef> methods)
+        public static long RemoveCalls(IContext context, List<MethodDef> methods)
         {
             _methodRefInfos = new MethodDefAndDeclaringTypeDict<MethodDefAndDeclaringTypeDict<bool>>();
-            foreach (var type in Context.Module.GetTypes())
+            foreach (var type in context.Module.GetTypes())
             foreach (var method in type.Methods.Where(x => x.HasBody && x.Body.HasInstructions))
             foreach (var methodToRem in methods)
                 Add(method, methodToRem);
 
-            return Context.Module.GetTypes().Sum(type =>
+            return context.Module.GetTypes().Sum(type =>
                 type.Methods.Where(x => x.HasBody && x.Body.HasInstructions)
                     .Sum(method => RemoveCalls(method, _methodRefInfos.Find(method))));
         }
-
-        #region Fields
-
-        private static MethodDefAndDeclaringTypeDict<MethodDefAndDeclaringTypeDict<bool>> _methodRefInfos;
-
-        #endregion
-
-        #region Private Methods
 
         private static long RemoveCalls(MethodDef method, MethodDefDictBase<bool> info)
         {
@@ -70,7 +63,8 @@ namespace NETReactorSlayer.Core.Helper
                         continue;
                     instr.OpCode = OpCodes.Nop;
                     count++;
-                } catch { }
+                }
+                catch { }
 
             return count;
         }
@@ -90,6 +84,7 @@ namespace NETReactorSlayer.Core.Helper
             methodToBeRemoved.MethodSig.RetType.ElementType ==
             ElementType.Void;
 
-        #endregion
+
+        private static MethodDefAndDeclaringTypeDict<MethodDefAndDeclaringTypeDict<bool>> _methodRefInfos;
     }
 }

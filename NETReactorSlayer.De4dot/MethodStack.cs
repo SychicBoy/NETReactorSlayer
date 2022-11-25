@@ -30,7 +30,8 @@ namespace NETReactorSlayer.De4dot
                 instructions[index].CalculateStackUsage(false, out _, out var pops);
                 if (pops != -1)
                     return GetPushedArgInstructions(instructions, index, pops);
-            } catch (NullReferenceException) { }
+            }
+            catch (NullReferenceException) { }
 
             return new PushedArgs(0);
         }
@@ -118,7 +119,8 @@ namespace NETReactorSlayer.De4dot
                 if (state.SkipPushes < 0)
                     return Update.Fail;
                 state.SkipPushes += pops;
-            } else
+            }
+            else
             {
                 if (pushes == 1)
                 {
@@ -321,12 +323,7 @@ namespace NETReactorSlayer.De4dot
 
         private static IList<Instruction> _cacheInstructions;
 
-        private enum Update
-        {
-            Ok,
-            Fail,
-            Finish
-        }
+        private enum Update { Ok, Fail, Finish }
 
         private class Branch
         {

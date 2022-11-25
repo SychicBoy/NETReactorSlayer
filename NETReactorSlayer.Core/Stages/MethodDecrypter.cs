@@ -21,23 +21,25 @@ using de4dot.blocks;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 using dnlib.IO;
+using NETReactorSlayer.Core.Abstractions;
 using NETReactorSlayer.Core.Helper;
 
-namespace NETReactorSlayer.Core.Deobfuscators
+namespace NETReactorSlayer.Core.Stages
 {
     internal class MethodDecrypter : IStage
     {
-        public void Execute()
+        public void Run(IContext context)
         {
+            Context = context;
             try
             {
                 if (!Find() && !Find2())
                 {
-                    Logger.Warn("Couldn't find any encrypted method.");
+                    Context.Logger.Warn("Couldn't find any encrypted method.");
                     return;
                 }
 
-                Context.ObfuscatorInfo.NecroBit = true;
+                Context.Info.NecroBit = true;
 
                 var bytes = _encryptedResource.Decrypt();
 
@@ -46,16 +48,16 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
                 Cleaner.AddResourceToBeRemoved(_encryptedResource.EmbeddedResource);
                 Cleaner.AddCallToBeRemoved(_encryptedResource.DecrypterMethod);
-                Logger.Done($"{Context.Module.GetTypes().SelectMany(x => x.Methods).Count()} Methods decrypted.");
-            } catch (Exception ex)
+                Context.Logger.Info(
+                    $"{Context.Module.GetTypes().SelectMany(x => x.Methods).Count()} Methods decrypted.");
+            }
+            catch (Exception ex)
             {
-                Logger.Error("An unexpected error occurred during decrypting methods.", ex);
+                Context.Logger.Error($"An unexpected error occurred during decrypting methods. {ex.Message}.");
             }
 
             _encryptedResource?.Dispose();
         }
-
-        #region Private Methods
 
         private bool Find()
         {
@@ -72,7 +74,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                          select methodDef).Where(methodDef =>
                          EncryptedResource.IsKnownDecrypter(methodDef, Array.Empty<string>(), true))))
             {
-                _encryptedResource = new EncryptedResource(methodDef);
+                _encryptedResource = new EncryptedResource(Context, methodDef);
                 if (_encryptedResource.EmbeddedResource != null)
                     return true;
                 _encryptedResource.Dispose();
@@ -95,7 +97,7 @@ namespace NETReactorSlayer.Core.Deobfuscators
                         if (!EncryptedResource.IsKnownDecrypter(methodDef, Array.Empty<string>(), true))
                             continue;
 
-                        _encryptedResource = new EncryptedResource(methodDef);
+                        _encryptedResource = new EncryptedResource(Context, methodDef);
                         if (_encryptedResource.EmbeddedResource != null)
                             return true;
                         _encryptedResource.Dispose();
@@ -140,10 +142,12 @@ namespace NETReactorSlayer.Core.Deobfuscators
 
                             if (MethodEqualityComparer.CompareDeclaringTypes.Equals(calledMethod, method))
                                 popCallsCount++;
-                        } catch { }
+                        }
+                        catch { }
 
                     return true;
-                } catch { }
+                }
+                catch { }
 
             return false;
         }
@@ -187,7 +191,8 @@ namespace NETReactorSlayer.Core.Deobfuscators
                     var numDwords = methodsDataReader.ReadInt32();
                     PatchDwords(Context.PeImage, ref methodsDataReader, numDwords / 2);
                 }
-            } else
+            }
+            else
             {
                 if (!isFindDnrMethod || mode == 1)
                 {
@@ -202,16 +207,18 @@ namespace NETReactorSlayer.Core.Deobfuscators
                         {
                             methodsDataReader.ReadInt32();
                             size = methodsDataReader.ReadInt32();
-                        } else
+                        }
+                        else
                             size = methodsDataReader.ReadInt32() * 4;
 
                         var newData = methodsDataReader.ReadBytes(size);
-                        if (Context.ObfuscatorInfo.NativeStub && isUsingOffset)
+                        if (Context.Info.NativeStub && isUsingOffset)
                             Context.PeImage.DotNetSafeWriteOffset(rva, newData);
                         else
                             Context.PeImage.DotNetSafeWrite(rva, newData);
                     }
-                } else
+                }
+                else
                 {
                     var methodDef = Context.PeImage.Metadata.TablesStream.MethodTable;
                     var rvaToIndex = new Dictionary<uint, int>((int)methodDef.Rows);
@@ -254,7 +261,8 @@ namespace NETReactorSlayer.Core.Deobfuscators
                                 {
                                     32, (byte)int32, (byte)(int32 >> 8), (byte)(int32 >> 16), (byte)(int32 >> 24), 42
                                 };
-                            } else
+                            }
+                            else
                                 methodData = DeobUtils.IsCode(_nativeLdci40, methodData)
                                     ? new byte[] { 22, 42 }
                                     : new byte[] { 32, 222, 192, 173, 222, 109, 122 };
@@ -399,21 +407,12 @@ namespace NETReactorSlayer.Core.Deobfuscators
             }
         }
 
-        #endregion
 
-        #region Fields
-
+        private IContext Context { get; set; }
         private readonly short[] _nativeLdci4 = { 85, 139, 236, 184, -1, -1, -1, -1, 93, 195 };
         private readonly short[] _nativeLdci40 = { 85, 139, 236, 51, 192, 93, 195 };
         private EncryptedResource _encryptedResource;
 
-        private enum CompileMethodType
-        {
-            Unknown,
-            V1,
-            V2
-        }
-
-        #endregion
+        private enum CompileMethodType { Unknown, V1, V2 }
     }
 }

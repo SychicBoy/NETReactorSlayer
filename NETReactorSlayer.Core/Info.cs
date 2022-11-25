@@ -13,10 +13,14 @@
     along with NETReactorSlayer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using NETReactorSlayer.Core.Abstractions;
+
 namespace NETReactorSlayer.Core
 {
-    public interface IStage
+    public class Info : IInfo
     {
-        void Execute();
+        public bool NativeStub { get; set; }
+        public bool NecroBit { get; set; }
+        public bool UsesReflection { get; set; }
     }
 }

@@ -69,9 +69,11 @@ namespace NETReactorSlayer.De4dot.Renamer
                                           _createClassName;
                             break;
                     }
-                } else
+                }
+                else
                     nameCreator = _createClassName;
-            } else if (typeDef.IsInterface)
+            }
+            else if (typeDef.IsInterface)
                 nameCreator = _createInterfaceName;
 
             return nameCreator;

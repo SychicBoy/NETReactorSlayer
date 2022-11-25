@@ -79,7 +79,8 @@ namespace NETReactorSlayer.De4dot.Renamer
                 if (OldNamespace != "")
                     NewNamespace = "";
                 Rename("<Module>");
-            } else if (!checker.IsValidTypeName(OldName))
+            }
+            else if (!checker.IsValidTypeName(OldName))
             {
                 if (origClassName != null && checker.IsValidTypeName(origClassName))
                     Rename(state.GetTypeName(OldName, origClassName));
@@ -277,7 +278,8 @@ namespace NETReactorSlayer.De4dot.Renamer
                     info = Param(methodDef.ParamDefs[methodDef.VisibleParameterBaseIndex + 1]);
                     if (!info.GotNewName())
                         info.NewName = "e";
-                } else
+                }
+                else
                 {
                     newVariableNameState = VariableNameState.CloneParamsOnly();
                     var checker = NameChecker;
@@ -320,7 +322,8 @@ namespace NETReactorSlayer.De4dot.Renamer
             {
                 if (methodInfo.OldName == ".cctor")
                     return false;
-            } else if (methodDef.IsVirtual())
+            }
+            else if (methodDef.IsVirtual())
             {
                 if (!DotNetUtils.DerivesFromDelegate(Type.TypeDef))
                     return true;
@@ -331,7 +334,8 @@ namespace NETReactorSlayer.De4dot.Renamer
                     case "Invoke":
                         return false;
                 }
-            } else
+            }
+            else
             {
                 if (methodInfo.OldName == ".ctor")
                     return false;
@@ -415,10 +419,8 @@ namespace NETReactorSlayer.De4dot.Renamer
                          !checker.IsValidGenericParamName(gpInfo.OldName) || usedNames.ContainsKey(gpInfo.OldName)))
             {
                 string newName;
-                do
-                {
-                    newName = nameCreator.Create();
-                } while (usedNames.ContainsKey(newName));
+                do { newName = nameCreator.Create(); }
+                while (usedNames.ContainsKey(newName));
 
                 usedNames[newName] = true;
                 gpInfo.Rename(newName);
@@ -691,7 +693,8 @@ namespace NETReactorSlayer.De4dot.Renamer
                             continue;
                         var ldvirtftn = instructions[index++];
                         methodRef = ldvirtftn.Operand as IMethod;
-                    } else
+                    }
+                    else
                     {
                         var ldftn = instructions[index++];
                         if (ldftn.OpCode.Code != Code.Ldftn)
