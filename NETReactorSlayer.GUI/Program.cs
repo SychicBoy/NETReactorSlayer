@@ -27,8 +27,7 @@ namespace NETReactorSlayer.GUI
         [STAThread]
         private static void Main(string[] args)
         {
-            try { SetProcessDPIAware(); }
-            catch { }
+            try { SetProcessDPIAware(); } catch { }
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

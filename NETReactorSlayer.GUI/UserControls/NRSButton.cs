@@ -52,18 +52,12 @@ namespace NETReactorSlayer.GUI.UserControls
             set
             {
                 _text = value;
-                switch (TextTransform)
+                base.Text = TextTransform switch
                 {
-                    case TextTransformEnum.Upper:
-                        base.Text = Text.ToUpper();
-                        break;
-                    case TextTransformEnum.Lower:
-                        base.Text = Text.ToLower();
-                        break;
-                    default:
-                        base.Text = Text;
-                        break;
-                }
+                    TextTransformEnum.Upper => Text.ToUpper(),
+                    TextTransformEnum.Lower => Text.ToLower(),
+                    _ => Text
+                };
             }
         }
 
@@ -73,18 +67,12 @@ namespace NETReactorSlayer.GUI.UserControls
             set
             {
                 _transform = value;
-                switch (value)
+                base.Text = value switch
                 {
-                    case TextTransformEnum.Upper:
-                        base.Text = Text.ToUpper();
-                        break;
-                    case TextTransformEnum.Lower:
-                        base.Text = Text.ToLower();
-                        break;
-                    default:
-                        base.Text = Text;
-                        break;
-                }
+                    TextTransformEnum.Upper => Text.ToUpper(),
+                    TextTransformEnum.Lower => Text.ToLower(),
+                    _ => Text
+                };
             }
         }
 

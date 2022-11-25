@@ -292,7 +292,8 @@ namespace NETReactorSlayer.GUI.UserControls
             if (_isScrolling)
                 scrollColor = Color.FromArgb(159, 178, 196);
 
-            using (var b = new SolidBrush(scrollColor)) { g.FillRectangle(b, _thumbArea); }
+            using var b = new SolidBrush(scrollColor);
+            g.FillRectangle(b, _thumbArea);
         }
 
         [Category("Behavior")]

@@ -177,27 +177,15 @@ namespace NETReactorSlayer.GUI.Dialogs
             Focus();
         }
 
-        private static void InitIcon(MsgIcon icon)
-        {
-            switch (icon)
+        private static void InitIcon(MsgIcon icon) =>
+            _msgBox._picIcon.Image = icon switch
             {
-                case MsgIcon.Error:
-                    _msgBox._picIcon.Image = Resources.Error;
-                    break;
-                case MsgIcon.Info:
-                    _msgBox._picIcon.Image = Resources.Info;
-                    break;
-                case MsgIcon.Question:
-                    _msgBox._picIcon.Image = Resources.Question;
-                    break;
-                case MsgIcon.Warning:
-                    _msgBox._picIcon.Image = Resources.Warning;
-                    break;
-                default:
-                    _msgBox._picIcon.Image = _msgBox._picIcon.Image;
-                    break;
-            }
-        }
+                MsgIcon.Error => Resources.Error,
+                MsgIcon.Info => Resources.Info,
+                MsgIcon.Question => Resources.Question,
+                MsgIcon.Warning => Resources.Warning,
+                _ => _msgBox._picIcon.Image
+            };
 
         private void InitAbortRetryIgnoreButtons()
         {
@@ -320,30 +308,17 @@ namespace NETReactorSlayer.GUI.Dialogs
         {
             var btn = (Button)sender;
 
-            switch (btn.Text)
+            _buttonResult = btn.Text switch
             {
-                case @"Abort":
-                    _buttonResult = DialogResult.Abort;
-                    break;
-                case @"Retry":
-                    _buttonResult = DialogResult.Retry;
-                    break;
-                case @"Ignore":
-                    _buttonResult = DialogResult.Ignore;
-                    break;
-                case @"OK":
-                    _buttonResult = DialogResult.OK;
-                    break;
-                case @"Cancel":
-                    _buttonResult = DialogResult.Cancel;
-                    break;
-                case @"Yes":
-                    _buttonResult = DialogResult.Yes;
-                    break;
-                case @"No":
-                    _buttonResult = DialogResult.No;
-                    break;
-            }
+                @"Abort" => DialogResult.Abort,
+                @"Retry" => DialogResult.Retry,
+                @"Ignore" => DialogResult.Ignore,
+                @"OK" => DialogResult.OK,
+                @"Cancel" => DialogResult.Cancel,
+                @"Yes" => DialogResult.Yes,
+                @"No" => DialogResult.No,
+                _ => _buttonResult
+            };
 
             CloseAnimated();
         }
@@ -410,7 +385,7 @@ namespace NETReactorSlayer.GUI.Dialogs
                 timer.Stop();
                 timer.Dispose();
                 //Prevent Flicker
-                FormClosed += async (_, e) =>
+                FormClosed += async (_, _) =>
                 {
                     await Task.Delay(500);
                     Dispose();
@@ -420,15 +395,15 @@ namespace NETReactorSlayer.GUI.Dialogs
             timer.Start();
         }
 
-        private readonly List<Button> _buttonCollection = new List<Button>();
-        private readonly FlowLayoutPanel _flpButtons = new FlowLayoutPanel();
+        private readonly List<Button> _buttonCollection = new();
+        private readonly FlowLayoutPanel _flpButtons = new();
         private readonly Label _lblMessage;
         private readonly Label _lblTitle;
-        private readonly PictureBox _picIcon = new PictureBox();
-        private readonly Panel _plBase = new Panel();
-        private readonly Panel _plFooter = new Panel();
-        private readonly Panel _plHeader = new Panel();
-        private readonly Panel _plIcon = new Panel();
+        private readonly PictureBox _picIcon = new();
+        private readonly Panel _plBase = new();
+        private readonly Panel _plFooter = new();
+        private readonly Panel _plHeader = new();
+        private readonly Panel _plIcon = new();
         private static DialogResult _buttonResult;
         private static MsgBox _msgBox;
 

@@ -26,21 +26,21 @@ namespace NETReactorSlayer.GUI.UserControls
         {
             InitializeComponent();
             AutoSize = false;
-            GotFocus += (_, e) =>
+            GotFocus += (_, _) =>
             {
                 if (base.ForeColor != PlaceHolderColor)
                     return;
                 base.ForeColor = ForeColor;
                 Text = string.Empty;
             };
-            LostFocus += (_, e) =>
+            LostFocus += (_, _) =>
             {
                 if (Text.Length >= 1 || PlaceHolderText.Length <= 0)
                     return;
                 Text = PlaceHolderText;
                 base.ForeColor = PlaceHolderColor;
             };
-            TextChanged += (_, e) =>
+            TextChanged += (_, _) =>
             {
                 if (Text.Length > 0)
                     base.ForeColor = ForeColor;
@@ -138,18 +138,12 @@ namespace NETReactorSlayer.GUI.UserControls
             set
             {
                 _transform = value;
-                switch (value)
+                Text = value switch
                 {
-                    case TextTransformEnum.Upper:
-                        Text = Text.ToUpper();
-                        break;
-                    case TextTransformEnum.Lower:
-                        Text = Text.ToLower();
-                        break;
-                    default:
-                        Text = Text;
-                        break;
-                }
+                    TextTransformEnum.Upper => Text.ToUpper(),
+                    TextTransformEnum.Lower => Text.ToLower(),
+                    _ => Text
+                };
             }
         }
 

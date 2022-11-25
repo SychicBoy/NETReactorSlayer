@@ -80,7 +80,7 @@ namespace NETReactorSlayer.GUI
                     pnlBase.Focus();
                 HideCaret(txtLogs.Handle);
             };
-            txtLogs.SelectionChanged += (_, e) =>
+            txtLogs.SelectionChanged += (_, _) =>
             {
                 txtLogs.SelectionLength = 0;
                 HideCaret(txtLogs.Handle);
@@ -122,27 +122,23 @@ namespace NETReactorSlayer.GUI
             bool isX64;
             try
             {
-                using (var module = ModuleDefMD.Load(txtInput.Text))
-                {
-                    _logger.Write("  Assembly: ");
-                    _logger.WriteLine(module.Name, Color.SteelBlue);
-                    _logger.Write("  Architecture: ");
-                    isX64 = !module.Is32BitPreferred && !module.Is32BitRequired;
-                    _logger.WriteLine(isX64 ? "X64" : "X86", Color.SteelBlue);
-                }
+                using var module = ModuleDefMD.Load(txtInput.Text);
+                _logger.Write("  Assembly: ");
+                _logger.WriteLine(module.Name, Color.SteelBlue);
+                _logger.Write("  Architecture: ");
+                isX64 = !module.Is32BitPreferred && !module.Is32BitRequired;
+                _logger.WriteLine(isX64 ? "X64" : "X86", Color.SteelBlue);
             }
             catch
             {
                 try
                 {
-                    using (var image = new PEImage(txtInput.Text))
-                    {
-                        isX64 = image.ImageNTHeaders.FileHeader.Machine != Machine.I386;
-                        _logger.Write("  Assembly: ");
-                        _logger.WriteLine(Path.GetFileName(image.Filename), Color.SteelBlue);
-                        _logger.Write("  Architecture: ");
-                        _logger.WriteLine(isX64 ? "X64" : "X86", Color.SteelBlue);
-                    }
+                    using var image = new PEImage(txtInput.Text);
+                    isX64 = image.ImageNTHeaders.FileHeader.Machine != Machine.I386;
+                    _logger.Write("  Assembly: ");
+                    _logger.WriteLine(Path.GetFileName(image.Filename), Color.SteelBlue);
+                    _logger.Write("  Architecture: ");
+                    _logger.WriteLine(isX64 ? "X64" : "X86", Color.SteelBlue);
                 }
                 catch (Exception ex)
                 {
@@ -187,18 +183,13 @@ namespace NETReactorSlayer.GUI
                     prefix = data.Substring(data.IndexOf("[", StringComparison.Ordinal) + 1,
                         data.IndexOf("]", StringComparison.Ordinal) - 3);
 
-                switch (prefix)
+                prefixColor = prefix switch
                 {
-                    case "ERROR":
-                        prefixColor = Color.Firebrick;
-                        break;
-                    case "WARN":
-                        prefixColor = Color.DarkGoldenrod;
-                        break;
-                    case "INFO":
-                        prefixColor = Color.MediumSeaGreen;
-                        break;
-                }
+                    "ERROR" => Color.Firebrick,
+                    "WARN" => Color.DarkGoldenrod,
+                    "INFO" => Color.MediumSeaGreen,
+                    _ => prefixColor
+                };
 
                 if (!string.IsNullOrWhiteSpace(prefix) && prefixColor != Color.Empty)
                 {
@@ -260,7 +251,7 @@ namespace NETReactorSlayer.GUI
 
         private async void txtInput_DragDrop(object sender, DragEventArgs e)
         {
-            if (!((string[])e.Data.GetData(DataFormats.FileDrop) is string[] files) || files.Length == 0)
+            if ((string[])e.Data.GetData(DataFormats.FileDrop) is not { } files || files.Length == 0)
                 return;
             if (CheckInputFile(files[0]))
                 txtInput.Text = files[0];
@@ -663,9 +654,9 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
 
         private void SetRenamingOptions(object sender, EventArgs e)
         {
-            if (!(sender is ToolStripMenuItem control))
+            if (sender is not ToolStripMenuItem control)
                 return;
-            if (!(control.Tag is string option) || !(chkRename.Tag is string tag))
+            if (control.Tag is not string option || chkRename.Tag is not string tag)
                 return;
             tag = tag.Replace("--rename ", string.Empty).Replace("--dont-rename", string.Empty);
             var text = control.Text;
@@ -695,7 +686,7 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
 
         private void ctxRename_Closing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            if (!(ctxRename.Tag is "open"))
+            if (ctxRename.Tag is not "open")
                 return;
             ctxRename.Tag = "close";
             e.Cancel = true;
@@ -715,7 +706,7 @@ Website: CodeStrikers.org", "About .NETReactorSlayer", MsgBox.MsgButtons.Ok, Msg
             ctxRename.Show(chkRename, new Point(e.X, e.Y));
         }
 
-        private readonly StringBuilder _arguments = new StringBuilder();
+        private readonly StringBuilder _arguments = new();
         private readonly Logger _logger;
         private bool _isClosing;
         private bool _isLogsScrollLocked;
