@@ -43,7 +43,7 @@ namespace NETReactorSlayer.Core
                 return false;
             }
 
-            Logger.Info($"{Options.Stages.Count}/14 Modules loaded...");
+            Logger.Info($"{Options.Stages.Count}/15 Modules loaded...");
 
             try
             {
