@@ -14,7 +14,8 @@
     <UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>    
+    
   </PropertyGroup>
 
   <ItemGroup>
@@ -44,6 +45,7 @@
     </BootstrapperPackage>
     <PackageReference Include="dnlib" Version="3.6.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="System.Resources.Extensions" Version="7.0.0" />
 
   </ItemGroup>
 
