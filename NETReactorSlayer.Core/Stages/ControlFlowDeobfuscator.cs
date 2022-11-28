@@ -44,7 +44,7 @@ namespace NETReactorSlayer.Core.Stages
                 Context.Logger.Info(count + " Equations resolved.");
             else
                 Context.Logger.Warn(
-                    "Couldn't found any equations, looks like there's no control flow obfuscation applied to methods.");
+                    "Couldn't find any equation to resolve.");
         }
 
         private void Initialize()
