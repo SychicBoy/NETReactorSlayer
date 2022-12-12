@@ -97,8 +97,7 @@ namespace NETReactorSlayer.Core.Stages
             if (Context.Options.KeepObfuscatorTypes)
                 return;
             foreach (var method in MethodsToRemove)
-                try { method.DeclaringType.Remove(method); }
-                catch { }
+                try { method.DeclaringType.Remove(method); } catch { }
 
             foreach (var typeDef in TypesToRemove.Select(type => type.ResolveTypeDef()))
                 try
@@ -111,8 +110,7 @@ namespace NETReactorSlayer.Core.Stages
                 catch { }
 
             foreach (var rsrc in ResourcesToRemove)
-                try { Context.Module.Resources.Remove(Context.Module.Resources.Find(rsrc.Name)); }
-                catch { }
+                try { Context.Module.Resources.Remove(Context.Module.Resources.Find(rsrc.Name)); } catch { }
         }
 
         private void FixEntrypoint()
@@ -129,6 +127,9 @@ namespace NETReactorSlayer.Core.Stages
                     return;
                 foreach (var attribute in Context.Module.EntryPoint.CustomAttributes)
                     entryPoint.CustomAttributes.Add(attribute);
+                if (entryPoint.HasParams() && Context.Module.EntryPoint.HasParams() &&
+                    entryPoint.Parameters.First().Type.FullName == "System.Object")
+                    entryPoint.Parameters.First().Type = Context.Module.EntryPoint.Parameters.First().Type;
                 if (Context.Module.EntryPoint.DeclaringType.DeclaringType != null)
                     Context.Module.EntryPoint.DeclaringType.DeclaringType.NestedTypes.Remove(
                         Context.Module.EntryPoint.DeclaringType);
@@ -224,14 +225,11 @@ namespace NETReactorSlayer.Core.Stages
                             if (method2.Body.Instructions[0].Operand is not FieldDef field2 ||
                                 field2.MDToken.ToInt32() != field.MDToken.ToInt32())
                                 continue;
-                            try { method.DeclaringType.Remove(method); }
-                            catch { }
+                            try { method.DeclaringType.Remove(method); } catch { }
 
-                            try { method2.DeclaringType.Remove(method2); }
-                            catch { }
+                            try { method2.DeclaringType.Remove(method2); } catch { }
 
-                            try { field.DeclaringType.Fields.Remove(field); }
-                            catch { }
+                            try { field.DeclaringType.Fields.Remove(field); } catch { }
 
                             return true;
                         }
@@ -362,8 +360,7 @@ namespace NETReactorSlayer.Core.Stages
             var cctor = type.FindStaticConstructor();
             if (cctor == null || !DotNetUtils.IsEmpty(cctor))
                 return;
-            try { cctor.DeclaringType.Methods.Remove(cctor); }
-            catch { }
+            try { cctor.DeclaringType.Methods.Remove(cctor); } catch { }
         }
 
         private static bool IsEmptyMethod(MethodDef methodDef)
