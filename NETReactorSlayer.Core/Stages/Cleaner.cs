@@ -135,7 +135,7 @@ namespace NETReactorSlayer.Core.Stages
                 else
                     Context.Module.Types.Remove(Context.Module.EntryPoint.DeclaringType);
                 Context.Logger.Info(
-                    $"Entrypoint fixed: {Context.Module.EntryPoint.MDToken.ToInt32()}->{entryPoint.MDToken.ToInt32()}");
+                    $"Entrypoint fixed: {Context.Module.EntryPoint.MDToken.ToInt32()} -> {entryPoint.MDToken.ToInt32()}");
                 Context.Module.EntryPoint = entryPoint;
             }
             catch { }
