@@ -15,9 +15,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Text.RegularExpressions;
 using de4dot.blocks;
 using de4dot.blocks.cflow;
 using dnlib.DotNet;
@@ -429,15 +427,16 @@ namespace NETReactorSlayer.Core.Helper
                         for (var y = newEndIndex; y >= 0; y--)
                             if (instrs[y].IsBr())
                             {
-                                var offset =
-                                    int.Parse(
-                                        Regex.Match(
-                                            instrs[y].Operand.ToString() ?? throw new InvalidOperationException(),
-                                            "IL_(.*?): .*?").Groups[1].Value,
-                                        NumberStyles.HexNumber);
-                                var instr = instrs.FirstOrDefault(x => (int)x.Offset == offset);
-                                if (instr == null)
-                                    break;
+                                if (instrs[y].Operand is not Instruction instr)
+                                    continue;
+                                if (instrs.IndexOf(instr) < y)
+                                {
+                                    if (instrs[y - 1].Operand is not Instruction)
+                                        continue;
+                                    instr = instrs[y - 1].Operand as Instruction;
+                                    if (instrs.IndexOf(instr) < y)
+                                        continue;
+                                }
                                 newStartIndex = instrs.IndexOf(instr);
                                 ckStartIndex = newStartIndex;
                                 break;
@@ -818,15 +817,16 @@ namespace NETReactorSlayer.Core.Helper
                         for (var y = newEndIndex; y >= 0; y--)
                             if (instrs[y].IsBr())
                             {
-                                var offset =
-                                    int.Parse(
-                                        Regex.Match(
-                                            instrs[y].Operand.ToString() ?? throw new InvalidOperationException(),
-                                            "IL_(.*?): .*?").Groups[1].Value,
-                                        NumberStyles.HexNumber);
-                                var instr = instrs.FirstOrDefault(x => (int)x.Offset == offset);
-                                if (instr == null)
-                                    break;
+                                if (instrs[y].Operand is not Instruction instr)
+                                    continue;
+                                if (instrs.IndexOf(instr) < y)
+                                {
+                                    if (instrs[y - 1].Operand is not Instruction)
+                                        continue;
+                                    instr = instrs[y - 1].Operand as Instruction;
+                                    if (instrs.IndexOf(instr) < y)
+                                        continue;
+                                }
                                 newStartIndex = instrs.IndexOf(instr);
                                 ckStartIndex = newStartIndex;
                                 break;
@@ -1043,15 +1043,16 @@ namespace NETReactorSlayer.Core.Helper
                         for (var y = newEndIndex; y >= 0; y--)
                             if (instrs[y].IsBr())
                             {
-                                var offset =
-                                    int.Parse(
-                                        Regex.Match(
-                                            instrs[y].Operand.ToString() ?? throw new InvalidOperationException(),
-                                            "IL_(.*?): .*?").Groups[1].Value,
-                                        NumberStyles.HexNumber);
-                                var instr = instrs.FirstOrDefault(x => (int)x.Offset == offset);
-                                if (instr == null)
-                                    break;
+                                if (instrs[y].Operand is not Instruction instr)
+                                    continue;
+                                if (instrs.IndexOf(instr) < y)
+                                {
+                                    if (instrs[y - 1].Operand is not Instruction)
+                                        continue;
+                                    instr = instrs[y - 1].Operand as Instruction;
+                                    if (instrs.IndexOf(instr) < y)
+                                        continue;
+                                }
                                 newStartIndex = instrs.IndexOf(instr);
                                 ckStartIndex = newStartIndex;
                                 break;
