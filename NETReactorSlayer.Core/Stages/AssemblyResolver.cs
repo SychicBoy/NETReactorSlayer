@@ -120,7 +120,7 @@ namespace NETReactorSlayer.Core.Stages
             {
                 if (rsrc is not EmbeddedResource resource)
                     continue;
-                if (StartsWith(resource.Name.String, prefix, StringComparison.Ordinal))
+                if (resource.Name.String.StartsWith(prefix, StringComparison.Ordinal))
                     result.Add(resource);
             }
 
@@ -138,11 +138,6 @@ namespace NETReactorSlayer.Core.Stages
             }
             catch { return null; }
         }
-
-        private static bool StartsWith(string left, string right, StringComparison stringComparison)
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            => left.Length > right.Length && Equals(right, stringComparison);
-
 
         private readonly string[] _locals1 =
         {
