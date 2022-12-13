@@ -94,7 +94,7 @@ jobs:
           dotnet-version: ${{env.CI_REQ_DOTNET_SDK_VER}}
         
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1.1
+        uses: microsoft/setup-msbuild@v1.2
         
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1.1.1
