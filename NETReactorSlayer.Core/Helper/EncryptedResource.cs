@@ -171,6 +171,30 @@ namespace NETReactorSlayer.Core.Helper
                 .Any(calledMethod => calledMethod.FullName.Contains(fullName));
         }
 
+        public static bool TryGetLdcValue(Instruction instruction, out int value)
+        {
+            value = 0;
+
+            if (!instruction.IsLdcI4() &&
+                !instruction.OpCode.Equals(OpCodes.Ldc_I8) &&
+                !instruction.OpCode.Equals(OpCodes.Ldc_R4) &&
+                !instruction.OpCode.Equals(OpCodes.Ldc_R8))
+                return false;
+
+            try
+            {
+                value = instruction.IsLdcI4() ?
+                    instruction.GetLdcI4Value() :
+                    Convert.ToInt32(instruction.Operand);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public MethodDef DecrypterMethod { get; }
         public EmbeddedResource EmbeddedResource { get; private set; }
         private IList<string> AdditionalTypes { get; }
@@ -553,24 +577,41 @@ namespace NETReactorSlayer.Core.Helper
                             goto Emulate;
                         if (!_instructions[index].IsLdloc())
                             goto Emulate;
-                        if (!_instructions[index + 1].OpCode.Equals(OpCodes.Ldc_I4_0) &&
-                            (!_instructions[index + 1].IsLdcI4() || _instructions[index + 1].GetLdcI4Value() != 0))
+                        if (!TryGetLdcValue(_instructions[index + 1], out var value) || value != 0)
                             goto Emulate;
                         if (!_instructions[index + 2].OpCode.Equals(OpCodes.Bne_Un) &&
                             !_instructions[index + 2].OpCode.Equals(OpCodes.Bne_Un_S))
                             goto Emulate;
                         if (!_instructions[index + 3].IsLdloc())
                             goto Emulate;
-                        if (!_instructions[index + 4].OpCode.Equals(OpCodes.Ldc_I4_1) &&
-                            (!_instructions[index + 4].IsLdcI4() || _instructions[index + 4].GetLdcI4Value() != 1))
+                        if (!TryGetLdcValue(_instructions[index + 4], out value) || value != 1)
                             goto Emulate;
                         if (!_instructions[index + 5].OpCode.Equals(OpCodes.Sub))
                             goto Emulate;
                         if (!_instructions[index + 6].IsStloc())
                             goto Emulate;
-                        if (_instrEmulator.GetLocal(CheckLocal(_instructions[index + 6], false)
-                                .Index) is Int32Value local && local.Value != Int32Value.Zero.Value)
-                            index += 7;
+
+                        switch (_instrEmulator.GetLocal(CheckLocal(_instructions[index + 6], false).Index))
+                        {
+                            case Int32Value int32:
+                            {
+                                if (int32.Value != Int32Value.Zero.Value)
+                                    index += 7;
+                                break;
+                            }
+                            case Int64Value int64:
+                            {
+                                if (int64.Value != Int64Value.Zero.Value)
+                                    index += 7;
+                                break;
+                            }
+                            case Real8Value real8Value:
+                            {
+                                if (!real8Value.Value.Equals(new Real8Value(0).Value))
+                                    index += 7;
+                                break;
+                            }
+                        }
                     }
                     catch { }
 
@@ -662,24 +703,41 @@ namespace NETReactorSlayer.Core.Helper
                             goto Emulate;
                         if (!_instructions[index].IsLdloc())
                             goto Emulate;
-                        if (!_instructions[index + 1].OpCode.Equals(OpCodes.Ldc_I4_0) &&
-                            (!_instructions[index + 1].IsLdcI4() || _instructions[index + 1].GetLdcI4Value() != 0))
+                        if (!TryGetLdcValue(_instructions[index + 1], out var value) || value != 0)
                             goto Emulate;
                         if (!_instructions[index + 2].OpCode.Equals(OpCodes.Bne_Un) &&
                             !_instructions[index + 2].OpCode.Equals(OpCodes.Bne_Un_S))
                             goto Emulate;
                         if (!_instructions[index + 3].IsLdloc())
                             goto Emulate;
-                        if (!_instructions[index + 4].OpCode.Equals(OpCodes.Ldc_I4_1) &&
-                            (!_instructions[index + 4].IsLdcI4() || _instructions[index + 4].GetLdcI4Value() != 1))
+                        if (!TryGetLdcValue(_instructions[index + 4], out value) || value != 1)
                             goto Emulate;
                         if (!_instructions[index + 5].OpCode.Equals(OpCodes.Sub))
                             goto Emulate;
                         if (!_instructions[index + 6].IsStloc())
                             goto Emulate;
-                        if (_instrEmulator.GetLocal(CheckLocal(_instructions[index + 6], false)
-                                .Index) is Int32Value local && local.Value != Int32Value.Zero.Value)
-                            index += 7;
+
+                        switch (_instrEmulator.GetLocal(CheckLocal(_instructions[index + 6], false).Index))
+                        {
+                            case Int32Value int32:
+                                {
+                                    if (int32.Value != Int32Value.Zero.Value)
+                                        index += 7;
+                                    break;
+                                }
+                            case Int64Value int64:
+                                {
+                                    if (int64.Value != Int64Value.Zero.Value)
+                                        index += 7;
+                                    break;
+                                }
+                            case Real8Value real8Value:
+                                {
+                                    if (!real8Value.Value.Equals(new Real8Value(0).Value))
+                                        index += 7;
+                                    break;
+                                }
+                        }
                     }
                     catch { }
 
@@ -1172,24 +1230,41 @@ namespace NETReactorSlayer.Core.Helper
                             goto Emulate;
                         if (!_instructions[index].IsLdloc())
                             goto Emulate;
-                        if (!_instructions[index + 1].OpCode.Equals(OpCodes.Ldc_I4_0) &&
-                            (!_instructions[index + 1].IsLdcI4() || _instructions[index + 1].GetLdcI4Value() != 0))
+                        if (!TryGetLdcValue(_instructions[index + 1], out var value) || value != 0)
                             goto Emulate;
                         if (!_instructions[index + 2].OpCode.Equals(OpCodes.Bne_Un) &&
                             !_instructions[index + 2].OpCode.Equals(OpCodes.Bne_Un_S))
                             goto Emulate;
                         if (!_instructions[index + 3].IsLdloc())
                             goto Emulate;
-                        if (!_instructions[index + 4].OpCode.Equals(OpCodes.Ldc_I4_1) &&
-                            (!_instructions[index + 4].IsLdcI4() || _instructions[index + 4].GetLdcI4Value() != 1))
+                        if (!TryGetLdcValue(_instructions[index + 4], out value) || value != 1)
                             goto Emulate;
                         if (!_instructions[index + 5].OpCode.Equals(OpCodes.Sub))
                             goto Emulate;
                         if (!_instructions[index + 6].IsStloc())
                             goto Emulate;
-                        if (_instrEmulator.GetLocal(CheckLocal(_instructions[index + 6], false)
-                                .Index) is Int32Value local && local.Value != Int32Value.Zero.Value)
-                            index += 7;
+
+                        switch (_instrEmulator.GetLocal(CheckLocal(_instructions[index + 6], false).Index))
+                        {
+                            case Int32Value int32:
+                                {
+                                    if (int32.Value != Int32Value.Zero.Value)
+                                        index += 7;
+                                    break;
+                                }
+                            case Int64Value int64:
+                                {
+                                    if (int64.Value != Int64Value.Zero.Value)
+                                        index += 7;
+                                    break;
+                                }
+                            case Real8Value real8Value:
+                                {
+                                    if (!real8Value.Value.Equals(new Real8Value(0).Value))
+                                        index += 7;
+                                    break;
+                                }
+                        }
                     }
                     catch { }
 
