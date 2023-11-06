@@ -44,7 +44,7 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-    <PackageReference Include="dnlib" Version="4.1.0" />
+    <PackageReference Include="dnlib" Version="4.3.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Resources.Extensions" Version="5.0.0" />
 
