@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "+L9w6V9gIH0=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\NotSoftware\\Downloads\\NETReactorSlayer-master\\NETReactorSlayer.De4dot\\NETReactorSlayer.De4dot.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\NotSoftware\\.nuget\\packages\\dnlib\\4.1.0\\dnlib.4.1.0.nupkg.sha512",
+    "C:\\Users\\NotSoftware\\.nuget\\packages\\system.reflection.emit\\4.7.0\\system.reflection.emit.4.7.0.nupkg.sha512",
+    "C:\\Users\\NotSoftware\\.nuget\\packages\\system.reflection.emit.lightweight\\4.7.0\\system.reflection.emit.lightweight.4.7.0.nupkg.sha512",
+    "C:\\Users\\NotSoftware\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\6.0.36\\microsoft.windowsdesktop.app.ref.6.0.36.nupkg.sha512",
+    "C:\\Users\\NotSoftware\\.nuget\\packages\\microsoft.netcore.app.ref\\6.0.36\\microsoft.netcore.app.ref.6.0.36.nupkg.sha512",
+    "C:\\Users\\NotSoftware\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\6.0.36\\microsoft.aspnetcore.app.ref.6.0.36.nupkg.sha512"
+  ],
+  "logs": []
+}

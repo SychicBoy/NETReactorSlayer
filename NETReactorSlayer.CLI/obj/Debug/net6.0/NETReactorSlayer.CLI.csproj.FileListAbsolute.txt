@@ -1,0 +1,14 @@
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\bin\Debug\net6.0\NETReactorSlayer.CLI.exe
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\bin\Debug\net6.0\NETReactorSlayer.CLI.deps.json
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\bin\Debug\net6.0\NETReactorSlayer.CLI.runtimeconfig.json
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\bin\Debug\net6.0\NETReactorSlayer.CLI.dll
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.CLI\obj\Debug\net6.0\NETReactorSlayer.CLI.csproj.AssemblyReference.cache
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.CLI\obj\Debug\net6.0\NETReactorSlayer.CLI.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.CLI\obj\Debug\net6.0\NETReactorSlayer.CLI.AssemblyInfoInputs.cache
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.CLI\obj\Debug\net6.0\NETReactorSlayer.CLI.AssemblyInfo.cs
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.CLI\obj\Debug\net6.0\NETReactorSlayer.CLI.csproj.CoreCompileInputs.cache
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.CLI\obj\Debug\net6.0\NETReact.CD755691.Up2Date
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.CLI\obj\Debug\net6.0\NETReactorSlayer.CLI.dll
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.CLI\obj\Debug\net6.0\refint\NETReactorSlayer.CLI.dll
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.CLI\obj\Debug\net6.0\NETReactorSlayer.CLI.genruntimeconfig.cache
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.CLI\obj\Debug\net6.0\ref\NETReactorSlayer.CLI.dll

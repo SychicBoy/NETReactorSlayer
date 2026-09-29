@@ -1,0 +1,11 @@
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\bin\Debug\net48\NETReactorSlayer-x64.CLI.exe.config
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\bin\Debug\net48\NETReactorSlayer-x64.CLI.exe
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer-x64.CLI\obj\Debug\net48\NETReactorSlayer-x64.CLI.csproj.AssemblyReference.cache
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer-x64.CLI\obj\Debug\net48\NETReactorSlayer-x64.CLI.csproj.SuggestedBindingRedirects.cache
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer-x64.CLI\obj\Debug\net48\NETReactorSlayer-x64.CLI.exe.config
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer-x64.CLI\obj\Debug\net48\NETReactorSlayer-x64.CLI.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer-x64.CLI\obj\Debug\net48\NETReactorSlayer-x64.CLI.AssemblyInfoInputs.cache
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer-x64.CLI\obj\Debug\net48\NETReactorSlayer-x64.CLI.AssemblyInfo.cs
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer-x64.CLI\obj\Debug\net48\NETReactorSlayer-x64.CLI.csproj.CoreCompileInputs.cache
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer-x64.CLI\obj\Debug\net48\NETReact.DE4C9A24.Up2Date
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer-x64.CLI\obj\Debug\net48\NETReactorSlayer-x64.CLI.exe

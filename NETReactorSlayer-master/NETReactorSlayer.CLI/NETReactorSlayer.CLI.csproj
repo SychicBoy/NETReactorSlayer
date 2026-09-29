@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="..\NETReactorSlayerCommon.props" />
+
+	<PropertyGroup>
+
+		<Platforms>AnyCPU</Platforms>
+		<OutputPath>..\bin\$(Configuration)\</OutputPath>
+		<OutputType>Exe</OutputType>
+		<Prefer32Bit>true</Prefer32Bit>
+
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\NETReactorSlayer.Core\NETReactorSlayer.Core.csproj" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,143 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\NotSoftware\\Downloads\\NETReactorSlayer-master\\NETReactorSlayer.De4dot\\NETReactorSlayer.De4dot.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\NotSoftware\\Downloads\\NETReactorSlayer-master\\NETReactorSlayer.De4dot\\NETReactorSlayer.De4dot.csproj": {
+      "version": "6.4.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\NotSoftware\\Downloads\\NETReactorSlayer-master\\NETReactorSlayer.De4dot\\NETReactorSlayer.De4dot.csproj",
+        "projectName": "NETReactorSlayer.De4dot",
+        "projectPath": "C:\\Users\\NotSoftware\\Downloads\\NETReactorSlayer-master\\NETReactorSlayer.De4dot\\NETReactorSlayer.De4dot.csproj",
+        "packagesPath": "C:\\Users\\NotSoftware\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\NotSoftware\\Downloads\\NETReactorSlayer-master\\NETReactorSlayer.De4dot\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "configFilePaths": [
+          "C:\\Users\\NotSoftware\\Downloads\\NETReactorSlayer-master\\NuGet.Config",
+          "C:\\Users\\NotSoftware\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net48",
+          "net6.0",
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net48": {
+            "framework": "net48",
+            "targetAlias": "net48",
+            "projectReferences": {}
+          },
+          "net6.0": {
+            "framework": "net6.0",
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          },
+          "netcoreapp3.1": {
+            "framework": "netcoreapp3.1",
+            "targetAlias": "netcoreapp3.1",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.400"
+      },
+      "frameworks": {
+        "net48": {
+          "framework": "net48",
+          "targetAlias": "net48",
+          "dependencies": {
+            "dnlib": {
+              "target": "Package",
+              "version": "[4.1.0, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.401\\RuntimeIdentifierGraph.json"
+        },
+        "net6.0": {
+          "framework": "net6.0",
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "dnlib": {
+              "target": "Package",
+              "version": "[4.1.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.401\\RuntimeIdentifierGraph.json"
+        },
+        "netcoreapp3.1": {
+          "framework": "netcoreapp3.1",
+          "targetAlias": "netcoreapp3.1",
+          "dependencies": {
+            "dnlib": {
+              "target": "Package",
+              "version": "[4.1.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.401\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\bin\Debug\net6.0\NETReactorSlayer.De4dot.deps.json
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\bin\Debug\net6.0\NETReactorSlayer.De4dot.dll
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.De4dot\obj\Debug\net6.0\NETReactorSlayer.De4dot.csproj.AssemblyReference.cache
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.De4dot\obj\Debug\net6.0\NETReactorSlayer.De4dot.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.De4dot\obj\Debug\net6.0\NETReactorSlayer.De4dot.AssemblyInfoInputs.cache
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.De4dot\obj\Debug\net6.0\NETReactorSlayer.De4dot.AssemblyInfo.cs
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.De4dot\obj\Debug\net6.0\NETReactorSlayer.De4dot.csproj.CoreCompileInputs.cache
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.De4dot\obj\Debug\net6.0\NETReact.C5106648.Up2Date
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.De4dot\obj\Debug\net6.0\NETReactorSlayer.De4dot.dll
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.De4dot\obj\Debug\net6.0\refint\NETReactorSlayer.De4dot.dll
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.De4dot\obj\Debug\net6.0\ref\NETReactorSlayer.De4dot.dll

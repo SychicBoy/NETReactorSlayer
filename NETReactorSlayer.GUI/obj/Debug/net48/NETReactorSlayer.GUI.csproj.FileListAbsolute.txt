@@ -1,0 +1,14 @@
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\bin\Debug\net48\NETReactorSlayer.exe.config
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\bin\Debug\net48\NETReactorSlayer.exe
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.GUI\obj\Debug\net48\NETReactorSlayer.GUI.csproj.AssemblyReference.cache
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.GUI\obj\Debug\net48\NETReactorSlayer.GUI.csproj.SuggestedBindingRedirects.cache
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.GUI\obj\Debug\net48\NETReactorSlayer.exe.config
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.GUI\obj\Debug\net48\NETReactorSlayer.GUI.Dialogs.MsgBox.resources
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.GUI\obj\Debug\net48\NETReactorSlayer.GUI.MainWindow.resources
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.GUI\obj\Debug\net48\NETReactorSlayer.GUI.Properties.Resources.resources
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.GUI\obj\Debug\net48\NETReactorSlayer.GUI.UserControls.NRSButton.resources
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.GUI\obj\Debug\net48\NETReactorSlayer.GUI.csproj.GenerateResource.cache
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.GUI\obj\Debug\net48\NETReactorSlayer.GUI.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.GUI\obj\Debug\net48\NETReactorSlayer.GUI.csproj.CoreCompileInputs.cache
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.GUI\obj\Debug\net48\NETReact.4DA4E0EA.Up2Date
+C:\Users\NotSoftware\Downloads\NETReactorSlayer-master\NETReactorSlayer.GUI\obj\Debug\net48\NETReactorSlayer.exe

@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="..\NETReactorSlayerCommon.props" />
+
+	<PropertyGroup>
+
+		<OutputPath>..\bin\$(Configuration)\</OutputPath>
+		<OutputType>Library</OutputType>
+
+	</PropertyGroup>
+
+	<ItemGroup>
+
+		<Reference Include="de4dot.blocks" Condition="'$(IsDotNetFramework)' == 'true'">
+			<HintPath>..\Libs\net35\de4dot.blocks.dll</HintPath>
+		</Reference>
+		<Reference Include="de4dot.blocks" Condition="'$(IsDotNet)' == 'true'">
+			<HintPath>..\Libs\netcoreapp3.1\de4dot.blocks.dll</HintPath>
+		</Reference>
+		<ProjectReference Include="..\NETReactorSlayer.De4dot\NETReactorSlayer.De4dot.csproj" />
+		<PackageReference Include="dnlib" Version="4.1.0" />
+		<PackageReference Include="Lib.Harmony" Version="2.2.2" />
+		<PackageReference Include="SharpZipLib" Version="1.4.2" />
+
+	</ItemGroup>
+
+</Project>

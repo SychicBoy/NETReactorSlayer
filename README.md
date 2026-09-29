@@ -7,6 +7,50 @@
 
 NETReactorSlayer is an open source (GPLv3) deobfuscator and unpacker for [Eziriz .NET Reactor](https://www.eziriz.com/reactor_download.htm).
 <br /><br />
+
+### Fork Changes
+
+This fork adds reliability and error-handling improvements to the existing decryption and unpacking paths:
+
+- Validates decrypted data lengths, offsets, patch tables, and resource references before reading or writing them.
+- Hardens AES, QuickLZ, Deflate, and native-stub decompression against truncated or malformed input.
+- Reports more actionable errors and warnings, including per-item failures during string, boolean, and proxy-call restoration.
+- Retains related decrypter methods and resources when restoration is partial, and rolls back method-image changes if method decryption fails.
+- Improves diagnostics for assembly loading and output writing.
+
+These changes improve robustness; they do not add support for additional .NET Reactor versions or guarantee successful decryption of every protected assembly. The supported version range remains the one provided by the upstream project.
+
+#### Modified C# Files
+
+- `NETReactorSlayer-master/NETReactorSlayer.Core/Context.cs`
+- `NETReactorSlayer-master/NETReactorSlayer.Core/Program.cs`
+- `NETReactorSlayer-master/NETReactorSlayer.Core/Helper/DeobUtils.cs`
+- `NETReactorSlayer-master/NETReactorSlayer.Core/Helper/EncryptedResource.cs`
+- `NETReactorSlayer-master/NETReactorSlayer.Core/Helper/NativeUnpacker.cs`
+- `NETReactorSlayer-master/NETReactorSlayer.Core/Helper/QuickLZ.cs`
+- `NETReactorSlayer-master/NETReactorSlayer.Core/Helper/QuickLZBase.cs`
+- `NETReactorSlayer-master/NETReactorSlayer.Core/Stages/BooleanDecrypter.cs`
+- `NETReactorSlayer-master/NETReactorSlayer.Core/Stages/MethodDecrypter.cs`
+- `NETReactorSlayer-master/NETReactorSlayer.Core/Stages/ProxyCallFixer.cs`
+- `NETReactorSlayer-master/NETReactorSlayer.Core/Stages/ResourceResolver.cs`
+- `NETReactorSlayer-master/NETReactorSlayer.Core/Stages/StringDecrypter.cs`
+
+#### Code Examples
+
+String and resource data is checked before copying it into a buffer:
+
+```csharp
+if (length < 0 || length > data.Length - offset - sizeof(int))
+  throw new InvalidDataException($"The {description} length is outside the available data.");
+```
+
+QuickLZ input is checked before reading its header fields:
+
+```csharp
+if (inData == null || inData.Length < headerLength)
+  throw new InvalidDataException("The QuickLZ header is incomplete.");
+```
+
 <h2 align="center">Preview</h2>
 
 GUI             |  CLI

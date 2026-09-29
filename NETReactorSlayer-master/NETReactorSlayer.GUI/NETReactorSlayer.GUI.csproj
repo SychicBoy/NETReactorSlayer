@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\NETReactorSlayerCommon.props" />
+
+  <PropertyGroup>
+
+    <TargetFrameworks>net48</TargetFrameworks>
+    <OutputPath>..\bin\$(Configuration)\</OutputPath>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>NETReactorSlayer</AssemblyName>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <Prefer32Bit>True</Prefer32Bit>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+
+    <Compile Update="UserControls\NRSCheckBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="UserControls\NRSButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="UserControls\NRSScrollBar.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="UserControls\NRSTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Content Include="Icon.ico" />
+    <BootstrapperPackage Include=".NETFramework,Version=v4.8">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.8 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <PackageReference Include="dnlib" Version="4.1.0" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="System.Resources.Extensions" Version="5.0.0" />
+
+  </ItemGroup>
+
+</Project>
